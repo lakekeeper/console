@@ -25,5 +25,5 @@ fn main() {
     // Copy all files from CARGO_MANIFEST_DIR/(parent)/dist to $OUT_DIR/console (recursively)
     let src_path = repo_dir.join("dist");
     fs_extra::dir::copy(&src_path, &dest_path, &fs_extra::dir::CopyOptions::new()).unwrap();
-    println!("cargo::rerun-if-changed=build.rs");
+    // println!("cargo::rerun-if-changed=build.rs");
 }
