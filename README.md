@@ -1,9 +1,6 @@
-# Project Lakekeeper Console
+# Lakekeeper Console: A UI for Lakekeeper
 
-## UI for Lakekeeper Icberg Catalog
-
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge&logo=discord&logoColor=white)](https://opensource.org/licenses/Apache-2.0)
 [![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/jkAGG8p93B)
 
 ## Description
