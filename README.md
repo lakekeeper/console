@@ -7,10 +7,11 @@
 
 This project is a user interface for the [Lakekeeper](https://lakekeeper.io) Iceberg catalog. It provides an intuitive and efficient way to manage and interact with the Iceberg catalog, making it easier for users to handle large datasets and perform various data operations. Additionally, it helps to handle authorization on objects of the system, projects, warehouses, namespaces, tables, and views for users or roles.
 
+<img src="src/assets/homepage.png" alt="Lakekeeper UI" width="500px">
+
 ## Table of Contents
 
-- [Project Lakekeeper Console](#project-lakekeeper-console)
-  - [UI for Lakekeeper Icberg Catalog](#ui-for-lakekeeper-icberg-catalog)
+- [Lakekeeper Console: A UI for Lakekeeper](#lakekeeper-console-a-ui-for-lakekeeper)
   - [Description](#description)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
