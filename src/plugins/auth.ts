@@ -16,6 +16,7 @@ const oidcSettings: UserManagerSettings = {
   redirect_uri: `${window.location.origin}/ui${env.idpRedirectPath}`,
   response_type: "code",
   scope: env.idpScope,
+  resource: env.idpResource !== '' ? env.idpResource : undefined,
   post_logout_redirect_uri: `${window.location.origin}/ui${env.idpLogoutRedirectPath}`,
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
 };
