@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
+    "build-placeholder": "vue-tsc --noEmit && vite build --mode placeholder",
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore"
   },
