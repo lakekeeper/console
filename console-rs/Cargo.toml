@@ -8,6 +8,9 @@ repository = "https://github.com/lakekeeper/console.git"
 rust-version = "1.80.0"
 license = "Apache-2.0"
 
+[features]
+all = []
+
 [dependencies]
 rust-embed = { version = "^8.4", features = ["interpolate-folder-path"] }
 
