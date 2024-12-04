@@ -22,7 +22,7 @@ pub struct LakekeeperConsoleConfig {
 
 pub fn get_file(
     file_path: &str,
-    config: LakekeeperConsoleConfig,
+    config: &LakekeeperConsoleConfig,
 ) -> Option<rust_embed::EmbeddedFile> {
     let LakekeeperConsoleConfig {
         idp_authority,
@@ -96,7 +96,7 @@ mod tests {
         let files = LakekeeperConsole::iter().collect::<Vec<_>>();
 
         for file in files {
-            get_file(&file, config.clone()).unwrap();
+            get_file(&file, &config.clone()).unwrap();
         }
     }
 }
