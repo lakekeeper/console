@@ -1,76 +1,36 @@
 <template>
   <v-form @submit.prevent="handleSubmit">
     <!--Storage Credentials-->
-    <v-text-field
-      v-model="
-        warehouseObjectData['storage-credential'].key
-          .auth_provider_x509_cert_url
-      "
-      label="auth_provider_x509_cert_url"
-      :rules="[rules.required]"
-      placeholder="https://www.googleapis.com/oauth2/v1/certs"
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.auth_uri"
-      label="auth_uri"
-      placeholder=""
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.client_email"
-      label="client_email"
-      placeholder=""
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.client_id"
-      label="client_id"
-      placeholder=""
-    ></v-text-field>
-    <v-text-field
-      v-model="
-        warehouseObjectData['storage-credential'].key.client_x509_cert_url
-      "
-      label="client_x509_cert_url"
-      placeholder=""
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.private_key"
-      label="private_key"
-      placeholder=""
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.private_key_id"
-      label="private_key_id"
-      placeholder=""
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.project_id"
-      label="project_id"
-      placeholder=""
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.token_uri"
-      label="token_uri"
-      placeholder="https://oauth2.googleapis.com/token"
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.type"
-      label="type"
-      placeholder="service_account"
-    ></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential'].key.universe_domain"
-      label="universe_domain"
-      placeholder="google.com"
-    ></v-text-field>
 
+    <v-switch
+      v-model="useFileInput"
+      :label="!useFileInput ? 'Enable File Input' : 'Enable Text Input'"
+    ></v-switch>
+
+    <v-file-input
+      v-if="useFileInput"
+      accept="application/json"
+      label="key.json"
+      :rules="[rules.required]"
+      @change="handleFileInput"
+    ></v-file-input>
+    <v-textarea
+      v-else
+      label="GCS credentials key json"
+      :rules="[rules.required, rules.validJson]"
+      v-model="keyString"
+      @update:model-value="verifyKeyJson"
+    ></v-textarea>
     <v-btn
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
       color="success"
+      :disabled="!keyStringValid"
       @click="emitNewCredentials"
       >Update Credentials
     </v-btn>
 
     <v-divider></v-divider>
+
     <!--Storage Profile-->
 
     <div
@@ -95,6 +55,9 @@
       <v-btn
         color="success"
         type="submit"
+        :disabled="
+          !keyStringValid || warehouseObjectData['storage-profile'].bucket == ''
+        "
         v-if="
           props.intent === Intent.CREATE &&
           props.objectType === ObjectType.WAREHOUSE
@@ -125,7 +88,11 @@ import {
 } from "@/gen/management/types.gen";
 import { Intent, ObjectType } from "@/common/enums";
 import { WarehousObject } from "@/common/interfaces";
+import { ref } from "vue";
 
+const keyString = ref("");
+const keyStringValid = ref(false);
+const useFileInput = ref(false);
 const props = defineProps<{
   credentialsOnly: boolean;
   intent: Intent;
@@ -173,17 +140,29 @@ const warehouseObjectData = reactive<{
 const rules = {
   required: (value: any) => !!value || "Required.",
   noSlash: (value: string) => !value.includes("/") || 'Cannot contain "/"',
+  validJson: (value: string) => {
+    try {
+      JSON.parse(value);
+      verifyKeyJson();
+      return true;
+    } catch (error) {
+      return "Invalid JSON";
+    }
+  },
 };
 
 const handleSubmit = () => {
+  console.log("submitting", warehouseObjectData);
   emit("submit", warehouseObjectData);
 };
 
 const emitNewCredentials = () => {
   const credentials = {
     type: "gcs",
+    "credential-type": "service-account-key",
+    key: warehouseObjectData["storage-credential"].key,
   } as StorageCredential;
-
+  console.log("emitting credentials gcs", credentials);
   emit("update-credentials", credentials);
 };
 
@@ -192,6 +171,8 @@ const emitNewProfile = () => {
     profile: warehouseObjectData["storage-profile"],
     credentials: {
       type: "gcs",
+      "credential-type": "service-account-key",
+      key: warehouseObjectData["storage-credential"].key,
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
   emit("update-profile", newProfile);
@@ -201,4 +182,40 @@ onMounted(() => {
   if (props.warehouseObject)
     Object.assign(warehouseObjectData, props.warehouseObject);
 });
+
+function handleFileInput(event: any) {
+  console.log(event);
+  console.log(typeof event);
+
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        if (e.target && e.target.result) {
+          const json = JSON.parse(e.target.result as string);
+
+          warehouseObjectData["storage-credential"].key = json;
+          keyStringValid.value = true;
+        }
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+      }
+    };
+    reader.readAsText(file);
+  }
+}
+
+function verifyKeyJson() {
+  try {
+    if (keyString.value != "") {
+      const keyJSON = JSON.parse(keyString.value);
+      console.log("Valid JSON");
+      warehouseObjectData["storage-credential"].key = keyJSON;
+      keyStringValid.value = true;
+    }
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+  }
+}
 </script>

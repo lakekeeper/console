@@ -195,6 +195,7 @@
               <div v-if="storageCredentialType === 'AZURE'">
                 <WarehouseAzure
                   @submit="createWarehouse"
+                  @update-credentials="newCredentials"
                   :credentials-only="emptyWarehouse"
                   :intent="intent"
                   :object-type="objectType"
@@ -205,6 +206,8 @@
               <div v-if="storageCredentialType === 'GCS'">
                 <WarehouseGCS
                   @submit="createWarehouse"
+                  @update-credentials="newCredentials"
+                  @update-profile="newProfile"
                   :credentials-only="emptyWarehouse"
                   :intent="intent"
                   :object-type="objectType"
@@ -411,6 +414,7 @@ function emitDeletionProfile() {
 }
 
 function newCredentials(credentials: StorageCredential) {
+  console.log("newCredentials add", credentials);
   emit("update-credentials", credentials);
 }
 
@@ -429,6 +433,9 @@ onMounted(() => {
 
     if (props.warehouse["storage-profile"].type === "adls")
       storageCredentialType.value = "AZURE";
+
+    if (props.warehouse["storage-profile"].type === "gcs")
+      storageCredentialType.value = "GCS";
     if (
       props.objectType === ObjectType.DELETION_PROFILE &&
       props.warehouse["delete-profile"].type == "soft"

@@ -146,6 +146,11 @@ const handleSubmit = () => {
 const emitNewCredentials = () => {
   const credentials = {
     type: "az",
+    "credential-type":
+      warehouseObjectData["storage-credential"]["credential-type"],
+    "client-id": warehouseObjectData["storage-credential"]["client-id"],
+    "client-secret": warehouseObjectData["storage-credential"]["client-secret"],
+    "tenant-id": warehouseObjectData["storage-credential"]["tenant-id"],
   } as StorageCredential;
 
   emit("update-credentials", credentials);
