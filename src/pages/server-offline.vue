@@ -2,7 +2,7 @@
   <v-container class="fill-height d-flex justify-center align-center">
     <v-card elevation="5" class="pa-8 text-center" max-width="600">
       <v-card-title class="text-h5 font-weight-bold">
-        Icberg REST Catalog Server is Offline
+        Lakekeeper is Offline
       </v-card-title>
       <v-card-subtitle> Please talk to your administrator </v-card-subtitle>
       <v-card-text>
