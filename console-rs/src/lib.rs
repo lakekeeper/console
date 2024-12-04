@@ -5,6 +5,7 @@ use rust_embed::Embed;
 struct LakekeeperConsole;
 
 #[derive(Debug, Clone, PartialEq, derivative::Derivative)]
+#[derivative(Default)]
 pub struct LakekeeperConsoleConfig {
     pub idp_authority: String,
     #[derivative(Default(value = "\"/lakekeeper\".to_string()"))]
@@ -66,6 +67,14 @@ pub fn get_file(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_default_for_config() {
+        let config = LakekeeperConsoleConfig::default();
+        assert_eq!(config.idp_redirect_path, "/callback");
+        assert_eq!(config.idp_scope, "openid profile email");
+        assert_eq!(config.idp_post_logout_redirect_path, "/logout");
+    }
 
     #[test]
     fn test_index_available() {
