@@ -26,7 +26,7 @@
           />
         </v-list-item-title>
       </v-list-item>
-      <v-list-item>
+      <!--v-list-item>
         <v-list-item-title>
           <AddWarehouseDialog
             :warehouse="warehouse"
@@ -37,7 +37,7 @@
             @cancel="menuOpen = false"
           />
         </v-list-item-title>
-      </v-list-item>
+      </v-list-item-->
       <v-list-item>
         <v-list-item-title>
           <AddWarehouseDialog
@@ -92,13 +92,13 @@ function updateStorageCredential(e: StorageCredential) {
   emit("update-credentials", e);
 }
 
-function updateStorageProfile(e: {
-  profile: StorageProfile;
-  credentials: StorageCredential;
-}) {
-  emit("update-profile", e);
-  menuOpen.value = false;
-}
+// function updateStorageProfile(e: {
+//   profile: StorageProfile;
+//   credentials: StorageCredential;
+// }) {
+//   emit("update-profile", e);
+//   menuOpen.value = false;
+// }
 
 function updateDelitionProfile(e: TabularDeleteProfile) {
   emit("update-delprofile", e);
