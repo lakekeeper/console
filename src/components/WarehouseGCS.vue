@@ -152,7 +152,6 @@ const rules = {
 };
 
 const handleSubmit = () => {
-  console.log("submitting", warehouseObjectData);
   emit("submit", warehouseObjectData);
 };
 
@@ -162,7 +161,7 @@ const emitNewCredentials = () => {
     "credential-type": "service-account-key",
     key: warehouseObjectData["storage-credential"].key,
   } as StorageCredential;
-  console.log("emitting credentials gcs", credentials);
+
   emit("update-credentials", credentials);
 };
 
@@ -184,9 +183,6 @@ onMounted(() => {
 });
 
 function handleFileInput(event: any) {
-  console.log(event);
-  console.log(typeof event);
-
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
@@ -210,7 +206,7 @@ function verifyKeyJson() {
   try {
     if (keyString.value != "") {
       const keyJSON = JSON.parse(keyString.value);
-      console.log("Valid JSON");
+
       warehouseObjectData["storage-credential"].key = keyJSON;
       keyStringValid.value = true;
     }

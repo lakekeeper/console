@@ -414,7 +414,6 @@ function emitDeletionProfile() {
 }
 
 function newCredentials(credentials: StorageCredential) {
-  console.log("newCredentials add", credentials);
   emit("update-credentials", credentials);
 }
 
