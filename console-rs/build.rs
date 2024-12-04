@@ -12,6 +12,11 @@ fn main() {
     fs::create_dir_all(&dest_path).unwrap();
     // Build the console (npm)
     std::process::Command::new("npm")
+        .args(&["install"])
+        .current_dir(repo_dir)
+        .status()
+        .expect("Failed to install Lakekeeper UI dependencies with npm");
+    std::process::Command::new("npm")
         .args(&["run", "build-placeholder"])
         .current_dir(repo_dir)
         .status()
