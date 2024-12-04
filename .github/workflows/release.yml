@@ -1,0 +1,52 @@
+name: 🚀 Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # Update release PR
+  release_please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    if: github.repository == 'lakekeeper/console'
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      tag_name: ${{ steps.release.outputs['crates/iceberg-catalog--tag_name'] }}
+      major: ${{ steps.release.outputs['crates/iceberg-catalog--major'] }}
+      minor: ${{ steps.release.outputs['crates/iceberg-catalog--minor'] }}
+      patch: ${{ steps.release.outputs['crates/iceberg-catalog--patch'] }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please/release-please-config.json
+          manifest-file: release-please/.release-please-manifest.json
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Create Node Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16.x
+
+      - name: Install Packages and Build Application
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload dist folder
+        uses: actions/upload-artifact@v4
+        with:
+          path: dist
+          if-no-files-found: error
