@@ -281,13 +281,14 @@ async function chekAccessStatus() {
     if (data.length === 0) {
       visual.showAppOrNavBar = false;
       assignedToProjects.value = false;
-      visual.setSnackbarMsg({
-        function: "List Project",
-        text: "No projects assigned. Ask your administrator",
-        ttl: 5000,
-        ts: Date.now(),
-        type: Type.INFO,
-      });
+      if (visual.projectInfo.bootstrapped)
+        visual.setSnackbarMsg({
+          function: "List Project",
+          text: "No projects assigned. Ask your administrator",
+          ttl: 5000,
+          ts: Date.now(),
+          type: Type.INFO,
+        });
     } else {
       assignedToProjects.value = true;
       visual.showAppOrNavBar = true;

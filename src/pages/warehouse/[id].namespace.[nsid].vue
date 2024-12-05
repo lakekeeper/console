@@ -223,7 +223,7 @@ const can_read_permissions = ref(false);
 const items: Item[] = reactive([]);
 const permissionType = ref<RelationType>("namespace");
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
-const namespaceId = ref<string>("");
+// const namespaceId = ref<string>("");
 
 const headers: readonly Header<any>[] = Object.freeze([
   { title: "Name", key: "name", align: "start" },
@@ -255,7 +255,7 @@ const watchedNamespacePath = computed(() => namespacePath.value);
 const whid = ref<string>((route.params as { id: string }).id);
 const tab = ref("overview");
 const myAccess = reactive<NamespaceAction[]>([]);
-const myAccessParent = reactive<NamespaceAction[]>([]);
+// const myAccessParent = reactive<NamespaceAction[]>([]);
 const namespace = reactive<GetNamespaceResponse>({
   namespace: [],
 });
@@ -323,21 +323,24 @@ async function init() {
 
 async function listNamespaces() {
   try {
-    const { namespaceMap, namespaces } = await functions.listNamespaces(
+    const { namespaces } = await functions.listNamespaces(
       visual.whId,
       namespacePath.value
     );
 
-    if (namespaceMap) {
-      for (const [_, value] of Object.entries(namespaceMap)) {
-        namespaceId.value = value as string;
-        if (parent) Object.assign(myAccessParent, myAccess);
-        Object.assign(
-          myAccess,
-          await functions.getNamespaceAccessById(value as string)
-        );
-      }
-    }
+    //remove later not needed
+
+    // console.log(namespaceMap, namespaces);
+    // if (namespaceMap) {
+    //   for (const [_, value] of Object.entries(namespaceMap)) {
+    //     namespaceId.value = value as string;
+    //     if (parent) Object.assign(myAccessParent, myAccess);
+    //     Object.assign(
+    //       myAccess,
+    //       await functions.getNamespaceAccessById(value as string)
+    //     );
+    //   }
+    // }
 
     if (namespaces) {
       const mappedItems: Item[] = namespaces.map((nsArray) => ({
