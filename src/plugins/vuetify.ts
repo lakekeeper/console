@@ -13,6 +13,10 @@ import { VTreeview } from "vuetify/labs/VTreeview";
 
 // Composables
 import { createVuetify } from "vuetify";
+import {
+  VStepperVerticalItem,
+  VStepperVertical,
+} from "vuetify/labs/VStepperVertical";
 
 const myCustomLightTheme = {
   dark: false,
@@ -56,6 +60,8 @@ const myCustomLightTheme = {
 export default createVuetify({
   components: {
     VTreeview,
+    VStepperVertical,
+    VStepperVerticalItem,
   },
   theme: {
     defaultTheme: "myCustomLightTheme",
