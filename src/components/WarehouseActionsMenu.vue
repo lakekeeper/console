@@ -51,7 +51,7 @@
       </v-list-item>
       <v-list-item>
         <v-list-item-title>
-          <ComputeConnectDialog />
+          <ComputeConnectDialog :warehouse-name="warehouse.name" />
         </v-list-item-title>
       </v-list-item>
     </v-list>

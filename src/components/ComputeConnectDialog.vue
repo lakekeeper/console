@@ -85,15 +85,13 @@
         >
           <v-card>
             <v-card-text>
-              {{ userStore.getUser().refresh_token }}
+              {{ refreshToken }}
               <br />
               <v-btn
                 icon="mdi-content-copy"
                 variant="flat"
                 size="small"
-                @click="
-                  functions.copyToClipboard(userStore.getUser().refresh_token)
-                "
+                @click="functions.copyToClipboard(refreshToken)"
               ></v-btn>
             </v-card-text>
           </v-card>
@@ -108,16 +106,53 @@
         </v-stepper-vertical-item>
 
         <v-stepper-vertical-item
-          subtitle="Confirmation"
-          title="Step three"
+          title="Create Catalog"
           value="3"
+          @click:next="compute != 'trino' ? (isDialogActive = false) : null"
+        >
+          <v-card>
+            <v-card-text>
+              <span
+                style="
+                  width: 800;
+                  display: block;
+                  overflow: auto;
+                  text-align: left;
+                "
+              >
+                <pre
+                  class="language-sql"
+                  style="white-space: pre-wrap; word-wrap: break-word"
+                >
+          <code ref="codeRef" class="language-sql" style="text-align: left;">{{ formattedTrinoSQL }}</code>
+        </pre>
+              </span>
+            </v-card-text>
+          </v-card>
+
+          <template v-slot:next="{ next }" v-if="compute != 'trino'">
+            <v-btn color="primary" text="Finish" @click="next"></v-btn>
+          </template>
+          <template v-slot:next="{ next }" v-else>
+            <v-btn color="primary" @click="next"></v-btn>
+          </template>
+
+          <template v-slot:prev="{ prev }">
+            <v-btn v-if="!finished" variant="plain" @click="prev"></v-btn>
+          </template>
+        </v-stepper-vertical-item>
+
+        <v-stepper-vertical-item
+          v-if="compute == 'trino'"
+          title="Create Catalog"
+          value="4"
           @click:next="isDialogActive = false"
         >
           <v-card>
             <v-card-text>
               <span
                 style="
-                  width: 500px;
+                  width: 800;
                   display: block;
                   overflow: auto;
                   text-align: left;
@@ -150,26 +185,29 @@
 import { reactive, defineEmits, defineProps, shallowRef } from "vue";
 import { useUserStore } from "@/stores/user";
 import { useFunctions } from "@/plugins/functions";
+import { useVisualStore } from "@/stores/visual";
+import * as env from "@/app.config";
+
+const visuals = useVisualStore();
 const functions = useFunctions();
 const userStore = useUserStore();
 const finished = shallowRef(false);
 const isDialogActive = ref(false);
+const refreshToken = computed(() => userStore.getUser().refresh_token);
+const accessToken = computed(() => userStore.getUser().access_token);
 const emit = defineEmits<{
   (e: "roleInput", role: { name: string; description: string }): void;
 }>();
 
-// const props = defineProps<{
-//   actionType: "add" | "edit";
-//   role?: {
-//     name: { type: string; default: "" };
-//     description: { type: string; default: "" };
-//   };
-// }>();
+const props = defineProps<{
+  warehouseName: string;
+}>();
 
 const compute = ref("");
-
+const extraConfigS3 =
+  ", \"s3.regio\" = 'dummy', \"s3.path-style-access\" = 'true',  \"s3.endpoint\" = '{settings.s3_endpoint}', \"fs.native-s3.enabled\" = 'true'";
 const formattedTrinoSQL = ref(
-  `CREATE CATALOG {warehouse.normalized_catalog_name} USING iceberg  WITH ( "iceberg.catalog.type" = 'rest', "iceberg.rest-catalog.uri" = '{warehouse.server.catalog_url}', "iceberg.rest-catalog.warehouse" = '{warehouse.project_id}/{warehouse.warehouse_name}', "iceberg.rest-catalog.security" = 'OAUTH2',  "iceberg.rest-catalog.oauth2.token" = '{warehouse.access_token}',  "iceberg.rest-catalog.vended-credentials-enabled" = 'true' {extra_config} )`
+  `\nCREATE CATALOG ${props.warehouseName} USING iceberg\n WITH (\n "iceberg.catalog.type" = 'rest',\n "iceberg.rest-catalog.uri" = '${env.icebergCatalogUrl}',\n "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected["project-id"]}/${props.warehouseName}',\n "iceberg.rest-catalog.security" = 'OAUTH2',\n "iceberg.rest-catalog.oauth2.token" = '${accessToken.value}'${extraConfigS3} )`
 );
 
 const role = reactive({
