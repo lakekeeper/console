@@ -323,21 +323,24 @@ async function init() {
 
 async function listNamespaces() {
   try {
-    const { namespaceMap, namespaces } = await functions.listNamespaces(
+    const { namespaces } = await functions.listNamespaces(
       visual.whId,
       namespacePath.value
     );
 
-    if (namespaceMap) {
-      for (const [_, value] of Object.entries(namespaceMap)) {
-        namespaceId.value = value as string;
-        if (parent) Object.assign(myAccessParent, myAccess);
-        Object.assign(
-          myAccess,
-          await functions.getNamespaceAccessById(value as string)
-        );
-      }
-    }
+    //remove later not needed
+
+    // console.log(namespaceMap, namespaces);
+    // if (namespaceMap) {
+    //   for (const [_, value] of Object.entries(namespaceMap)) {
+    //     namespaceId.value = value as string;
+    //     if (parent) Object.assign(myAccessParent, myAccess);
+    //     Object.assign(
+    //       myAccess,
+    //       await functions.getNamespaceAccessById(value as string)
+    //     );
+    //   }
+    // }
 
     if (namespaces) {
       const mappedItems: Item[] = namespaces.map((nsArray) => ({

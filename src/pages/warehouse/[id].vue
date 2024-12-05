@@ -286,6 +286,73 @@
                         }}</v-list-item-subtitle>
                       </v-list-item>
                     </v-list>
+
+                    <!--GCS Details-->
+                    <v-list
+                      dense
+                      v-if="selectedWarehouse['storage-profile'].type === 'gcs'"
+                    >
+                      <v-list-item>
+                        <v-list-item-title>ID</v-list-item-title>
+                        <v-list-item-subtitle>{{
+                          selectedWarehouse.id
+                        }}</v-list-item-subtitle>
+                      </v-list-item>
+
+                      <v-list-item>
+                        <v-list-item-title>Project ID</v-list-item-title>
+                        <v-list-item-subtitle>{{
+                          selectedWarehouse["project-id"]
+                        }}</v-list-item-subtitle>
+                      </v-list-item>
+                      <v-list-item>
+                        <v-list-item-title>Storage Type</v-list-item-title>
+                        <v-list-item-subtitle>{{
+                          selectedWarehouse["storage-profile"].type
+                        }}</v-list-item-subtitle>
+                      </v-list-item>
+                      <v-list-item>
+                        <v-list-item-title>Bucket</v-list-item-title>
+                        <v-list-item-subtitle>{{
+                          selectedWarehouse["storage-profile"].bucket
+                        }}</v-list-item-subtitle>
+                      </v-list-item>
+
+                      <v-list-item>
+                        <v-list-item-title>Key-prefix</v-list-item-title>
+                        <v-list-item-subtitle>{{
+                          selectedWarehouse["storage-profile"]["key-prefix"]
+                        }}</v-list-item-subtitle>
+                      </v-list-item>
+
+                      <v-list-item>
+                        <v-list-item-title>Status</v-list-item-title>
+                        <v-list-item-subtitle>{{
+                          selectedWarehouse.status
+                        }}</v-list-item-subtitle>
+                      </v-list-item>
+
+                      <v-list-item>
+                        <v-list-item-title>Deletion Profile</v-list-item-title>
+                        <v-list-item-subtitle>{{
+                          selectedWarehouse["delete-profile"].type
+                        }}</v-list-item-subtitle>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="
+                          selectedWarehouse['delete-profile'].type == 'soft'
+                        "
+                      >
+                        <v-list-item-title
+                          >Expiration Seconds</v-list-item-title
+                        >
+                        <v-list-item-subtitle>{{
+                          selectedWarehouse["delete-profile"][
+                            "expiration-seconds"
+                          ]
+                        }}</v-list-item-subtitle>
+                      </v-list-item>
+                    </v-list>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -342,7 +409,7 @@ const headers: readonly Header<any>[] = Object.freeze([
   { title: "Actions", key: "actions", align: "end", sortable: false },
 ]);
 const loaded = ref(true);
-const breadcrumbs = ref<Breadcrumb[]>([]);
+
 const storageProfile = reactive<StorageProfile>({
   type: "s3",
   bucket: "",
@@ -397,10 +464,6 @@ async function loadWarehouse() {
     visual.wahrehouseName = whResponse.name;
     visual.whId = whResponse.id;
     Object.assign(selectedWarehouse, whResponse);
-    breadcrumbs.value.push({
-      title: whResponse.name || "Warehouse",
-      href: `/warehouse/${params.value.id}`,
-    });
   }
 }
 
@@ -453,6 +516,7 @@ async function addNamespace(namespace: string[]) {
 
 const dropNamespace = async (item: Item) => {
   try {
+    console.log("dropping namespace", item);
     const res = await functions.dropNamespace(
       params.value.id,
       item.parentPath.join(String.fromCharCode(0x1f))
@@ -472,24 +536,25 @@ async function routeToNamespace(item: Item) {
 
 async function listNamespaces(item?: Item, parent?: string) {
   try {
-    const { namespaceMap, namespaces } = await functions.listNamespaces(
+    const { namespaces } = await functions.listNamespaces(
       params.value.id,
       parent
     );
 
-    if (namespaceMap) {
-      for (const [_, value] of Object.entries(namespaceMap)) {
-        namespaceId.value = value as string;
-        myAccessParent.splice(0, myAccessParent.length);
-        myAccess.splice(0, myAccess.length);
-        if (parent) Object.assign(myAccessParent, myAccess);
+    //remove later not needed
+    // if (namespaceMap) {
+    //   for (const [_, value] of Object.entries(namespaceMap)) {
+    //     namespaceId.value = value as string;
+    //     myAccessParent.splice(0, myAccessParent.length);
+    //     myAccess.splice(0, myAccess.length);
+    //     if (parent) Object.assign(myAccessParent, myAccess);
 
-        Object.assign(
-          myAccess,
-          await functions.getNamespaceAccessById(value as string)
-        );
-      }
-    }
+    //     Object.assign(
+    //       myAccess,
+    //       await functions.getNamespaceAccessById(value as string)
+    //     );
+    //   }
+    // }
 
     if (namespaces) {
       const mappedItems: Item[] = namespaces.map((nsArray) => ({
