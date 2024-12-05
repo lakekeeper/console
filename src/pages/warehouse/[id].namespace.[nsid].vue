@@ -223,7 +223,7 @@ const can_read_permissions = ref(false);
 const items: Item[] = reactive([]);
 const permissionType = ref<RelationType>("namespace");
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
-const namespaceId = ref<string>("");
+// const namespaceId = ref<string>("");
 
 const headers: readonly Header<any>[] = Object.freeze([
   { title: "Name", key: "name", align: "start" },
@@ -255,7 +255,7 @@ const watchedNamespacePath = computed(() => namespacePath.value);
 const whid = ref<string>((route.params as { id: string }).id);
 const tab = ref("overview");
 const myAccess = reactive<NamespaceAction[]>([]);
-const myAccessParent = reactive<NamespaceAction[]>([]);
+// const myAccessParent = reactive<NamespaceAction[]>([]);
 const namespace = reactive<GetNamespaceResponse>({
   namespace: [],
 });

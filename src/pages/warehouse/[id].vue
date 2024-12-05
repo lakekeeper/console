@@ -381,7 +381,6 @@ import {
   RelationType,
   Item,
   Header,
-  Breadcrumb,
   Type,
 } from "../../common/interfaces";
 import { useVisualStore } from "../../stores/visual";
@@ -439,7 +438,7 @@ const permissionType = ref<RelationType>("warehouse");
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
 const namespaceId = ref("");
 const myAccess = reactive<WarehouseAction[] | NamespaceAction[]>([]);
-const myAccessParent = reactive<WarehouseAction[] | NamespaceAction[]>([]);
+// const myAccessParent = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 const relationId = ref("");
 const can_read_permissions = ref(false);
 const visual = useVisualStore();
