@@ -38,15 +38,23 @@ fn main() {
             .output()
     );
 
-    std::process::Command::new("npm")
-        .args(&["ci"])
+    // Npm install via bash
+    std::process::Command::new("bash")
+        .arg("-c")
+        .arg("npm i")
         .current_dir(node_dir.clone())
         .status()
-        .map_err(|e| {
-            println!("Error: {:?}", e);
-            e
-        })
         .expect("Failed to install Lakekeeper UI dependencies with npm");
+
+    // std::process::Command::new("npm")
+    //     .args(&["ci"])
+    //     .current_dir(node_dir.clone())
+    //     .status()
+    //     .map_err(|e| {
+    //         println!("Error: {:?}", e);
+    //         e
+    //     })
+    //     .expect("Failed to install Lakekeeper UI dependencies with npm");
     println!(
         "ls -alh /: {:?}",
         std::process::Command::new("ls")
