@@ -37,8 +37,16 @@ fn main() {
     // which npm
     println!(
         "which npm: {:?}",
-        std::process::Command::new("which")
-            .args(&["npm"])
+        std::process::Command::new("bash")
+            .args(&["-c", "which npm"])
+            .current_dir(node_dir.clone())
+            .output()
+    );
+    // ls -alh /root/.nvm/versions/node/v23.3.0/bin/
+    println!(
+        "ls -alh /root/.nvm/versions/node/v23.3.0/bin/: {:?}",
+        std::process::Command::new("ls")
+            .args(&["-alh", "/root/.nvm/versions/node/v23.3.0/bin/"])
             .current_dir(node_dir.clone())
             .output()
     );
