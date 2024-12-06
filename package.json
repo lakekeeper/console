@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
+    "azure": "vite --mode azure",
     "build": "vue-tsc --noEmit && vite build",
     "build-placeholder": "vue-tsc --noEmit && vite build --mode placeholder",
     "preview": "vite preview",

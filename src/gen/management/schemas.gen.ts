@@ -1215,7 +1215,7 @@ export const S3CredentialSchema = {
 
 export const S3FlavorSchema = {
     type: 'string',
-    enum: ['aws', 'minio']
+    enum: ['aws', 's3-compat']
 } as const;
 
 export const S3ProfileSchema = {

@@ -45,10 +45,21 @@
           v-if="canListUsers && enabledAuthorization"
         >
           <v-card>
+            <v-row justify="center" v-if="users.length === 0">
+              <v-progress-circular
+                class="mt-4"
+                :size="126"
+                indeterminate
+                color="info"
+              ></v-progress-circular>
+            </v-row>
             <UserManager
+              v-else
               :loadedUsers="users"
+              :status="status"
               :can-delete-users="canDeleteUsers"
               @deleted-user="listUser"
+              @rename-user-name="renameUser"
             />
           </v-card>
         </v-tabs-window-item>
@@ -68,12 +79,15 @@ import {
 } from "@/gen/management/types.gen";
 import { AssignmentCollection, RelationType } from "@/common/interfaces";
 import { enabledAuthorization } from "@/app.config";
+import { StatusIntent } from "@/common/enums";
+
 const tab = ref("overview");
 const visual = useVisualStore();
 const functions = useFunctions();
 const serverAssignments = reactive<ServerAssignment[]>([]);
 const loaded = ref(true);
 const permissionType = ref<RelationType>("server");
+const status = ref(StatusIntent.INACTIVE);
 
 const permissionObject = reactive<any>({
   id: "",
@@ -134,6 +148,7 @@ async function listUser() {
   try {
     if (!canListUsers.value) return;
     users.splice(0, users.length);
+    console.log("server-settings", users);
     Object.assign(users, await functions.listUser());
   } catch (error) {
     console.error(error);
@@ -213,4 +228,16 @@ onMounted(async () => {
 const projectInfo = computed(() => {
   return visual.projectInfo;
 });
+
+async function renameUser(user: { name: string; id: string }) {
+  try {
+    status.value = StatusIntent.STARTING;
+    console.log("server-settings", user);
+    await functions.updateUserById(user.name, user.id);
+    await listUser();
+    status.value = StatusIntent.SUCCESS;
+  } catch (error) {
+    console.error(error);
+  }
+}
 </script>

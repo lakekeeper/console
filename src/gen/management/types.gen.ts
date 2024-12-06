@@ -489,7 +489,7 @@ export type S3Credential = {
 
 export type credential_type3 = 'access-key';
 
-export type S3Flavor = 'aws' | 'minio';
+export type S3Flavor = 'aws' | 's3-compat';
 
 export type S3Profile = {
     /**
