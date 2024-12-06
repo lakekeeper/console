@@ -22,39 +22,37 @@ fn main() {
         std::process::Command::new("ls").args(&["-alh"]).output()
     );
     println!(
-        "{:?}",
+        "ls: {:?}",
         std::process::Command::new("ls")
             .args(&["-alh"])
             .current_dir(node_dir.clone())
             .output()
     );
     println!(
-        "{:?}",
+        "pwd: {:?}",
         std::process::Command::new("pwd")
             .current_dir(node_dir.clone())
             .output()
     );
     // which npm
     println!(
-        "{:?}",
+        "which npm: {:?}",
         std::process::Command::new("which")
             .args(&["npm"])
             .current_dir(node_dir.clone())
-            .status()
-            .expect("Failed to find npm")
+            .output()
     );
     // print npm version
     println!(
-        "{:?}",
+        "npm --version: {:?}",
         std::process::Command::new("npm")
             .args(&["--version"])
             .current_dir(node_dir.clone())
-            .status()
-            .expect("Failed to get npm version")
+            .output()
     );
     // Build the console (npm)
     println!(
-        "{:?}",
+        "npm ci: {:?}",
         std::process::Command::new("npm")
             .args(&["ci"])
             .current_dir(node_dir.clone())
