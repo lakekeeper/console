@@ -38,14 +38,22 @@ fn main() {
             .output()
     );
 
+    println!(
+        "PWD: {:?}",
+        std::process::Command::new("bash")
+            .arg("-c")
+            .arg(format!("pwd && cd {} && pwd && ls", node_dir.to_str().unwrap()))
+            .output()
+    );
+
     // Npm install via bash
     println!(
-        "{:?}",
+        "CI {:?}",
         std::process::Command::new("bash")
             .arg("-c")
             .arg(format!("cd {} && npm ci", node_dir.to_str().unwrap()))
             .current_dir(node_dir.clone())
-            .status()
+            .output()
     );
 
     // std::process::Command::new("npm")
