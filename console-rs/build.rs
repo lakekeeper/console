@@ -39,10 +39,26 @@ fn main() {
     );
 
     println!(
-        "PWD: {:?}",
+        "PWD1: {:?}",
         std::process::Command::new("bash")
             .arg("-c")
-            .arg(format!("pwd && cd {} && pwd && ls", node_dir.to_str().unwrap()))
+            .arg("pwd")
+            .output()
+    );
+
+    println!(
+        "PWD2: {:?}",
+        std::process::Command::new("bash")
+            .arg("-c")
+            .arg(format!("cd {} && pwd", node_dir.to_str().unwrap()))
+            .output()
+    );
+
+    println!(
+        "PWD3: {:?}",
+        std::process::Command::new("bash")
+            .arg("-c")
+            .arg(format!("cd {} && pwd", repo_dir.to_str().unwrap()))
             .output()
     );
 
@@ -51,7 +67,11 @@ fn main() {
         "CI {:?}",
         std::process::Command::new("bash")
             .arg("-c")
-            .arg(format!("cd {} && npm ci", node_dir.to_str().unwrap()))
+            .arg(format!(
+                "cd {} && HOME=\"{}\" npm ci",
+                node_dir.to_str().unwrap(),
+                node_dir.to_str().unwrap()
+            ))
             .current_dir(node_dir.clone())
             .output()
     );
