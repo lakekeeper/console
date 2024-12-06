@@ -20,78 +20,16 @@ fn main() {
     )
     .unwrap();
 
-    println!("id: {:?}", std::process::Command::new("id").output());
-    println!(
-        "ls -alh /: {:?}",
-        std::process::Command::new("ls")
-            .arg("-alh")
-            .arg("/")
-            .output()
-    );
-
-    // Print value of $HOME via bash
-    println!(
-        "HOME: {:?}",
-        std::process::Command::new("bash")
-            .arg("-c")
-            .arg("echo $HOME")
-            .output()
-    );
-
-    println!(
-        "PWD1: {:?}",
-        std::process::Command::new("bash")
-            .arg("-c")
-            .arg("pwd")
-            .output()
-    );
-
-    println!(
-        "PWD2: {:?}",
-        std::process::Command::new("bash")
-            .arg("-c")
-            .arg(format!("cd {} && pwd", node_dir.to_str().unwrap()))
-            .output()
-    );
-
-    println!(
-        "PWD3: {:?}",
-        std::process::Command::new("bash")
-            .arg("-c")
-            .arg(format!("cd {} && pwd", repo_dir.to_str().unwrap()))
-            .output()
-    );
-
-    // Npm install via bash
-    println!(
-        "CI {:?}",
-        std::process::Command::new("bash")
-            .arg("-c")
-            .arg(format!(
-                "cd {} && HOME=\"{}\" npm ci",
-                node_dir.to_str().unwrap(),
-                node_dir.to_str().unwrap()
-            ))
-            .current_dir(node_dir.clone())
-            .output()
-    );
-
-    // std::process::Command::new("npm")
-    //     .args(&["ci"])
-    //     .current_dir(node_dir.clone())
-    //     .status()
-    //     .map_err(|e| {
-    //         println!("Error: {:?}", e);
-    //         e
-    //     })
-    //     .expect("Failed to install Lakekeeper UI dependencies with npm");
-    println!(
-        "ls -alh /: {:?}",
-        std::process::Command::new("ls")
-            .arg("-alh")
-            .arg("/")
-            .output()
-    );
+    std::process::Command::new("bash")
+        .arg("-c")
+        .arg(format!(
+            "cd {} && HOME=\"{}\" npm ci",
+            node_dir.to_str().unwrap(),
+            node_dir.to_str().unwrap()
+        ))
+        .current_dir(node_dir.clone())
+        .status()
+        .expect("Failed to install Lakekeeper UI dependencies with npm");
     std::process::Command::new("npm")
         .args(&["run", "build-placeholder"])
         .current_dir(node_dir.clone())
