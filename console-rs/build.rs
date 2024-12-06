@@ -35,27 +35,36 @@ fn main() {
             .output()
     );
     // which npm
-    std::process::Command::new("which")
-        .args(&["npm"])
-        .current_dir(node_dir.clone())
-        .status()
-        .expect("Failed to find npm");
+    println!(
+        "{:?}",
+        std::process::Command::new("which")
+            .args(&["npm"])
+            .current_dir(node_dir.clone())
+            .status()
+            .expect("Failed to find npm")
+    );
     // print npm version
-    std::process::Command::new("npm")
-        .args(&["--version"])
-        .current_dir(node_dir.clone())
-        .status()
-        .expect("Failed to get npm version");
+    println!(
+        "{:?}",
+        std::process::Command::new("npm")
+            .args(&["--version"])
+            .current_dir(node_dir.clone())
+            .status()
+            .expect("Failed to get npm version")
+    );
     // Build the console (npm)
-    std::process::Command::new("npm")
-        .args(&["ci"])
-        .current_dir(node_dir.clone())
-        .status()
-        .map_err(|e| {
-            println!("Error: {:?}", e);
-            e
-        })
-        .expect("Failed to install Lakekeeper UI dependencies with npm");
+    println!(
+        "{:?}",
+        std::process::Command::new("npm")
+            .args(&["ci"])
+            .current_dir(node_dir.clone())
+            .status()
+            .map_err(|e| {
+                println!("Error: {:?}", e);
+                e
+            })
+            .expect("Failed to install Lakekeeper UI dependencies with npm")
+    );
     std::process::Command::new("npm")
         .args(&["run", "build-placeholder"])
         .current_dir(node_dir.clone())
