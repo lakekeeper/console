@@ -20,6 +20,15 @@ fn main() {
     )
     .unwrap();
 
+    println!("id: {:?}", std::process::Command::new("id").output());
+    println!(
+        "ls -alh /: {:?}",
+        std::process::Command::new("ls")
+            .arg("-alh")
+            .arg("/")
+            .output()
+    );
+
     std::process::Command::new("npm")
         .args(&["ci"])
         .current_dir(node_dir.clone())
@@ -29,6 +38,13 @@ fn main() {
             e
         })
         .expect("Failed to install Lakekeeper UI dependencies with npm");
+    println!(
+        "ls -alh /: {:?}",
+        std::process::Command::new("ls")
+            .arg("-alh")
+            .arg("/")
+            .output()
+    );
     std::process::Command::new("npm")
         .args(&["run", "build-placeholder"])
         .current_dir(node_dir.clone())
