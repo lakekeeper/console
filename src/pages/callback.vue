@@ -27,6 +27,13 @@ async function init() {
   try {
     const user = await userManager.signinRedirectCallback();
 
+    const firsName =
+      user.profile.family_name ||
+      user.profile.name?.split(" ").splice(1).join(" ") ||
+      "";
+    const givenName =
+      user.profile.given_name || user.profile.name?.split(" ")[0] || "";
+
     const newUser: User = {
       access_token: user.access_token,
       id_token: user.id_token || "",
@@ -34,8 +41,8 @@ async function init() {
       token_expires_at: user.profile.exp,
       email: user.profile.email || "",
       preferred_username: user.profile.preferred_username || "",
-      family_name: user.profile.family_name || "",
-      given_name: user.profile.given_name || "",
+      family_name: firsName,
+      given_name: givenName,
     };
 
     userStorage.setUser(newUser);
