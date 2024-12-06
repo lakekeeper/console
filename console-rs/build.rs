@@ -41,7 +41,7 @@ fn main() {
     // Npm install via bash
     std::process::Command::new("bash")
         .arg("-c")
-        .arg("npm i")
+        .arg(format!("cd {} && npm ci", node_dir.to_str().unwrap()))
         .current_dir(node_dir.clone())
         .status()
         .expect("Failed to install Lakekeeper UI dependencies with npm");
