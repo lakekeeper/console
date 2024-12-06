@@ -4,8 +4,21 @@ use std::path::Path;
 
 fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
-    let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
-    let repo_dir = Path::new(&manifest_dir).parent().unwrap();
+    // Iterate up over the parents until we find a folder that contains index.html
+    let repo_dir =
+        out_dir
+            .to_str()
+            .unwrap()
+            .split('/')
+            .fold(Path::new(&out_dir).to_path_buf(), |acc, _x| {
+                let mut acc = acc.clone();
+                if acc.join("index.html").exists() {
+                    return acc;
+                }
+                acc.pop();
+                acc
+            });
+    println!("Found repo_dir: {:?}", repo_dir);
     let node_dir = Path::new(&out_dir).join("node");
     // Copy everything from repo_dir to node_dir, we are not allowed to write anywhere else
     fs::remove_dir_all(&node_dir).ok();
