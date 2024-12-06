@@ -1,7 +1,7 @@
 use rust_embed::Embed;
 
 #[derive(Embed)]
-#[folder = "$OUT_DIR/console/dist"]
+#[folder = "$OUT_DIR/node/dist"]
 struct LakekeeperConsole;
 
 #[derive(Debug, Clone, PartialEq, derivative::Derivative)]
@@ -14,6 +14,7 @@ pub struct LakekeeperConsoleConfig {
     pub idp_redirect_path: String,
     #[derivative(Default(value = "\"openid profile email\".to_string()"))]
     pub idp_scope: String,
+    pub idp_resource: String,
     #[derivative(Default(value = "\"/logout\".to_string()"))]
     pub idp_post_logout_redirect_path: String,
     pub enable_authorization: bool,
@@ -29,6 +30,7 @@ pub fn get_file(
         idp_client_id,
         idp_redirect_path,
         idp_scope,
+        idp_resource,
         idp_post_logout_redirect_path,
         enable_authorization,
         app_iceberg_catalog_url,
@@ -43,6 +45,7 @@ pub fn get_file(
                 .replace("VITE_IDP_CLIENT_ID_PLACEHOLDER", &idp_client_id)
                 .replace("VITE_IDP_REDIRECT_PATH_PLACEHOLDER", &idp_redirect_path)
                 .replace("VITE_IDP_SCOPE_PLACEHOLDER", &idp_scope)
+                .replace("VITE_IDP_RESOURCE_PLACEHOLDER", &idp_resource)
                 .replace(
                     "VITE_IDP_POST_LOGOUT_REDIRECT_PATH_PLACEHOLDER",
                     &idp_post_logout_redirect_path,
@@ -89,6 +92,7 @@ mod tests {
             idp_client_id: "client_id".to_string(),
             idp_redirect_path: "/callback".to_string(),
             idp_scope: "openid profile email".to_string(),
+            idp_resource: "foo-bar".to_string(),
             idp_post_logout_redirect_path: "/logout".to_string(),
             enable_authorization: true,
             app_iceberg_catalog_url: "https://example.com".to_string(),
