@@ -34,6 +34,18 @@ fn main() {
             .current_dir(node_dir.clone())
             .output()
     );
+    // which npm
+    std::process::Command::new("which")
+        .args(&["npm"])
+        .current_dir(node_dir.clone())
+        .status()
+        .expect("Failed to find npm");
+    // print npm version
+    std::process::Command::new("npm")
+        .args(&["--version"])
+        .current_dir(node_dir.clone())
+        .status()
+        .expect("Failed to get npm version");
     // Build the console (npm)
     std::process::Command::new("npm")
         .args(&["ci"])
