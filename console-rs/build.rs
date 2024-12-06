@@ -17,14 +17,32 @@ fn main() {
     )
     .unwrap();
     println!("{:?}", std::process::Command::new("id").output());
-    println!("{:?}", std::process::Command::new("ls").args(&["-alh"]).output());
-    println!("{:?}", std::process::Command::new("ls").args(&["-alh"]).current_dir(node_dir.clone()).output());
-    println!("{:?}", std::process::Command::new("pwd").current_dir(node_dir.clone()).output());
+    println!(
+        "{:?}",
+        std::process::Command::new("ls").args(&["-alh"]).output()
+    );
+    println!(
+        "{:?}",
+        std::process::Command::new("ls")
+            .args(&["-alh"])
+            .current_dir(node_dir.clone())
+            .output()
+    );
+    println!(
+        "{:?}",
+        std::process::Command::new("pwd")
+            .current_dir(node_dir.clone())
+            .output()
+    );
     // Build the console (npm)
     std::process::Command::new("npm")
         .args(&["ci"])
         .current_dir(node_dir.clone())
         .status()
+        .map_err(|e| {
+            println!("Error: {:?}", e);
+            e
+        })
         .expect("Failed to install Lakekeeper UI dependencies with npm");
     std::process::Command::new("npm")
         .args(&["run", "build-placeholder"])
