@@ -47,11 +47,23 @@
               <span class="icon-text">
                 <v-icon
                   class="mr-2"
-                  v-if="item['storage-profile'].type === 's3'"
+                  v-if="
+                    item['storage-profile'].type === 's3' &&
+                    item['storage-profile'].flavor === 'aws'
+                  "
                   color="orange"
                   size="large"
                   >mdi-aws</v-icon
                 >
+                <v-img
+                  v-if="
+                    item['storage-profile'].type === 's3' &&
+                    item['storage-profile'].flavor !== 'aws'
+                  "
+                  :width="24"
+                  src="@/assets/s3.svg"
+                  class="mb-2 mr-2"
+                ></v-img>
                 <v-icon
                   class="mr-2"
                   v-if="item['storage-profile'].type === 'adls'"

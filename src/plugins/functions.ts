@@ -1316,6 +1316,32 @@ async function listUser(): Promise<User[]> {
   }
 }
 
+async function updateUserById(name: string, userId: string): Promise<boolean> {
+  try {
+    init();
+
+    const client = mng.client;
+
+    const { error } = await mng.updateUser({
+      client,
+      body: {
+        name: name,
+        user_type: "application",
+      },
+      path: {
+        id: userId,
+      },
+    });
+
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
 //Roles
 async function searchRole(searchRole: string): Promise<Role[]> {
   try {
@@ -1740,6 +1766,7 @@ export function useFunctions() {
     getNamespaceById,
     getWarehouseById,
     getProjectById,
+    updateUserById,
   };
 }
 

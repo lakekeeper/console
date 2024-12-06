@@ -238,7 +238,7 @@ const rules = {
 
 const s3Flavor = [
   { name: "AWS", code: "aws" },
-  { name: "Minio", code: "minio" },
+  { name: "S3 Compatible Stotage", code: "s3-compat" },
 ];
 
 const handleSubmit = () => {
