@@ -16,6 +16,7 @@ fn main() {
         &fs_extra::dir::CopyOptions::new().content_only(true),
     )
     .unwrap();
+    println!("{:?}", std::process::Command::new("id").output());
     // Build the console (npm)
     std::process::Command::new("npm")
         .args(&["ci"])
