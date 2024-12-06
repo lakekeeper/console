@@ -34,17 +34,25 @@
         </span>
       </v-toolbar>
     </template>
-    <template v-slot:item.kind="{ item }">
+    <template v-slot:item.name="{ item }">
+      <span class="icon-text">
+        <v-icon class="mr-2" v-if="item.kind == 'user'"
+          >mdi-account-circle-outline</v-icon
+        >
+        <v-icon class="mr-2" v-else>mdi-account-box-multiple-outline</v-icon>
+        {{ item.name }}
+      </span>
+    </template>
+    <!--template v-slot:item.kind="{ item }">
       <td>
         <span class="icon-text">
           <v-icon class="mr-2" v-if="item.kind == 'user'"
             >mdi-account-circle-outline</v-icon
           >
           <v-icon class="mr-2" v-else>mdi-account-box-multiple-outline</v-icon>
-          {{ item.name }}</span
-        >
+        </span>
       </td>
-    </template>
+    </template-->
     <template v-slot:item.type="{ item }">
       <AssignToRoleDialogSingle
         :actionType="'edit'"
@@ -86,7 +94,6 @@ const functions = useFunctions();
 const isManagedAccess = ref(false);
 const isManagedAccessInherited = ref(false);
 const headers: readonly Header<any>[] = Object.freeze([
-  { title: "Assignee Type", key: "kind", align: "start" },
   { title: "Name", key: "name", align: "start" },
   { title: "Email", key: "email", align: "start" },
   { title: "Roles", key: "type", align: "start", sortable: false },
