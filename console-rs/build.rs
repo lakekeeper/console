@@ -29,6 +29,15 @@ fn main() {
             .output()
     );
 
+    // Print value of $HOME via bash
+    println!(
+        "HOME: {:?}",
+        std::process::Command::new("bash")
+            .arg("-c")
+            .arg("echo $HOME")
+            .output()
+    );
+
     std::process::Command::new("npm")
         .args(&["ci"])
         .current_dir(node_dir.clone())
