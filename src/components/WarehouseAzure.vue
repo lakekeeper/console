@@ -61,6 +61,11 @@
         :rules="[rules.required, rules.noSlash]"
         placeholder="my-filesystem"
       ></v-text-field>
+      <v-text-field
+        v-model="warehouseObjectData['storage-profile']['key-prefix']"
+        label="Filesystem"
+        placeholder="my-filesystem"
+      ></v-text-field>
 
       <v-btn
         color="success"
