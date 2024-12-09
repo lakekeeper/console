@@ -51,13 +51,13 @@
               </v-switch>
             </v-col>
             <v-col>
-              <v-checkbox v-model="byIdActived" label="by Id"></v-checkbox>
+              <v-checkbox v-model="byIdActivated" label="by Id"></v-checkbox>
             </v-col>
           </v-row>
         </span>
 
         <v-autocomplete
-          v-if="props.actionType == 'grant' && !byIdActived"
+          v-if="props.actionType == 'grant' && !byIdActivated"
           :items="items"
           v-model="searchFor"
           class="mx-auto"
@@ -176,7 +176,7 @@ import { RelationType, AssignmentCollection } from "@/common/interfaces";
 import { useFunctions } from "@/plugins/functions";
 
 const functions = useFunctions();
-const byIdActived = ref(false);
+const byIdActivated = ref(false);
 const items = reactive<any[]>([]);
 const selectedItem = reactive<User | Role | { name: string; id: string }>({
   name: "",
@@ -361,7 +361,7 @@ function clearSelectedItem() {
   });
   Object.assign(selectedItem, { name: "" });
   idSearchUserOrRole.value = "";
-  byIdActived.value = false;
+  byIdActivated.value = false;
 }
 
 function selectedObject() {
