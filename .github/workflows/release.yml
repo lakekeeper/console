@@ -11,7 +11,7 @@ jobs:
   # Update release PR
   release_please:
     name: Release Please
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.repository == 'lakekeeper/console'
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
@@ -29,7 +29,7 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Repo
@@ -50,10 +50,36 @@ jobs:
         with:
           path: dist
           if-no-files-found: error
+  
+  tests:
+    name: Test Repo
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Ensure placeholder env in sync
+        # Make sure that the keys (before =) in .env and .env.placeholder are identical
+        run: diff <(grep -o '^[^=]\+' .env.placeholder | sort) <(grep -o '^[^=]\+' .env | sort) || (echo "Keys in .env and .env.placeholder are not identical" && exit 1)
+  
+  test-rs:
+    name: Test Rust
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Test Rust
+        run: cargo test --all-features
 
   publish-build:
     name: Publish Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
       - build
       - release_please
