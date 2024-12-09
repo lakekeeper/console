@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/lakekeeper/console/compare/v0.1.0...v0.1.1) (2024-12-09)
+
+
+### Bug Fixes
+
+* rust build location ([#38](https://github.com/lakekeeper/console/issues/38)) ([6d54659](https://github.com/lakekeeper/console/commit/6d5465997c17191ffe28e04b1653b4f4356da521))
+
 ## 0.1.0 (2024-12-06)
 
 
