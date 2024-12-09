@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/lakekeeper/console/compare/v0.1.0...v0.2.0) (2024-12-09)
+
+
+### Features
+
+* Add azure key-prefix field ([#40](https://github.com/lakekeeper/console/issues/40)) ([a49f53d](https://github.com/lakekeeper/console/commit/a49f53d118d1f0aeda598449cf324e11845e4368))
+* Add id search user or role ([#43](https://github.com/lakekeeper/console/issues/43)) ([68651b2](https://github.com/lakekeeper/console/commit/68651b224e2b3fa7c441584dabf4cc326bd353c3))
+
+
+### Bug Fixes
+
+* rust build location ([#38](https://github.com/lakekeeper/console/issues/38)) ([6d54659](https://github.com/lakekeeper/console/commit/6d5465997c17191ffe28e04b1653b4f4356da521))
+
 ## 0.1.0 (2024-12-06)
 
 
