@@ -64,7 +64,7 @@
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Filesystem"
-        placeholder="my-filesystem"
+        placeholder="path/to/warehouse"
       ></v-text-field>
 
       <v-btn
