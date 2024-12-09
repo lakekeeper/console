@@ -28,7 +28,7 @@
         class="text-subtitle-2"
         v-bind="activatorProps"
       >
-        Change Delition</span
+        Change Deletion</span
       >
     </template>
     <v-card style="max-height: 90vh; overflow-y: auto">
@@ -125,7 +125,7 @@
                     slider === loadedDeltionSeconds &&
                     delProfileSoftActive === loadedDelProfileSoftActive
                   "
-                  >Change Delition</v-btn
+                  >Change Deletion</v-btn
                 >
               </v-col></v-row
             >

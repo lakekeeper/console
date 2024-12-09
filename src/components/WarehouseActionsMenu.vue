@@ -45,7 +45,7 @@
             :intent="Intent.UPDATE"
             :processStatus="processStatus"
             :object-type="ObjectType.DELETION_PROFILE"
-            @update-deletion-profile="updateDelitionProfile"
+            @update-deletion-profile="updateDeletionProfile"
             @cancel="menuOpen = false"
         /></v-list-item-title>
       </v-list-item>
@@ -100,7 +100,7 @@ function updateStorageCredential(e: StorageCredential) {
 //   menuOpen.value = false;
 // }
 
-function updateDelitionProfile(e: TabularDeleteProfile) {
+function updateDeletionProfile(e: TabularDeleteProfile) {
   emit("update-delprofile", e);
   menuOpen.value = false;
 }

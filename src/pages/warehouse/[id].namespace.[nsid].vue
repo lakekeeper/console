@@ -165,7 +165,13 @@
                     >
                   </td>
                 </template>
-
+                <template v-slot:item.actions="{ item }">
+                    <v-icon
+                      color="error"
+                      :disabled="!myAccess.includes('delete')"
+                      @click="undropTabular(item)"
+                    >mdi-restore</v-icon>
+                </template>
                 <template v-slot:no-data>
                   <div>No deleted tabulars in this namespace</div>
                 </template>
@@ -232,11 +238,13 @@ const headers: readonly Header<any>[] = Object.freeze([
 
 const headersDeleted: readonly Header<any>[] = Object.freeze([
   { title: "Name", key: "name", align: "start" },
+  { title: "Actions", key: "actions", align: "end", sortable: false },
 ]);
 
 const loadedNamespaces: Item[] = reactive([]);
 export type TableIdentifierExtended = TableIdentifier & {
   actions: string[];
+  id: string;
   type: string;
 };
 
@@ -511,6 +519,21 @@ async function dropTable(item: TableIdentifierExtended) {
     await listTables();
   } catch (error: any) {
     console.error(`Failed to drop table-${item.name}  - `, error);
+  }
+}
+
+async function undropTabular(item: DeletedTabularResponseExtended) {
+  try {
+    const res = await functions.undropTabular(
+      visual.whId,
+      item.id,
+      item.typ
+    );
+    if (res) throw new Error();
+
+    await listDeletedTabulars();
+  } catch (error: any) {
+    console.error(`Failed to undrop table-${item.name}  - `, error);
   }
 }
 </script>
