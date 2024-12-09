@@ -740,6 +740,32 @@ async function dropView(warehouseId: string, namespacePath: string, viewName: st
   }
 }
 
+
+// Tabular
+async function undropTabular(
+  warehouseId: string,
+  id: string,
+  type: 'table' | 'view',
+): Promise<boolean> {
+  try {
+    const client = mng.client;
+    const { error } = await mng.undropTabulars({
+      client,
+      body: { targets: [ {id, type} ] },
+      path: {
+        warehouse_id: warehouseId,
+      },
+    });
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+
 // Assignments
 async function getWarehouseAssignmentsById(warehouseId: string): Promise<WarehouseAssignment[]> {
   try {
@@ -1691,6 +1717,7 @@ export function useFunctions() {
     getWarehouseById,
     getProjectById,
     updateUserById,
+    undropTabular,
   };
 }
 

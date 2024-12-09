@@ -1061,6 +1061,13 @@ export const listDeletedTabulars = <ThrowOnError extends boolean = false>(
   });
 };
 
+export const undropTabulars = <ThrowOnError extends boolean = false>(options: Options<UndropTabularsData, ThrowOnError>) => {
+    return (options?.client ?? client).post<UndropTabularsResponse, UndropTabularsError, ThrowOnError>({
+        ...options,
+        url: '/management/v1/warehouse/{warehouse_id}/deleted_tabulars/undrop'
+    });
+};
+
 /**
  * Rename a warehouse
  */

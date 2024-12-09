@@ -1825,10 +1825,60 @@ export const TabularDeleteProfileSchema = {
   },
 } as const;
 
+export const TabularIdentUuidSchema = {
+    oneOf: [
+        {
+            type: 'object',
+            required: ['type', 'id'],
+            properties: {
+                id: {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                type: {
+                    type: 'string',
+                    enum: ['table']
+                }
+            }
+        },
+        {
+            type: 'object',
+            required: ['type', 'id'],
+            properties: {
+                id: {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                type: {
+                    type: 'string',
+                    enum: ['view']
+                }
+            }
+        }
+    ],
+    discriminator: {
+        propertyName: 'type'
+    }
+} as const;
+
 export const TabularTypeSchema = {
   type: 'string',
   description: 'Type of tabular',
   enum: ['table', 'view'],
+} as const;
+
+export const UndropTabularsRequestSchema = {
+    type: 'object',
+    required: ['targets'],
+    properties: {
+        targets: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/TabularIdentUuid'
+            },
+            description: 'Undrop target specification'
+        }
+    }
 } as const;
 
 export const UpdateNamespaceAssignmentsRequestSchema = {
