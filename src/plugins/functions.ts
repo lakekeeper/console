@@ -763,10 +763,10 @@ async function dropView(
   warehouseId: string,
   namespacePath: string,
   viewName: string
-): Promise<boolean> {
+) {
   try {
     const client = ice.client;
-    const { error } = await ice.dropView({
+    const { data, error } = await ice.dropView({
       client,
       path: {
         prefix: warehouseId,
@@ -774,9 +774,10 @@ async function dropView(
         view: viewName,
       },
     });
+
     if (error) throw error;
 
-    return true;
+    return data;
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
