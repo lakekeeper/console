@@ -1,6 +1,6 @@
 <template>
-  <v-dialog v-model="dialog" transition="dialog-bottom-transition" fullscreen>
-    <template v-slot:activator="{ props: activatorProps }">
+  <v-dialog v-model="dialog" fullscreen transition="dialog-bottom-transition">
+    <template #activator="{ props: activatorProps }">
       <v-list-item-title
         v-bind="activatorProps"
         prepend-icon="mdi-home-silo"
@@ -26,8 +26,8 @@
       <v-tabs v-model="tab">
         <v-tab value="overview">overview</v-tab>
         <v-tab
+          v-if="canReadAssignments && enabledAuthorization"
           value="permissions"
-          v-if="can_read_assignments && enabledAuthorization"
           >Permissions
         </v-tab>
       </v-tabs>
@@ -37,56 +37,56 @@
             <v-list-subheader>Selected Project </v-list-subheader>
 
             <v-list-item
+              link
               :subtitle="`ID: ${project['project-id']}`"
               :title="`${project['project-name']}`"
-              link
             ></v-list-item>
 
             <v-divider class="mt-8"></v-divider>
           </v-list>
 
           <v-data-table
-            :headers="headers"
             fixed-header
+            :headers="headers"
             hover
             :items="availableProjects"
             :sort-by="[{ key: 'name', order: 'asc' }]"
           >
-            <template v-slot:top>
-              <v-toolbar flat density="compact" color="transparent">
+            <template #top>
+              <v-toolbar color="transparent" density="compact" flat>
                 <v-spacer></v-spacer>
 
                 <!--AddProjectDialog @add-project="addProject" /-->
               </v-toolbar>
             </template>
 
-            <template v-slot:item.info="{ item }">
-              <v-chip class="mr-2" v-if="item.info === 'selected'"
+            <template #item.info="{ item }">
+              <v-chip v-if="item.info === 'selected'" class="mr-2"
                 >selected
               </v-chip>
-              <v-chip class="mr-2" v-if="item.info === 'switch'">switch</v-chip>
+              <v-chip v-if="item.info === 'switch'" class="mr-2">switch</v-chip>
             </template>
 
-            <template v-slot:item.actions="{ item }">
+            <template #item.actions="{ item }">
               <AddOrEditProjectNameDialog
-                :actionType="'edit'"
-                :name="item['project-name']"
                 :id="item['project-id']"
+                :action-type="'edit'"
+                :name="item['project-name']"
                 @emit-project-newname="renameProject"
               />
             </template>
 
-            <template v-slot:no-data>
+            <template #no-data>
               <div>No projects available</div>
             </template>
           </v-data-table>
         </v-tabs-window-item>
-        <v-tabs-window-item value="permissions" v-if="can_read_assignments">
+        <v-tabs-window-item v-if="canReadAssignments" value="permissions">
           <PermissionManager
             v-if="loaded"
-            :assignableObj="permissionObject"
-            :relationType="permissionType"
-            :existingPermissionsFromObj="existingAssignments"
+            :assignable-obj="permissionObject"
+            :existing-permissions-from-obj="existingAssignments"
+            :relation-type="permissionType"
             @permissions="assign"
           />
         </v-tabs-window-item>
@@ -122,8 +122,8 @@ const functions = useFunctions();
 const permissionType = ref<RelationType>("project");
 
 const myAccess = reactive<ProjectAction[]>([]);
-const can_read_assignments = ref(false);
-const can_delete_project = ref(false);
+const canReadAssignments = ref(false);
+const canDeleteProject = ref(false);
 const projectAssignments = reactive<ProjectAssignment[]>([]);
 const existingAssignments = reactive<ProjectAssignment[]>([]);
 const loaded = ref(true);
@@ -131,7 +131,7 @@ const assignments = reactive<
   { id: string; name: string; email: string; type: string; kind: string }[]
 >([]);
 
-const headers: readonly Header<any>[] = Object.freeze([
+const headers: readonly Header[] = Object.freeze([
   { title: "Info", key: "info", align: "start" },
 
   { title: "Name", key: "project-name", align: "start" },
@@ -161,17 +161,15 @@ async function init() {
     myAccess.splice(0, myAccess.length);
     Object.assign(myAccess, await functions.getProjectAccess());
 
-    can_read_assignments.value = myAccess.includes("read_assignments")
-      ? true
-      : false;
+    canReadAssignments.value = !!myAccess.includes("read_assignments");
 
-    can_delete_project.value = myAccess.includes("delete") ? true : false;
+    canDeleteProject.value = !!myAccess.includes("delete");
 
     await loadProjects();
 
     Object.assign(
       projectAssignments,
-      can_read_assignments.value ? await functions.getProjectAssignments() : []
+      canReadAssignments.value ? await functions.getProjectAssignments() : []
     );
     existingAssignments.splice(0, existingAssignments.length);
     Object.assign(existingAssignments, projectAssignments);
@@ -213,14 +211,14 @@ async function loadProjects() {
   try {
     availableProjects.splice(0, availableProjects.length);
     Object.assign(availableProjects, await functions.loadProjectList());
-    availableProjects.every((project) => {
-      project.actions = ["rename"];
+    availableProjects.forEach((p) => {
+      p.actions = ["rename"];
 
-      project.actions.push("delete");
-      if (project["project-id"] === visual.projectSelected["project-id"]) {
-        project.info = "selected";
+      p.actions.push("delete");
+      if (p["project-id"] === visual.projectSelected["project-id"]) {
+        p.info = "selected";
       } else {
-        project.info = "switch";
+        p.info = "switch";
       }
     });
   } catch (error) {
@@ -228,14 +226,14 @@ async function loadProjects() {
   }
 }
 
-async function assign(assignments: {
+async function assign(item: {
   del: AssignmentCollection;
   writes: AssignmentCollection;
 }) {
   try {
     loaded.value = false;
-    const del = assignments.del as ProjectAssignment[]; // Define 'del' variable
-    const writes = assignments.writes as ProjectAssignment[]; // Define 'del' variable
+    const del = item.del as ProjectAssignment[]; // Define 'del' variable
+    const writes = item.writes as ProjectAssignment[]; // Define 'del' variable
 
     await functions.updateProjectAssignments(del, writes);
     await init();

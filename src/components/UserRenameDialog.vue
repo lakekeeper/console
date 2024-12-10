@@ -1,12 +1,12 @@
 <template>
-  <v-dialog max-width="500" v-model="isDialogActive">
-    <template v-slot:activator="{ props: activatorProps }">
+  <v-dialog v-model="isDialogActive" max-width="500">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
         color="warning"
+        size="small"
         text="Rename"
         variant="outlined"
-        size="small"
       ></v-btn>
     </template>
 
@@ -23,12 +23,12 @@
         <v-spacer></v-spacer>
 
         <v-btn
-          @click="emmitNewUserName"
           color="success"
           :disabled="props.name === newName || newName === ''"
+          @click="emmitNewUserName"
           >submit</v-btn
         >
-        <v-btn text="Cancel" @click="cancelRoleInput" color="error"></v-btn>
+        <v-btn color="error" text="Cancel" @click="cancelRoleInput"></v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

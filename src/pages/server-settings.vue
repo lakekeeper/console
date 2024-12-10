@@ -1,10 +1,10 @@
 <template>
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
-    <v-tab value="permissions" v-if="canReadAssignments && enabledAuthorization"
+    <v-tab v-if="canReadAssignments && enabledAuthorization" value="permissions"
       >Permissions
     </v-tab>
-    <v-tab value="users" v-if="canListUsers && enabledAuthorization"
+    <v-tab v-if="canListUsers && enabledAuthorization" value="users"
       >users</v-tab
     >
   </v-tabs>
@@ -13,7 +13,7 @@
       <v-tabs-window v-model="tab">
         <v-tabs-window-item value="overview">
           <v-card class="ml-2">
-            <v-list-item two-line class="mb-12">
+            <v-list-item class="mb-12" two-line>
               <div class="text-overline mb-4">Server Information</div>
               <v-list-item-title class="text-h7 mb-1">
                 Server ID: {{ projectInfo["server-id"] }}
@@ -27,37 +27,37 @@
           </v-card>
         </v-tabs-window-item>
         <v-tabs-window-item
-          value="permissions"
           v-if="canReadAssignments && enabledAuthorization"
+          value="permissions"
         >
           <v-card>
             <PermissionManager
               v-if="loaded"
-              :assignableObj="permissionObject"
-              :relationType="permissionType"
-              :existingPermissionsFromObj="existingAssignments"
+              :assignable-obj="permissionObject"
+              :existing-permissions-from-obj="existingAssignments"
+              :relation-type="permissionType"
               @permissions="assign"
             />
           </v-card>
         </v-tabs-window-item>
         <v-tabs-window-item
-          value="users"
           v-if="canListUsers && enabledAuthorization"
+          value="users"
         >
           <v-card>
-            <v-row justify="center" v-if="users.length === 0">
+            <v-row v-if="users.length === 0" justify="center">
               <v-progress-circular
                 class="mt-4"
-                :size="126"
-                indeterminate
                 color="info"
+                indeterminate
+                :size="126"
               ></v-progress-circular>
             </v-row>
             <UserManager
               v-else
-              :loadedUsers="users"
-              :status="status"
               :can-delete-users="canDeleteUsers"
+              :loaded-users="users"
+              :status="status"
               @deleted-user="listUser"
               @rename-user-name="renameUser"
             />
@@ -71,7 +71,7 @@
 <script lang="ts" setup>
 import { useVisualStore } from "@/stores/visual";
 import { useFunctions } from "@/plugins/functions";
-import { onMounted, ref, reactive, computed } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import {
   ServerAction,
   ServerAssignment,
@@ -132,16 +132,14 @@ async function getMyAccess() {
 }
 
 function checkPermission() {
-  canReadAssignments.value = myAccess.includes("read_assignments")
-    ? true
-    : false;
+  canReadAssignments.value = !!myAccess.includes("read_assignments");
 
-  canListUsers.value = myAccess.includes("list_users") ? true : false;
-  canCreateProject.value = myAccess.includes("create_project") ? true : false;
-  canDeleteUsers.value = myAccess.includes("delete_users") ? true : false;
-  canGrantAdmin.value = myAccess.includes("grant_admin") ? true : false;
-  canProvisionUsers.value = myAccess.includes("provision_users") ? true : false;
-  canUpdateUsers.value = myAccess.includes("update_users") ? true : false;
+  canListUsers.value = !!myAccess.includes("list_users");
+  canCreateProject.value = !!myAccess.includes("create_project");
+  canDeleteUsers.value = !!myAccess.includes("delete_users");
+  canGrantAdmin.value = !!myAccess.includes("grant_admin");
+  canProvisionUsers.value = !!myAccess.includes("provision_users");
+  canUpdateUsers.value = !!myAccess.includes("update_users");
 }
 
 async function listUser() {
@@ -201,14 +199,14 @@ async function getServerAccess() {
   }
 }
 
-async function assign(assignments: {
+async function assign(item: {
   del: AssignmentCollection;
   writes: AssignmentCollection;
 }) {
   try {
     loaded.value = false;
-    const del = assignments.del as ServerAssignment[]; // Define 'del' variable
-    const writes = assignments.writes as ServerAssignment[]; // Define 'del' variable
+    const del = item.del as ServerAssignment[]; // Define 'del' variable
+    const writes = item.writes as ServerAssignment[]; // Define 'del' variable
 
     await functions.updateServerAssignments(del, writes);
     await init();

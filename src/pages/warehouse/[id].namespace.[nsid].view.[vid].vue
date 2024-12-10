@@ -1,12 +1,12 @@
 <template>
-  <v-container class="fill-height" v-if="loading">
+  <v-container v-if="loading" class="fill-height">
     <v-responsive class="align-centerfill-height mx-auto" max-width="900">
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
-          :size="126"
-          indeterminate
           color="info"
+          indeterminate
+          :size="126"
         ></v-progress-circular> </v-row
     ></v-responsive>
   </v-container>
@@ -14,7 +14,7 @@
     <v-row class="ml-1">
       <v-col>
         <BreadcrumbsFromUrl />
-        <v-toolbar flat density="compact" class="mb-4" color="transparent">
+        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
               {{ namespaceId.split(String.fromCharCode(0x1f)).join(".") }}.{{
@@ -22,7 +22,7 @@
               }}
             </span>
           </v-toolbar-title>
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon>mdi-table</v-icon>
           </template>
         </v-toolbar>
@@ -30,8 +30,8 @@
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab
-            value="permissions"
             v-if="enabledAuthorization"
+            value="permissions"
             @click="loadTabData"
           >
             Permissions
@@ -54,12 +54,12 @@
             <v-tabs-window-item value="raw">
               <vue-json-pretty :data="view" :deep="1" />
             </v-tabs-window-item>
-            <v-tabs-window-item value="permissions" v-if="can_read_permissions">
+            <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
-                :assignableObj="permissionObject"
-                :relationType="permissionType"
-                :existingPermissionsFromObj="existingPermissions"
+                :assignable-obj="permissionObject"
+                :existing-permissions-from-obj="existingPermissions"
+                :relation-type="permissionType"
                 @permissions="assign"
               />
             </v-tabs-window-item>
@@ -72,7 +72,7 @@
 <script lang="ts" setup>
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
-import { ref, onMounted, reactive } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useFunctions } from "../../plugins/functions";
 import { LoadViewResult } from "../../gen/iceberg/types.gen";
@@ -116,7 +116,7 @@ const view = reactive<LoadViewResult>({
 });
 const loaded = ref(false);
 const existingPermissions = reactive<ViewAssignment[]>([]);
-const can_read_permissions = ref(false);
+const canReadPermissions = ref(false);
 
 const currentVersionId = ref(0);
 const sqlStatement = ref("");
@@ -148,13 +148,11 @@ async function init() {
 
   Object.assign(myAccess, await functions.getViewAccessById(viewId.value));
 
-  can_read_permissions.value = myAccess.includes("read_assignments")
-    ? true
-    : false;
+  canReadPermissions.value = !!myAccess.includes("read_assignments");
 
   Object.assign(
     existingPermissions,
-    can_read_permissions.value
+    canReadPermissions.value
       ? await functions.getViewAssignmentsById(viewId.value)
       : []
   );

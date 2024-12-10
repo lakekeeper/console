@@ -1,20 +1,20 @@
 <template>
-  <v-dialog max-width="500" v-model="isDialogActive">
-    <template v-slot:activator="{ props: activatorProps }">
+  <v-dialog v-model="isDialogActive" max-width="500">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
-        text="Add Namespace"
-        size="small"
         color="info"
+        size="small"
+        text="Add Namespace"
         variant="flat"
       ></v-btn>
     </template>
 
     <v-card
-      title="New Namespace"
       :subtitle="`${props.parentPath
         .split(String.fromCharCode(0x1f))
         .join('.')}`"
+      title="New Namespace"
     >
       <v-card-text>
         <v-text-field
@@ -27,16 +27,16 @@
       <v-card-actions>
         <v-spacer></v-spacer>
 
-        <v-btn @click="addNamespace" color="success" :disabled="namespace == ''"
+        <v-btn color="success" :disabled="namespace == ''" @click="addNamespace"
           >add namespace</v-btn
         >
         <v-btn
+          color="error"
           text="Cancel"
           @click="
             isDialogActive = false;
             namespace = '';
           "
-          color="error"
         ></v-btn>
       </v-card-actions>
     </v-card>
@@ -56,7 +56,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "add-namespace", namespace: string[]): void;
+  (e: "addNamespace", namespace: string[]): void;
 }>();
 
 function addNamespace() {
@@ -68,7 +68,7 @@ function addNamespace() {
       : [];
   namespaceArray.push(namespaceURLEncoded);
 
-  emit("add-namespace", namespaceArray);
+  emit("addNamespace", namespaceArray);
 }
 
 watch(

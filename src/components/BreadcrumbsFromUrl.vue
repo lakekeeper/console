@@ -1,7 +1,7 @@
 <template>
   <v-breadcrumbs :items="breadcrumbs">
     <v-breadcrumbs-item />
-    <template v-slot:divider>
+    <template #divider>
       <v-icon icon="mdi-chevron-right"></v-icon>
     </template>
   </v-breadcrumbs>
@@ -33,7 +33,7 @@ async function loadBreadcrumbs(url: string) {
         const response = await functions.getWarehouse(paths[1]);
         title = response.name;
         breadcrumbs.push({
-          title: title,
+          title,
           href: currentPath,
         });
       } else if (index === 2 || index === 4) {
@@ -47,10 +47,10 @@ async function loadBreadcrumbs(url: string) {
         const priviousBreadcrumb = `${
           breadcrumbs[breadcrumbs.length - 1].href
         }/namespace`;
-        let nsPreviousPath: string[] = [];
+        const nsPreviousPath: string[] = [];
         let path = "";
 
-        nsId.forEach((p, i) => {
+        nsId.forEach(p => {
           nsPreviousPath.push(p);
           path = `${priviousBreadcrumb}/${nsPreviousPath.join(
             String.fromCharCode(0x1f)
@@ -63,7 +63,7 @@ async function loadBreadcrumbs(url: string) {
         });
       } else {
         breadcrumbs.push({
-          title: title,
+          title,
           href: currentPath,
         });
       }
@@ -75,7 +75,7 @@ async function loadBreadcrumbs(url: string) {
 
 watch(
   () => visual.currentUrl,
-  (newVal, oldVal) => {
+  (newVal) => {
     loadBreadcrumbs(newVal);
   },
   { immediate: true }

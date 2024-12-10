@@ -1,12 +1,12 @@
 <template>
-  <v-container class="fill-height" v-if="loading">
+  <v-container v-if="loading" class="fill-height">
     <v-responsive class="align-centerfill-height mx-auto" max-width="900">
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
-          :size="126"
-          indeterminate
           color="info"
+          indeterminate
+          :size="126"
         ></v-progress-circular>
       </v-row>
     </v-responsive>
@@ -15,7 +15,7 @@
     <v-row class="ml-1">
       <v-col>
         <BreadcrumbsFromUrl />
-        <v-toolbar flat density="compact" class="mb-4" color="transparent">
+        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
               {{
@@ -25,16 +25,16 @@
               }}
             </span>
           </v-toolbar-title>
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon>mdi-folder-open</v-icon>
           </template>
           <v-spacer></v-spacer>
 
           <addNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
-            @add-namespace="addNamespace"
-            :parentPath="namespacePath"
+            :parent-path="namespacePath"
             :status-intent="StatusIntent.STARTING"
+            @add-namespace="addNamespace"
           />
         </v-toolbar>
         <v-tabs v-model="tab">
@@ -43,8 +43,8 @@
           <v-tab value="views" @click="loadTabData">views</v-tab>
           <v-tab value="deleted" @click="loadTabData">deleted</v-tab>
           <v-tab
+            v-if="canReadPermissions && enabledAuthorization"
             value="permissions"
-            v-if="can_read_permissions && enabledAuthorization"
           >
             Permissions
           </v-tab>
@@ -54,48 +54,48 @@
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="namespaces">
               <v-data-table
-                :headers="headers"
                 fixed-header
+                :headers="headers"
                 hover
                 :items="loadedNamespaces"
                 :sort-by="[{ key: 'name', order: 'asc' }]"
               >
-                <template v-slot:item.name="{ item }">
-                  <td @click="routeToNamespace(item)" class="pointer-cursor">
+                <template #item.name="{ item }">
+                  <td class="pointer-cursor" @click="routeToNamespace(item)">
                     <span class="icon-text">
                       <v-icon class="mr-2">mdi-folder</v-icon>
                       {{ item.name }}</span
                     >
                   </td>
                 </template>
-                <template v-slot:item.actions="{ item }">
+                <template #item.actions="{ item }">
                   <v-icon
                     v-if="item.type === 'namespace'"
-                    :disabled="!myAccess.includes('delete')"
                     color="error"
+                    :disabled="!myAccess.includes('delete')"
                     @click="dropNamespace(item)"
                     >mdi-delete-outline</v-icon
                   >
                 </template>
-                <template v-slot:no-data>
+                <template #no-data>
                   <addNamespaceDialog
                     v-if="myAccess.includes('create_namespace')"
-                    @add-namespace="addNamespace"
-                    :parentPath="namespacePath"
+                    :parent-path="namespacePath"
                     :status-intent="StatusIntent.STARTING"
+                    @add-namespace="addNamespace"
                   />
                 </template>
               </v-data-table>
             </v-tabs-window-item>
             <v-tabs-window-item value="tables">
               <v-data-table
-                :headers="headers"
                 fixed-header
+                :headers="headers"
                 hover
                 :items="loadedTables"
                 :sort-by="[{ key: 'name', order: 'asc' }]"
               >
-                <template v-slot:item.name="{ item }">
+                <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToTable(item)">
                     <span class="icon-text">
                       <v-icon class="mr-2">mdi-table</v-icon>
@@ -103,28 +103,28 @@
                     >
                   </td>
                 </template>
-                <template v-slot:item.actions="{ item }">
+                <template #item.actions="{ item }">
                   <v-icon
-                    :disabled="!myAccess.includes('delete')"
                     color="error"
+                    :disabled="!myAccess.includes('delete')"
                     @click="dropTable(item)"
                     >mdi-delete-outline</v-icon
                   >
                 </template>
-                <template v-slot:no-data>
+                <template #no-data>
                   <div>No table in this namespace</div>
                 </template>
               </v-data-table>
             </v-tabs-window-item>
             <v-tabs-window-item value="views">
               <v-data-table
-                :headers="headers"
                 fixed-header
+                :headers="headers"
                 hover
                 :items="loadedViews"
                 :sort-by="[{ key: 'name', order: 'asc' }]"
               >
-                <template v-slot:item.name="{ item }">
+                <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToView(item)">
                     <span class="icon-text">
                       <v-icon class="mr-2">mdi-view-grid-outline</v-icon>
@@ -132,51 +132,51 @@
                     >
                   </td>
                 </template>
-                <template v-slot:item.actions="{ item }">
+                <template #item.actions="{ item }">
                   <v-icon
                     v-if="item.type === 'view'"
+                    color="error"
                     :disabled="!myAccess.includes('delete')"
                     @click="dropView(item)"
-                    color="error"
                     >mdi-delete-outline</v-icon
                   >
                 </template>
-                <template v-slot:no-data>
+                <template #no-data>
                   <div>No views in this namespace</div>
                 </template>
               </v-data-table>
             </v-tabs-window-item>
             <v-tabs-window-item value="deleted">
               <v-data-table
-                :headers="headersDeleted"
                 fixed-header
+                :headers="headersDeleted"
                 hover
                 :items="deletedTabulars"
                 :sort-by="[{ key: 'name', order: 'asc' }]"
               >
-                <template v-slot:item.name="{ item }">
+                <template #item.name="{ item }">
                   <td class="pointer-cursor">
                     <span class="icon-text">
-                      <v-icon class="mr-2" v-if="item.type == 'view'"
+                      <v-icon v-if="item.type == 'view'" class="mr-2"
                         >mdi-view-grid-outline</v-icon
                       >
-                      <v-icon class="mr-2" v-else>mdi-table</v-icon>
+                      <v-icon v-else class="mr-2">mdi-table</v-icon>
                       {{ item.name }} {{ item.type }}</span
                     >
                   </td>
                 </template>
 
-                <template v-slot:no-data>
+                <template #no-data>
                   <div>No deleted tabulars in this namespace</div>
                 </template>
               </v-data-table>
             </v-tabs-window-item>
-            <v-tabs-window-item value="permissions" v-if="can_read_permissions">
+            <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
-                :assignableObj="permissionObject"
-                :relationType="permissionType"
-                :existingPermissionsFromObj="existingPermissions"
+                :assignable-obj="permissionObject"
+                :existing-permissions-from-obj="existingPermissions"
+                :relation-type="permissionType"
                 @permissions="assign"
               />
             </v-tabs-window-item>
@@ -190,13 +190,13 @@
 import { useRoute } from "vue-router"; // Import the useRoute function from vue-router
 import { useVisualStore } from "../../stores/visual";
 import { useFunctions } from "../../plugins/functions";
-import { onMounted, reactive, onUnmounted, watch, computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import router from "../../router";
 import {
   AssignmentCollection,
-  RelationType,
-  Item,
   Header,
+  Item,
+  RelationType,
 } from "../../common/interfaces";
 
 import {
@@ -218,19 +218,19 @@ const route = useRoute();
 const functions = useFunctions();
 const loading = ref(true);
 const loaded = ref(false);
-const can_read_permissions = ref(false);
+const canReadPermissions = ref(false);
 
 const items: Item[] = reactive([]);
 const permissionType = ref<RelationType>("namespace");
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
 // const namespaceId = ref<string>("");
 
-const headers: readonly Header<any>[] = Object.freeze([
+const headers: readonly Header[] = Object.freeze([
   { title: "Name", key: "name", align: "start" },
   { title: "Actions", key: "actions", align: "end", sortable: false },
 ]);
 
-const headersDeleted: readonly Header<any>[] = Object.freeze([
+const headersDeleted: readonly Header[] = Object.freeze([
   { title: "Name", key: "name", align: "start" },
 ]);
 
@@ -259,7 +259,7 @@ const myAccess = reactive<NamespaceAction[]>([]);
 const namespace = reactive<GetNamespaceResponse>({
   namespace: [],
 });
-const namespace_id = computed(() => namespace.properties?.namespace_id);
+const namespaceId = computed(() => namespace.properties?.namespace_id);
 const permissionObject = reactive<any>({
   id: "",
   description: "",
@@ -311,13 +311,11 @@ async function init() {
         namespace.properties?.namespace_id || ""
       )
     );
-    can_read_permissions.value = myAccess.includes("read_assignments")
-      ? true
-      : false;
+    canReadPermissions.value = !!myAccess.includes("read_assignments");
 
     Object.assign(
       existingPermissions,
-      can_read_permissions.value
+      canReadPermissions.value
         ? await functions.getNamespaceAssignmentsById(
             namespace.properties?.namespace_id || ""
           )
@@ -342,7 +340,7 @@ async function listNamespaces() {
       namespacePath.value
     );
 
-    //remove later not needed
+    // remove later not needed
 
     // console.log(namespaceMap, namespaces);
     // if (namespaceMap) {
@@ -378,7 +376,7 @@ async function listTables() {
     const data = await functions.listTables(visual.whId, namespacePath.value);
 
     Object.assign(loadedTables, data.identifiers);
-    loadedTables.every((table) => {
+    loadedTables.forEach((table) => {
       table.actions = ["delete"];
       table.type = "table";
     });
@@ -393,7 +391,7 @@ async function listViews() {
     const data = await functions.listViews(visual.whId, namespacePath.value);
 
     Object.assign(loadedViews, data.identifiers);
-    loadedViews.every((table) => {
+    loadedViews.forEach((table) => {
       table.actions = ["delete"];
       table.type = "view";
     });
@@ -421,11 +419,11 @@ async function listDeletedTabulars() {
     deletedTabulars.splice(0, deletedTabulars.length);
     const data = await functions.listDeletedTabulars(
       visual.whId,
-      namespace_id.value || ""
+      namespaceId.value || ""
     );
 
     Object.assign(deletedTabulars, data.tabulars);
-    deletedTabulars.every((table) => {
+    deletedTabulars.forEach((table) => {
       table.actions = ["delete"];
     });
   } catch (error) {
@@ -475,8 +473,8 @@ async function routeToView(item: TableIdentifierExtended) {
   );
 }
 
-async function addNamespace(namespace: string[]) {
-  const res = await functions.createNamespace(whid.value, namespace);
+async function addNamespace(namespaceIdent: string[]) {
+  const res = await functions.createNamespace(whid.value, namespaceIdent);
   if (res.error) throw res.error;
 
   await listNamespaces();
@@ -484,7 +482,7 @@ async function addNamespace(namespace: string[]) {
 
 watch(
   () => watchedNamespacePath.value,
-  async (newNsid, oldNsid) => {
+  async (newNsid) => {
     namespacePath.value = newNsid;
     relationId.value = namespace.properties?.namespace_id || "";
 

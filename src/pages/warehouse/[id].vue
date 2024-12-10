@@ -1,12 +1,12 @@
 <template>
-  <v-container class="fill-height" v-if="loading">
+  <v-container v-if="loading" class="fill-height">
     <v-responsive class="align-centerfill-height mx-auto" max-width="900">
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
-          :size="126"
-          indeterminate
           color="info"
+          indeterminate
+          :size="126"
         ></v-progress-circular>
       </v-row>
     </v-responsive>
@@ -16,46 +16,46 @@
       <v-col>
         <BreadcrumbsFromUrl v-if="!renaming" />
 
-        <v-toolbar flat density="compact" class="mb-4" color="transparent">
+        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
               {{ selectedWarehouse.name }}
             </span>
           </v-toolbar-title>
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon>mdi-database</v-icon>
           </template>
           <v-spacer></v-spacer>
           <WarehouseActionsMenu
+            :process-status="processStatus"
             :warehouse="selectedWarehouse"
-            :processStatus="processStatus"
-            @rename-warehouse="renameWarehouse"
-            @update-delprofile="updateDelProfile"
-            @update-credentials="updateCredentials"
-            @update-profile="updateProfile"
             @close="processStatus = 'running'"
+            @rename-warehouse="renameWarehouse"
+            @update-credentials="updateCredentials"
+            @update-delprofile="updateDelProfile"
+            @update-profile="updateProfile"
           />
 
           <addNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
-            @add-namespace="addNamespace"
+            :parent-path="''"
             :status-intent="createNamespaceStatus"
-            :parentPath="''"
+            @add-namespace="addNamespace"
           />
         </v-toolbar>
         <v-tabs v-model="tab" density="compact">
-          <v-tab value="namespaces" density="compact" @click="loadTabData"
+          <v-tab density="compact" value="namespaces" @click="loadTabData"
             >namespaces</v-tab
           >
           <v-tab
-            value="permissions"
-            v-if="can_read_permissions && enabledAuthorization"
+            v-if="canReadPermissions && enabledAuthorization"
             density="compact"
+            value="permissions"
             @click="loadTabData"
           >
             permissions
           </v-tab>
-          <v-tab value="details" density="compact" @click="loadTabData"
+          <v-tab density="compact" value="details" @click="loadTabData"
             >Details</v-tab
           >
         </v-tabs>
@@ -63,35 +63,35 @@
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="namespaces">
               <v-data-table
-                :headers="headers"
                 fixed-header
+                :headers="headers"
                 hover
                 :items="loadedWarehouseItems"
                 :sort-by="[{ key: 'name', order: 'asc' }]"
               >
-                <template v-slot:item.name="{ item }">
-                  <td @click="routeToNamespace(item)" class="pointer-cursor">
+                <template #item.name="{ item }">
+                  <td class="pointer-cursor" @click="routeToNamespace(item)">
                     <span class="icon-text">
                       <v-icon class="mr-2">mdi-folder</v-icon>
                       {{ item.name }}</span
                     >
                   </td>
                 </template>
-                <template v-slot:item.actions="{ item }">
+                <template #item.actions="{ item }">
                   <v-icon
                     v-if="item.type === 'namespace'"
-                    :disabled="!myAccess.includes('delete')"
                     color="error"
+                    :disabled="!myAccess.includes('delete')"
                     @click="dropNamespace(item)"
                     >mdi-delete-outline</v-icon
                   >
                 </template>
-                <template v-slot:no-data>
+                <template #no-data>
                   <addNamespaceDialog
                     v-if="myAccess.includes('create_namespace')"
+                    :parent-path="''"
                     :status-intent="createNamespaceStatus"
                     @add-namespace="addNamespace"
-                    :parentPath="''"
                   />
                 </template>
               </v-data-table>
@@ -102,8 +102,8 @@
                   <v-col cols="10">
                     <!--S3 Details-->
                     <v-list
-                      dense
                       v-if="selectedWarehouse['storage-profile'].type === 's3'"
+                      dense
                     >
                       <v-list-item>
                         <v-list-item-title>ID</v-list-item-title>
@@ -218,10 +218,10 @@
                     </v-list>
                     <!--Azure Details-->
                     <v-list
-                      dense
                       v-if="
                         selectedWarehouse['storage-profile'].type === 'adls'
                       "
+                      dense
                     >
                       <v-list-item>
                         <v-list-item-title>ID</v-list-item-title>
@@ -294,8 +294,8 @@
 
                     <!--GCS Details-->
                     <v-list
-                      dense
                       v-if="selectedWarehouse['storage-profile'].type === 'gcs'"
+                      dense
                     >
                       <v-list-item>
                         <v-list-item-title>ID</v-list-item-title>
@@ -362,12 +362,12 @@
                 </v-row>
               </v-card-text>
             </v-tabs-window-item>
-            <v-tabs-window-item value="permissions" v-if="can_read_permissions">
+            <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
-                :assignableObj="permissionObject"
-                :relationType="permissionType"
-                :existingPermissionsFromObj="existingPermissions"
+                :assignable-obj="permissionObject"
+                :existing-permissions-from-obj="existingPermissions"
+                :relation-type="permissionType"
                 @permissions="assign"
               />
             </v-tabs-window-item>
@@ -383,13 +383,13 @@ import { useRoute } from "vue-router";
 import { useFunctions } from "../../plugins/functions";
 import {
   AssignmentCollection,
-  RelationType,
-  Item,
   Header,
+  Item,
+  RelationType,
   Type,
 } from "../../common/interfaces";
 import { useVisualStore } from "../../stores/visual";
-import { ref, computed, reactive, onMounted } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import router from "../../router";
 import {
   GetWarehouseResponse,
@@ -408,7 +408,7 @@ const route = useRoute();
 
 const tab = ref("overview");
 const loading = ref(true);
-const headers: readonly Header<any>[] = Object.freeze([
+const headers: readonly Header[] = Object.freeze([
   { title: "Name", key: "name", align: "start" },
   { title: "Actions", key: "actions", align: "end", sortable: false },
 ]);
@@ -445,7 +445,7 @@ const namespaceId = ref("");
 const myAccess = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 // const myAccessParent = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 const relationId = ref("");
-const can_read_permissions = ref(false);
+const canReadPermissions = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 
@@ -493,13 +493,11 @@ async function init() {
       await functions.getWarehouseAccessById(params.value.id)
     );
 
-    can_read_permissions.value = myAccess.includes("read_assignments")
-      ? true
-      : false;
+    canReadPermissions.value = !!myAccess.includes("read_assignments");
 
     Object.assign(
       existingPermissions,
-      can_read_permissions.value
+      canReadPermissions.value
         ? await functions.getWarehouseAssignmentsById(params.value.id)
         : []
     );
@@ -543,7 +541,7 @@ const dropNamespace = async (item: Item) => {
 
 async function routeToNamespace(item: Item) {
   router.push(`/warehouse/${params.value.id}/namespace/${item.name}`);
-  return;
+
 }
 
 async function listNamespaces(item?: Item, parent?: string) {
@@ -553,7 +551,7 @@ async function listNamespaces(item?: Item, parent?: string) {
       parent
     );
 
-    //remove later not needed
+    // remove later not needed
     // if (namespaceMap) {
     //   for (const [_, value] of Object.entries(namespaceMap)) {
     //     namespaceId.value = value as string;
@@ -578,8 +576,6 @@ async function listNamespaces(item?: Item, parent?: string) {
 
       loadedWarehouseItems.splice(0, loadedWarehouseItems.length);
       Object.assign(loadedWarehouseItems, mappedItems);
-      if (item) {
-      }
     }
   } catch (error) {}
 }

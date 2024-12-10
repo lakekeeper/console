@@ -1,6 +1,6 @@
 // Utilities
 import { defineStore } from "pinia";
-import { SnackbarMsg, Project, Type } from "@/common/interfaces";
+import { Project, SnackbarMsg, Type } from "@/common/interfaces";
 import { ServerInfo } from "@/gen//management/types.gen";
 
 export const useVisualStore = defineStore(

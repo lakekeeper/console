@@ -1,5 +1,5 @@
 <template>
-  <v-footer height="40" app>
+  <v-footer app height="40">
     <div
       class="text-caption text-disabled"
       style="position: absolute; right: 16px"

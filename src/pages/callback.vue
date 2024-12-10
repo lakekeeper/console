@@ -1,4 +1,3 @@
-<template></template>
 <script setup lang="ts">
 import { UserManager } from "oidc-client-ts";
 import { useUserStore } from "../stores/user";

@@ -16,9 +16,9 @@
     ></v-file-input>
     <v-textarea
       v-else
+      v-model="keyString"
       label="GCS credentials key json"
       :rules="[rules.required, rules.validJson]"
-      v-model="keyString"
       @update:model-value="verifyKeyJson"
     ></v-textarea>
     <v-btn
@@ -43,8 +43,8 @@
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].bucket"
         label="Bucket"
-        :rules="[rules.required]"
         placeholder="my-bucket"
+        :rules="[rules.required]"
       ></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
@@ -53,25 +53,25 @@
       ></v-text-field>
 
       <v-btn
-        color="success"
-        type="submit"
-        :disabled="
-          !keyStringValid || warehouseObjectData['storage-profile'].bucket == ''
-        "
         v-if="
           props.intent === Intent.CREATE &&
           props.objectType === ObjectType.WAREHOUSE
         "
+        color="success"
+        :disabled="
+          !keyStringValid || warehouseObjectData['storage-profile'].bucket == ''
+        "
+        type="submit"
         >Submit
       </v-btn>
       <v-btn
-        color="success"
-        @click="emitNewProfile"
         v-if="
           props.intent === Intent.UPDATE &&
           props.objectType === ObjectType.STORAGE_PROFILE
         "
+        color="success"
         :disabled="!warehouseObjectData['storage-profile'].bucket"
+        @click="emitNewProfile"
         >Update Profile
       </v-btn>
     </div>
@@ -104,7 +104,7 @@ const emit = defineEmits<{
   (e: "submit", warehouseObjectDataEmit: WarehousObject): void;
   (e: "update-credentials", credentials: StorageCredential): void;
   (
-    e: "update-profile",
+    e: "updateProfile",
     newProfile: { profile: StorageProfile; credentials: StorageCredential }
   ): void;
 }>();
@@ -132,7 +132,7 @@ const warehouseObjectData = reactive<{
   },
   "storage-credential": {
     "credential-type": "service-account-key",
-    key: key,
+    key,
     type: "gcs",
   },
 });
@@ -174,7 +174,7 @@ const emitNewProfile = () => {
       key: warehouseObjectData["storage-credential"].key,
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
-  emit("update-profile", newProfile);
+  emit("updateProfile", newProfile);
 };
 
 onMounted(() => {

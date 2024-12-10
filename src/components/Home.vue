@@ -1,12 +1,12 @@
 <template>
-  <v-container class="fill-height" v-if="loading">
+  <v-container v-if="loading" class="fill-height">
     <v-responsive class="align-centerfill-height mx-auto" max-width="900">
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
-          :size="126"
-          indeterminate
           color="info"
+          indeterminate
+          :size="126"
         ></v-progress-circular>
       </v-row>
 
@@ -14,7 +14,7 @@
     >
   </v-container>
   <span v-else>
-    <v-container class="fill-height" v-if="assignedToProjects">
+    <v-container v-if="assignedToProjects" class="fill-height">
       <v-responsive class="align-centerfill-height mx-auto">
         <div class="text-center">
           <v-img class="mb-4" height="100" src="@/assets/bear.png" />
@@ -31,13 +31,13 @@
             <div class="text-center mt-4">
               <v-btn
                 height="60"
-                target="_blank"
                 href="https://github.com/lakekeeper/lakekeeper"
+                target="_blank"
               >
                 <v-icon icon="mdi-github" size="40" />
                 <div class="text-center text-none ml-2 mb-2">
                   <div class="text-h5">
-                    Give us a <v-icon icon="mdi-star" color="yellow" />
+                    Give us a <v-icon color="yellow" icon="mdi-star" />
                   </div>
                   <div class="d-flex align-center">
                     <v-icon icon="mdi-tag-outline" />
@@ -55,16 +55,16 @@
             <div class="text-center">
               <div class="text-h5">Join the community</div>
               <v-btn
-                variant="flat"
                 height="50"
-                target="_blank"
                 href="https://discord.gg/jkAGG8p93B"
+                target="_blank"
+                variant="flat"
               >
                 <img
-                  src="https://camo.githubusercontent.com/404c37b96536f6a6f4740fe538fbbd1a05885008f18efd46c127a6964d3fb9fc/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f446973636f72642d2532333538363546322e7376673f7374796c653d666f722d7468652d6261646765266c6f676f3d646973636f7264266c6f676f436f6c6f723d7768697465"
                   alt="Discord"
-                  height="50"
                   data-canonical-src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&amp;logo=discord&amp;logoColor=white"
+                  height="50"
+                  src="https://camo.githubusercontent.com/404c37b96536f6a6f4740fe538fbbd1a05885008f18efd46c127a6964d3fb9fc/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f446973636f72642d2532333538363546322e7376673f7374796c653d666f722d7468652d6261646765266c6f676f3d646973636f7264266c6f676f436f6c6f723d7768697465"
                   style="max-width: 100%"
                 />
               </v-btn>
@@ -83,11 +83,11 @@
           <v-col class="mx-auto">
             <v-card
               class="mx-auto hover-card"
+              :elevation="hover ? 10 : 2"
               max-width="344"
               outlined
-              :elevation="hover ? 10 : 2"
-              v-on:mouseover="hover = true"
-              v-on:mouseleave="hover = false"
+              @mouseleave="hover = false"
+              @mouseover="hover = true"
             >
               <v-list-item three-line>
                 <div class="text-overline text-primary mb-2">Warehouses</div>
@@ -111,11 +111,11 @@
           <v-col>
             <v-card
               class="mx-auto hover-card"
+              :elevation="hoverRoles ? 10 : 2"
               max-width="344"
               outlined
-              :elevation="hoverRoles ? 10 : 2"
-              v-on:mouseover="hoverRoles = true"
-              v-on:mouseleave="hoverRoles = false"
+              @mouseleave="hoverRoles = false"
+              @mouseover="hoverRoles = true"
             >
               <v-list-item three-line>
                 <div class="text-overline text-success mb-2">Roles</div>
@@ -139,11 +139,11 @@
           <v-col>
             <v-card
               class="mx-auto hover-card"
+              :elevation="hoverDocs ? 10 : 2"
               max-width="344"
               outlined
-              :elevation="hoverDocs ? 10 : 2"
-              v-on:mouseover="hoverDocs = true"
-              v-on:mouseleave="hoverDocs = false"
+              @mouseleave="hoverDocs = false"
+              @mouseover="hoverDocs = true"
             >
               <v-list-item three-line>
                 <div class="text-overline text-info mb-2">Documentation</div>
@@ -158,9 +158,9 @@
               <v-card-actions>
                 <v-btn
                   color="info"
+                  href="https://docs.lakekeeper.io"
                   outlined
                   rounded
-                  href="https://docs.lakekeeper.io"
                   target="_blank"
                 >
                   View Docs
@@ -171,8 +171,8 @@
         </v-row>
       </v-responsive>
     </v-container>
-    <v-container class="fill-height d-flex justify-center align-center" v-else>
-      <v-card elevation="5" class="pa-8 text-center" max-width="600">
+    <v-container v-else class="fill-height d-flex justify-center align-center">
+      <v-card class="pa-8 text-center" elevation="5" max-width="600">
         <v-card-title class="text-h5 font-weight-bold">
           You don't have any projects assignments
         </v-card-title>
@@ -182,16 +182,16 @@
             {{ user.id }}
 
             <v-btn
-              icon="mdi-content-copy"
-              variant="flat"
-              size="small"
               :disabled="user.id == ''"
+              icon="mdi-content-copy"
+              size="small"
+              variant="flat"
               @click="functions.copyToClipboard(user.id)"
             ></v-btn>
           </div>
         </v-card-subtitle>
         <v-card-text>
-          <v-btn color="primary" block large @click="chekAccessStatus">
+          <v-btn block color="primary" large @click="checkAccessStatus">
             Check status
           </v-btn>
         </v-card-text>
@@ -239,7 +239,7 @@ const loading = ref(true);
 
 onMounted(async () => {
   await fetchGitHub();
-  await chekAccessStatus();
+  await checkAccessStatus();
 
   loading.value = false;
 });
@@ -269,13 +269,15 @@ async function fetchGitHub() {
     const res = await fetch(
       "https://api.github.com/repos/lakekeeper/lakekeeper/tags"
     );
-    const releases: Release[] = await res.json();
 
     type Release = {
       name: string;
     };
-    const getHighestVersion = (releases: Release[]): string => {
-      const validReleases = releases
+
+    const releases: Release[] = await res.json();
+
+    const getHighestVersion = (haystack: Release[]): string => {
+      const validReleases = haystack
         .map((release) => release.name)
         .filter((name) => /^v\d+\.\d+\.\d+$/.test(name)) // Exclude pre-release versions like "-rc"
         .sort((a, b) => {
@@ -297,7 +299,7 @@ async function fetchGitHub() {
   }
 }
 
-async function chekAccessStatus() {
+async function checkAccessStatus() {
   try {
     const data = await functions.loadProjectList();
 

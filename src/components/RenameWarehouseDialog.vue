@@ -1,6 +1,6 @@
 <template>
-  <v-dialog max-width="500" v-model="isDialogActive">
-    <template v-slot:activator="{ props: activatorProps }">
+  <v-dialog v-model="isDialogActive" max-width="500">
+    <template #activator="{ props: activatorProps }">
       <span class="text-subtitle-2" v-bind="activatorProps">
         Rename Warehouse</span
       >
@@ -19,19 +19,19 @@
         <v-spacer></v-spacer>
 
         <v-btn
-          @click="emitRename"
           color="success"
           :disabled="
             warehouseNameInput == '' ||
             warehouseNameInput.length < 3 ||
             warehouseNameInput == warehouseName
           "
+          @click="emitRename"
           >rename</v-btn
         >
         <v-btn
+          color="error"
           text="Cancel"
           @click="isDialogActive = false"
-          color="error"
         ></v-btn>
       </v-card-actions>
     </v-card>
@@ -57,11 +57,11 @@ const { warehouseName } = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "rename-warehouse", warehouseName: string): void;
+  (e: "renameWarehouse", warehouseName: string): void;
 }>();
 
 function emitRename() {
-  emit("rename-warehouse", warehouseNameInput.value);
+  emit("renameWarehouse", warehouseNameInput.value);
   isDialogActive.value = false;
 }
 

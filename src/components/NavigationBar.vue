@@ -3,23 +3,23 @@
     <v-list>
       <v-list-item
         link
-        to="/"
-        title="Home"
         prepend-icon="mdi-home"
+        title="Home"
+        to="/"
       ></v-list-item>
       <v-list-item
         link
-        to="/warehouse"
-        title="Warehouses"
         prepend-icon="mdi-warehouse"
+        title="Warehouses"
+        to="/warehouse"
       ></v-list-item>
-      <v-dialog max-width="500" v-model="isDialogActive">
-        <template v-slot:activator="{ props: activatorProps }">
+      <v-dialog v-model="isDialogActive" max-width="500">
+        <template #activator="{ props: activatorProps }">
           <v-list-item
             v-bind="activatorProps"
             link
-            title="Volumes"
             prepend-icon="mdi-bucket"
+            title="Volumes"
           ></v-list-item>
         </template>
 
@@ -41,24 +41,24 @@
             <v-spacer></v-spacer>
 
             <v-btn
+              color="info"
               text="Close"
               @click="isDialogActive = false"
-              color="info"
             ></v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
       <v-list-item
         link
-        @click="routeToRoles"
-        title="Roles"
         prepend-icon="mdi-account-key"
+        title="Roles"
+        @click="routeToRoles"
       ></v-list-item>
       <v-list-item
         link
-        to="/server-settings"
-        title="Server settings"
         prepend-icon="mdi-cog"
+        title="Server settings"
+        to="/server-settings"
       ></v-list-item>
     </v-list>
     <v-snackbar v-model="snackbarVisible" timeout="3000">

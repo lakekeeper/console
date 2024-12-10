@@ -1,7 +1,7 @@
 <template>
-  <v-dialog max-width="500" v-model="isDialogActive">
-    <template v-slot:activator="{ props: activatorProps }">
-      <v-btn v-bind="activatorProps" variant="flat" rounded="pill">
+  <v-dialog v-model="isDialogActive" max-width="500">
+    <template #activator="{ props: activatorProps }">
+      <v-btn v-bind="activatorProps" rounded="pill" variant="flat">
         <v-icon color="error">mdi-delete-outline</v-icon>
       </v-btn>
     </template>
@@ -12,7 +12,7 @@
           Please enter the name "{{ props.name }}" to confirm the delition
         </div>
         <v-text-field
-          v-model="name"
+          v-model="deleteName"
           :label="`${props.type} Name`"
           maxlength="500"
           :placeholder="$props.name"
@@ -23,21 +23,21 @@
         <v-spacer></v-spacer>
 
         <v-btn
+          color="success"
+          :disabled="deleteName != $props.name"
           text="Confirm"
           @click="confirm"
-          color="success"
-          :disabled="name != $props.name"
         ></v-btn>
-        <v-btn text="Cancel" @click="reject" color="error"></v-btn>
+        <v-btn color="error" text="Cancel" @click="reject"></v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, defineProps, defineEmits } from "vue";
+import { defineEmits, defineProps, ref } from "vue";
 
-const name = ref("");
+const deleteName = ref("");
 
 const props = defineProps<{
   type: string;

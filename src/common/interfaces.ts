@@ -1,6 +1,8 @@
 import { Namespace } from "@/gen/iceberg/types.gen";
 import {
   AdlsProfile,
+  AzCredential,
+  GcsCredential,
   GcsProfile,
   NamespaceAssignment,
   ProjectAssignment,
@@ -8,8 +10,6 @@ import {
   S3Credential,
   S3Profile,
   ServerAssignment,
-  AzCredential,
-  GcsCredential,
   TableAssignment,
   ViewAssignment,
   WarehouseAssignment,
@@ -144,7 +144,7 @@ type CustomStringType =
   | "data-table-select"
   | "data-table-expand";
 
-export interface Header<T> {
+export interface Header {
   readonly key?: CustomStringType;
   readonly title?: string;
   readonly align?: "end" | "center" | "start";

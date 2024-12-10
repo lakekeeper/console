@@ -20,13 +20,13 @@ const oidcSettings: UserManagerSettings = {
   post_logout_redirect_uri: `${window.location.origin}/ui${env.idpLogoutRedirectPath}`,
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
 };
-//silent_redirect_uri: `${window.location.origin}/silent-callback`,
+// silent_redirect_uri: `${window.location.origin}/silent-callback`,
 
 // Initialize UserManager
 const userManager = new UserManager(oidcSettings);
 
 // Define reactive state
-const access_token = ref("");
+const accessToken = ref("");
 const isAuthenticated = ref(false);
 
 // Helper functions
@@ -35,7 +35,7 @@ const initUser = async () => {
     await signIn(); // Ensure signIn is called as part of initialization
     const user = await userManager.getUser();
     if (user) {
-      access_token.value = user.access_token; // Use non-null assertion if user is expected to exist
+      accessToken.value = user.access_token; // Use non-null assertion if user is expected to exist
       isAuthenticated.value = true;
     }
   } catch (error) {
@@ -55,7 +55,7 @@ const signOut = async () => {
   try {
     await userManager.signoutRedirect();
 
-    access_token.value = "";
+    accessToken.value = "";
     isAuthenticated.value = false;
   } catch (error) {
     console.error("OIDC sign-out failed", error);
@@ -117,7 +117,7 @@ export function useAuth() {
   return {
     oidcSettings,
     userManager,
-    access_token,
+    access_token: accessToken,
     isAuthenticated,
     refreshToken,
     checkTokenExpiry,

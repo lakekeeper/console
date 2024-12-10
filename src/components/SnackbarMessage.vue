@@ -3,19 +3,19 @@
     v-for="(msg, index) in snackbarMsgs"
     :key="index"
     v-model="msg.visible"
-    :timeout="msg.ttl"
     location="top"
+    :timeout="msg.ttl"
     :timer="getTimerColor(msg)"
   >
     {{ msg.text }}
-    <template v-slot:actions>
+    <template #actions>
       <v-btn :color="msg.type" @click="msg.visible = false"> Close </v-btn>
     </template>
   </v-snackbar>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 import { useVisualStore } from "@/stores/visual";
 import { SnackbarMsg, Type } from "@/common/interfaces";

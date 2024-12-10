@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="10" offset="1">
         <v-stepper :items="['Global Admin', 'EULA', 'Submit']">
-          <template v-slot:item.1>
+          <template #item.1>
             <v-card flat>
               <v-card-title>
                 Welcome {{ user.given_name }} {{ user.family_name }}
@@ -17,7 +17,7 @@
             </v-card>
           </template>
 
-          <template v-slot:item.2>
+          <template #item.2>
             <v-card flat>
               <div style="max-height: 50vh; overflow-y: auto">
                 <EULA></EULA>
@@ -25,7 +25,7 @@
             </v-card>
           </template>
 
-          <template v-slot:item.3>
+          <template #item.3>
             <v-card flat>
               <v-card-title>Consent</v-card-title>
               <v-card-text
@@ -35,10 +35,10 @@
               >
               <v-card-actions
                 ><v-btn
-                  @click="bootstrap"
                   class="mb-6"
                   color="success"
                   variant="elevated"
+                  @click="bootstrap"
                   >Accept</v-btn
                 ></v-card-actions
               >

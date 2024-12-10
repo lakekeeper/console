@@ -2,7 +2,7 @@
   <v-row>
     <v-col>
       <v-card class="ma-6">
-        <v-list-item three-line class="mb-12">
+        <v-list-item class="mb-12" three-line>
           <div class="text-overline mb-4">User Profile</div>
           <v-list-item-title class="text-h5 mb-1">
             {{ user.given_name }} {{ user.family_name }}
@@ -12,10 +12,10 @@
             >{{ userCatalog.id }}
 
             <v-btn
-              icon="mdi-content-copy"
-              variant="flat"
-              size="small"
               :disabled="userCatalog.id == ''"
+              icon="mdi-content-copy"
+              size="small"
+              variant="flat"
               @click="functions.copyToClipboard(userCatalog.id)"
             ></v-btn
           ></v-list-item-subtitle>

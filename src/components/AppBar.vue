@@ -1,6 +1,6 @@
 <template>
   <v-app-bar :elevation="2">
-    <template v-slot:prepend>
+    <template #prepend>
       <v-app-bar-nav-icon :icon="navIcon" @click="navBar"></v-app-bar-nav-icon>
     </template>
 
@@ -10,7 +10,7 @@
     </v-list-item>
     <v-spacer></v-spacer>
 
-    <v-menu open-on-hover v-if="userStorage.isAuthenticated">
+    <v-menu v-if="userStorage.isAuthenticated" open-on-hover>
       <template #activator="{ props }">
         <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
       </template>
@@ -20,10 +20,10 @@
             {{ userStorage.user.given_name }}
             {{ userStorage.user.family_name }}
             <v-btn
-              @click="toggleTheme"
-              size="x-small"
               :icon="themeLight ? 'mdi-lightbulb-off' : 'mdi-lightbulb-on'"
+              size="x-small"
               variant="text"
+              @click="toggleTheme"
             ></v-btn>
           </v-list-item-title>
         </v-list-item>
@@ -45,7 +45,7 @@
       </v-list>
     </v-menu>
 
-    <v-menu open-on-hover v-if="!enabledAuthorization">
+    <v-menu v-if="!enabledAuthorization" open-on-hover>
       <template #activator="{ props }">
         <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
       </template>
@@ -55,10 +55,10 @@
             {{ userStorage.user.given_name }}
             {{ userStorage.user.family_name }}
             <v-btn
-              @click="toggleTheme"
-              size="x-small"
               :icon="themeLight ? 'mdi-lightbulb-off' : 'mdi-lightbulb-on'"
+              size="x-small"
               variant="text"
+              @click="toggleTheme"
             ></v-btn>
           </v-list-item-title>
         </v-list-item>

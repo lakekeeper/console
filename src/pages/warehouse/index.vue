@@ -1,12 +1,12 @@
 <template>
-  <v-container class="fill-height" v-if="loading">
+  <v-container v-if="loading" class="fill-height">
     <v-responsive class="align-centerfill-height mx-auto" max-width="900">
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
-          :size="126"
-          indeterminate
           color="info"
+          indeterminate
+          :size="126"
         ></v-progress-circular>
       </v-row>
 
@@ -17,40 +17,40 @@
     <v-row class="ml-1">
       <v-col>
         <v-breadcrumbs :items="['warhouses']"></v-breadcrumbs>
-        <v-toolbar flat density="compact" class="mb-4" color="transparent">
+        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">Warehouses </span>
           </v-toolbar-title>
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon>mdi-warehouse</v-icon>
           </template>
           <v-spacer></v-spacer>
           <AddWarehouseDialog
             v-if="myAccess.includes('create_warehouse')"
-            :warehouse="undefined"
             :intent="Intent.CREATE"
-            :processStatus="'starting'"
             :object-type="ObjectType.WAREHOUSE"
+            :process-status="'starting'"
+            :warehouse="undefined"
             @added-warehouse="listWarhouse"
           />
         </v-toolbar>
         <v-data-table
           v-if="myAccess.includes('list_warehouses')"
-          :headers="headers"
           fixed-header
+          :headers="headers"
           hover
           :items="whResponse"
           :sort-by="[{ key: 'name', order: 'asc' }]"
         >
-          <template v-slot:item.name="{ item }">
-            <td @click="navigateToWarehouse(item)" class="pointer-cursor">
+          <template #item.name="{ item }">
+            <td class="pointer-cursor" @click="navigateToWarehouse(item)">
               <span class="icon-text">
                 <v-icon
-                  class="mr-2"
                   v-if="
                     item['storage-profile'].type === 's3' &&
                     item['storage-profile'].flavor === 'aws'
                   "
+                  class="mr-2"
                   color="orange"
                   size="large"
                   >mdi-aws</v-icon
@@ -60,20 +60,20 @@
                     item['storage-profile'].type === 's3' &&
                     item['storage-profile'].flavor !== 'aws'
                   "
-                  :width="24"
-                  src="@/assets/s3.svg"
                   class="mb-2 mr-2"
+                  src="@/assets/s3.svg"
+                  :width="24"
                 ></v-img>
                 <v-icon
-                  class="mr-2"
                   v-if="item['storage-profile'].type === 'adls'"
+                  class="mr-2"
                   color="primary"
                   size="large"
                   >mdi-microsoft-azure</v-icon
                 >
                 <v-icon
-                  class="mr-2"
                   v-if="item['storage-profile'].type === 'gcs'"
+                  class="mr-2"
                   color="info"
                   size="large"
                   >mdi-google-cloud</v-icon
@@ -84,26 +84,26 @@
               >
             </td>
           </template>
-          <template v-slot:item.actions="{ item }">
+          <template #item.actions="{ item }">
             <span icon-text>
               <v-icon
                 v-if="item.actions.includes('view')"
-                :disabled="!myAccess.includes('delete')"
                 class="mr-1"
                 color="error"
+                :disabled="!myAccess.includes('delete')"
                 @click="deleteWarehouse(item.id)"
                 >mdi-delete-outline</v-icon
               >
             </span>
           </template>
-          <template v-slot:no-data>
+          <template #no-data>
             <AddWarehouseDialog
               v-if="myAccess.includes('create_warehouse')"
-              :warehouse="undefined"
-              :processStatus="'starting'"
-              @added-warehouse="listWarhouse"
               :intent="Intent.CREATE"
               :object-type="ObjectType.WAREHOUSE"
+              :process-status="'starting'"
+              :warehouse="undefined"
+              @added-warehouse="listWarhouse"
             />
           </template>
         </v-data-table>
@@ -131,7 +131,7 @@ const functions = useFunctions();
 const missAccessPermission = ref(true);
 const loading = ref(true);
 
-const headers: readonly Header<any>[] = Object.freeze([
+const headers: readonly Header[] = Object.freeze([
   { title: "Name", key: "name", align: "start" },
   { title: "Actions", key: "actions", align: "end", sortable: false },
 ]);
@@ -161,7 +161,7 @@ async function listWarhouse() {
     whResponse.splice(0, whResponse.length);
     const wh = await functions.listWarehouses();
 
-    wh.warehouses.forEach((w) => {
+    wh.warehouses.forEach(() => {
       Object.assign(whResponse, wh.warehouses);
       whResponse.forEach((w) => {
         w.actions = [];

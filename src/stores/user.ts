@@ -39,8 +39,8 @@ export const useUserStore = defineStore(
       user.given_name = "Anon";
     }
 
-    function renewAT(access_token: string) {
-      user.access_token = access_token;
+    function renewAT(accessToken: string) {
+      user.access_token = accessToken;
     }
 
     return { isAuthenticated, user, unsetUser, setUser, getUser, renewAT };

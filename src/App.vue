@@ -24,7 +24,6 @@ onMounted(async () => {
 
       if (!serverInfo.bootstrapped) router.push("/bootstrap");
       visual.showAppOrNavBar = true;
-    } else {
     }
   } catch (error) {
     console.error("Error during App processing:", error);

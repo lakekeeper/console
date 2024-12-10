@@ -3,32 +3,32 @@
     <!--Storage Credentials-->
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['aws-access-key-id']"
-      label="AWS Access Key ID"
-      :rules="[rules.required]"
-      placeholder="AKIAIOSFODNN7EXAMPLE"
       autocomplete="username"
+      label="AWS Access Key ID"
+      placeholder="AKIAIOSFODNN7EXAMPLE"
+      :rules="[rules.required]"
     ></v-text-field>
     <v-text-field
       v-model="
         warehouseObjectData['storage-credential']['aws-secret-access-key']
       "
-      autocomplete="current-password"
-      label="AWS Secret Access Key"
-      :rules="[rules.required]"
-      placeholder="your-aws-secret-access-key"
-      :type="showPassword ? 'text' : 'password'"
       :append-inner-icon="
         showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'
       "
+      autocomplete="current-password"
+      label="AWS Secret Access Key"
+      placeholder="your-aws-secret-access-key"
+      :rules="[rules.required]"
+      :type="showPassword ? 'text' : 'password'"
       @click:append-inner="showPassword = !showPassword"
     ></v-text-field>
     <v-btn
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
+      color="success"
       :disabled="
         !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
         !warehouseObjectData['storage-credential']['aws-secret-access-key']
       "
-      color="success"
       @click="emitNewCredentials"
       >Update Credentials
     </v-btn>
@@ -45,14 +45,14 @@
     >
       <v-select
         v-model="warehouseObjectData['storage-profile'].flavor"
-        :items="s3Flavor"
         item-title="name"
         item-value="code"
+        :items="s3Flavor"
         label="S3 Flavor"
-        :rules="[rules.required]"
         placeholder="Select S3 Flavor"
+        :rules="[rules.required]"
       >
-        <template v-slot:item="{ props, item }">
+        <template #item="{ props, item }">
           <v-list-item
             v-bind="props"
             :subtitle="item.raw.code"
@@ -62,8 +62,8 @@
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].bucket"
         label="Bucket"
-        :rules="[rules.required]"
         placeholder="my-bucket"
+        :rules="[rules.required]"
       ></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
@@ -80,26 +80,26 @@
         v-model="warehouseObjectData['storage-profile'].region"
         :items="regions"
         label="Bucket Region"
-        :rules="[rules.required]"
         placeholder="eu-central-1"
+        :rules="[rules.required]"
       ></v-combobox>
 
       <v-row>
         <v-col cols="3">
           <v-switch
             v-model="warehouseObjectData['storage-profile']['sts-enabled']"
+            color="primary"
             :label="
               warehouseObjectData['storage-profile']['sts-enabled']
                 ? `STS is enabled `
                 : `Enable STS`
             "
-            color="primary"
           ></v-switch
         ></v-col>
         <v-col
           ><v-text-field
-            v-model="warehouseObjectData['storage-profile']['sts-role-arn']"
             v-if="warehouseObjectData['storage-profile']['sts-enabled']"
+            v-model="warehouseObjectData['storage-profile']['sts-role-arn']"
             label="STS Role ARN"
             placeholder="arn:aws:iam::123456789012:role/role-name"
           ></v-text-field
@@ -107,12 +107,11 @@
       </v-row>
 
       <v-btn
-        color="success"
-        type="submit"
         v-if="
           props.intent === Intent.CREATE &&
           props.objectType === ObjectType.WAREHOUSE
         "
+        color="success"
         :disabled="
           !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
           !warehouseObjectData['storage-credential']['aws-secret-access-key'] ||
@@ -122,15 +121,15 @@
           (warehouseObjectData['storage-profile']['sts-enabled'] &&
             !warehouseObjectData['storage-profile']['sts-role-arn'])
         "
+        type="submit"
         >Submit
       </v-btn>
       <v-btn
-        color="success"
-        @click="emitNewProfile"
         v-if="
           props.intent === Intent.UPDATE &&
           props.objectType === ObjectType.STORAGE_PROFILE
         "
+        color="success"
         :disabled="
           !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
           !warehouseObjectData['storage-credential']['aws-secret-access-key'] ||
@@ -140,6 +139,7 @@
           (warehouseObjectData['storage-profile']['sts-enabled'] &&
             !warehouseObjectData['storage-profile']['sts-role-arn'])
         "
+        @click="emitNewProfile"
         >Update Profile
       </v-btn>
     </div>
@@ -171,7 +171,7 @@ const emit = defineEmits<{
   (e: "submit", warehouseObjectDataEmit: WarehousObject): void;
   (e: "update-credentials", credentials: StorageCredential): void;
   (
-    e: "update-profile",
+    e: "updateProfile",
     newProfile: { profile: StorageProfile; credentials: StorageCredential }
   ): void;
 }>();
@@ -270,7 +270,7 @@ const emitNewProfile = () => {
         warehouseObjectData["storage-credential"]["aws-secret-access-key"],
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
-  emit("update-profile", newProfile);
+  emit("updateProfile", newProfile);
 };
 
 onMounted(() => {

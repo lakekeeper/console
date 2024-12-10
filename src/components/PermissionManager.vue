@@ -1,45 +1,45 @@
 <template>
   <v-data-table
-    :headers="headers"
     fixed-header
+    :headers="headers"
     hover
     :items="permissionRows"
     :sort-by="[{ key: 'name', order: 'asc' }]"
   >
-    <template v-slot:top>
-      <v-toolbar flat density="compact" color="transparent">
+    <template #top>
+      <v-toolbar color="transparent" density="compact" flat>
         <v-switch
           v-if="
             props.relationType === 'warehouse' ||
             props.relationType === 'namespace'
           "
-          class="ml-4 mt-4"
           v-model="isManagedAccess"
-          @click="switchManagedAccess"
+          class="ml-4 mt-4"
           color="info"
           :label="managedAccess"
+          @click="switchManagedAccess"
         ></v-switch>
 
         <v-spacer></v-spacer>
         <span class="icon-text">
           <AssignToRoleDialogSingle
-            class="mr-2"
-            :actionType="'grant'"
-            :relation="props.relationType"
-            :assignments="props.existingPermissionsFromObj"
+            :action-type="'grant'"
             :assignee="''"
+            :assignments="props.existingPermissionsFromObj"
+            class="mr-2"
             :obj="props.assignableObj"
+            :relation="props.relationType"
             @assignments="assign"
           />
         </span>
       </v-toolbar>
     </template>
-    <template v-slot:item.name="{ item }">
+    <template #item.name="{ item }">
       <span class="icon-text">
-        <v-icon class="mr-2" v-if="item.kind == 'user'"
+        <v-icon v-if="item.kind == 'user'" class="mr-2"
           >mdi-account-circle-outline</v-icon
         >
-        <v-icon class="mr-2" v-else>mdi-account-box-multiple-outline</v-icon>
+        <v-icon v-else class="mr-2">mdi-account-box-multiple-outline</v-icon>
         {{ item.name }}
       </span>
     </template>
@@ -53,26 +53,26 @@
         </span>
       </td>
     </template-->
-    <template v-slot:item.type="{ item }">
+    <template #item.type="{ item }">
       <AssignToRoleDialogSingle
-        :actionType="'edit'"
-        :relation="props.relationType"
-        :assignments="props.existingPermissionsFromObj"
+        :action-type="'edit'"
         :assignee="item.id"
+        :assignments="props.existingPermissionsFromObj"
         :obj="props.assignableObj"
+        :relation="props.relationType"
         @assignments="assign"
       />
-      <v-chip v-for="(t, i) in item.type" :key="i" size="small" class="mr-1">{{
+      <v-chip v-for="(t, i) in item.type" :key="i" class="mr-1" size="small">{{
         t
       }}</v-chip>
     </template>
-    <template v-slot:no-data>
+    <template #no-data>
       <AssignToRoleDialogSingle
-        :actionType="'assign'"
-        :relation="props.relationType"
-        :assignments="props.existingPermissionsFromObj"
+        :action-type="'assign'"
         :assignee="''"
+        :assignments="props.existingPermissionsFromObj"
         :obj="props.assignableObj"
+        :relation="props.relationType"
         @assignments="assign"
       />
     </template>
@@ -93,7 +93,7 @@ const functions = useFunctions();
 
 const isManagedAccess = ref(false);
 const isManagedAccessInherited = ref(false);
-const headers: readonly Header<any>[] = Object.freeze([
+const headers: readonly Header[] = Object.freeze([
   { title: "Name", key: "name", align: "start" },
   { title: "Email", key: "email", align: "start" },
   { title: "Roles", key: "type", align: "start", sortable: false },

@@ -1,12 +1,12 @@
 <template>
-  <v-dialog max-width="850" v-model="isDialogActive">
-    <template v-slot:activator="{ props: activatorProps }">
+  <v-dialog v-model="isDialogActive" max-width="850">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         v-if="creatingWarehouse || props.objectType === ObjectType.WAREHOUSE"
         v-bind="activatorProps"
-        text="Add Warehouse"
-        size="small"
         color="info"
+        size="small"
+        text="Add Warehouse"
         variant="flat"
       ></v-btn>
       <span
@@ -41,26 +41,26 @@
           <v-row justify="center">
             <v-progress-circular
               class="mt-4"
-              :size="126"
-              indeterminate
               color="info"
+              indeterminate
+              :size="126"
             ></v-progress-circular>
           </v-row>
         </v-card-text>
       </span>
       <span v-else-if="creatingWarehouse || props.processStatus == 'success'">
         <v-card-text style="min-height: 25vh">
-          <v-row justify="center" class="mt-6">
+          <v-row class="mt-6" justify="center">
             <div class="text-h4">Your Credentials are successfully updated</div>
           </v-row>
         </v-card-text>
         <v-card-actions>
           <v-btn
+            color="success"
             @click="
               isDialogActive = false;
               $emit('close');
             "
-            color="success"
             >Close</v-btn
           >
         </v-card-actions>
@@ -72,8 +72,8 @@
               v-if="emptyWarehouse"
               v-model="warehouseName"
               label="Warehouse Name"
-              :rules="[rules.required, rules.noSlash]"
               placeholder="my-warehouse"
+              :rules="[rules.required, rules.noSlash]"
             ></v-text-field>
             <v-row justify="center">
               <v-col
@@ -84,33 +84,33 @@
               >
                 <v-switch
                   v-model="delProfileSoftActive"
+                  color="primary"
                   :label="
                     delProfileSoftActive
                       ? `Soft Deletion is enabled`
                       : `Enable Soft Deletion`
                   "
-                  color="primary"
                 ></v-switch>
               </v-col>
               <v-col class="d-flex justify-center">
                 <v-slider
                   v-if="delProfileSoftActive"
-                  label="Define number of Days"
                   v-model="slider"
+                  class="align-center"
+                  hide-details
+                  label="Define number of Days"
                   :max="max"
                   :min="min"
                   :step="1"
-                  hide-details
-                  class="align-center"
                 >
-                  <template v-slot:append>
+                  <template #append>
                     <v-text-field
                       v-model="slider"
                       density="compact"
-                      style="width: 100px"
-                      type="number"
                       hide-details
                       single-line
+                      style="width: 100px"
+                      type="number"
                     ></v-text-field>
                   </template>
                 </v-slider>
@@ -119,12 +119,12 @@
             <v-row v-if="props.objectType === ObjectType.DELETION_PROFILE"
               ><v-col>
                 <v-btn
-                  @click="emitDeletionProfile"
                   color="success"
                   :disabled="
                     slider === loadedDeltionSeconds &&
                     delProfileSoftActive === loadedDelProfileSoftActive
                   "
+                  @click="emitDeletionProfile"
                   >Change Delition</v-btn
                 >
               </v-col></v-row
@@ -137,12 +137,12 @@
                       <div>
                         <v-radio
                           :key="i"
-                          :value="type"
+                          v-model="storageCredentialType"
                           color="primary"
                           :disabled="!emptyWarehouse"
-                          v-model="storageCredentialType"
+                          :value="type"
                         >
-                          <template v-slot:label>
+                          <template #label>
                             <div>
                               <v-icon
                                 v-if="type === 'S3'"
@@ -182,47 +182,47 @@
 
               <div v-if="storageCredentialType === 'S3'">
                 <WarehouseS3
-                  @submit="createWarehouse"
-                  @update-credentials="newCredentials"
-                  @update-profile="newProfile"
                   :credentials-only="emptyWarehouse"
                   :intent="intent"
                   :object-type="objectType"
                   :warehouse-object="warehouseObjectS3"
+                  @submit="createWarehouse"
+                  @update-credentials="newCredentials"
+                  @update-profile="newProfile"
                 ></WarehouseS3>
               </div>
 
               <div v-if="storageCredentialType === 'AZURE'">
                 <WarehouseAzure
-                  @submit="createWarehouse"
-                  @update-credentials="newCredentials"
                   :credentials-only="emptyWarehouse"
                   :intent="intent"
                   :object-type="objectType"
                   :warehouse-object="warehouseObjectAz"
+                  @submit="createWarehouse"
+                  @update-credentials="newCredentials"
                 ></WarehouseAzure>
               </div>
 
               <div v-if="storageCredentialType === 'GCS'">
                 <WarehouseGCS
-                  @submit="createWarehouse"
-                  @update-credentials="newCredentials"
-                  @update-profile="newProfile"
                   :credentials-only="emptyWarehouse"
                   :intent="intent"
                   :object-type="objectType"
                   :warehouse-object="warehouseObjectGCS"
+                  @submit="createWarehouse"
+                  @update-credentials="newCredentials"
+                  @update-profile="newProfile"
                 ></WarehouseGCS>
               </div> </span
           ></v-form>
         </v-card-text>
         <v-card-actions>
           <v-btn
+            color="error"
             @click="
               isDialogActive = false;
               $emit('cancel');
             "
-            color="error"
             >Cancel</v-btn
           >
         </v-card-actions>
@@ -232,18 +232,18 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
+import { reactive, ref } from "vue";
 import { useFunctions } from "../plugins/functions";
 
 import { useVisualStore } from "../stores/visual";
 
 import {
-  GetWarehouseResponse,
   CreateWarehouseRequest,
+  GcsServiceKey,
+  GetWarehouseResponse,
   StorageCredential,
   StorageProfile,
   TabularDeleteProfile,
-  GcsServiceKey,
 } from "../gen/management/types.gen";
 import { Intent, ObjectType } from "../common/enums";
 import { WarehousObject } from "@/common/interfaces";
@@ -261,15 +261,15 @@ const delProfileSoftActive = ref(false);
 const isDialogActive = ref(false);
 
 const emit = defineEmits<{
-  (e: "added-warehouse"): void;
+  (e: "addedWarehouse"): void;
   (e: "cancel"): void;
   (e: "close"): void;
-  (e: "update-credentials", credentials: StorageCredential): void;
+  (e: "updateCredentials", credentials: StorageCredential): void;
   (
-    e: "update-profile",
+    e: "updateProfile",
     newProfile: { profile: StorageProfile; credentials: StorageCredential }
   ): void;
-  (e: "update-deletion-profile", profile: TabularDeleteProfile): void;
+  (e: "updateDeletionProfile", profile: TabularDeleteProfile): void;
 }>();
 
 const props = defineProps<{
@@ -329,7 +329,7 @@ const warehouseObjectGCS = reactive<WarehousObject>({
   "storage-credential": {
     type: "gcs",
     "credential-type": "service-account-key",
-    key: key,
+    key,
   },
 });
 
@@ -361,7 +361,7 @@ async function createWarehouse(warehouseObject: WarehousObject) {
 
     const delProfileSoft = reactive<TabularDeleteProfile>({
       type: "soft",
-      ["expiration-seconds"]: Math.round(slider.value * 86400),
+      "expiration-seconds": Math.round(slider.value * 86400),
     });
 
     const delProfileHard = reactive<TabularDeleteProfile>({
@@ -384,9 +384,9 @@ async function createWarehouse(warehouseObject: WarehousObject) {
 
     const res: any = await functions.createWarehouse(wh);
 
-    if (res.status == 400) throw new Error(res.message);
+    if (res.status === 400) throw new Error(res.message);
 
-    emit("added-warehouse");
+    emit("addedWarehouse");
     creatingWarehouse.value = false;
     isDialogActive.value = false;
   } catch (error) {
@@ -399,7 +399,7 @@ async function createWarehouse(warehouseObject: WarehousObject) {
 function emitDeletionProfile() {
   const delProfileSoft = reactive<TabularDeleteProfile>({
     type: "soft",
-    ["expiration-seconds"]: Math.round(slider.value * 86400),
+    "expiration-seconds": Math.round(slider.value * 86400),
   });
 
   const delProfileHard = reactive<TabularDeleteProfile>({
@@ -410,18 +410,18 @@ function emitDeletionProfile() {
     return delProfileSoftActive.value ? delProfileSoft : delProfileHard;
   });
 
-  emit("update-deletion-profile", delProfile.value);
+  emit("updateDeletionProfile", delProfile.value);
 }
 
 function newCredentials(credentials: StorageCredential) {
-  emit("update-credentials", credentials);
+  emit("updateCredentials", credentials);
 }
 
-function newProfile(newProfile: {
+function newProfile(item: {
   profile: StorageProfile;
   credentials: StorageCredential;
 }) {
-  emit("update-profile", newProfile);
+  emit("updateProfile", item);
 }
 
 onMounted(() => {
@@ -437,16 +437,14 @@ onMounted(() => {
       storageCredentialType.value = "GCS";
     if (
       props.objectType === ObjectType.DELETION_PROFILE &&
-      props.warehouse["delete-profile"].type == "soft"
+      props.warehouse["delete-profile"].type === "soft"
     ) {
-      {
-        slider.value = Math.round(
-          props.warehouse["delete-profile"]["expiration-seconds"] / 86400
-        );
-        loadedDeltionSeconds.value = slider.value;
+      slider.value = Math.round(
+        props.warehouse["delete-profile"]["expiration-seconds"] / 86400
+      );
+      loadedDeltionSeconds.value = slider.value;
 
-        delProfileSoftActive.value = true;
-      }
+      delProfileSoftActive.value = true;
     }
     loadedDelProfileSoftActive.value = delProfileSoftActive.value;
   }

@@ -4,27 +4,27 @@
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['client-id']"
       label="client-id"
-      :rules="[rules.required]"
       placeholder=""
+      :rules="[rules.required]"
     ></v-text-field>
 
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['client-secret']"
-      autocomplete="current-password"
-      label="client-secret"
-      :rules="[rules.required]"
-      placeholder="your-client-secret-"
-      :type="showPassword ? 'text' : 'password'"
       :append-inner-icon="
         showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'
       "
+      autocomplete="current-password"
+      label="client-secret"
+      placeholder="your-client-secret-"
+      :rules="[rules.required]"
+      :type="showPassword ? 'text' : 'password'"
       @click:append-inner="showPassword = !showPassword"
     ></v-text-field>
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['tenant-id']"
       label="tenant-id"
-      :rules="[rules.required]"
       placeholder=""
+      :rules="[rules.required]"
     ></v-text-field>
 
     <v-btn
@@ -52,14 +52,14 @@
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['account-name']"
         label="account-name"
-        :rules="[rules.required]"
         placeholder="my-account"
+        :rules="[rules.required]"
       ></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['filesystem']"
         label="Filesystem"
-        :rules="[rules.required, rules.noSlash]"
         placeholder="my-filesystem"
+        :rules="[rules.required, rules.noSlash]"
       ></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
@@ -68,25 +68,25 @@
       ></v-text-field>
 
       <v-btn
-        color="success"
-        type="submit"
         v-if="
           props.intent === Intent.CREATE &&
           props.objectType === ObjectType.WAREHOUSE
         "
+        color="success"
+        type="submit"
         >Submit
       </v-btn>
       <v-btn
-        color="success"
-        @click="emitNewProfile"
         v-if="
           props.intent === Intent.UPDATE &&
           props.objectType === ObjectType.STORAGE_PROFILE
         "
+        color="success"
         :disabled="
           !warehouseObjectData['storage-profile']['account-name'] ||
           !warehouseObjectData['storage-profile']['filesystem']
         "
+        @click="emitNewProfile"
         >Update Profile
       </v-btn>
     </div>
@@ -116,7 +116,7 @@ const emit = defineEmits<{
   (e: "submit", warehouseObjectDataEmit: WarehousObject): void;
   (e: "update-credentials", credentials: StorageCredential): void;
   (
-    e: "update-profile",
+    e: "updateProfile",
     newProfile: { profile: StorageProfile; credentials: StorageCredential }
   ): void;
 }>();
@@ -168,7 +168,7 @@ const emitNewProfile = () => {
       type: "az",
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
-  emit("update-profile", newProfile);
+  emit("updateProfile", newProfile);
 };
 
 onMounted(() => {
