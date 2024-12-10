@@ -25,9 +25,13 @@
           </template>
         </v-toolbar>
         <v-tabs v-model="tab">
-          <v-tab value="overview">overview</v-tab>
-          <v-tab value="raw">raw</v-tab>
-          <v-tab value="permissions" v-if="enabledAuthorization">
+          <v-tab value="overview" @click="loadTabData">overview</v-tab>
+          <v-tab value="raw" @click="loadTabData">raw</v-tab>
+          <v-tab
+            value="permissions"
+            v-if="enabledAuthorization"
+            @click="loadTabData"
+          >
             Permissions
           </v-tab>
         </v-tabs>
@@ -247,6 +251,10 @@ async function assign(permissions: {
 
     await init();
   }
+}
+
+async function loadTabData() {
+  init();
 }
 </script>
 

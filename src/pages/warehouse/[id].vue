@@ -44,15 +44,20 @@
           />
         </v-toolbar>
         <v-tabs v-model="tab" density="compact">
-          <v-tab value="namespaces" density="compact">namespaces</v-tab>
+          <v-tab value="namespaces" density="compact" @click="loadTabData"
+            >namespaces</v-tab
+          >
           <v-tab
             value="permissions"
             v-if="can_read_permissions && enabledAuthorization"
             density="compact"
+            @click="loadTabData"
           >
             permissions
           </v-tab>
-          <v-tab value="details" density="compact">Details</v-tab>
+          <v-tab value="details" density="compact" @click="loadTabData"
+            >Details</v-tab
+          >
         </v-tabs>
         <v-card style="max-height: 65vh; overflow: auto">
           <v-tabs-window v-model="tab">
@@ -465,7 +470,15 @@ async function loadWarehouse() {
     Object.assign(selectedWarehouse, whResponse);
   }
 }
-
+async function loadTabData() {
+  if (tab.value === "namespaces") {
+    await listNamespaces();
+  } else if (tab.value === "permissions") {
+    await init();
+  } else if (tab.value === "details") {
+    await loadWarehouse();
+  }
+}
 async function init() {
   try {
     loaded.value = false;
