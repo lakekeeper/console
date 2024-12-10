@@ -1,21 +1,21 @@
 // Utilities
-import { User } from "@/common/interfaces";
-import { defineStore } from "pinia";
+import { User } from '@/common/interfaces';
+import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore(
-  "user",
+  'user',
   () => {
     const isAuthenticated = ref(false);
 
     const user: User = reactive({
-      access_token: "",
-      id_token: "",
-      refresh_token: "",
+      access_token: '',
+      id_token: '',
+      refresh_token: '',
       token_expires_at: 0,
-      email: "anonymous@unknown.com",
-      preferred_username: "anonymous",
-      family_name: "Ymous",
-      given_name: "Anon",
+      email: 'anonymous@unknown.com',
+      preferred_username: 'anonymous',
+      family_name: 'Ymous',
+      given_name: 'Anon',
     });
 
     function setUser(newUser: User) {
@@ -29,26 +29,26 @@ export const useUserStore = defineStore(
 
     function unsetUser() {
       isAuthenticated.value = false;
-      user.access_token = "";
-      user.id_token = "";
-      user.refresh_token = "";
+      user.access_token = '';
+      user.id_token = '';
+      user.refresh_token = '';
       user.token_expires_at = 0;
-      user.email = "anonymous@unknown.com";
-      user.preferred_username = "anonymous";
-      user.family_name = "Ymous";
-      user.given_name = "Anon";
+      user.email = 'anonymous@unknown.com';
+      user.preferred_username = 'anonymous';
+      user.family_name = 'Ymous';
+      user.given_name = 'Anon';
     }
 
-    function renewAT(access_token: string) {
-      user.access_token = access_token;
+    function renewAT(accessToken: string) {
+      user.access_token = accessToken;
     }
 
     return { isAuthenticated, user, unsetUser, setUser, getUser, renewAT };
   },
   {
     persistedState: {
-      key: "user",
+      key: 'user',
       persist: true,
     },
-  }
+  },
 );

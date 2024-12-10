@@ -10,11 +10,7 @@
       "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
-    "types": [
-      "vite/client",
-      "vite-plugin-vue-layouts/client",
-      "unplugin-vue-router/client"
-    ],
+    "types": ["vite/client", "vite-plugin-vue-layouts/client", "unplugin-vue-router/client"],
     "allowJs": true,
     "strict": true,
     "strictNullChecks": true,
@@ -26,5 +22,5 @@
   },
   "include": ["src/**/*", "src/**/*.vue", "src/**/*.ts"],
   "exclude": ["dist", "node_modules", "cypress"],
-  "references": [{"path": "./tsconfig.node.json"}]
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

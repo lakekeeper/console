@@ -3,21 +3,18 @@
     <v-row>
       <v-col cols="10" offset="1">
         <v-stepper :items="['Global Admin', 'EULA', 'Submit']">
-          <template v-slot:item.1>
+          <template #item.1>
             <v-card flat>
-              <v-card-title>
-                Welcome {{ user.given_name }} {{ user.family_name }}
-              </v-card-title>
+              <v-card-title> Welcome {{ user.given_name }} {{ user.family_name }} </v-card-title>
               <v-card-text>
-                Welcome to the initial setup for your system! As part of this
-                setup, you'll create a Global Admin—a key user with full
-                permissions to configure and manage your platform's settings and
-                users.
+                Welcome to the initial setup for your system! As part of this setup, you'll create a
+                Global Admin—a key user with full permissions to configure and manage your
+                platform's settings and users.
               </v-card-text>
             </v-card>
           </template>
 
-          <template v-slot:item.2>
+          <template #item.2>
             <v-card flat>
               <div style="max-height: 50vh; overflow-y: auto">
                 <EULA></EULA>
@@ -25,20 +22,15 @@
             </v-card>
           </template>
 
-          <template v-slot:item.3>
+          <template #item.3>
             <v-card flat>
               <v-card-title>Consent</v-card-title>
               <v-card-text
-                >By proceeding, you acknowledge that you have read, understood,
-                and agree to the terms and conditions of the End User License
-                Agreement (EULA).</v-card-text
+                >By proceeding, you acknowledge that you have read, understood, and agree to the
+                terms and conditions of the End User License Agreement (EULA).</v-card-text
               >
               <v-card-actions
-                ><v-btn
-                  @click="bootstrap"
-                  class="mb-6"
-                  color="success"
-                  variant="elevated"
+                ><v-btn class="mb-6" color="success" variant="elevated" @click="bootstrap"
                   >Accept</v-btn
                 ></v-card-actions
               >
@@ -53,12 +45,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount } from "vue";
-import { useUserStore } from "../stores/user";
-import { useVisualStore } from "../stores/visual";
-import { ServerInfo } from "@/gen/management/types.gen";
-import router from "../router";
-import { useFunctions } from "../plugins/functions";
+import { onBeforeMount } from 'vue';
+import { useUserStore } from '../stores/user';
+import { useVisualStore } from '../stores/visual';
+import { ServerInfo } from '@/gen/management/types.gen';
+import router from '../router';
+import { useFunctions } from '../plugins/functions';
 
 const functions = useFunctions();
 const userStore = useUserStore();
@@ -90,7 +82,7 @@ async function getServerInfo() {
   try {
     const data: ServerInfo = await functions.getServerInfo();
     visual.setProjectCatalog(data);
-    if (visual.projectInfo.bootstrapped) router.push("/");
+    if (visual.projectInfo.bootstrapped) router.push('/');
   } catch (error) {}
 }
 </script>

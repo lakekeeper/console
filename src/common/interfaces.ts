@@ -1,6 +1,8 @@
-import { Namespace } from "@/gen/iceberg/types.gen";
+import { Namespace } from '@/gen/iceberg/types.gen';
 import {
   AdlsProfile,
+  AzCredential,
+  GcsCredential,
   GcsProfile,
   NamespaceAssignment,
   ProjectAssignment,
@@ -8,16 +10,14 @@ import {
   S3Credential,
   S3Profile,
   ServerAssignment,
-  AzCredential,
-  GcsCredential,
   TableAssignment,
   ViewAssignment,
   WarehouseAssignment,
-} from "@/gen/management/types.gen";
+} from '@/gen/management/types.gen';
 
 export interface Project {
-  "project-id": string;
-  "project-name": string;
+  'project-id': string;
+  'project-name': string;
 }
 
 export interface Data {
@@ -82,16 +82,16 @@ export interface User {
 export interface ProjectCatalog {
   version: string;
   bootstrapped: boolean;
-  "server-id": string;
-  "default-project-id": string;
-  "authz-backend": string;
+  'server-id': string;
+  'default-project-id': string;
+  'authz-backend': string;
 }
 
 export enum Type {
-  ERROR = "error",
-  WARNING = "warning",
-  INFO = "info",
-  SUCCESS = "success",
+  ERROR = 'error',
+  WARNING = 'warning',
+  INFO = 'info',
+  SUCCESS = 'success',
 }
 export interface SnackbarMsg {
   function?: string;
@@ -107,13 +107,13 @@ export interface NamespaceResponse {
 }
 
 export type RelationType =
-  | "role"
-  | "project"
-  | "server"
-  | "warehouse"
-  | "namespace"
-  | "view"
-  | "table";
+  | 'role'
+  | 'project'
+  | 'server'
+  | 'warehouse'
+  | 'namespace'
+  | 'view'
+  | 'table';
 
 export type AssignmentCollection =
   | RoleAssignment[]
@@ -140,22 +140,22 @@ export interface Breadcrumb {
 
 type CustomStringType =
   | (string & {})
-  | "data-table-group"
-  | "data-table-select"
-  | "data-table-expand";
+  | 'data-table-group'
+  | 'data-table-select'
+  | 'data-table-expand';
 
-export interface Header<T> {
+export interface Header {
   readonly key?: CustomStringType;
   readonly title?: string;
-  readonly align?: "end" | "center" | "start";
+  readonly align?: 'end' | 'center' | 'start';
 }
 
 export interface WarehousObject {
-  "storage-profile":
+  'storage-profile':
     | (S3Profile & { type: string })
     | (AdlsProfile & { type: string })
     | (GcsProfile & { type: string });
-  "storage-credential":
+  'storage-credential':
     | (S3Credential & { type: string })
     | (AzCredential & { type: string })
     | (GcsCredential & { type: string });

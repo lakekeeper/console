@@ -1,5 +1,5 @@
 <template>
-  <v-dialog max-width="300" v-model="isDialogActive">
+  <v-dialog v-model="isDialogActive" max-width="300">
     <v-card style="max-height: 90vh; overflow-y: auto">
       <v-card-title>Deleting</v-card-title>
 
@@ -7,9 +7,9 @@
         <v-row justify="center">
           <v-progress-circular
             class="mt-4"
-            :size="126"
-            indeterminate
             color="error"
+            indeterminate
+            :size="126"
           ></v-progress-circular>
         </v-row>
       </v-card-text>
@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from "vue";
+import { defineProps } from 'vue';
 
 const isDialogActive = ref(false);
 
@@ -36,6 +36,6 @@ watch(
   () => deleting,
   (oldVal: boolean, newVal: boolean) => {
     isDialogActive.value = newVal;
-  }
+  },
 );
 </script>

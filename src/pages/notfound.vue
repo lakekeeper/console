@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row justify="center">
-      <v-col cols="12" md="8" class="text-center">
+      <v-col class="text-center" cols="12" md="8">
         <h1>404 - Page Not Found</h1>
         <p>The page you are looking for does not exist.</p>
         <v-btn color="primary" @click="$router.push('/')">Go to Home</v-btn>
@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: "NotFound",
+  name: 'NotFound',
 };
 </script>
 
