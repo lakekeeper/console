@@ -719,11 +719,7 @@ async function loadView(
   }
 }
 
-async function dropView(
-  warehouseId: string,
-  namespacePath: string,
-  viewName: string,
-) {
+async function dropView(warehouseId: string, namespacePath: string, viewName: string) {
   try {
     const client = ice.client;
     const { data, error } = await ice.dropView({

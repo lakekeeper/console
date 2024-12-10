@@ -3,3 +3,4 @@ release-please
 .github
 justfile
 CHANGELOG.md
+*/*.d.ts
