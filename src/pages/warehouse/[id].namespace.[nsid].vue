@@ -38,10 +38,10 @@
           />
         </v-toolbar>
         <v-tabs v-model="tab">
-          <v-tab value="namespaces">namespaces</v-tab>
-          <v-tab value="tables">tables</v-tab>
-          <v-tab value="views">views</v-tab>
-          <v-tab value="deleted">deleted</v-tab>
+          <v-tab value="namespaces" @click="loadTabData">namespaces</v-tab>
+          <v-tab value="tables" @click="loadTabData">tables</v-tab>
+          <v-tab value="views" @click="loadTabData">views</v-tab>
+          <v-tab value="deleted" @click="loadTabData">deleted</v-tab>
           <v-tab
             value="permissions"
             v-if="can_read_permissions && enabledAuthorization"
@@ -274,6 +274,20 @@ onMounted(async () => {
 onUnmounted(() => {
   items.splice(0, items.length);
 });
+
+async function loadTabData() {
+  if (tab.value === "namespaces") {
+    await listNamespaces();
+  } else if (tab.value === "permissions") {
+    await init();
+  } else if (tab.value === "tables") {
+    await listTables();
+  } else if (tab.value === "views") {
+    await listViews();
+  } else if (tab.value === "deleted") {
+    await listDeletedTabulars();
+  }
+}
 
 async function init() {
   try {
