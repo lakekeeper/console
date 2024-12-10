@@ -119,7 +119,7 @@
                     :disabled="selectedItem.id == ''"
                     :label="rel"
                     :value="rel"
-                    @update:model-value="sendAssignment($event, rel, selectedItem.id)"
+                    @update:model-value="sendAssignment($event)"
                   ></v-checkbox>
                 </v-col>
               </v-row>
@@ -370,7 +370,7 @@ function selectedObject() {
   searchFor.value = '';
 }
 
-function sendAssignment(value: any, relation: any, id: string) {
+function sendAssignment(value: any) {
   toWrite.splice(0, toWrite.length);
   toWrite.push(...value);
   toDelete.splice(0, toDelete.length);
