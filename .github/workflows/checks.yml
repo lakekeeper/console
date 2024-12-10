@@ -25,7 +25,7 @@ jobs:
         run: npm ci
 
       - name: Check formatting
-        run: just check format
+        run: just check-format
 
       - name: Run ESLint Check
         run: just check-lint
