@@ -38,10 +38,10 @@
           />
         </v-toolbar>
         <v-tabs v-model="tab">
-          <v-tab value="namespaces">namespaces</v-tab>
-          <v-tab value="tables">tables</v-tab>
-          <v-tab value="views">views</v-tab>
-          <v-tab value="deleted">deleted</v-tab>
+          <v-tab value="namespaces" @click="loadTabData">namespaces</v-tab>
+          <v-tab value="tables" @click="loadTabData">tables</v-tab>
+          <v-tab value="views" @click="loadTabData">views</v-tab>
+          <v-tab value="deleted" @click="loadTabData">deleted</v-tab>
           <v-tab
             value="permissions"
             v-if="can_read_permissions && enabledAuthorization"
@@ -134,7 +134,6 @@
                 </template>
                 <template v-slot:item.actions="{ item }">
                   <v-icon
-                    v-if="item.type === 'view'"
                     :disabled="!myAccess.includes('delete')"
                     @click="dropView(item)"
                     color="error"
@@ -275,6 +274,20 @@ onUnmounted(() => {
   items.splice(0, items.length);
 });
 
+async function loadTabData() {
+  if (tab.value === "namespaces") {
+    await listNamespaces();
+  } else if (tab.value === "permissions") {
+    await init();
+  } else if (tab.value === "tables") {
+    await listTables();
+  } else if (tab.value === "views") {
+    await listViews();
+  } else if (tab.value === "deleted") {
+    await listDeletedTabulars();
+  }
+}
+
 async function init() {
   try {
     loaded.value = false;
@@ -390,16 +403,14 @@ async function listViews() {
 
 async function dropView(item: TableIdentifierExtended) {
   try {
-    const res = await functions.dropView(
-      visual.whId,
-      namespacePath.value,
-      item.name
-    );
-    if (res) throw new Error();
+    loading.value = true;
+    await functions.dropView(visual.whId, namespacePath.value, item.name);
 
     await listViews();
   } catch (error: any) {
     console.error(`Failed to drop view-${item.name}  - `, error);
+  } finally {
+    loading.value = false;
   }
 }
 async function listDeletedTabulars() {
@@ -501,16 +512,16 @@ async function assign(permissions: {
 
 async function dropTable(item: TableIdentifierExtended) {
   try {
-    const res = await functions.dropTable(
-      visual.whId,
-      namespacePath.value,
-      item.name
-    );
-    if (res) throw new Error();
+    loading.value = true;
+
+    await functions.dropTable(visual.whId, namespacePath.value, item.name);
 
     await listTables();
+    loading.value = true;
   } catch (error: any) {
     console.error(`Failed to drop table-${item.name}  - `, error);
+  } finally {
+    loading.value = false;
   }
 }
 </script>

@@ -77,10 +77,10 @@ function init() {
 }
 
 function parseErrorText(errorText: string): { message: string; code: number } {
-  const messageMatch = errorText.match(/: (.*) at/);
+  let messageMatch = errorText.match(/: (.*) at/);
   const codeMatch = errorText.match(/: (.*):/);
 
-  const message = messageMatch ? messageMatch[1] : "An unknown error occurred";
+  const message = messageMatch ? messageMatch[1] : errorText;
   const code = codeMatch ? parseInt(codeMatch[1]) : 0;
 
   return { message, code };
@@ -120,6 +120,7 @@ function setError(error: any, ttl: number, functionCaused: string, type: Type) {
   try {
     let message = "";
     let code = 0;
+
     if (typeof error === "string") {
       const data = parseErrorText(error);
       message = data.message;
@@ -762,10 +763,10 @@ async function dropView(
   warehouseId: string,
   namespacePath: string,
   viewName: string
-): Promise<boolean> {
+) {
   try {
     const client = ice.client;
-    const { error } = await ice.dropView({
+    const { data, error } = await ice.dropView({
       client,
       path: {
         prefix: warehouseId,
@@ -773,9 +774,10 @@ async function dropView(
         view: viewName,
       },
     });
+
     if (error) throw error;
 
-    return true;
+    return data;
   } catch (error: any) {
     handleError(error, new Error());
     throw error;

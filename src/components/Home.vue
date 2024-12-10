@@ -176,7 +176,20 @@
         <v-card-title class="text-h5 font-weight-bold">
           You don't have any projects assignments
         </v-card-title>
-        <v-card-subtitle> Please talk to your administrator </v-card-subtitle>
+        <v-card-subtitle>
+          <div>Please talk to your administrator</div>
+          <div>
+            {{ user.id }}
+
+            <v-btn
+              icon="mdi-content-copy"
+              variant="flat"
+              size="small"
+              :disabled="user.id == ''"
+              @click="functions.copyToClipboard(user.id)"
+            ></v-btn>
+          </div>
+        </v-card-subtitle>
         <v-card-text>
           <v-btn color="primary" block large @click="chekAccessStatus">
             Check status
@@ -194,10 +207,12 @@
 import { useFunctions } from "@/plugins/functions";
 import { useUserStore } from "@/stores/user";
 import { useVisualStore } from "@/stores/visual";
+import { onMounted, onUnmounted, reactive, ref } from "vue";
 
 import router from "@/router";
 import { useAuth } from "../plugins/auth";
 import { Type } from "@/common/interfaces";
+import { User } from "@/gen/management/types.gen";
 
 const hover = ref(false);
 const hoverRoles = ref(false);
@@ -208,6 +223,14 @@ const functions = useFunctions();
 
 const userStorage = useUserStore();
 const visual = useVisualStore();
+
+const user = reactive<User>({
+  "created-at": "",
+  id: "",
+  "last-updated-with": "create-endpoint",
+  name: "",
+  "user-type": "human",
+});
 
 const starCount = ref(0);
 const forksCount = ref(0);
@@ -289,6 +312,7 @@ async function chekAccessStatus() {
           ts: Date.now(),
           type: Type.INFO,
         });
+      Object.assign(user, await functions.whoAmI());
     } else {
       assignedToProjects.value = true;
       visual.showAppOrNavBar = true;

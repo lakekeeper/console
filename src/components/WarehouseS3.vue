@@ -68,12 +68,12 @@
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key Prefix"
-        placeholder="warehouse"
+        placeholder="path/to/warehouse (optional)"
       ></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].endpoint"
         label="Endpoint"
-        placeholder="https://s3.amazonaws.com"
+        placeholder="https://s3.custom.example.com (optional)"
       ></v-text-field>
 
       <v-combobox

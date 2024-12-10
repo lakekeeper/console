@@ -1,7 +1,7 @@
 use rust_embed::Embed;
 
 #[derive(Embed)]
-#[folder = "$OUT_DIR/console/dist"]
+#[folder = "$OUT_DIR/node/dist"]
 struct LakekeeperConsole;
 
 #[derive(Debug, Clone, PartialEq, derivative::Derivative)]

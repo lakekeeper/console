@@ -30,27 +30,34 @@
       "
     >
       <v-card-text>
-        <span style="max-width: 20px">
-          <v-switch
-            v-if="props.actionType == 'grant'"
-            v-model="model"
-            :label="`Search for ${searchForType.toUpperCase()}`"
-            hide-details
-            color="success"
-            base-color="info"
-            inset
-            @update:model-value="clearSelectedItem"
-            :prepend-icon="
-              searchForType == 'role'
-                ? 'mdi-account-box-multiple-outline'
-                : 'mdi-account-circle-outline'
-            "
-          >
-          </v-switch>
+        <span>
+          <v-row>
+            <v-col>
+              <v-switch
+                v-if="props.actionType == 'grant'"
+                v-model="model"
+                :label="`Search for ${searchForType.toUpperCase()}`"
+                hide-details
+                color="success"
+                base-color="info"
+                inset
+                @update:model-value="clearSelectedItem"
+                :prepend-icon="
+                  searchForType == 'role'
+                    ? 'mdi-account-box-multiple-outline'
+                    : 'mdi-account-circle-outline'
+                "
+              >
+              </v-switch>
+            </v-col>
+            <v-col>
+              <v-checkbox v-model="byIdActivated" label="by Id"></v-checkbox>
+            </v-col>
+          </v-row>
         </span>
 
         <v-autocomplete
-          v-if="props.actionType == 'grant'"
+          v-if="props.actionType == 'grant' && !byIdActivated"
           :items="items"
           v-model="searchFor"
           class="mx-auto"
@@ -77,49 +84,58 @@
             </v-list-item>
           </template>
         </v-autocomplete>
-
-        <span>
+        <v-text-field
+          v-else
+          clearable
+          v-model="idSearchUserOrRole"
+          label="Search by ID"
+          dense
+          outlined
+          @update:model-value="searchMemberById"
+        ></v-text-field>
+        <span class="mt-16">
           <v-card-title>
             <span v-if="selectedItem.id == undefined">
-              Pick {{ searchForType.toUpperCase() }}
+              Search for a {{ searchForType }}
             </span>
             <span v-else>
-              {{ searchForType.toUpperCase() }}:
               {{ selectedItem.name }}
             </span>
           </v-card-title>
-          <v-card-subtitle>
-            ID: {{ selectedItem.id }}
-            <v-btn
-              icon="mdi-content-copy"
-              variant="flat"
-              size="small"
-              :disabled="selectedItem.id == undefined"
-              @click="functions.copyToClipboard(selectedItem.id)"
-            ></v-btn
-          ></v-card-subtitle>
-          <v-card-text>
-            <v-row no-gutters>
-              <v-col
-                cols="4"
-                lg="4"
-                md="4"
-                sm="4"
-                v-for="(rel, i) in objRelation"
-              >
-                <v-checkbox
-                  :key="i"
-                  v-model="selectedReleations"
-                  :label="rel"
-                  :value="rel"
-                  :disabled="selectedItem.id == ''"
-                  @update:model-value="
-                    sendAssignment($event, rel, selectedItem.id)
-                  "
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-          </v-card-text>
+          <span v-if="selectedItem.id != undefined">
+            <v-card-subtitle>
+              ID: {{ selectedItem.id }}
+              <v-btn
+                icon="mdi-content-copy"
+                variant="flat"
+                size="small"
+                :disabled="selectedItem.id == undefined"
+                @click="functions.copyToClipboard(selectedItem.id)"
+              ></v-btn
+            ></v-card-subtitle>
+            <v-card-text>
+              <v-row no-gutters>
+                <v-col
+                  cols="4"
+                  lg="4"
+                  md="4"
+                  sm="4"
+                  v-for="(rel, i) in objRelation"
+                >
+                  <v-checkbox
+                    :key="i"
+                    v-model="selectedReleations"
+                    :label="rel"
+                    :value="rel"
+                    :disabled="selectedItem.id == ''"
+                    @update:model-value="
+                      sendAssignment($event, rel, selectedItem.id)
+                    "
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </span>
         </span>
       </v-card-text>
       <v-card-actions>
@@ -160,7 +176,7 @@ import { RelationType, AssignmentCollection } from "@/common/interfaces";
 import { useFunctions } from "@/plugins/functions";
 
 const functions = useFunctions();
-
+const byIdActivated = ref(false);
 const items = reactive<any[]>([]);
 const selectedItem = reactive<User | Role | { name: string; id: string }>({
   name: "",
@@ -178,6 +194,7 @@ const role = reactive<{ id: string; name: string }>({
 });
 
 const selectedReleations = ref<any[]>([]);
+const idSearchUserOrRole = ref<string>("");
 
 const searchForType = computed(() => {
   return model.value ? "user" : "role";
@@ -291,12 +308,60 @@ async function searchMember(search: string) {
   }
 }
 
+async function searchMemberById(idSearchUserOrRolePar: string) {
+  try {
+    if (idSearchUserOrRolePar === "") return;
+
+    if (idSearchUserOrRolePar === null) return;
+
+    if (searchForType.value == "user") {
+      const userSearchOutput = await functions.getUser(idSearchUserOrRolePar);
+
+      Object.assign(selectedItem, userSearchOutput);
+
+      spliceAssignments();
+      existingAssignments.push(
+        ...props.assignments.filter(
+          (a: any) => a.user == selectedItem.id || a.role == selectedItem.id
+        )
+      );
+
+      for (const assignment of existingAssignments) {
+        selectedReleations.value.push(assignment.type);
+      }
+
+      idSearchUserOrRole.value = "";
+    } else {
+      const roleSearchOutput = await functions.getRole(idSearchUserOrRolePar);
+
+      Object.assign(selectedItem, roleSearchOutput);
+
+      spliceAssignments();
+      existingAssignments.push(
+        ...props.assignments.filter(
+          (a: any) => a.user == selectedItem.id || a.role == selectedItem.id
+        )
+      );
+
+      for (const assignment of existingAssignments) {
+        selectedReleations.value.push(assignment.type);
+      }
+
+      idSearchUserOrRole.value = "";
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 // Function to clear all properties of selectedItem
 function clearSelectedItem() {
   Object.keys(selectedItem).forEach((key) => {
     delete (selectedItem as any)[key];
   });
   Object.assign(selectedItem, { name: "" });
+  idSearchUserOrRole.value = "";
+  byIdActivated.value = false;
 }
 
 function selectedObject() {
@@ -428,4 +493,3 @@ onMounted(async () => {
   await init();
 });
 </script>
-ObjTypeObjTypeObjTypeObjType

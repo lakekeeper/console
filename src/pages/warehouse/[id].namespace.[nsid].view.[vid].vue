@@ -27,9 +27,13 @@
           </template>
         </v-toolbar>
         <v-tabs v-model="tab">
-          <v-tab value="overview">overview</v-tab>
-          <v-tab value="raw">raw</v-tab>
-          <v-tab value="permissions" v-if="enabledAuthorization">
+          <v-tab value="overview" @click="loadTabData">overview</v-tab>
+          <v-tab value="raw" @click="loadTabData">raw</v-tab>
+          <v-tab
+            value="permissions"
+            v-if="enabledAuthorization"
+            @click="loadTabData"
+          >
             Permissions
           </v-tab>
         </v-tabs>
@@ -116,6 +120,10 @@ const can_read_permissions = ref(false);
 
 const currentVersionId = ref(0);
 const sqlStatement = ref("");
+
+async function loadTabData() {
+  init();
+}
 
 async function init() {
   loaded.value = false;
