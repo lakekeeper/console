@@ -1733,10 +1733,86 @@ export const TabularDeleteProfileSchema = {
     }
 } as const;
 
+export const TabularIdentUuidSchema = {
+    oneOf: [
+        {
+            type: 'object',
+            required: ['type', 'id'],
+            properties: {
+                id: {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                type: {
+                    type: 'string',
+                    enum: ['table']
+                }
+            }
+        },
+        {
+            type: 'object',
+            required: ['type', 'id'],
+            properties: {
+                id: {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                type: {
+                    type: 'string',
+                    enum: ['view']
+                }
+            }
+        }
+    ],
+    discriminator: {
+        propertyName: 'type'
+    }
+} as const;
+
 export const TabularTypeSchema = {
     type: 'string',
     description: 'Type of tabular',
     enum: ['table', 'view']
+} as const;
+
+export const UndropTabularsRequestSchema = {
+    type: 'object',
+    required: ['target'],
+    properties: {
+        target: {
+            '$ref': '#/components/schemas/UndropTarget'
+        }
+    }
+} as const;
+
+export const UndropTargetSchema = {
+    oneOf: [
+        {
+            type: 'object',
+            description: 'Undrop this list of tabulars',
+            required: ['tabulars'],
+            properties: {
+                tabulars: {
+                    type: 'array',
+                    items: {
+                        '$ref': '#/components/schemas/TabularIdentUuid'
+                    }
+                }
+            }
+        },
+        {
+            type: 'object',
+            description: 'Undrop all soft-deleted tabulars in this namespace',
+            required: ['namespace'],
+            properties: {
+                namespace: {
+                    type: 'string',
+                    format: 'uuid'
+                }
+            }
+        }
+    ],
+    description: 'Enum specifying which tabulars to undrop'
 } as const;
 
 export const UpdateNamespaceAssignmentsRequestSchema = {

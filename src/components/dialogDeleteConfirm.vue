@@ -9,7 +9,7 @@
     <v-card :title="`Confirm deletion of ${props.type}`">
       <v-card-text>
         <div class="ma-2">
-          Please enter the name "{{ props.name }}" to confirm the delition
+          Please enter the name "{{ props.name }}" to confirm the deletion
         </div>
         <v-text-field
           v-model="name"

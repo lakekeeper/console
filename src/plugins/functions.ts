@@ -645,9 +645,9 @@ async function getNamespaceById(
 }
 
 //Table
-async function listTables(
+async function listTables (
   id: string,
-  ns?: string
+  ns?: string,
 ): Promise<ListTablesResponse> {
   try {
     const client = ice.client;
@@ -778,6 +778,30 @@ async function dropView(
     if (error) throw error;
 
     return data;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+// Tabular
+async function undropTabular(
+  warehouseId: string,
+  id: string,
+  type: 'table' | 'view',
+): Promise<boolean> {
+  try {
+    const client = mng.client;
+    const { error } = await mng.undropTabulars({
+      client,
+      body: { target: { tabulars: [ {id, type: type} ] } },
+      path: {
+        warehouse_id: warehouseId,
+      },
+    });
+    if (error) throw error;
+
+    return true;
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
@@ -1769,6 +1793,7 @@ export function useFunctions() {
     getWarehouseById,
     getProjectById,
     updateUserById,
+    undropTabular,
   };
 }
 
