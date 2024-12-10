@@ -29,16 +29,10 @@
         <v-row class="d-flex align-center mb-4">
           <v-col>
             <div class="text-center mt-4">
-              <v-btn
-                height="60"
-                href="https://github.com/lakekeeper/lakekeeper"
-                target="_blank"
-              >
+              <v-btn height="60" href="https://github.com/lakekeeper/lakekeeper" target="_blank">
                 <v-icon icon="mdi-github" size="40" />
                 <div class="text-center text-none ml-2 mb-2">
-                  <div class="text-h5">
-                    Give us a <v-icon color="yellow" icon="mdi-star" />
-                  </div>
+                  <div class="text-h5">Give us a <v-icon color="yellow" icon="mdi-star" /></div>
                   <div class="d-flex align-center">
                     <v-icon icon="mdi-tag-outline" />
                     <span class="mr-2">{{ version }}</span>
@@ -95,14 +89,11 @@
                   Manage Warehouses
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  Create and control your warehouses, tables, and access
-                  policies in one place.
+                  Create and control your warehouses, tables, and access policies in one place.
                 </v-list-item-subtitle>
               </v-list-item>
               <v-card-actions>
-                <v-btn color="primary" outlined rounded to="/warehouse">
-                  Manage Warehouses
-                </v-btn>
+                <v-btn color="primary" outlined rounded to="/warehouse"> Manage Warehouses </v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -123,14 +114,11 @@
                   Manage Roles
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  Define and control user roles to ensure secure data access
-                  across your platform.
+                  Define and control user roles to ensure secure data access across your platform.
                 </v-list-item-subtitle>
               </v-list-item>
               <v-card-actions>
-                <v-btn color="success" outlined rounded to="/roles">
-                  Manage Roles
-                </v-btn>
+                <v-btn color="success" outlined rounded to="/roles"> Manage Roles </v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -151,8 +139,7 @@
                   Explore Documentation
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  Get step-by-step guidance and best practices for using
-                  Lakekeeper effectively.
+                  Get step-by-step guidance and best practices for using Lakekeeper effectively.
                 </v-list-item-subtitle>
               </v-list-item>
               <v-card-actions>
@@ -191,9 +178,7 @@
           </div>
         </v-card-subtitle>
         <v-card-text>
-          <v-btn block color="primary" large @click="checkAccessStatus">
-            Check status
-          </v-btn>
+          <v-btn block color="primary" large @click="checkAccessStatus"> Check status </v-btn>
         </v-card-text>
         <v-card-actions>
           <v-btn @click="logout">Logout</v-btn>
@@ -204,15 +189,15 @@
 </template>
 
 <script setup lang="ts">
-import { useFunctions } from "@/plugins/functions";
-import { useUserStore } from "@/stores/user";
-import { useVisualStore } from "@/stores/visual";
-import { onMounted, onUnmounted, reactive, ref } from "vue";
+import { useFunctions } from '@/plugins/functions';
+import { useUserStore } from '@/stores/user';
+import { useVisualStore } from '@/stores/visual';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
 
-import router from "@/router";
-import { useAuth } from "../plugins/auth";
-import { Type } from "@/common/interfaces";
-import { User } from "@/gen/management/types.gen";
+import router from '@/router';
+import { useAuth } from '../plugins/auth';
+import { Type } from '@/common/interfaces';
+import { User } from '@/gen/management/types.gen';
 
 const hover = ref(false);
 const hoverRoles = ref(false);
@@ -225,16 +210,16 @@ const userStorage = useUserStore();
 const visual = useVisualStore();
 
 const user = reactive<User>({
-  "created-at": "",
-  id: "",
-  "last-updated-with": "create-endpoint",
-  name: "",
-  "user-type": "human",
+  'created-at': '',
+  id: '',
+  'last-updated-with': 'create-endpoint',
+  name: '',
+  'user-type': 'human',
 });
 
 const starCount = ref(0);
 const forksCount = ref(0);
-const version = ref("0");
+const version = ref('0');
 const loading = ref(true);
 
 onMounted(async () => {
@@ -251,24 +236,20 @@ onUnmounted(() => {
 const logout = () => {
   userStorage.isAuthenticated = false;
   userStorage.unsetUser();
-  visual.projectSelected["project-id"] = "";
-  visual.projectSelected["project-name"] = "None";
+  visual.projectSelected['project-id'] = '';
+  visual.projectSelected['project-name'] = 'None';
   auth.signOut();
-  router.push("/login");
+  router.push('/login');
 };
 
 async function fetchGitHub() {
   try {
-    const response = await fetch(
-      "https://api.github.com/repos/lakekeeper/lakekeeper"
-    );
+    const response = await fetch('https://api.github.com/repos/lakekeeper/lakekeeper');
     const data = await response.json();
     starCount.value = data.stargazers_count;
     forksCount.value = data.forks_count;
 
-    const res = await fetch(
-      "https://api.github.com/repos/lakekeeper/lakekeeper/tags"
-    );
+    const res = await fetch('https://api.github.com/repos/lakekeeper/lakekeeper/tags');
 
     type Release = {
       name: string;
@@ -281,8 +262,8 @@ async function fetchGitHub() {
         .map((release) => release.name)
         .filter((name) => /^v\d+\.\d+\.\d+$/.test(name)) // Exclude pre-release versions like "-rc"
         .sort((a, b) => {
-          const versionA = a.slice(1).split(".").map(Number); // Convert version numbers to arrays of numbers
-          const versionB = b.slice(1).split(".").map(Number);
+          const versionA = a.slice(1).split('.').map(Number); // Convert version numbers to arrays of numbers
+          const versionB = b.slice(1).split('.').map(Number);
           for (let i = 0; i < versionA.length; i++) {
             if (versionA[i] > versionB[i]) return -1;
             if (versionA[i] < versionB[i]) return 1;
@@ -295,7 +276,7 @@ async function fetchGitHub() {
 
     version.value = getHighestVersion(releases);
   } catch (error) {
-    console.error("Error fetching GitHub star count:", error);
+    console.error('Error fetching GitHub star count:', error);
   }
 }
 
@@ -308,8 +289,8 @@ async function checkAccessStatus() {
       assignedToProjects.value = false;
       if (visual.projectInfo.bootstrapped)
         visual.setSnackbarMsg({
-          function: "List Project",
-          text: "No projects assigned. Ask your administrator",
+          function: 'List Project',
+          text: 'No projects assigned. Ask your administrator',
           ttl: 5000,
           ts: Date.now(),
           type: Type.INFO,
@@ -318,7 +299,7 @@ async function checkAccessStatus() {
     } else {
       assignedToProjects.value = true;
       visual.showAppOrNavBar = true;
-      router.push("/");
+      router.push('/');
     }
   } catch (error) {
     console.error(error);
@@ -328,7 +309,9 @@ async function checkAccessStatus() {
 
 <style scoped>
 .hover-card {
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
 }
 
 .hover-card:hover {

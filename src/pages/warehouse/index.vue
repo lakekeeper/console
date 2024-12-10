@@ -115,25 +115,22 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive } from "vue";
-import { Intent, ObjectType } from "../../common/enums";
+import { onMounted, reactive } from 'vue';
+import { Intent, ObjectType } from '../../common/enums';
 
-import {
-  GetWarehouseResponse,
-  ProjectAction,
-} from "../../gen/management/types.gen";
+import { GetWarehouseResponse, ProjectAction } from '../../gen/management/types.gen';
 
-import router from "../../router";
-import { useFunctions } from "../../plugins/functions";
-import { useVisualStore } from "../../stores/visual";
-import { Header } from "../../common/interfaces";
+import router from '../../router';
+import { useFunctions } from '../../plugins/functions';
+import { useVisualStore } from '../../stores/visual';
+import { Header } from '../../common/interfaces';
 const functions = useFunctions();
 const missAccessPermission = ref(true);
 const loading = ref(true);
 
 const headers: readonly Header[] = Object.freeze([
-  { title: "Name", key: "name", align: "start" },
-  { title: "Actions", key: "actions", align: "end", sortable: false },
+  { title: 'Name', key: 'name', align: 'start' },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 const myAccess = reactive<ProjectAction[]>([]);
 
@@ -145,14 +142,14 @@ const visual = useVisualStore();
 const deleting = ref(false);
 onMounted(async () => {
   try {
-    visual.whId = "";
-    visual.wahrehouseName = "";
+    visual.whId = '';
+    visual.wahrehouseName = '';
     Object.assign(myAccess, await functions.getProjectAccess());
-    if (myAccess.includes("list_warehouses")) await listWarhouse();
+    if (myAccess.includes('list_warehouses')) await listWarhouse();
     loading.value = false;
   } catch (err: any) {
     missAccessPermission.value = false;
-    console.error("Failed to load data:", err);
+    console.error('Failed to load data:', err);
   }
 });
 
@@ -166,7 +163,7 @@ async function listWarhouse() {
       whResponse.forEach((w) => {
         w.actions = [];
 
-        w.actions.push("view", "info", "edit", "delete");
+        w.actions.push('view', 'info', 'edit', 'delete');
       });
     });
   } catch (error) {
@@ -177,7 +174,7 @@ async function listWarhouse() {
 function navigateToWarehouse(item: any) {
   visual.whId = item.id;
   visual.wahrehouseName = item.name;
-  router.push("/warehouse/" + item.id);
+  router.push('/warehouse/' + item.id);
 }
 
 const deleteWarehouse = async (id: string) => {
@@ -196,8 +193,8 @@ const deleteWarehouse = async (id: string) => {
 };
 
 onUnmounted(() => {
-  visual.whId = "";
-  visual.wahrehouseName = "";
+  visual.whId = '';
+  visual.wahrehouseName = '';
   loading.value = true;
 });
 </script>

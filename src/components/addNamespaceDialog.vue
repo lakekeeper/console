@@ -11,9 +11,7 @@
     </template>
 
     <v-card
-      :subtitle="`${props.parentPath
-        .split(String.fromCharCode(0x1f))
-        .join('.')}`"
+      :subtitle="`${props.parentPath.split(String.fromCharCode(0x1f)).join('.')}`"
       title="New Namespace"
     >
       <v-card-text>
@@ -44,11 +42,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { StatusIntent } from "@/common/enums";
+import { ref } from 'vue';
+import { StatusIntent } from '@/common/enums';
 const isDialogActive = ref(false);
 
-const namespace = ref("");
+const namespace = ref('');
 
 const props = defineProps<{
   parentPath: string;
@@ -56,19 +54,17 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "addNamespace", namespace: string[]): void;
+  (e: 'addNamespace', namespace: string[]): void;
 }>();
 
 function addNamespace() {
   const namespaceURLEncoded = encodeURIComponent(namespace.value);
 
   const namespaceArray =
-    props.parentPath.length > 0
-      ? props.parentPath.split(String.fromCharCode(0x1f))
-      : [];
+    props.parentPath.length > 0 ? props.parentPath.split(String.fromCharCode(0x1f)) : [];
   namespaceArray.push(namespaceURLEncoded);
 
-  emit("addNamespace", namespaceArray);
+  emit('addNamespace', namespaceArray);
 }
 
 watch(
@@ -76,11 +72,11 @@ watch(
   (oldStatusIntent, newStatusIntent) => {
     if (newStatusIntent === StatusIntent.SUCCESS) {
       isDialogActive.value = false;
-      namespace.value = "";
+      namespace.value = '';
     }
   },
   {
     immediate: true,
-  }
+  },
 );
 </script>

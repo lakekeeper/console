@@ -1,9 +1,6 @@
 <template>
   <v-footer app height="40">
-    <div
-      class="text-caption text-disabled"
-      style="position: absolute; right: 16px"
-    >
+    <div class="text-caption text-disabled" style="position: absolute; right: 16px">
       &copy; {{ new Date().getFullYear() }}
       <span class="d-none d-sm-inline-block">
         <a href="https://lakekeeper.io">Lakekeeper</a>

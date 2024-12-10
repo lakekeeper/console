@@ -7,10 +7,7 @@
     <v-list activatable>
       <v-list-item>
         <v-list-item-title>
-          <RenameWarehouseDialog
-            :warehouse-name="warehouse.name"
-            @rename-warehouse="emitRename"
-          />
+          <RenameWarehouseDialog :warehouse-name="warehouse.name" @rename-warehouse="emitRename" />
         </v-list-item-title>
       </v-list-item>
       <v-list-item>
@@ -59,21 +56,21 @@ import {
   StorageCredential,
   StorageProfile,
   TabularDeleteProfile,
-} from "../gen/management/types.gen";
-import { ref, watch } from "vue";
-import { Intent, ObjectType } from "../common/enums";
+} from '../gen/management/types.gen';
+import { ref, watch } from 'vue';
+import { Intent, ObjectType } from '../common/enums';
 
 const menuOpen = ref(false);
 
 const emit = defineEmits<{
-  (e: "renameWarehouse", warehouse: string): void;
-  (e: "updateCredentials", credentials: StorageCredential): void;
+  (e: 'renameWarehouse', warehouse: string): void;
+  (e: 'updateCredentials', credentials: StorageCredential): void;
   (
-    e: "updateProfile",
-    newProfile: { profile: StorageProfile; credentials: StorageCredential }
+    e: 'updateProfile',
+    newProfile: { profile: StorageProfile; credentials: StorageCredential },
   ): void;
-  (e: "updateDelprofile", profile: TabularDeleteProfile): void;
-  (e: "close"): void;
+  (e: 'updateDelprofile', profile: TabularDeleteProfile): void;
+  (e: 'close'): void;
 }>();
 
 const { warehouse, processStatus } = defineProps<{
@@ -84,12 +81,12 @@ const { warehouse, processStatus } = defineProps<{
 onMounted(async () => {});
 
 function emitRename(name: string) {
-  emit("renameWarehouse", name);
+  emit('renameWarehouse', name);
   menuOpen.value = false;
 }
 
 function updateStorageCredential(e: StorageCredential) {
-  emit("updateCredentials", e);
+  emit('updateCredentials', e);
 }
 
 // function updateStorageProfile(e: {
@@ -101,20 +98,20 @@ function updateStorageCredential(e: StorageCredential) {
 // }
 
 function updateDelitionProfile(e: TabularDeleteProfile) {
-  emit("updateDelprofile", e);
+  emit('updateDelprofile', e);
   menuOpen.value = false;
 }
 
 watch(
   () => processStatus,
   (newVal) => {
-    if (newVal === "success") {
+    if (newVal === 'success') {
       menuOpen.value = false;
     }
   },
   {
     immediate: true,
     deep: true,
-  }
+  },
 );
 </script>

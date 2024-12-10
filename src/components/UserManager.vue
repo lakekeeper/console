@@ -16,11 +16,7 @@
           @rename-user-name="renameUser"
         ></user-rename-dialog>
 
-        <v-icon
-          v-else
-          color="error"
-          :disabled="!props.canDeleteUsers"
-          @click="deleteUser(item)"
+        <v-icon v-else color="error" :disabled="!props.canDeleteUsers" @click="deleteUser(item)"
           >mdi-delete-outline</v-icon
         >
       </span>
@@ -45,19 +41,19 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue";
-import { User } from "@/gen/management/types.gen";
+import { onMounted } from 'vue';
+import { User } from '@/gen/management/types.gen';
 
-import { Header } from "@/common/interfaces";
-import { useFunctions } from "@/plugins/functions";
-import { StatusIntent } from "@/common/enums";
+import { Header } from '@/common/interfaces';
+import { useFunctions } from '@/plugins/functions';
+import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 
 const headers: readonly Header[] = Object.freeze([
-  { title: "Name", key: "name", align: "start" },
-  { title: "Email", key: "email", align: "start" },
-  { title: "Email", key: "email", align: "start" },
-  { title: "Actions", key: "actions", align: "end", sortable: false },
+  { title: 'Name', key: 'name', align: 'start' },
+  { title: 'Email', key: 'email', align: 'start' },
+  { title: 'Email', key: 'email', align: 'start' },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
 const users: (User & { actions: any })[] = reactive([]);
@@ -69,8 +65,8 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "deleted-user"): void;
-  (e: "rename-user-name", user: { name: string; id: string }): void;
+  (e: 'deletedUser'): void;
+  (e: 'renameUserName', user: { name: string; id: string }): void;
 }>();
 
 async function init() {
@@ -80,17 +76,17 @@ async function init() {
   for (const user of users) {
     user.actions = [];
 
-    if (user["user-type"] === "application") {
-      user.actions.push("rename");
+    if (user['user-type'] === 'application') {
+      user.actions.push('rename');
     }
-    user.actions.push("delete");
+    user.actions.push('delete');
   }
 }
 
 async function deleteUser(user: User) {
   try {
     await functions.deleteUser(user.id);
-    emit("deleted-user");
+    emit('deletedUser');
   } catch (error) {
     console.error(error);
   }
@@ -101,6 +97,6 @@ onMounted(async () => {
 });
 
 function renameUser(user: { name: string; id: string }) {
-  emit("rename-user-name", { name: user.name, id: user.id });
+  emit('renameUserName', { name: user.name, id: user.id });
 }
 </script>

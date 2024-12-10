@@ -9,12 +9,8 @@
       :rules="[rules.required]"
     ></v-text-field>
     <v-text-field
-      v-model="
-        warehouseObjectData['storage-credential']['aws-secret-access-key']
-      "
-      :append-inner-icon="
-        showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'
-      "
+      v-model="warehouseObjectData['storage-credential']['aws-secret-access-key']"
+      :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
       autocomplete="current-password"
       label="AWS Secret Access Key"
       placeholder="your-aws-secret-access-key"
@@ -39,8 +35,7 @@
     <div
       v-if="
         props.objectType === ObjectType.STORAGE_PROFILE ||
-        (props.intent === Intent.CREATE &&
-          props.objectType === ObjectType.WAREHOUSE)
+        (props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE)
       "
     >
       <v-select
@@ -52,11 +47,8 @@
         placeholder="Select S3 Flavor"
         :rules="[rules.required]"
       >
-        <template #item="{ props, item }">
-          <v-list-item
-            v-bind="props"
-            :subtitle="item.raw.code"
-          ></v-list-item> </template
+        <template #item="{ props: itemProps, item }">
+          <v-list-item v-bind="itemProps" :subtitle="item.raw.code"></v-list-item> </template
       ></v-select>
 
       <v-text-field
@@ -107,10 +99,7 @@
       </v-row>
 
       <v-btn
-        v-if="
-          props.intent === Intent.CREATE &&
-          props.objectType === ObjectType.WAREHOUSE
-        "
+        v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
         color="success"
         :disabled="
           !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
@@ -125,10 +114,7 @@
         >Submit
       </v-btn>
       <v-btn
-        v-if="
-          props.intent === Intent.UPDATE &&
-          props.objectType === ObjectType.STORAGE_PROFILE
-        "
+        v-if="props.intent === Intent.UPDATE && props.objectType === ObjectType.STORAGE_PROFILE"
         color="success"
         :disabled="
           !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
@@ -147,16 +133,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref } from 'vue';
 
 import {
   S3Credential,
   S3Profile,
   StorageCredential,
   StorageProfile,
-} from "@/gen/management/types.gen";
-import { Intent, ObjectType } from "@/common/enums";
-import { WarehousObject } from "@/common/interfaces";
+} from '@/gen/management/types.gen';
+import { Intent, ObjectType } from '@/common/enums';
+import { WarehousObject } from '@/common/interfaces';
 
 const showPassword = ref(false);
 
@@ -168,113 +154,108 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "submit", warehouseObjectDataEmit: WarehousObject): void;
-  (e: "update-credentials", credentials: StorageCredential): void;
+  (e: 'submit', warehouseObjectDataEmit: WarehousObject): void;
+  (e: 'updateCredentials', credentials: StorageCredential): void;
   (
-    e: "updateProfile",
-    newProfile: { profile: StorageProfile; credentials: StorageCredential }
+    e: 'updateProfile',
+    newProfile: { profile: StorageProfile; credentials: StorageCredential },
   ): void;
 }>();
 
 const warehouseObjectData = reactive<{
-  "storage-profile": S3Profile & {
-    type: "s3";
+  'storage-profile': S3Profile & {
+    type: 's3';
   };
-  "storage-credential": S3Credential & { type: string };
+  'storage-credential': S3Credential & { type: string };
 }>({
-  "storage-profile": {
-    type: "s3",
-    bucket: "",
-    region: "",
-    "sts-enabled": false,
+  'storage-profile': {
+    type: 's3',
+    bucket: '',
+    region: '',
+    'sts-enabled': false,
   },
-  "storage-credential": {
-    type: "s3",
-    "aws-access-key-id": "",
-    "aws-secret-access-key": "",
-    "credential-type": "access-key",
+  'storage-credential': {
+    type: 's3',
+    'aws-access-key-id': '',
+    'aws-secret-access-key': '',
+    'credential-type': 'access-key',
   },
 });
 
 const regions = [
-  "us-east-2",
-  "us-east-1",
-  "us-west-1",
-  "us-west-2",
-  "af-south-1",
-  "ap-east-1",
-  "ap-south-2",
-  "ap-southeast-3",
-  "ap-southeast-5",
-  "ap-southeast-4",
-  "ap-south-1",
-  "ap-northeast-3",
-  "ap-northeast-2",
-  "ap-southeast-1",
-  "ap-southeast-2",
-  "ap-northeast-1",
-  "ca-central-1",
-  "ca-west-1",
-  "eu-central-1",
-  "eu-west-1",
-  "eu-west-2",
-  "eu-south-1",
-  "eu-west-3",
-  "eu-south-2",
-  "eu-north-1",
-  "eu-central-2",
-  "il-central-1",
-  "me-south-1",
-  "me-central-1",
-  "sa-east-1",
-  "us-gov-east-1",
-  "us-gov-west-1",
+  'us-east-2',
+  'us-east-1',
+  'us-west-1',
+  'us-west-2',
+  'af-south-1',
+  'ap-east-1',
+  'ap-south-2',
+  'ap-southeast-3',
+  'ap-southeast-5',
+  'ap-southeast-4',
+  'ap-south-1',
+  'ap-northeast-3',
+  'ap-northeast-2',
+  'ap-southeast-1',
+  'ap-southeast-2',
+  'ap-northeast-1',
+  'ca-central-1',
+  'ca-west-1',
+  'eu-central-1',
+  'eu-west-1',
+  'eu-west-2',
+  'eu-south-1',
+  'eu-west-3',
+  'eu-south-2',
+  'eu-north-1',
+  'eu-central-2',
+  'il-central-1',
+  'me-south-1',
+  'me-central-1',
+  'sa-east-1',
+  'us-gov-east-1',
+  'us-gov-west-1',
 ];
 
 const rules = {
-  required: (value: any) => !!value || "Required.",
-  noSlash: (value: string) => !value.includes("/") || 'Cannot contain "/"',
+  required: (value: any) => !!value || 'Required.',
+  noSlash: (value: string) => !value.includes('/') || 'Cannot contain "/"',
 };
 
 const s3Flavor = [
-  { name: "AWS", code: "aws" },
-  { name: "S3 Compatible Stotage", code: "s3-compat" },
+  { name: 'AWS', code: 'aws' },
+  { name: 'S3 Compatible Stotage', code: 's3-compat' },
 ];
 
 const handleSubmit = () => {
-  emit("submit", warehouseObjectData);
+  emit('submit', warehouseObjectData);
 };
 
 const emitNewCredentials = () => {
   const credentials = {
-    type: "s3",
-    "credential-type": "access-key",
-    "aws-access-key-id":
-      warehouseObjectData["storage-credential"]["aws-access-key-id"],
-    "aws-secret-access-key":
-      warehouseObjectData["storage-credential"]["aws-secret-access-key"],
+    type: 's3',
+    'credential-type': 'access-key',
+    'aws-access-key-id': warehouseObjectData['storage-credential']['aws-access-key-id'],
+    'aws-secret-access-key': warehouseObjectData['storage-credential']['aws-secret-access-key'],
   } as StorageCredential;
 
-  emit("update-credentials", credentials);
+  emit('updateCredentials', credentials);
 };
 
 const emitNewProfile = () => {
   const newProfile = {
-    profile: warehouseObjectData["storage-profile"],
+    profile: warehouseObjectData['storage-profile'],
     credentials: {
-      type: "s3",
-      "credential-type": "access-key",
-      "aws-access-key-id":
-        warehouseObjectData["storage-credential"]["aws-access-key-id"],
-      "aws-secret-access-key":
-        warehouseObjectData["storage-credential"]["aws-secret-access-key"],
+      type: 's3',
+      'credential-type': 'access-key',
+      'aws-access-key-id': warehouseObjectData['storage-credential']['aws-access-key-id'],
+      'aws-secret-access-key': warehouseObjectData['storage-credential']['aws-secret-access-key'],
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
-  emit("updateProfile", newProfile);
+  emit('updateProfile', newProfile);
 };
 
 onMounted(() => {
-  if (props.warehouseObject)
-    Object.assign(warehouseObjectData, props.warehouseObject);
+  if (props.warehouseObject) Object.assign(warehouseObjectData, props.warehouseObject);
 });
 </script>

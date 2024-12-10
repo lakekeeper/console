@@ -28,41 +28,37 @@
           @click="emitProjectName"
           >Submit</v-btn
         >
-        <v-btn
-          color="error"
-          text="Cancel"
-          @click="isDialogActive = false"
-        ></v-btn>
+        <v-btn color="error" text="Cancel" @click="isDialogActive = false"></v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { RenameProjectRequest } from "../gen/management/types.gen";
+import { ref } from 'vue';
+import { RenameProjectRequest } from '../gen/management/types.gen';
 
 const isDialogActive = ref(false);
 
-const project = ref("");
+const project = ref('');
 
 const props = defineProps<{
-  actionType: "add" | "edit";
+  actionType: 'add' | 'edit';
   name?: string;
   id: string;
 }>();
 
 const emit = defineEmits<{
-  (e: "emitProjectNewName", project: RenameProjectRequest): void;
+  (e: 'emitProjectNewName', project: RenameProjectRequest): void;
 }>();
 
 function emitProjectName() {
-  emit("emitProjectNewName", {
-    "new-name": project.value,
-    "project-id": props.id,
+  emit('emitProjectNewName', {
+    'new-name': project.value,
+    'project-id': props.id,
   });
 }
 onMounted(() => {
-  project.value = props.name || "";
+  project.value = props.name || '';
 });
 </script>

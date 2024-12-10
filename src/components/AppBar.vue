@@ -68,11 +68,11 @@
 </template>
 
 <script setup lang="ts">
-import { useTheme } from "vuetify";
-import { useAuth } from "../plugins/auth";
-import { useVisualStore } from "../stores/visual";
-import { enabledAuthorization } from "../app.config";
-import { useUserStore } from "../stores/user";
+import { useTheme } from 'vuetify';
+import { useAuth } from '../plugins/auth';
+import { useVisualStore } from '../stores/visual';
+import { enabledAuthorization } from '../app.config';
+import { useUserStore } from '../stores/user';
 
 const router = useRouter();
 const visual = useVisualStore();
@@ -85,11 +85,11 @@ const themeLight = computed(() => {
 });
 
 const themeText = computed(() => {
-  return themeLight.value ? "light" : "dark";
+  return themeLight.value ? 'light' : 'dark';
 });
 
 const navIcon = computed(() => {
-  return visual.navBarShow ? "mdi-menu-open" : "mdi-menu";
+  return visual.navBarShow ? 'mdi-menu-open' : 'mdi-menu';
 });
 
 onMounted(async () => {
@@ -111,6 +111,6 @@ function logout() {
 }
 
 function goToUserProfile() {
-  router.push("/user-profile");
+  router.push('/user-profile');
 }
 </script>

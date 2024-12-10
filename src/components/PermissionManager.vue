@@ -9,10 +9,7 @@
     <template #top>
       <v-toolbar color="transparent" density="compact" flat>
         <v-switch
-          v-if="
-            props.relationType === 'warehouse' ||
-            props.relationType === 'namespace'
-          "
+          v-if="props.relationType === 'warehouse' || props.relationType === 'namespace'"
           v-model="isManagedAccess"
           class="ml-4 mt-4"
           color="info"
@@ -36,9 +33,7 @@
     </template>
     <template #item.name="{ item }">
       <span class="icon-text">
-        <v-icon v-if="item.kind == 'user'" class="mr-2"
-          >mdi-account-circle-outline</v-icon
-        >
+        <v-icon v-if="item.kind == 'user'" class="mr-2">mdi-account-circle-outline</v-icon>
         <v-icon v-else class="mr-2">mdi-account-box-multiple-outline</v-icon>
         {{ item.name }}
       </span>
@@ -62,9 +57,7 @@
         :relation="props.relationType"
         @assignments="assign"
       />
-      <v-chip v-for="(t, i) in item.type" :key="i" class="mr-1" size="small">{{
-        t
-      }}</v-chip>
+      <v-chip v-for="(t, i) in item.type" :key="i" class="mr-1" size="small">{{ t }}</v-chip>
     </template>
     <template #no-data>
       <AssignToRoleDialogSingle
@@ -80,23 +73,19 @@
 </template>
 
 <script lang="ts" setup>
-import { useFunctions } from "@/plugins/functions";
-import { onMounted, reactive } from "vue";
+import { useFunctions } from '@/plugins/functions';
+import { onMounted, reactive } from 'vue';
 
-import {
-  AssignmentCollection,
-  Header,
-  RelationType,
-} from "@/common/interfaces";
+import { AssignmentCollection, Header, RelationType } from '@/common/interfaces';
 
 const functions = useFunctions();
 
 const isManagedAccess = ref(false);
 const isManagedAccessInherited = ref(false);
 const headers: readonly Header[] = Object.freeze([
-  { title: "Name", key: "name", align: "start" },
-  { title: "Email", key: "email", align: "start" },
-  { title: "Roles", key: "type", align: "start", sortable: false },
+  { title: 'Name', key: 'name', align: 'start' },
+  { title: 'Email', key: 'email', align: 'start' },
+  { title: 'Roles', key: 'type', align: 'start', sortable: false },
 ]);
 
 const permissionRows = reactive<
@@ -109,10 +98,10 @@ const permissionRows = reactive<
 
 const managedAccess = computed(() => {
   return isManagedAccess.value && isManagedAccessInherited.value
-    ? "Managed access enabled"
+    ? 'Managed access enabled'
     : !isManagedAccess.value && isManagedAccessInherited.value
-    ? "Managed access enabled by parent"
-    : "Managed access disabled";
+      ? 'Managed access enabled by parent'
+      : 'Managed access disabled';
 });
 
 const props = defineProps<{
@@ -126,28 +115,22 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (
-    e: "permissions",
+    e: 'permissions',
     permissions: {
       del: AssignmentCollection;
       writes: AssignmentCollection;
-    }
+    },
   ): void;
 }>();
 
 async function switchManagedAccess() {
   try {
-    if (props.relationType === "warehouse") {
-      await functions.setWarehouseManagedAccess(
-        props.assignableObj.id,
-        !isManagedAccess.value
-      );
+    if (props.relationType === 'warehouse') {
+      await functions.setWarehouseManagedAccess(props.assignableObj.id, !isManagedAccess.value);
     }
 
-    if (props.relationType === "namespace") {
-      await functions.setNamespaceManagedAccess(
-        props.assignableObj.id,
-        !isManagedAccess.value
-      );
+    if (props.relationType === 'namespace') {
+      await functions.setNamespaceManagedAccess(props.assignableObj.id, !isManagedAccess.value);
     }
   } catch (error) {
     console.error(error);
@@ -157,17 +140,15 @@ async function switchManagedAccess() {
 }
 
 async function loadManagedAccess() {
-  if (props.relationType === "warehouse") {
-    isManagedAccess.value = await functions.getWarehouseById(
-      props.assignableObj.id
-    );
+  if (props.relationType === 'warehouse') {
+    isManagedAccess.value = await functions.getWarehouseById(props.assignableObj.id);
   }
 
-  if (props.relationType === "namespace") {
+  if (props.relationType === 'namespace') {
     const isManaged = await functions.getNamespaceById(props.assignableObj.id);
 
-    isManagedAccess.value = isManaged["managed-access"];
-    isManagedAccessInherited.value = isManaged["managed-access-inherited"];
+    isManagedAccess.value = isManaged['managed-access'];
+    isManagedAccessInherited.value = isManaged['managed-access-inherited'];
   }
 }
 
@@ -186,9 +167,9 @@ async function init() {
           permissionRows.push({
             id: user.id,
             name: user.name,
-            email: user.email ?? "",
+            email: user.email ?? '',
             type: [permission.type],
-            kind: "user",
+            kind: 'user',
           });
         } else {
           permissionRows[idx].type.push(permission.type);
@@ -203,9 +184,9 @@ async function init() {
           permissionRows.push({
             id: role.id,
             name: role.name,
-            email: "",
+            email: '',
             type: [permission.type],
-            kind: "role",
+            kind: 'role',
           });
         } else {
           permissionRows[idx].type.push(permission.type);
@@ -215,12 +196,9 @@ async function init() {
   }
 }
 
-async function assign(permissions: {
-  del: AssignmentCollection;
-  writes: AssignmentCollection;
-}) {
+async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
-    emit("permissions", {
+    emit('permissions', {
       del: permissions.del,
       writes: permissions.writes,
     });

@@ -13,13 +13,13 @@
     <v-card :title="$props.actionType == 'add' ? 'New Role' : 'Edit Role'">
       <v-card-text>
         <v-text-field
-          v-model="role.name"
+          v-model="roleData.name"
           label="Role Name"
           placeholder="my-role"
           :rules="[roleRule]"
         ></v-text-field>
         <v-textarea
-          v-model="role.description"
+          v-model="roleData.description"
           label="Role description"
           maxlength="500"
           placeholder="my role description"
@@ -32,7 +32,7 @@
 
         <v-btn
           color="success"
-          :disabled="role.name == '' || role.name.length < 3"
+          :disabled="roleData.name == '' || roleData.name.length < 3"
           @click="createRole"
           >save role</v-btn
         >
@@ -43,45 +43,45 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps, reactive } from "vue";
+import { defineEmits, defineProps, reactive } from 'vue';
 
 const isDialogActive = ref(false);
 const emit = defineEmits<{
-  (e: "roleInput", role: { name: string; description: string }): void;
+  (e: 'roleInput', role: { name: string; description: string }): void;
 }>();
 
 const props = defineProps<{
-  actionType: "add" | "edit";
+  actionType: 'add' | 'edit';
   role?: {
-    name: { type: string; default: "" };
-    description: { type: string; default: "" };
+    name: { type: string; default: '' };
+    description: { type: string; default: '' };
   };
 }>();
 
-const role = reactive({
-  name: "",
-  description: "",
+const roleData = reactive({
+  name: '',
+  description: '',
 });
 
 const roleRule = (value: string) =>
-  value.length >= 3 || "Namespace must be at least 3 characters long";
+  value.length >= 3 || 'Namespace must be at least 3 characters long';
 
 function createRole() {
-  emit("roleInput", { name: role.name, description: role.description });
+  emit('roleInput', { name: roleData.name, description: roleData.description });
   cancelRoleInput();
 }
 
 function cancelRoleInput() {
-  if (props.actionType === "add") initRoleInput();
+  if (props.actionType === 'add') initRoleInput();
   isDialogActive.value = false;
 }
 
 function initRoleInput() {
-  role.name = "";
-  role.description = "";
+  roleData.name = '';
+  roleData.description = '';
 }
 
 onMounted(() => {
-  Object.assign(role, props.role);
+  Object.assign(roleData, props.role);
 });
 </script>

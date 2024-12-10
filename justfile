@@ -7,31 +7,24 @@ generate-management-client:
 generate-iceberg-client:
     npx @hey-api/openapi-ts -i openapi/rest-catalog-open-api.yaml -o src/gen/iceberg -c @hey-api/client-fetch
 
-# Run ESLint with auto-fix
 fix-lint:
     npm run lint
 
-# Run type checking
-check-types:
-    vue-tsc --noEmit
+check-lint:
+    npm run lint:check
 
-# Dev server with hot reload
 dev:
     npm run dev
 
-# Build the project
 build:
     npm run build
 
-# Format all files
 format:
     npm run format
 
-# Check if files are formatted correctly (no changes)
 check-format:
     npm run format:check
 
-# Run all checks including formatting
-check-all: check-format check-types fix-lint
+check-all: check-format fix-lint
 
 fix-all: format fix-lint

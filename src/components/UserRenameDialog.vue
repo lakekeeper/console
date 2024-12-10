@@ -35,12 +35,12 @@
 </template>
 
 <script lang="ts" setup>
-import { StatusIntent } from "@/common/enums";
+import { StatusIntent } from '@/common/enums';
 
 const isDialogActive = ref(false);
-const newName = ref("");
+const newName = ref('');
 const emit = defineEmits<{
-  (e: "renameUserName", user: { name: string; id: string }): void;
+  (e: 'renameUserName', user: { name: string; id: string }): void;
 }>();
 
 const props = defineProps<{
@@ -50,7 +50,7 @@ const props = defineProps<{
 }>();
 
 function emmitNewUserName() {
-  emit("renameUserName", { name: newName.value, id: props.id });
+  emit('renameUserName', { name: newName.value, id: props.id });
 }
 function cancelRoleInput() {
   isDialogActive.value = false;
@@ -67,6 +67,6 @@ watch(
     if (newVal === StatusIntent.SUCCESS) {
       isDialogActive.value = false;
     }
-  }
+  },
 );
 </script>

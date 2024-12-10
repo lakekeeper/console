@@ -8,7 +8,7 @@
     <v-card-title>Role: {{ role.name }}</v-card-title>
 
     <v-card-subtitle>
-      <div>Created At: {{ role["created-at"] }}</div>
+      <div>Created At: {{ role['created-at'] }}</div>
       ID: {{ role.id }}
       <v-btn
         icon="mdi-content-copy"
@@ -33,9 +33,7 @@
           </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="info" size="small" to="/roles" variant="outlined"
-            >Back</v-btn
-          >
+          <v-btn color="info" size="small" to="/roles" variant="outlined">Back</v-btn>
           <roleDialog
             v-if="role.name != ''"
             :action-type="'edit'"
@@ -57,19 +55,19 @@
   </v-card>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref } from "vue";
-import { useRoute } from "vue-router";
-import { RoleAssignment } from "../../gen/management/types.gen";
-import { useFunctions } from "../../plugins/functions";
-import { AssignmentCollection, RelationType } from "../../common/interfaces";
-import { enabledAuthorization } from "@/app.config";
+import { computed, onMounted, reactive, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { RoleAssignment } from '../../gen/management/types.gen';
+import { useFunctions } from '../../plugins/functions';
+import { AssignmentCollection, RelationType } from '../../common/interfaces';
+import { enabledAuthorization } from '@/app.config';
 
 const functions = useFunctions();
 const route = useRoute();
 const loaded = ref(true);
 const params = computed(() => route.params as { id: string });
-const tab = ref("overview");
-const type = ref<RelationType>("role");
+const tab = ref('overview');
+const type = ref<RelationType>('role');
 
 const permissions = reactive<
   { id: string; name: string; email: string; type: string[]; kind: string }[]
@@ -78,9 +76,9 @@ const permissions = reactive<
 const existingPermissions = reactive<RoleAssignment[]>([]);
 
 const role = reactive<any>({
-  id: "",
-  description: "",
-  name: "",
+  id: '',
+  description: '',
+  name: '',
 });
 
 onMounted(async () => {
@@ -93,10 +91,7 @@ async function init() {
   rolePermissions.splice(0, rolePermissions.length);
   permissions.splice(0, permissions.length);
   Object.assign(role, await functions.getRole(params.value.id));
-  Object.assign(
-    rolePermissions,
-    await functions.getRoleAssignmentsById(params.value.id)
-  );
+  Object.assign(rolePermissions, await functions.getRoleAssignmentsById(params.value.id));
 
   existingPermissions.splice(0, existingPermissions.length);
 
@@ -113,9 +108,9 @@ async function init() {
           permissions.push({
             id: user.id,
             name: user.name,
-            email: user.email ?? "",
+            email: user.email ?? '',
             type: [permission.type],
-            kind: "user",
+            kind: 'user',
           });
         } else {
           permissions[idx].type.push(permission.type);
@@ -130,9 +125,9 @@ async function init() {
           permissions.push({
             id: fetchedRole.id,
             name: fetchedRole.name,
-            email: "",
+            email: '',
             type: [permission.type],
-            kind: "role",
+            kind: 'role',
           });
         } else {
           permissions[idx].type.push(permission.type);

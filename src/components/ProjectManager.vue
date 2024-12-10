@@ -7,10 +7,7 @@
         :text="project['project-name']"
       >
         <div class="text-center pa-4">
-          <v-btn
-            prepend-icon="mdi-home-silo"
-            :text="project['project-name']"
-          ></v-btn>
+          <v-btn prepend-icon="mdi-home-silo" :text="project['project-name']"></v-btn>
         </div>
       </v-list-item-title>
     </template>
@@ -19,15 +16,13 @@
       <v-toolbar>
         <v-btn icon="mdi-close" @click="dialog = false"></v-btn>
 
-        <v-toolbar-title>{{ project["project-name"] }}</v-toolbar-title>
+        <v-toolbar-title>{{ project['project-name'] }}</v-toolbar-title>
 
         <v-spacer></v-spacer>
       </v-toolbar>
       <v-tabs v-model="tab">
         <v-tab value="overview">overview</v-tab>
-        <v-tab
-          v-if="canReadAssignments && enabledAuthorization"
-          value="permissions"
+        <v-tab v-if="canReadAssignments && enabledAuthorization" value="permissions"
           >Permissions
         </v-tab>
       </v-tabs>
@@ -61,9 +56,7 @@
             </template>
 
             <template #item.info="{ item }">
-              <v-chip v-if="item.info === 'selected'" class="mr-2"
-                >selected
-              </v-chip>
+              <v-chip v-if="item.info === 'selected'" class="mr-2">selected </v-chip>
               <v-chip v-if="item.info === 'switch'" class="mr-2">switch</v-chip>
             </template>
 
@@ -96,30 +89,26 @@
 </template>
 
 <script lang="ts" setup>
-import { useVisualStore } from "../stores/visual";
-import { enabledAuthorization } from "../app.config";
+import { useVisualStore } from '../stores/visual';
+import { enabledAuthorization } from '../app.config';
 
-import { useFunctions } from "../plugins/functions";
+import { useFunctions } from '../plugins/functions';
 import {
   GetProjectResponse,
   ProjectAction,
   ProjectAssignment,
   RenameProjectRequest,
-} from "../gen/management/types.gen";
-import {
-  AssignmentCollection,
-  Header,
-  RelationType,
-} from "../common/interfaces";
-import { computed, ref } from "vue";
+} from '../gen/management/types.gen';
+import { AssignmentCollection, Header, RelationType } from '../common/interfaces';
+import { computed, ref } from 'vue';
 
 const dialog = ref(false);
-const tab = ref("overview");
+const tab = ref('overview');
 
 const visual = useVisualStore();
 const functions = useFunctions();
 
-const permissionType = ref<RelationType>("project");
+const permissionType = ref<RelationType>('project');
 
 const myAccess = reactive<ProjectAction[]>([]);
 const canReadAssignments = ref(false);
@@ -132,44 +121,44 @@ const assignments = reactive<
 >([]);
 
 const headers: readonly Header[] = Object.freeze([
-  { title: "Info", key: "info", align: "start" },
+  { title: 'Info', key: 'info', align: 'start' },
 
-  { title: "Name", key: "project-name", align: "start" },
-  { title: "ID", key: "project-id", align: "start" },
-  { title: "Actions", key: "actions", align: "start", sortable: false },
+  { title: 'Name', key: 'project-name', align: 'start' },
+  { title: 'ID', key: 'project-id', align: 'start' },
+  { title: 'Actions', key: 'actions', align: 'start', sortable: false },
 ]);
 
-const availableProjects = reactive<
-  (GetProjectResponse & { actions: string[]; info: string })[]
->([]);
+const availableProjects = reactive<(GetProjectResponse & { actions: string[]; info: string })[]>(
+  [],
+);
 
 const project = computed(() => {
   return visual.projectSelected;
 });
 
 const permissionObject = reactive<any>({
-  id: "",
-  description: "",
-  name: "Project",
+  id: '',
+  description: '',
+  name: 'Project',
 });
 
 async function init() {
   try {
-    permissionObject.id = project.value["project-id"];
-    permissionObject.name = project.value["project-name"];
+    permissionObject.id = project.value['project-id'];
+    permissionObject.name = project.value['project-name'];
 
     myAccess.splice(0, myAccess.length);
     Object.assign(myAccess, await functions.getProjectAccess());
 
-    canReadAssignments.value = !!myAccess.includes("read_assignments");
+    canReadAssignments.value = !!myAccess.includes('read_assignments');
 
-    canDeleteProject.value = !!myAccess.includes("delete");
+    canDeleteProject.value = !!myAccess.includes('delete');
 
     await loadProjects();
 
     Object.assign(
       projectAssignments,
-      canReadAssignments.value ? await functions.getProjectAssignments() : []
+      canReadAssignments.value ? await functions.getProjectAssignments() : [],
     );
     existingAssignments.splice(0, existingAssignments.length);
     Object.assign(existingAssignments, projectAssignments);
@@ -184,9 +173,9 @@ async function init() {
           assignments.push({
             id: user.id,
             name: user.name,
-            email: user.email ?? "",
+            email: user.email ?? '',
             type: assignment.type,
-            kind: "user",
+            kind: 'user',
           });
         }
       } else {
@@ -195,9 +184,9 @@ async function init() {
           assignments.push({
             id: role.id,
             name: role.name,
-            email: "",
+            email: '',
             type: assignment.type,
-            kind: "role",
+            kind: 'role',
           });
         }
       }
@@ -212,13 +201,13 @@ async function loadProjects() {
     availableProjects.splice(0, availableProjects.length);
     Object.assign(availableProjects, await functions.loadProjectList());
     availableProjects.forEach((p) => {
-      p.actions = ["rename"];
+      p.actions = ['rename'];
 
-      p.actions.push("delete");
-      if (p["project-id"] === visual.projectSelected["project-id"]) {
-        p.info = "selected";
+      p.actions.push('delete');
+      if (p['project-id'] === visual.projectSelected['project-id']) {
+        p.info = 'selected';
       } else {
-        p.info = "switch";
+        p.info = 'switch';
       }
     });
   } catch (error) {
@@ -226,10 +215,7 @@ async function loadProjects() {
   }
 }
 
-async function assign(item: {
-  del: AssignmentCollection;
-  writes: AssignmentCollection;
-}) {
+async function assign(item: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
     loaded.value = false;
     const del = item.del as ProjectAssignment[]; // Define 'del' variable
@@ -266,10 +252,7 @@ async function assign(item: {
 
 async function renameProject(renamedProject: RenameProjectRequest) {
   try {
-    await functions.renameProjectById(
-      renamedProject,
-      renamedProject["project-id"] as string
-    );
+    await functions.renameProjectById(renamedProject, renamedProject['project-id'] as string);
     await loadProjects();
   } catch (error) {
     console.error(error);

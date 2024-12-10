@@ -1,12 +1,7 @@
 <template>
   <v-navigation-drawer v-model="visual.navBarShow">
     <v-list>
-      <v-list-item
-        link
-        prepend-icon="mdi-home"
-        title="Home"
-        to="/"
-      ></v-list-item>
+      <v-list-item link prepend-icon="mdi-home" title="Home" to="/"></v-list-item>
       <v-list-item
         link
         prepend-icon="mdi-warehouse"
@@ -28,23 +23,15 @@
             <div class="mb-2">Excited about the future of Lakekeeper?</div>
 
             Join the conversation and shape the journey!
-            <a
-              href="https://github.com/lakekeeper/lakekeeper/discussions/409"
-              target="_blank"
-            >
+            <a href="https://github.com/lakekeeper/lakekeeper/discussions/409" target="_blank">
               Click here </a
-            >to explore and contribute to the roadmap discussion about Volumes
-            on GitHub.
+            >to explore and contribute to the roadmap discussion about Volumes on GitHub.
           </v-card-text>
 
           <v-card-actions>
             <v-spacer></v-spacer>
 
-            <v-btn
-              color="info"
-              text="Close"
-              @click="isDialogActive = false"
-            ></v-btn>
+            <v-btn color="info" text="Close" @click="isDialogActive = false"></v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -61,18 +48,16 @@
         to="/server-settings"
       ></v-list-item>
     </v-list>
-    <v-snackbar v-model="snackbarVisible" timeout="3000">
-      Volumes are not active yet
-    </v-snackbar>
+    <v-snackbar v-model="snackbarVisible" timeout="3000"> Volumes are not active yet </v-snackbar>
   </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
-import { useVisualStore } from "../stores/visual";
+import { useVisualStore } from '../stores/visual';
 
-import router from "../router";
-import { enabledAuthorization } from "../app.config";
-import { Type } from "../common/interfaces";
+import router from '../router';
+import { enabledAuthorization } from '../app.config';
+import { Type } from '../common/interfaces';
 
 const visual = useVisualStore();
 const snackbarVisible = ref(false);
@@ -80,11 +65,11 @@ const isDialogActive = ref(false);
 
 function routeToRoles() {
   if (enabledAuthorization) {
-    router.push("/roles");
+    router.push('/roles');
   } else {
     visual.setSnackbarMsg({
-      function: "routeToRoles",
-      text: "Authorization is disabled",
+      function: 'routeToRoles',
+      text: 'Authorization is disabled',
       ttl: 3000,
       ts: Date.now(),
       type: Type.INFO,

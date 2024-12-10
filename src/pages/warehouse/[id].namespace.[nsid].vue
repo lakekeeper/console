@@ -20,7 +20,7 @@
             <span class="text-subtitle-1">
               {{
                 namespacePath.length > 0
-                  ? namespacePath.split(String.fromCharCode(0x1f)).join(".")
+                  ? namespacePath.split(String.fromCharCode(0x1f)).join('.')
                   : selectedNamespace
               }}
             </span>
@@ -42,10 +42,7 @@
           <v-tab value="tables" @click="loadTabData">tables</v-tab>
           <v-tab value="views" @click="loadTabData">views</v-tab>
           <v-tab value="deleted" @click="loadTabData">deleted</v-tab>
-          <v-tab
-            v-if="canReadPermissions && enabledAuthorization"
-            value="permissions"
-          >
+          <v-tab v-if="canReadPermissions && enabledAuthorization" value="permissions">
             Permissions
           </v-tab>
           <v-tab value="details">Details</v-tab>
@@ -157,9 +154,7 @@
                 <template #item.name="{ item }">
                   <td class="pointer-cursor">
                     <span class="icon-text">
-                      <v-icon v-if="item.type == 'view'" class="mr-2"
-                        >mdi-view-grid-outline</v-icon
-                      >
+                      <v-icon v-if="item.type == 'view'" class="mr-2">mdi-view-grid-outline</v-icon>
                       <v-icon v-else class="mr-2">mdi-table</v-icon>
                       {{ item.name }} {{ item.type }}</span
                     >
@@ -187,31 +182,23 @@
   </span>
 </template>
 <script lang="ts" setup>
-import { useRoute } from "vue-router"; // Import the useRoute function from vue-router
-import { useVisualStore } from "../../stores/visual";
-import { useFunctions } from "../../plugins/functions";
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
-import router from "../../router";
-import {
-  AssignmentCollection,
-  Header,
-  Item,
-  RelationType,
-} from "../../common/interfaces";
+import { useRoute } from 'vue-router'; // Import the useRoute function from vue-router
+import { useVisualStore } from '../../stores/visual';
+import { useFunctions } from '../../plugins/functions';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import router from '../../router';
+import { AssignmentCollection, Header, Item, RelationType } from '../../common/interfaces';
 
 import {
   DeletedTabularResponse,
   NamespaceAction,
   NamespaceAssignment,
   WarehouseAssignment,
-} from "../../gen/management/types.gen";
-import {
-  GetNamespaceResponse,
-  TableIdentifier,
-} from "../../gen/iceberg/types.gen";
+} from '../../gen/management/types.gen';
+import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
 
-import { enabledAuthorization } from "@/app.config";
-import { StatusIntent } from "@/common/enums";
+import { enabledAuthorization } from '@/app.config';
+import { StatusIntent } from '@/common/enums';
 
 const visual = useVisualStore();
 const route = useRoute();
@@ -221,17 +208,17 @@ const loaded = ref(false);
 const canReadPermissions = ref(false);
 
 const items: Item[] = reactive([]);
-const permissionType = ref<RelationType>("namespace");
+const permissionType = ref<RelationType>('namespace');
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
 // const namespaceId = ref<string>("");
 
 const headers: readonly Header[] = Object.freeze([
-  { title: "Name", key: "name", align: "start" },
-  { title: "Actions", key: "actions", align: "end", sortable: false },
+  { title: 'Name', key: 'name', align: 'start' },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
 const headersDeleted: readonly Header[] = Object.freeze([
-  { title: "Name", key: "name", align: "start" },
+  { title: 'Name', key: 'name', align: 'start' },
 ]);
 
 const loadedNamespaces: Item[] = reactive([]);
@@ -248,12 +235,12 @@ const loadedTables: TableIdentifierExtended[] = reactive([]);
 const loadedViews: TableIdentifierExtended[] = reactive([]);
 const deletedTabulars: DeletedTabularResponseExtended[] = reactive([]);
 
-const relationId = ref("");
-const selectedNamespace = ref("");
+const relationId = ref('');
+const selectedNamespace = ref('');
 const namespacePath = ref<string>((route.params as { nsid: string }).nsid);
 const watchedNamespacePath = computed(() => namespacePath.value);
 const whid = ref<string>((route.params as { id: string }).id);
-const tab = ref("overview");
+const tab = ref('overview');
 const myAccess = reactive<NamespaceAction[]>([]);
 // const myAccessParent = reactive<NamespaceAction[]>([]);
 const namespace = reactive<GetNamespaceResponse>({
@@ -261,9 +248,9 @@ const namespace = reactive<GetNamespaceResponse>({
 });
 const namespaceId = computed(() => namespace.properties?.namespace_id);
 const permissionObject = reactive<any>({
-  id: "",
-  description: "",
-  name: "",
+  id: '',
+  description: '',
+  name: '',
 });
 
 onMounted(async () => {
@@ -276,15 +263,15 @@ onUnmounted(() => {
 });
 
 async function loadTabData() {
-  if (tab.value === "namespaces") {
+  if (tab.value === 'namespaces') {
     await listNamespaces();
-  } else if (tab.value === "permissions") {
+  } else if (tab.value === 'permissions') {
     await init();
-  } else if (tab.value === "tables") {
+  } else if (tab.value === 'tables') {
     await listTables();
-  } else if (tab.value === "views") {
+  } else if (tab.value === 'views') {
     await listViews();
-  } else if (tab.value === "deleted") {
+  } else if (tab.value === 'deleted') {
     await listDeletedTabulars();
   }
 }
@@ -296,38 +283,28 @@ async function init() {
 
     Object.assign(
       namespace,
-      await functions.loadNamespaceMetadata(whid.value, namespacePath.value)
+      await functions.loadNamespaceMetadata(whid.value, namespacePath.value),
     );
 
-    relationId.value = namespace.properties?.namespace_id || "";
+    relationId.value = namespace.properties?.namespace_id || '';
 
-    selectedNamespace.value =
-      namespace.namespace[namespace.namespace.length - 1];
+    selectedNamespace.value = namespace.namespace[namespace.namespace.length - 1];
 
-    permissionObject.id = namespace.properties?.namespace_id || "";
+    permissionObject.id = namespace.properties?.namespace_id || '';
     Object.assign(
       myAccess,
-      await functions.getNamespaceAccessById(
-        namespace.properties?.namespace_id || ""
-      )
+      await functions.getNamespaceAccessById(namespace.properties?.namespace_id || ''),
     );
-    canReadPermissions.value = !!myAccess.includes("read_assignments");
+    canReadPermissions.value = !!myAccess.includes('read_assignments');
 
     Object.assign(
       existingPermissions,
       canReadPermissions.value
-        ? await functions.getNamespaceAssignmentsById(
-            namespace.properties?.namespace_id || ""
-          )
-        : []
+        ? await functions.getNamespaceAssignmentsById(namespace.properties?.namespace_id || '')
+        : [],
     );
     loaded.value = true;
-    await Promise.all([
-      listNamespaces(),
-      listTables(),
-      listViews(),
-      listDeletedTabulars(),
-    ]);
+    await Promise.all([listNamespaces(), listTables(), listViews(), listDeletedTabulars()]);
   } catch (error) {
     console.error(error);
   }
@@ -335,10 +312,7 @@ async function init() {
 
 async function listNamespaces() {
   try {
-    const { namespaces } = await functions.listNamespaces(
-      visual.whId,
-      namespacePath.value
-    );
+    const { namespaces } = await functions.listNamespaces(visual.whId, namespacePath.value);
 
     // remove later not needed
 
@@ -357,9 +331,9 @@ async function listNamespaces() {
     if (namespaces) {
       const mappedItems: Item[] = namespaces.map((nsArray) => ({
         name: nsArray[nsArray.length - 1],
-        type: "namespace",
+        type: 'namespace',
         parentPath: [...nsArray],
-        actions: ["delete"],
+        actions: ['delete'],
       }));
 
       loadedNamespaces.splice(0, loadedNamespaces.length);
@@ -377,8 +351,8 @@ async function listTables() {
 
     Object.assign(loadedTables, data.identifiers);
     loadedTables.forEach((table) => {
-      table.actions = ["delete"];
-      table.type = "table";
+      table.actions = ['delete'];
+      table.type = 'table';
     });
   } catch (error) {
     console.error(error);
@@ -392,8 +366,8 @@ async function listViews() {
 
     Object.assign(loadedViews, data.identifiers);
     loadedViews.forEach((table) => {
-      table.actions = ["delete"];
-      table.type = "view";
+      table.actions = ['delete'];
+      table.type = 'view';
     });
   } catch (error) {
     console.error(error);
@@ -402,11 +376,7 @@ async function listViews() {
 
 async function dropView(item: TableIdentifierExtended) {
   try {
-    const res = await functions.dropView(
-      visual.whId,
-      namespacePath.value,
-      item.name
-    );
+    const res = await functions.dropView(visual.whId, namespacePath.value, item.name);
     if (res) throw new Error();
 
     await listViews();
@@ -417,14 +387,11 @@ async function dropView(item: TableIdentifierExtended) {
 async function listDeletedTabulars() {
   try {
     deletedTabulars.splice(0, deletedTabulars.length);
-    const data = await functions.listDeletedTabulars(
-      visual.whId,
-      namespaceId.value || ""
-    );
+    const data = await functions.listDeletedTabulars(visual.whId, namespaceId.value || '');
 
     Object.assign(deletedTabulars, data.tabulars);
     deletedTabulars.forEach((table) => {
-      table.actions = ["delete"];
+      table.actions = ['delete'];
     });
   } catch (error) {
     console.error(error);
@@ -435,7 +402,7 @@ async function dropNamespace(item: Item) {
   try {
     const res = await functions.dropNamespace(
       whid.value,
-      item.parentPath.join(String.fromCharCode(0x1f))
+      item.parentPath.join(String.fromCharCode(0x1f)),
     );
     if (res.error) throw res.error;
 
@@ -445,14 +412,12 @@ async function dropNamespace(item: Item) {
   }
 }
 async function routeToNamespace(item: Item) {
-  if (item.type !== "namespace") {
+  if (item.type !== 'namespace') {
     return;
   }
 
   namespacePath.value =
-    item.parentPath.length > 0
-      ? `${item.parentPath.join(String.fromCharCode(0x1f))}`
-      : item.name;
+    item.parentPath.length > 0 ? `${item.parentPath.join(String.fromCharCode(0x1f))}` : item.name;
   visual.namespacePath = namespacePath.value;
   router.push(`/warehouse/${visual.whId}/namespace/${namespacePath.value}`);
 }
@@ -461,7 +426,7 @@ async function routeToTable(item: TableIdentifierExtended) {
   router.push(
     `/warehouse/${visual.whId}/namespace/${
       namespacePath.value
-    }/table/${encodeURIComponent(item.name)}`
+    }/table/${encodeURIComponent(item.name)}`,
   );
 }
 
@@ -469,7 +434,7 @@ async function routeToView(item: TableIdentifierExtended) {
   router.push(
     `/warehouse/${visual.whId}/namespace/${
       namespacePath.value
-    }/view/${encodeURIComponent(item.name)}`
+    }/view/${encodeURIComponent(item.name)}`,
   );
 }
 
@@ -484,25 +449,18 @@ watch(
   () => watchedNamespacePath.value,
   async (newNsid) => {
     namespacePath.value = newNsid;
-    relationId.value = namespace.properties?.namespace_id || "";
+    relationId.value = namespace.properties?.namespace_id || '';
 
     await init();
-  }
+  },
 );
 
-async function assign(permissions: {
-  del: AssignmentCollection;
-  writes: AssignmentCollection;
-}) {
+async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
     const del = permissions.del as NamespaceAssignment[];
     const writes = permissions.writes as NamespaceAssignment[];
 
-    await functions.updateNamespaceAssignmentsById(
-      relationId.value,
-      del,
-      writes
-    );
+    await functions.updateNamespaceAssignmentsById(relationId.value, del, writes);
     await init();
   } catch (error) {
     console.error(error);
@@ -513,11 +471,7 @@ async function assign(permissions: {
 
 async function dropTable(item: TableIdentifierExtended) {
   try {
-    const res = await functions.dropTable(
-      visual.whId,
-      namespacePath.value,
-      item.name
-    );
+    const res = await functions.dropTable(visual.whId, namespacePath.value, item.name);
     if (res) throw new Error();
 
     await listTables();

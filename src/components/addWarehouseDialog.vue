@@ -86,9 +86,7 @@
                   v-model="delProfileSoftActive"
                   color="primary"
                   :label="
-                    delProfileSoftActive
-                      ? `Soft Deletion is enabled`
-                      : `Enable Soft Deletion`
+                    delProfileSoftActive ? `Soft Deletion is enabled` : `Enable Soft Deletion`
                   "
                 ></v-switch>
               </v-col>
@@ -144,22 +142,13 @@
                         >
                           <template #label>
                             <div>
-                              <v-icon
-                                v-if="type === 'S3'"
-                                color="primary"
-                                size="x-large"
+                              <v-icon v-if="type === 'S3'" color="primary" size="x-large"
                                 >mdi-aws</v-icon
                               >
-                              <v-icon
-                                v-if="type === 'GCS'"
-                                color="primary"
-                                size="x-large"
+                              <v-icon v-if="type === 'GCS'" color="primary" size="x-large"
                                 >mdi-google-cloud</v-icon
                               >
-                              <v-icon
-                                v-if="type === 'AZURE'"
-                                color="primary"
-                                size="x-large"
+                              <v-icon v-if="type === 'AZURE'" color="primary" size="x-large"
                                 >mdi-microsoft-azure</v-icon
                               >
                               {{ type }}
@@ -232,10 +221,10 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from "vue";
-import { useFunctions } from "../plugins/functions";
+import { reactive, ref } from 'vue';
+import { useFunctions } from '../plugins/functions';
 
-import { useVisualStore } from "../stores/visual";
+import { useVisualStore } from '../stores/visual';
 
 import {
   CreateWarehouseRequest,
@@ -244,13 +233,13 @@ import {
   StorageCredential,
   StorageProfile,
   TabularDeleteProfile,
-} from "../gen/management/types.gen";
-import { Intent, ObjectType } from "../common/enums";
-import { WarehousObject } from "@/common/interfaces";
+} from '../gen/management/types.gen';
+import { Intent, ObjectType } from '../common/enums';
+import { WarehousObject } from '@/common/interfaces';
 
 const visual = useVisualStore();
 const projectId = computed(() => {
-  return visual.projectSelected["project-id"];
+  return visual.projectSelected['project-id'];
 });
 
 const creatingWarehouse = ref(false);
@@ -261,15 +250,15 @@ const delProfileSoftActive = ref(false);
 const isDialogActive = ref(false);
 
 const emit = defineEmits<{
-  (e: "addedWarehouse"): void;
-  (e: "cancel"): void;
-  (e: "close"): void;
-  (e: "updateCredentials", credentials: StorageCredential): void;
+  (e: 'addedWarehouse'): void;
+  (e: 'cancel'): void;
+  (e: 'close'): void;
+  (e: 'updateCredentials', credentials: StorageCredential): void;
   (
-    e: "updateProfile",
-    newProfile: { profile: StorageProfile; credentials: StorageCredential }
+    e: 'updateProfile',
+    newProfile: { profile: StorageProfile; credentials: StorageCredential },
   ): void;
-  (e: "updateDeletionProfile", profile: TabularDeleteProfile): void;
+  (e: 'updateDeletionProfile', profile: TabularDeleteProfile): void;
 }>();
 
 const props = defineProps<{
@@ -283,89 +272,89 @@ const min = ref(0);
 const max = ref(90);
 const slider = ref(7);
 
-const storageCredentialTypes = ref(["S3", "GCS", "AZURE"]);
-const storageCredentialType = ref("");
-const warehouseName = ref("");
+const storageCredentialTypes = ref(['S3', 'GCS', 'AZURE']);
+const storageCredentialType = ref('');
+const warehouseName = ref('');
 const functions = useFunctions();
 const rules = {
-  required: (value: any) => !!value || "Required.",
-  noSlash: (value: string) => !value.includes("/") || 'Cannot contain "/"',
+  required: (value: any) => !!value || 'Required.',
+  noSlash: (value: string) => !value.includes('/') || 'Cannot contain "/"',
 };
 
 const emptyWarehouse = ref(true);
 const warehouseObjectS3 = reactive<WarehousObject>({
-  "storage-profile": {
-    type: "s3",
-    bucket: "",
-    region: "",
-    "sts-enabled": false,
+  'storage-profile': {
+    type: 's3',
+    bucket: '',
+    region: '',
+    'sts-enabled': false,
   },
-  "storage-credential": {
-    type: "s3",
-    "aws-access-key-id": "",
-    "aws-secret-access-key": "",
-    "credential-type": "access-key",
+  'storage-credential': {
+    type: 's3',
+    'aws-access-key-id': '',
+    'aws-secret-access-key': '',
+    'credential-type': 'access-key',
   },
 });
 
 const key = reactive<GcsServiceKey>({
-  auth_provider_x509_cert_url: "",
-  auth_uri: "",
-  client_email: "",
-  client_id: "",
-  client_x509_cert_url: "",
-  private_key: "",
-  private_key_id: "",
-  project_id: "",
-  token_uri: "",
-  type: "",
-  universe_domain: "",
+  auth_provider_x509_cert_url: '',
+  auth_uri: '',
+  client_email: '',
+  client_id: '',
+  client_x509_cert_url: '',
+  private_key: '',
+  private_key_id: '',
+  project_id: '',
+  token_uri: '',
+  type: '',
+  universe_domain: '',
 });
 const warehouseObjectGCS = reactive<WarehousObject>({
-  "storage-profile": {
-    type: "gcs",
-    bucket: "",
+  'storage-profile': {
+    type: 'gcs',
+    bucket: '',
   },
-  "storage-credential": {
-    type: "gcs",
-    "credential-type": "service-account-key",
+  'storage-credential': {
+    type: 'gcs',
+    'credential-type': 'service-account-key',
     key,
   },
 });
 
 const warehouseObjectAz = reactive<WarehousObject>({
-  "storage-profile": {
-    "account-name": "",
-    filesystem: "",
-    type: "adls",
+  'storage-profile': {
+    'account-name': '',
+    filesystem: '',
+    type: 'adls',
   },
-  "storage-credential": {
-    "client-id": "",
-    "client-secret": "",
-    "credential-type": "client-credentials",
-    "tenant-id": "",
-    type: "az",
+  'storage-credential': {
+    'client-id': '',
+    'client-secret': '',
+    'credential-type': 'client-credentials',
+    'tenant-id': '',
+    type: 'az',
   },
 });
 
 async function createWarehouse(warehouseObject: WarehousObject) {
   try {
-    if (warehouseObject["storage-profile"].type === "gcs")
+    if (warehouseObject['storage-profile'].type === 'gcs')
       Object.assign(warehouseObjectGCS, warehouseObject);
-    if (warehouseObject["storage-profile"].type === "s3")
+    if (warehouseObject['storage-profile'].type === 's3')
       Object.assign(warehouseObjectS3, warehouseObject);
-    if (warehouseObject["storage-profile"].type === "az")
+    if (warehouseObject['storage-profile'].type === 'az')
       Object.assign(warehouseObjectAz, warehouseObject);
 
     creatingWarehouse.value = true;
 
     const delProfileSoft = reactive<TabularDeleteProfile>({
-      type: "soft",
-      "expiration-seconds": Math.round(slider.value * 86400),
+      type: 'soft',
+      'expiration-seconds': Math.round(slider.value * 86400),
     });
 
     const delProfileHard = reactive<TabularDeleteProfile>({
-      type: "hard",
+      type: 'hard',
     });
 
     const delProfile = computed(() => {
@@ -373,20 +362,18 @@ async function createWarehouse(warehouseObject: WarehousObject) {
     });
 
     const wh = reactive<CreateWarehouseRequest>({
-      "delete-profile": delProfile.value,
-      "warehouse-name": warehouseName.value,
-      "project-id": projectId.value,
-      "storage-credential": warehouseObject[
-        "storage-credential"
-      ] as StorageCredential,
-      "storage-profile": warehouseObject["storage-profile"] as StorageProfile,
+      'delete-profile': delProfile.value,
+      'warehouse-name': warehouseName.value,
+      'project-id': projectId.value,
+      'storage-credential': warehouseObject['storage-credential'] as StorageCredential,
+      'storage-profile': warehouseObject['storage-profile'] as StorageProfile,
     });
 
     const res: any = await functions.createWarehouse(wh);
 
     if (res.status === 400) throw new Error(res.message);
 
-    emit("addedWarehouse");
+    emit('addedWarehouse');
     creatingWarehouse.value = false;
     isDialogActive.value = false;
   } catch (error) {
@@ -398,50 +385,42 @@ async function createWarehouse(warehouseObject: WarehousObject) {
 
 function emitDeletionProfile() {
   const delProfileSoft = reactive<TabularDeleteProfile>({
-    type: "soft",
-    "expiration-seconds": Math.round(slider.value * 86400),
+    type: 'soft',
+    'expiration-seconds': Math.round(slider.value * 86400),
   });
 
   const delProfileHard = reactive<TabularDeleteProfile>({
-    type: "hard",
+    type: 'hard',
   });
 
   const delProfile = computed(() => {
     return delProfileSoftActive.value ? delProfileSoft : delProfileHard;
   });
 
-  emit("updateDeletionProfile", delProfile.value);
+  emit('updateDeletionProfile', delProfile.value);
 }
 
 function newCredentials(credentials: StorageCredential) {
-  emit("updateCredentials", credentials);
+  emit('updateCredentials', credentials);
 }
 
-function newProfile(item: {
-  profile: StorageProfile;
-  credentials: StorageCredential;
-}) {
-  emit("updateProfile", item);
+function newProfile(item: { profile: StorageProfile; credentials: StorageCredential }) {
+  emit('updateProfile', item);
 }
 
 onMounted(() => {
   if (props.warehouse) {
     emptyWarehouse.value = false;
-    if (props.warehouse["storage-profile"].type === "s3")
-      storageCredentialType.value = "S3";
+    if (props.warehouse['storage-profile'].type === 's3') storageCredentialType.value = 'S3';
 
-    if (props.warehouse["storage-profile"].type === "adls")
-      storageCredentialType.value = "AZURE";
+    if (props.warehouse['storage-profile'].type === 'adls') storageCredentialType.value = 'AZURE';
 
-    if (props.warehouse["storage-profile"].type === "gcs")
-      storageCredentialType.value = "GCS";
+    if (props.warehouse['storage-profile'].type === 'gcs') storageCredentialType.value = 'GCS';
     if (
       props.objectType === ObjectType.DELETION_PROFILE &&
-      props.warehouse["delete-profile"].type === "soft"
+      props.warehouse['delete-profile'].type === 'soft'
     ) {
-      slider.value = Math.round(
-        props.warehouse["delete-profile"]["expiration-seconds"] / 86400
-      );
+      slider.value = Math.round(props.warehouse['delete-profile']['expiration-seconds'] / 86400);
       loadedDeltionSeconds.value = slider.value;
 
       delProfileSoftActive.value = true;
@@ -453,13 +432,13 @@ onMounted(() => {
 watch(
   () => props.processStatus,
   (old, newVal) => {
-    if (newVal === "success") {
+    if (newVal === 'success') {
       isDialogActive.value = false;
-      emit("cancel");
+      emit('cancel');
     }
   },
   {
     immediate: true,
-  }
+  },
 );
 </script>

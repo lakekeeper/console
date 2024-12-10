@@ -8,9 +8,9 @@
 </template>
 
 <script lang="ts" setup>
-import { Breadcrumb } from "../common/interfaces";
-import { useVisualStore } from "../stores/visual";
-import { useFunctions } from "@/plugins/functions";
+import { Breadcrumb } from '../common/interfaces';
+import { useVisualStore } from '../stores/visual';
+import { useFunctions } from '@/plugins/functions';
 
 const functions = useFunctions();
 const breadcrumbs = reactive<Breadcrumb[]>([]);
@@ -20,9 +20,9 @@ const visual = useVisualStore();
 async function loadBreadcrumbs(url: string) {
   try {
     breadcrumbs.splice(0, breadcrumbs.length);
-    const paths = url.split("/").filter(Boolean);
+    const paths = url.split('/').filter(Boolean);
 
-    let currentPath = "/ui";
+    let currentPath = '/ui';
 
     for (let index = 0; index < paths.length; index++) {
       const segment = paths[index];
@@ -42,19 +42,15 @@ async function loadBreadcrumbs(url: string) {
         const nsId =
           segment.split(String.fromCharCode(0x1f)).length > 1
             ? segment.split(String.fromCharCode(0x1f))
-            : segment.split("%1F");
+            : segment.split('%1F');
 
-        const priviousBreadcrumb = `${
-          breadcrumbs[breadcrumbs.length - 1].href
-        }/namespace`;
+        const priviousBreadcrumb = `${breadcrumbs[breadcrumbs.length - 1].href}/namespace`;
         const nsPreviousPath: string[] = [];
-        let path = "";
+        let path = '';
 
-        nsId.forEach(p => {
+        nsId.forEach((p) => {
           nsPreviousPath.push(p);
-          path = `${priviousBreadcrumb}/${nsPreviousPath.join(
-            String.fromCharCode(0x1f)
-          )}`;
+          path = `${priviousBreadcrumb}/${nsPreviousPath.join(String.fromCharCode(0x1f))}`;
 
           breadcrumbs.push({
             title: p,
@@ -78,6 +74,6 @@ watch(
   (newVal) => {
     loadBreadcrumbs(newVal);
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>

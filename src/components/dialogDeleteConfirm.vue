@@ -8,9 +8,7 @@
 
     <v-card :title="`Confirm deletion of ${props.type}`">
       <v-card-text>
-        <div class="ma-2">
-          Please enter the name "{{ props.name }}" to confirm the delition
-        </div>
+        <div class="ma-2">Please enter the name "{{ props.name }}" to confirm the delition</div>
         <v-text-field
           v-model="deleteName"
           :label="`${props.type} Name`"
@@ -35,9 +33,9 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps, ref } from "vue";
+import { defineEmits, defineProps, ref } from 'vue';
 
-const deleteName = ref("");
+const deleteName = ref('');
 
 const props = defineProps<{
   type: string;
@@ -45,14 +43,14 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "confirmed"): void;
-  (e: "rejected"): void;
+  (e: 'confirmed'): void;
+  (e: 'rejected'): void;
 }>();
 
 const isDialogActive = ref(false);
 
 function confirm() {
-  emit("confirmed");
+  emit('confirmed');
 }
 function reject() {
   isDialogActive.value = false;

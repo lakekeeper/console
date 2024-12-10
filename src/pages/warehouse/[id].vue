@@ -44,9 +44,7 @@
           />
         </v-toolbar>
         <v-tabs v-model="tab" density="compact">
-          <v-tab density="compact" value="namespaces" @click="loadTabData"
-            >namespaces</v-tab
-          >
+          <v-tab density="compact" value="namespaces" @click="loadTabData">namespaces</v-tab>
           <v-tab
             v-if="canReadPermissions && enabledAuthorization"
             density="compact"
@@ -55,9 +53,7 @@
           >
             permissions
           </v-tab>
-          <v-tab density="compact" value="details" @click="loadTabData"
-            >Details</v-tab
-          >
+          <v-tab density="compact" value="details" @click="loadTabData">Details</v-tab>
         </v-tabs>
         <v-card style="max-height: 65vh; overflow: auto">
           <v-tabs-window v-model="tab">
@@ -101,260 +97,203 @@
                 <v-row>
                   <v-col cols="10">
                     <!--S3 Details-->
-                    <v-list
-                      v-if="selectedWarehouse['storage-profile'].type === 's3'"
-                      dense
-                    >
+                    <v-list v-if="selectedWarehouse['storage-profile'].type === 's3'" dense>
                       <v-list-item>
                         <v-list-item-title>ID</v-list-item-title>
-                        <v-list-item-subtitle>{{
-                          selectedWarehouse.id
-                        }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{ selectedWarehouse.id }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Project ID</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["project-id"]
+                          selectedWarehouse['project-id']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Storage Type</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].type
+                          selectedWarehouse['storage-profile'].type
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Bucket</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].bucket
+                          selectedWarehouse['storage-profile'].bucket
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Key Prefix</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"]["key-prefix"]
+                          selectedWarehouse['storage-profile']['key-prefix']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Assume Role ARN</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"][
-                            "assume-role-arn"
-                          ]
+                          selectedWarehouse['storage-profile']['assume-role-arn']
                         }}</v-list-item-subtitle>
                       </v-list-item>
-                      <v-list-item
-                        v-if="
-                          selectedWarehouse['storage-profile'].type === 's3'
-                        "
-                      >
+                      <v-list-item v-if="selectedWarehouse['storage-profile'].type === 's3'">
                         <v-list-item-title>Endpoint</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].endpoint
+                          selectedWarehouse['storage-profile'].endpoint
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Region</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].region
+                          selectedWarehouse['storage-profile'].region
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Path Style Access</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"][
-                            "path-style-access"
-                          ]
+                          selectedWarehouse['storage-profile']['path-style-access']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>STS Role ARN</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"]["sts-role-arn"]
+                          selectedWarehouse['storage-profile']['sts-role-arn']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>STS Enabled</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"]["sts-enabled"]
-                            ? "Yes"
-                            : "No"
+                          selectedWarehouse['storage-profile']['sts-enabled'] ? 'Yes' : 'No'
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Flavor</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].flavor
+                          selectedWarehouse['storage-profile'].flavor
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Status</v-list-item-title>
-                        <v-list-item-subtitle>{{
-                          selectedWarehouse.status
-                        }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{ selectedWarehouse.status }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Deletion Profile</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["delete-profile"].type
+                          selectedWarehouse['delete-profile'].type
                         }}</v-list-item-subtitle>
                       </v-list-item>
-                      <v-list-item
-                        v-if="
-                          selectedWarehouse['delete-profile'].type == 'soft'
-                        "
-                      >
-                        <v-list-item-title
-                          >Expiration Seconds</v-list-item-title
-                        >
+                      <v-list-item v-if="selectedWarehouse['delete-profile'].type == 'soft'">
+                        <v-list-item-title>Expiration Seconds</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["delete-profile"][
-                            "expiration-seconds"
-                          ]
+                          selectedWarehouse['delete-profile']['expiration-seconds']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                     </v-list>
                     <!--Azure Details-->
-                    <v-list
-                      v-if="
-                        selectedWarehouse['storage-profile'].type === 'adls'
-                      "
-                      dense
-                    >
+                    <v-list v-if="selectedWarehouse['storage-profile'].type === 'adls'" dense>
                       <v-list-item>
                         <v-list-item-title>ID</v-list-item-title>
-                        <v-list-item-subtitle>{{
-                          selectedWarehouse.id
-                        }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{ selectedWarehouse.id }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Project ID</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["project-id"]
+                          selectedWarehouse['project-id']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Storage Type</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].type
+                          selectedWarehouse['storage-profile'].type
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Account Name</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"]["account-name"]
+                          selectedWarehouse['storage-profile']['account-name']
                         }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Filesystem</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].filesystem
+                          selectedWarehouse['storage-profile'].filesystem
                         }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Key Prefix</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"]["key-prefix"]
+                          selectedWarehouse['storage-profile']['key-prefix']
                         }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Status</v-list-item-title>
-                        <v-list-item-subtitle>{{
-                          selectedWarehouse.status
-                        }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{ selectedWarehouse.status }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Deletion Profile</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["delete-profile"].type
+                          selectedWarehouse['delete-profile'].type
                         }}</v-list-item-subtitle>
                       </v-list-item>
-                      <v-list-item
-                        v-if="
-                          selectedWarehouse['delete-profile'].type == 'soft'
-                        "
-                      >
-                        <v-list-item-title
-                          >Expiration Seconds</v-list-item-title
-                        >
+                      <v-list-item v-if="selectedWarehouse['delete-profile'].type == 'soft'">
+                        <v-list-item-title>Expiration Seconds</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["delete-profile"][
-                            "expiration-seconds"
-                          ]
+                          selectedWarehouse['delete-profile']['expiration-seconds']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                     </v-list>
 
                     <!--GCS Details-->
-                    <v-list
-                      v-if="selectedWarehouse['storage-profile'].type === 'gcs'"
-                      dense
-                    >
+                    <v-list v-if="selectedWarehouse['storage-profile'].type === 'gcs'" dense>
                       <v-list-item>
                         <v-list-item-title>ID</v-list-item-title>
-                        <v-list-item-subtitle>{{
-                          selectedWarehouse.id
-                        }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{ selectedWarehouse.id }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Project ID</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["project-id"]
+                          selectedWarehouse['project-id']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Storage Type</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].type
+                          selectedWarehouse['storage-profile'].type
                         }}</v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Bucket</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"].bucket
+                          selectedWarehouse['storage-profile'].bucket
                         }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Key-prefix</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["storage-profile"]["key-prefix"]
+                          selectedWarehouse['storage-profile']['key-prefix']
                         }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Status</v-list-item-title>
-                        <v-list-item-subtitle>{{
-                          selectedWarehouse.status
-                        }}</v-list-item-subtitle>
+                        <v-list-item-subtitle>{{ selectedWarehouse.status }}</v-list-item-subtitle>
                       </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Deletion Profile</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["delete-profile"].type
+                          selectedWarehouse['delete-profile'].type
                         }}</v-list-item-subtitle>
                       </v-list-item>
-                      <v-list-item
-                        v-if="
-                          selectedWarehouse['delete-profile'].type == 'soft'
-                        "
-                      >
-                        <v-list-item-title
-                          >Expiration Seconds</v-list-item-title
-                        >
+                      <v-list-item v-if="selectedWarehouse['delete-profile'].type == 'soft'">
+                        <v-list-item-title>Expiration Seconds</v-list-item-title>
                         <v-list-item-subtitle>{{
-                          selectedWarehouse["delete-profile"][
-                            "expiration-seconds"
-                          ]
+                          selectedWarehouse['delete-profile']['expiration-seconds']
                         }}</v-list-item-subtitle>
                       </v-list-item>
                     </v-list>
@@ -379,18 +318,12 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from "vue-router";
-import { useFunctions } from "../../plugins/functions";
-import {
-  AssignmentCollection,
-  Header,
-  Item,
-  RelationType,
-  Type,
-} from "../../common/interfaces";
-import { useVisualStore } from "../../stores/visual";
-import { computed, onMounted, reactive, ref } from "vue";
-import router from "../../router";
+import { useRoute } from 'vue-router';
+import { useFunctions } from '../../plugins/functions';
+import { AssignmentCollection, Header, Item, RelationType, Type } from '../../common/interfaces';
+import { useVisualStore } from '../../stores/visual';
+import { computed, onMounted, reactive, ref } from 'vue';
+import router from '../../router';
 import {
   GetWarehouseResponse,
   NamespaceAction,
@@ -399,62 +332,62 @@ import {
   TabularDeleteProfile,
   WarehouseAction,
   WarehouseAssignment,
-} from "@/gen/management/types.gen";
+} from '@/gen/management/types.gen';
 
-import { enabledAuthorization } from "@/app.config";
-import { StatusIntent } from "@/common/enums";
+import { enabledAuthorization } from '@/app.config';
+import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 const route = useRoute();
 
-const tab = ref("overview");
+const tab = ref('overview');
 const loading = ref(true);
 const headers: readonly Header[] = Object.freeze([
-  { title: "Name", key: "name", align: "start" },
-  { title: "Actions", key: "actions", align: "end", sortable: false },
+  { title: 'Name', key: 'name', align: 'start' },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 const loaded = ref(true);
 
 const storageProfile = reactive<StorageProfile>({
-  type: "s3",
-  bucket: "",
-  "key-prefix": "",
-  "assume-role-arn": "",
-  endpoint: "",
-  region: "",
-  "path-style-access": null,
-  "sts-role-arn": "",
-  "sts-enabled": false,
+  type: 's3',
+  bucket: '',
+  'key-prefix': '',
+  'assume-role-arn': '',
+  endpoint: '',
+  region: '',
+  'path-style-access': null,
+  'sts-role-arn': '',
+  'sts-enabled': false,
   flavor: undefined,
 });
 
 const selectedWarehouse = reactive<GetWarehouseResponse>({
-  "delete-profile": {
-    type: "hard",
+  'delete-profile': {
+    type: 'hard',
   },
-  id: "",
-  name: "",
-  "project-id": "",
-  status: "active",
-  "storage-profile": storageProfile,
+  id: '',
+  name: '',
+  'project-id': '',
+  status: 'active',
+  'storage-profile': storageProfile,
 });
 
 const loadedWarehouseItems: Item[] = reactive([]);
-const permissionType = ref<RelationType>("warehouse");
+const permissionType = ref<RelationType>('warehouse');
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
-const namespaceId = ref("");
+const namespaceId = ref('');
 const myAccess = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 // const myAccessParent = reactive<WarehouseAction[] | NamespaceAction[]>([]);
-const relationId = ref("");
+const relationId = ref('');
 const canReadPermissions = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 
-const processStatus = ref("starting");
+const processStatus = ref('starting');
 
 const permissionObject = reactive<any>({
-  id: "",
-  description: "",
-  name: "",
+  id: '',
+  description: '',
+  name: '',
 });
 
 const params = computed(() => route.params as { id: string });
@@ -471,11 +404,11 @@ async function loadWarehouse() {
   }
 }
 async function loadTabData() {
-  if (tab.value === "namespaces") {
+  if (tab.value === 'namespaces') {
     await listNamespaces();
-  } else if (tab.value === "permissions") {
+  } else if (tab.value === 'permissions') {
     await init();
-  } else if (tab.value === "details") {
+  } else if (tab.value === 'details') {
     await loadWarehouse();
   }
 }
@@ -483,23 +416,18 @@ async function init() {
   try {
     loaded.value = false;
     myAccess.splice(0, myAccess.length);
-    namespaceId.value = "";
+    namespaceId.value = '';
     relationId.value = params.value.id;
     existingPermissions.splice(0, existingPermissions.length);
     loadedWarehouseItems.splice(0, loadedWarehouseItems.length);
 
-    Object.assign(
-      myAccess,
-      await functions.getWarehouseAccessById(params.value.id)
-    );
+    Object.assign(myAccess, await functions.getWarehouseAccessById(params.value.id));
 
-    canReadPermissions.value = !!myAccess.includes("read_assignments");
+    canReadPermissions.value = !!myAccess.includes('read_assignments');
 
     Object.assign(
       existingPermissions,
-      canReadPermissions.value
-        ? await functions.getWarehouseAssignmentsById(params.value.id)
-        : []
+      canReadPermissions.value ? await functions.getWarehouseAssignmentsById(params.value.id) : [],
     );
     loaded.value = true;
     await Promise.all([loadWarehouse(), listNamespaces()]);
@@ -526,10 +454,10 @@ async function addNamespace(namespace: string[]) {
 
 const dropNamespace = async (item: Item) => {
   try {
-    console.log("dropping namespace", item);
+    console.log('dropping namespace', item);
     const res = await functions.dropNamespace(
       params.value.id,
-      item.parentPath.join(String.fromCharCode(0x1f))
+      item.parentPath.join(String.fromCharCode(0x1f)),
     );
     if (res.error) throw res.error;
 
@@ -541,15 +469,11 @@ const dropNamespace = async (item: Item) => {
 
 async function routeToNamespace(item: Item) {
   router.push(`/warehouse/${params.value.id}/namespace/${item.name}`);
-
 }
 
 async function listNamespaces(item?: Item, parent?: string) {
   try {
-    const { namespaces } = await functions.listNamespaces(
-      params.value.id,
-      parent
-    );
+    const { namespaces } = await functions.listNamespaces(params.value.id, parent);
 
     // remove later not needed
     // if (namespaceMap) {
@@ -569,9 +493,9 @@ async function listNamespaces(item?: Item, parent?: string) {
     if (namespaces) {
       const mappedItems: Item[] = namespaces.map((nsArray) => ({
         name: nsArray[nsArray.length - 1],
-        type: "namespace",
+        type: 'namespace',
         parentPath: [...nsArray],
-        actions: ["delete"],
+        actions: ['delete'],
       }));
 
       loadedWarehouseItems.splice(0, loadedWarehouseItems.length);
@@ -582,19 +506,12 @@ async function listNamespaces(item?: Item, parent?: string) {
 
 onMounted(init);
 
-async function assign(permissions: {
-  del: AssignmentCollection;
-  writes: AssignmentCollection;
-}) {
+async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
     const del = permissions.del as WarehouseAssignment[]; // Define 'del' variable
     const writes = permissions.writes as WarehouseAssignment[]; // Define 'del' variable
 
-    await functions.updateWarehouseAssignmentsById(
-      relationId.value,
-      del,
-      writes
-    );
+    await functions.updateWarehouseAssignmentsById(relationId.value, del, writes);
     await init();
   } catch (error) {
     console.error(error);
@@ -618,18 +535,15 @@ async function renameWarehouse(name: string) {
 
 async function updateCredentials(credentials: StorageCredential) {
   try {
-    processStatus.value = "running";
+    processStatus.value = 'running';
 
     await functions.updateStorageCredential(params.value.id, credentials);
     await loadWarehouse();
-    processStatus.value = "success";
+    processStatus.value = 'success';
   } catch (error: any) {
-    processStatus.value = "error";
+    processStatus.value = 'error';
 
-    console.error(
-      `Failed to update credentials for warehouse-${params.value.id}  - `,
-      error
-    );
+    console.error(`Failed to update credentials for warehouse-${params.value.id}  - `, error);
   }
 }
 
@@ -641,15 +555,12 @@ async function updateProfile(newPprofile: {
     await functions.updateStorageProfile(
       params.value.id,
       newPprofile.credentials,
-      newPprofile.profile
+      newPprofile.profile,
     );
 
     await loadWarehouse();
   } catch (error: any) {
-    console.error(
-      `Failed to update profile for warehouse-${params.value.id}  - `,
-      error
-    );
+    console.error(`Failed to update profile for warehouse-${params.value.id}  - `, error);
   }
 }
 async function updateDelProfile(profile: TabularDeleteProfile) {
@@ -657,17 +568,14 @@ async function updateDelProfile(profile: TabularDeleteProfile) {
     await functions.updateWarehouseDeleteProfile(params.value.id, profile);
     await loadWarehouse();
     visual.setSnackbarMsg({
-      function: "updateDelProfile",
-      text: "Deletion profile updated successfully",
+      function: 'updateDelProfile',
+      text: 'Deletion profile updated successfully',
       ttl: 3000,
       ts: Date.now(),
       type: Type.SUCCESS,
     });
   } catch (error: any) {
-    console.error(
-      `Failed to update deletion profile for warehouse-${params.value.id}  - `,
-      error
-    );
+    console.error(`Failed to update deletion profile for warehouse-${params.value.id}  - `, error);
   }
 }
 </script>

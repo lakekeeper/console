@@ -17,7 +17,7 @@
         <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
-              {{ namespacePath.split(String.fromCharCode(0x1f)).join(".") }}
+              {{ namespacePath.split(String.fromCharCode(0x1f)).join('.') }}
             </span>
           </v-toolbar-title>
           <template #prepend>
@@ -27,11 +27,7 @@
         <v-tabs v-model="tab">
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
-          <v-tab
-            v-if="enabledAuthorization"
-            value="permissions"
-            @click="loadTabData"
-          >
+          <v-tab v-if="enabledAuthorization" value="permissions" @click="loadTabData">
             Permissions
           </v-tab>
         </v-tabs>
@@ -40,16 +36,10 @@
             <v-tabs-window-item value="overview">
               <v-treeview :items="schemaFieldsTransformed" open-on-click>
                 <template #prepend="{ item }">
-                  <v-icon v-if="item.datatype == 'string'" size="small">
-                    mdi-alphabetical
-                  </v-icon>
-                  <v-icon v-else-if="item.datatype == 'int'" size="small">
-                    mdi-numeric
-                  </v-icon>
+                  <v-icon v-if="item.datatype == 'string'" size="small"> mdi-alphabetical </v-icon>
+                  <v-icon v-else-if="item.datatype == 'int'" size="small"> mdi-numeric </v-icon>
                   <v-icon
-                    v-else-if="
-                      item.datatype == 'long' || item.datatype == 'double'
-                    "
+                    v-else-if="item.datatype == 'long' || item.datatype == 'double'"
                     size="small"
                   >
                     mdi-decimal
@@ -62,9 +52,7 @@
                 </template>
                 <template #append="{ item }">
                   <span
-                    ><span v-if="item.required" style="font-size: 0.575rem">
-                      required
-                    </span>
+                    ><span v-if="item.required" style="font-size: 0.575rem"> required </span>
                     <v-icon v-if="item.required" color="error" size="x-small">
                       mdi-asterisk
                     </v-icon>
@@ -91,40 +79,40 @@
   </span>
 </template>
 <script lang="ts" setup>
-import VueJsonPretty from "vue-json-pretty";
-import "vue-json-pretty/lib/styles.css";
-import { onMounted, reactive, ref } from "vue";
-import { useRoute } from "vue-router";
-import { useFunctions } from "../../plugins/functions";
-import { LoadTableResult, StructField } from "../../gen/iceberg/types.gen";
-import { TableAction, TableAssignment } from "../../gen/management/types.gen";
-import { AssignmentCollection, RelationType } from "../../common/interfaces";
+import VueJsonPretty from 'vue-json-pretty';
+import 'vue-json-pretty/lib/styles.css';
+import { onMounted, reactive, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { useFunctions } from '../../plugins/functions';
+import { LoadTableResult, StructField } from '../../gen/iceberg/types.gen';
+import { TableAction, TableAssignment } from '../../gen/management/types.gen';
+import { AssignmentCollection, RelationType } from '../../common/interfaces';
 
-import { enabledAuthorization } from "@/app.config";
+import { enabledAuthorization } from '@/app.config';
 
 const functions = useFunctions();
 const route = useRoute();
-const tab = ref("overview");
-const namespacePath = ref("");
+const tab = ref('overview');
+const namespacePath = ref('');
 const loading = ref(true);
 const myAccess = reactive<TableAction[]>([]);
 const canReadPermissions = ref(false);
 const warehouseId = (route.params as { id: string }).id;
 const namespaceId = (route.params as { nsid: string }).nsid;
 const tableName = (route.params as { tid: string }).tid;
-const tableId = ref("");
+const tableId = ref('');
 const table = reactive<LoadTableResult>({
   metadata: {
-    "format-version": 0,
-    "table-uuid": "",
+    'format-version': 0,
+    'table-uuid': '',
   },
 });
 
-const permissionType = ref<RelationType>("table");
+const permissionType = ref<RelationType>('table');
 const permissionObject = reactive<any>({
-  id: "",
-  description: "",
-  name: "",
+  id: '',
+  description: '',
+  name: '',
 });
 
 interface TreeItem {
@@ -144,36 +132,29 @@ const loaded = ref(false);
 async function init() {
   loaded.value = false;
 
-  namespacePath.value = `${namespaceId}${String.fromCharCode(
-    0x1f
-  )}${tableName}`;
-  Object.assign(
-    table,
-    await functions.loadTable(warehouseId, namespaceId, tableName)
-  );
+  namespacePath.value = `${namespaceId}${String.fromCharCode(0x1f)}${tableName}`;
+  Object.assign(table, await functions.loadTable(warehouseId, namespaceId, tableName));
 
-  tableId.value = table.metadata["table-uuid"];
-  currentSchema.value = table.metadata["current-schema-id"] || 0;
+  tableId.value = table.metadata['table-uuid'];
+  currentSchema.value = table.metadata['current-schema-id'] || 0;
 
   permissionObject.id = tableId.value;
   permissionObject.name = tableName;
 
   Object.assign(myAccess, await functions.getTableAccessById(tableId.value));
 
-  canReadPermissions.value = !!myAccess.includes("read_assignments");
+  canReadPermissions.value = !!myAccess.includes('read_assignments');
 
   Object.assign(
     existingPermissions,
-    canReadPermissions.value
-      ? await functions.getTableAssignmentsById(tableId.value)
-      : []
+    canReadPermissions.value ? await functions.getTableAssignmentsById(tableId.value) : [],
   );
   loaded.value = true;
 
   schemaFields.splice(0, schemaFields.length);
   if (table.metadata.schemas) {
     table.metadata.schemas.forEach((schema) => {
-      if (schema["schema-id"] === currentSchema.value) {
+      if (schema['schema-id'] === currentSchema.value) {
         for (const field of schema.fields) {
           schemaFields.push(field);
         }
@@ -188,26 +169,24 @@ onMounted(async () => {
   loading.value = false;
 });
 
-function isStructType(
-  type: any
-): type is { type: "struct"; fields: StructField[] } {
-  return type && type.type === "struct" && Array.isArray(type.fields);
+function isStructType(type: any): type is { type: 'struct'; fields: StructField[] } {
+  return type && type.type === 'struct' && Array.isArray(type.fields);
 }
 
-function isListType(type: any): type is { type: "list"; element: any } {
-  return type && type.type === "list" && type.element;
+function isListType(type: any): type is { type: 'list'; element: any } {
+  return type && type.type === 'list' && type.element;
 }
 
 function transformFields(fields: StructField[]): TreeItem[] {
   return fields.map((field) => {
     let title = field.name;
-    let datatype = typeof field.type === "string" ? field.type : "";
+    let datatype = typeof field.type === 'string' ? field.type : '';
 
-    if (typeof field.type === "object") {
+    if (typeof field.type === 'object') {
       if (isStructType(field.type)) {
-        datatype = "struct";
+        datatype = 'struct';
       } else if (isListType(field.type)) {
-        datatype = "array";
+        datatype = 'array';
       }
     }
     title = `${title} (${datatype})`;
@@ -219,7 +198,7 @@ function transformFields(fields: StructField[]): TreeItem[] {
       required: field.required,
     };
 
-    if (typeof field.type === "object") {
+    if (typeof field.type === 'object') {
       if (isStructType(field.type)) {
         item.children = transformFields(field.type.fields);
       } else if (isListType(field.type) && isStructType(field.type.element)) {
@@ -231,10 +210,7 @@ function transformFields(fields: StructField[]): TreeItem[] {
   });
 }
 
-async function assign(permissions: {
-  del: AssignmentCollection;
-  writes: AssignmentCollection;
-}) {
+async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
     const del = permissions.del as TableAssignment[];
     const writes = permissions.writes as TableAssignment[];
@@ -249,7 +225,7 @@ async function assign(permissions: {
 }
 
 async function loadTabData() {
-  init();
+  await init();
 }
 </script>
 

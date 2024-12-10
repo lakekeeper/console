@@ -37,9 +37,7 @@
           <template #item.name="{ item }">
             <td class="pointer-cursor" @click="getRole(item.id)">
               <span class="icon-text">
-                <v-icon class="mr-2" color="info"
-                  >mdi-account-box-multiple-outline</v-icon
-                >
+                <v-icon class="mr-2" color="info">mdi-account-box-multiple-outline</v-icon>
                 {{ item.name }}</span
               >
             </td>
@@ -68,24 +66,24 @@
   </span>
 </template>
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue";
-import { useFunctions } from "../../plugins/functions";
-import { ProjectAction, Role } from "../../gen/management/types.gen";
-import router from "../../router";
-import { Header } from "../../common/interfaces";
+import { onMounted, reactive, ref } from 'vue';
+import { useFunctions } from '../../plugins/functions';
+import { ProjectAction, Role } from '../../gen/management/types.gen';
+import router from '../../router';
+import { Header } from '../../common/interfaces';
 
 const functions = useFunctions();
 const roles = ref<Role[]>([]);
 const loading = ref(true);
 
 const role = reactive({
-  name: "",
-  description: "",
+  name: '',
+  description: '',
 });
 const headers: readonly Header[] = Object.freeze([
-  { title: "Name", key: "name", align: "start" },
-  { title: "Description", key: "description", align: "start" },
-  { title: "Actions", key: "actions", align: "end", sortable: false },
+  { title: 'Name', key: 'name', align: 'start' },
+  { title: 'Description', key: 'description', align: 'start' },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
 const isDialogActive = ref(false); // Declare the isDialogActive property
@@ -107,7 +105,7 @@ function getRole(id: string) {
 async function init() {
   roles.value = [];
   Object.assign(myAccess, await functions.getProjectAccess());
-  canListRoles.value = myAccess.includes("list_roles");
+  canListRoles.value = myAccess.includes('list_roles');
   Object.assign(roles.value, await functions.listRoles());
 }
 

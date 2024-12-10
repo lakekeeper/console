@@ -17,9 +17,7 @@
         <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
-              {{ namespaceId.split(String.fromCharCode(0x1f)).join(".") }}.{{
-                viewName
-              }}
+              {{ namespaceId.split(String.fromCharCode(0x1f)).join('.') }}.{{ viewName }}
             </span>
           </v-toolbar-title>
           <template #prepend>
@@ -29,11 +27,7 @@
         <v-tabs v-model="tab">
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
-          <v-tab
-            v-if="enabledAuthorization"
-            value="permissions"
-            @click="loadTabData"
-          >
+          <v-tab v-if="enabledAuthorization" value="permissions" @click="loadTabData">
             Permissions
           </v-tab>
         </v-tabs>
@@ -70,47 +64,47 @@
   </span>
 </template>
 <script lang="ts" setup>
-import VueJsonPretty from "vue-json-pretty";
-import "vue-json-pretty/lib/styles.css";
-import { onMounted, reactive, ref } from "vue";
-import { useRoute } from "vue-router";
-import { useFunctions } from "../../plugins/functions";
-import { LoadViewResult } from "../../gen/iceberg/types.gen";
-import { TableAction, ViewAssignment } from "../../gen/management/types.gen";
-import { AssignmentCollection, RelationType } from "../../common/interfaces";
-import "prismjs/themes/prism.css";
+import VueJsonPretty from 'vue-json-pretty';
+import 'vue-json-pretty/lib/styles.css';
+import { onMounted, reactive, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { useFunctions } from '../../plugins/functions';
+import { LoadViewResult } from '../../gen/iceberg/types.gen';
+import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
+import { AssignmentCollection, RelationType } from '../../common/interfaces';
+import 'prismjs/themes/prism.css';
 
-import { enabledAuthorization } from "@/app.config";
+import { enabledAuthorization } from '@/app.config';
 
 const functions = useFunctions();
 const route = useRoute();
-const tab = ref("overview");
-const crumbPath = ref("");
+const tab = ref('overview');
+const crumbPath = ref('');
 const loading = ref(true);
 
 const myAccess = reactive<TableAction[]>([]);
 
-const permissionType = ref<RelationType>("view");
+const permissionType = ref<RelationType>('view');
 
 const permissionObject = reactive<any>({
-  id: "",
-  description: "",
-  name: "",
+  id: '',
+  description: '',
+  name: '',
 });
 
 const warehouseId = (route.params as { id: string }).id;
 const namespaceId = (route.params as { nsid: string }).nsid;
 const viewName = (route.params as { vid: string }).vid;
-const viewId = ref("");
+const viewId = ref('');
 const view = reactive<LoadViewResult>({
-  "metadata-location": "",
+  'metadata-location': '',
   metadata: {
-    "view-uuid": "",
-    "format-version": 0,
-    location: "",
-    "current-version-id": 0,
+    'view-uuid': '',
+    'format-version': 0,
+    location: '',
+    'current-version-id': 0,
     versions: [],
-    "version-log": [],
+    'version-log': [],
     schemas: [],
   },
 });
@@ -119,10 +113,10 @@ const existingPermissions = reactive<ViewAssignment[]>([]);
 const canReadPermissions = ref(false);
 
 const currentVersionId = ref(0);
-const sqlStatement = ref("");
+const sqlStatement = ref('');
 
 async function loadTabData() {
-  init();
+  await init();
 }
 
 async function init() {
@@ -131,15 +125,12 @@ async function init() {
 
   crumbPath.value = `${namespaceId}${String.fromCharCode(0x1f)}${viewName}`;
 
-  Object.assign(
-    view,
-    await functions.loadView(warehouseId, namespaceId, viewName)
-  );
+  Object.assign(view, await functions.loadView(warehouseId, namespaceId, viewName));
 
-  viewId.value = view.metadata["view-uuid"];
-  currentVersionId.value = view.metadata["current-version-id"] || 0;
+  viewId.value = view.metadata['view-uuid'];
+  currentVersionId.value = view.metadata['current-version-id'] || 0;
   view.metadata.versions.forEach((version) => {
-    if (version["version-id"] === currentVersionId.value) {
+    if (version['version-id'] === currentVersionId.value) {
       sqlStatement.value = version.representations[0].sql;
     }
   });
@@ -148,13 +139,11 @@ async function init() {
 
   Object.assign(myAccess, await functions.getViewAccessById(viewId.value));
 
-  canReadPermissions.value = !!myAccess.includes("read_assignments");
+  canReadPermissions.value = !!myAccess.includes('read_assignments');
 
   Object.assign(
     existingPermissions,
-    canReadPermissions.value
-      ? await functions.getViewAssignmentsById(viewId.value)
-      : []
+    canReadPermissions.value ? await functions.getViewAssignmentsById(viewId.value) : [],
   );
   loaded.value = true;
 }
@@ -164,10 +153,7 @@ onMounted(async () => {
   loading.value = false;
 });
 
-async function assign(permissions: {
-  del: AssignmentCollection;
-  writes: AssignmentCollection;
-}) {
+async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
     const del = permissions.del as ViewAssignment[];
     const writes = permissions.writes as ViewAssignment[];
