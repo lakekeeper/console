@@ -134,7 +134,6 @@
                 </template>
                 <template v-slot:item.actions="{ item }">
                   <v-icon
-                    v-if="item.type === 'view'"
                     :disabled="!myAccess.includes('delete')"
                     @click="dropView(item)"
                     color="error"
@@ -404,16 +403,14 @@ async function listViews() {
 
 async function dropView(item: TableIdentifierExtended) {
   try {
-    const res = await functions.dropView(
-      visual.whId,
-      namespacePath.value,
-      item.name
-    );
-    if (res) throw new Error();
+    loading.value = true;
+    await functions.dropView(visual.whId, namespacePath.value, item.name);
 
     await listViews();
   } catch (error: any) {
     console.error(`Failed to drop view-${item.name}  - `, error);
+  } finally {
+    loading.value = false;
   }
 }
 async function listDeletedTabulars() {
@@ -515,16 +512,16 @@ async function assign(permissions: {
 
 async function dropTable(item: TableIdentifierExtended) {
   try {
-    const res = await functions.dropTable(
-      visual.whId,
-      namespacePath.value,
-      item.name
-    );
-    if (res) throw new Error();
+    loading.value = true;
+
+    await functions.dropTable(visual.whId, namespacePath.value, item.name);
 
     await listTables();
+    loading.value = true;
   } catch (error: any) {
     console.error(`Failed to drop table-${item.name}  - `, error);
+  } finally {
+    loading.value = false;
   }
 }
 </script>
