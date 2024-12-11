@@ -5,20 +5,16 @@ import { User } from '@/common/interfaces';
 import router from '@/router';
 import { useAuth } from '../plugins/auth';
 import { useFunctions } from '../plugins/functions';
-import { onMounted, onUnmounted } from 'vue';
+import { onUnmounted } from 'vue';
 import { useVisualStore } from '../stores/visual';
 
 const visual = useVisualStore();
-
 const functions = useFunctions();
-
 const settings = useAuth().oidcSettings;
-
 const userStorage = useUserStore();
-
 const userManager = new UserManager(settings);
 
-async function init() {
+(async () => {
   try {
     const user = await userManager.signinRedirectCallback();
 
@@ -39,28 +35,20 @@ async function init() {
 
     userStorage.setUser(newUser);
     await functions.createUser();
+
+    const data = await functions.getServerInfo();
+    if (!data.bootstrapped) {
+      router.push('/bootstrap');
+    }
+
+    visual.showAppOrNavBar = true;
   } catch (error) {
     console.error('Error during callback processing:', error);
   } finally {
     router.push('/');
   }
-}
+})();
 
-onMounted(async () => {
-  try {
-    await init();
-    const data = await functions.getServerInfo();
-
-    if (!data.bootstrapped) {
-      router.push('/bootstrap');
-    } else {
-      // router.push("/");
-    }
-    visual.showAppOrNavBar = true;
-  } catch (error) {
-    console.error('Error during callback processing:', error);
-  }
-});
 onUnmounted(() => {
   visual.showAppOrNavBar = true;
 });
