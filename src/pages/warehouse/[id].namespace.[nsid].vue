@@ -214,7 +214,7 @@ import {
   WarehouseAssignment,
 } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
-import { format, formatDistanceToNow, parseISO } from 'date-fns';
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthorization } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 
