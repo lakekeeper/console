@@ -4,27 +4,25 @@
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['client-id']"
       label="client-id"
-      :rules="[rules.required]"
       placeholder=""
+      :rules="[rules.required]"
     ></v-text-field>
 
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['client-secret']"
+      :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
       autocomplete="current-password"
       label="client-secret"
-      :rules="[rules.required]"
       placeholder="your-client-secret-"
+      :rules="[rules.required]"
       :type="showPassword ? 'text' : 'password'"
-      :append-inner-icon="
-        showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'
-      "
       @click:append-inner="showPassword = !showPassword"
     ></v-text-field>
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['tenant-id']"
       label="tenant-id"
-      :rules="[rules.required]"
       placeholder=""
+      :rules="[rules.required]"
     ></v-text-field>
 
     <v-btn
@@ -45,21 +43,20 @@
     <div
       v-if="
         props.objectType === ObjectType.STORAGE_PROFILE ||
-        (props.intent === Intent.CREATE &&
-          props.objectType === ObjectType.WAREHOUSE)
+        (props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE)
       "
     >
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['account-name']"
         label="account-name"
-        :rules="[rules.required]"
         placeholder="my-account"
+        :rules="[rules.required]"
       ></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['filesystem']"
         label="Filesystem"
-        :rules="[rules.required, rules.noSlash]"
         placeholder="my-filesystem"
+        :rules="[rules.required, rules.noSlash]"
       ></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
@@ -68,25 +65,19 @@
       ></v-text-field>
 
       <v-btn
+        v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
         color="success"
         type="submit"
-        v-if="
-          props.intent === Intent.CREATE &&
-          props.objectType === ObjectType.WAREHOUSE
-        "
         >Submit
       </v-btn>
       <v-btn
+        v-if="props.intent === Intent.UPDATE && props.objectType === ObjectType.STORAGE_PROFILE"
         color="success"
-        @click="emitNewProfile"
-        v-if="
-          props.intent === Intent.UPDATE &&
-          props.objectType === ObjectType.STORAGE_PROFILE
-        "
         :disabled="
           !warehouseObjectData['storage-profile']['account-name'] ||
           !warehouseObjectData['storage-profile']['filesystem']
         "
+        @click="emitNewProfile"
         >Update Profile
       </v-btn>
     </div>
@@ -99,9 +90,9 @@ import {
   AzCredential,
   StorageCredential,
   StorageProfile,
-} from "@/gen/management/types.gen";
-import { Intent, ObjectType } from "@/common/enums";
-import { WarehousObject } from "@/common/interfaces";
+} from '@/gen/management/types.gen';
+import { Intent, ObjectType } from '@/common/enums';
+import { WarehousObject } from '@/common/interfaces';
 
 const showPassword = ref(false);
 
@@ -113,66 +104,64 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "submit", warehouseObjectDataEmit: WarehousObject): void;
-  (e: "update-credentials", credentials: StorageCredential): void;
+  (e: 'submit', warehouseObjectDataEmit: WarehousObject): void;
+  (e: 'updateCredentials', credentials: StorageCredential): void;
   (
-    e: "update-profile",
-    newProfile: { profile: StorageProfile; credentials: StorageCredential }
+    e: 'updateProfile',
+    newProfile: { profile: StorageProfile; credentials: StorageCredential },
   ): void;
 }>();
 
 const warehouseObjectData = reactive<{
-  "storage-profile": AdlsProfile & { type: string };
-  "storage-credential": AzCredential & { type: string };
+  'storage-profile': AdlsProfile & { type: string };
+  'storage-credential': AzCredential & { type: string };
 }>({
-  "storage-profile": {
-    "account-name": "",
-    filesystem: "",
-    type: "adls",
+  'storage-profile': {
+    'account-name': '',
+    filesystem: '',
+    type: 'adls',
   },
-  "storage-credential": {
-    "client-id": "",
-    "client-secret": "",
-    "credential-type": "client-credentials",
-    "tenant-id": "",
-    type: "az",
+  'storage-credential': {
+    'client-id': '',
+    'client-secret': '',
+    'credential-type': 'client-credentials',
+    'tenant-id': '',
+    type: 'az',
   },
 });
 
 const rules = {
-  required: (value: any) => !!value || "Required.",
-  noSlash: (value: string) => !value.includes("/") || 'Cannot contain "/"',
+  required: (value: any) => !!value || 'Required.',
+  noSlash: (value: string) => !value.includes('/') || 'Cannot contain "/"',
 };
 
 const handleSubmit = () => {
-  emit("submit", warehouseObjectData);
+  emit('submit', warehouseObjectData);
 };
 
 const emitNewCredentials = () => {
   const credentials = {
-    type: "az",
-    "credential-type":
-      warehouseObjectData["storage-credential"]["credential-type"],
-    "client-id": warehouseObjectData["storage-credential"]["client-id"],
-    "client-secret": warehouseObjectData["storage-credential"]["client-secret"],
-    "tenant-id": warehouseObjectData["storage-credential"]["tenant-id"],
+    type: 'az',
+    'credential-type': warehouseObjectData['storage-credential']['credential-type'],
+    'client-id': warehouseObjectData['storage-credential']['client-id'],
+    'client-secret': warehouseObjectData['storage-credential']['client-secret'],
+    'tenant-id': warehouseObjectData['storage-credential']['tenant-id'],
   } as StorageCredential;
 
-  emit("update-credentials", credentials);
+  emit('updateCredentials', credentials);
 };
 
 const emitNewProfile = () => {
   const newProfile = {
-    profile: warehouseObjectData["storage-profile"],
+    profile: warehouseObjectData['storage-profile'],
     credentials: {
-      type: "az",
+      type: 'az',
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
-  emit("update-profile", newProfile);
+  emit('updateProfile', newProfile);
 };
 
 onMounted(() => {
-  if (props.warehouseObject)
-    Object.assign(warehouseObjectData, props.warehouseObject);
+  if (props.warehouseObject) Object.assign(warehouseObjectData, props.warehouseObject);
 });
 </script>

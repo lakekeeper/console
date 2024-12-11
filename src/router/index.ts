@@ -1,18 +1,18 @@
-import { createRouter, createWebHistory } from "vue-router/auto";
-import { setupLayouts } from "virtual:generated-layouts";
-import { routes } from "vue-router/auto-routes";
-import { useUserStore } from "../stores/user";
-import { useVisualStore } from "../stores/visual";
-import * as env from "../app.config";
+import { createRouter, createWebHistory } from 'vue-router/auto';
+import { setupLayouts } from 'virtual:generated-layouts';
+import { routes } from 'vue-router/auto-routes';
+import { useUserStore } from '../stores/user';
+import { useVisualStore } from '../stores/visual';
+import * as env from '../app.config';
 
-import NotFound from "@/pages/notfound.vue";
+import NotFound from '@/pages/notfound.vue';
 
 const router = createRouter({
-  history: createWebHistory("/ui/"),
+  history: createWebHistory('/ui/'),
   routes: setupLayouts([
     ...routes,
     {
-      path: "/:catchAll(.*)*",
+      path: '/:catchAll(.*)*',
       component: NotFound,
     },
   ]),
@@ -20,12 +20,12 @@ const router = createRouter({
 
 // Workaround for https://github.com/vitejs/vite/issues/11804
 router.onError((err, to) => {
-  if (err?.message?.includes?.("Failed to fetch dynamically imported module")) {
-    if (!localStorage.getItem("vuetify:dynamic-reload")) {
-      localStorage.setItem("vuetify:dynamic-reload", "true");
+  if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
+    if (!localStorage.getItem('vuetify:dynamic-reload')) {
+      localStorage.setItem('vuetify:dynamic-reload', 'true');
       location.assign(to.fullPath);
     } else {
-      console.error("Dynamic import error, reloading page did not fix it", err);
+      console.error('Dynamic import error, reloading page did not fix it', err);
     }
   } else {
     console.error(err);
@@ -33,14 +33,14 @@ router.onError((err, to) => {
 });
 
 router.isReady().then(() => {
-  localStorage.removeItem("vuetify:dynamic-reload");
+  localStorage.removeItem('vuetify:dynamic-reload');
 });
 
 router.beforeEach((to, from, next) => {
   const userStorage = useUserStore();
   const visual = useVisualStore();
   visual.currentUrl = to.path;
-  if (to.name === "/notfound") {
+  if (to.name === '/notfound') {
     return next();
   }
 
@@ -50,19 +50,19 @@ router.beforeEach((to, from, next) => {
     if (
       userStorage.isAuthenticated &&
       !visual.projectInfo.bootstrapped &&
-      to.path !== "/bootstrap"
+      to.path !== '/bootstrap'
     ) {
-      return next("/bootstrap");
+      return next('/bootstrap');
     }
 
     // Allow access to login and callback paths
-    if (to.path === "/login" || to.path === "/callback") {
+    if (to.path === '/login' || to.path === '/callback') {
       return next();
     }
 
     // Redirect unauthenticated users to login
-    if (!userStorage.isAuthenticated && to.path !== "/login") {
-      return next("/login");
+    if (!userStorage.isAuthenticated && to.path !== '/login') {
+      return next('/login');
     }
 
     // Allow access if authenticated and not redirected
@@ -70,16 +70,12 @@ router.beforeEach((to, from, next) => {
   } else {
     // For cases where enabledAuthorization is false
 
-    if (!visual.projectInfo.bootstrapped && to.path !== "/bootstrap") {
-      return next("/bootstrap");
+    if (!visual.projectInfo.bootstrapped && to.path !== '/bootstrap') {
+      return next('/bootstrap');
     }
 
-    if (
-      to.path === "/login" ||
-      to.path === "/callback" ||
-      to.path === "/logout"
-    ) {
-      return next("/");
+    if (to.path === '/login' || to.path === '/callback' || to.path === '/logout') {
+      return next('/');
     }
 
     // Allow access to other paths

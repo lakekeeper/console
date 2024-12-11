@@ -1,10 +1,10 @@
 {
-    "packages": {
-        ".": {
-            "release-type": "node"
-        }
-    },
-    "bump-minor-pre-major": true,
-    "bump-patch-for-minor-pre-major": false,
-    "include-component-in-tag": false
+  "packages": {
+    ".": {
+      "release-type": "node"
+    }
+  },
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "include-component-in-tag": false
 }

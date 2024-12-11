@@ -1,33 +1,33 @@
 // Utilities
-import { defineStore } from "pinia";
-import { SnackbarMsg, Project, Type } from "@/common/interfaces";
-import { ServerInfo } from "@/gen//management/types.gen";
+import { defineStore } from 'pinia';
+import { Project, SnackbarMsg, Type } from '@/common/interfaces';
+import { ServerInfo } from '@/gen//management/types.gen';
 
 export const useVisualStore = defineStore(
-  "visual",
+  'visual',
   () => {
-    const currentUrl = ref("");
+    const currentUrl = ref('');
     const showAppOrNavBar = ref(true);
     const themeLight = ref(true);
     const navBarShow = ref(true);
-    const whId = ref("");
-    const wahrehouseName = ref("");
-    const namespacePath = ref("");
+    const whId = ref('');
+    const wahrehouseName = ref('');
+    const namespacePath = ref('');
     const projectInfo = reactive<ServerInfo>({
-      version: "0.0.0",
+      version: '0.0.0',
       bootstrapped: true,
-      "server-id": "00000000-0000-0000-0000-000000000000",
-      "default-project-id": "00000000-0000-0000-0000-000000000000",
-      "authz-backend": "allow-all",
+      'server-id': '00000000-0000-0000-0000-000000000000',
+      'default-project-id': '00000000-0000-0000-0000-000000000000',
+      'authz-backend': 'allow-all',
     });
 
     const projectSelected = reactive<Project>({
-      "project-id": "0",
-      "project-name": "none",
+      'project-id': '0',
+      'project-name': 'none',
     });
 
     const snackbarMsg = reactive<SnackbarMsg>({
-      text: "",
+      text: '',
       ttl: 0,
       ts: 0,
       type: Type.ERROR,
@@ -85,8 +85,8 @@ export const useVisualStore = defineStore(
   },
   {
     persistedState: {
-      key: "visual",
+      key: 'visual',
       persist: true,
     },
-  }
+  },
 );

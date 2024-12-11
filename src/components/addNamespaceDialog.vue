@@ -1,20 +1,18 @@
 <template>
-  <v-dialog max-width="500" v-model="isDialogActive">
-    <template v-slot:activator="{ props: activatorProps }">
+  <v-dialog v-model="isDialogActive" max-width="500">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
-        text="Add Namespace"
-        size="small"
         color="info"
+        size="small"
+        text="Add Namespace"
         variant="flat"
       ></v-btn>
     </template>
 
     <v-card
+      :subtitle="`${props.parentPath.split(String.fromCharCode(0x1f)).join('.')}`"
       title="New Namespace"
-      :subtitle="`${props.parentPath
-        .split(String.fromCharCode(0x1f))
-        .join('.')}`"
     >
       <v-card-text>
         <v-text-field
@@ -27,16 +25,16 @@
       <v-card-actions>
         <v-spacer></v-spacer>
 
-        <v-btn @click="addNamespace" color="success" :disabled="namespace == ''"
+        <v-btn color="success" :disabled="namespace == ''" @click="addNamespace"
           >add namespace</v-btn
         >
         <v-btn
+          color="error"
           text="Cancel"
           @click="
             isDialogActive = false;
             namespace = '';
           "
-          color="error"
         ></v-btn>
       </v-card-actions>
     </v-card>
@@ -44,11 +42,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { StatusIntent } from "@/common/enums";
+import { ref } from 'vue';
+import { StatusIntent } from '@/common/enums';
 const isDialogActive = ref(false);
 
-const namespace = ref("");
+const namespace = ref('');
 
 const props = defineProps<{
   parentPath: string;
@@ -56,19 +54,17 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "add-namespace", namespace: string[]): void;
+  (e: 'addNamespace', namespace: string[]): void;
 }>();
 
 function addNamespace() {
   const namespaceURLEncoded = encodeURIComponent(namespace.value);
 
   const namespaceArray =
-    props.parentPath.length > 0
-      ? props.parentPath.split(String.fromCharCode(0x1f))
-      : [];
+    props.parentPath.length > 0 ? props.parentPath.split(String.fromCharCode(0x1f)) : [];
   namespaceArray.push(namespaceURLEncoded);
 
-  emit("add-namespace", namespaceArray);
+  emit('addNamespace', namespaceArray);
 }
 
 watch(
@@ -76,11 +72,11 @@ watch(
   (oldStatusIntent, newStatusIntent) => {
     if (newStatusIntent === StatusIntent.SUCCESS) {
       isDialogActive.value = false;
-      namespace.value = "";
+      namespace.value = '';
     }
   },
   {
     immediate: true,
-  }
+  },
 );
 </script>

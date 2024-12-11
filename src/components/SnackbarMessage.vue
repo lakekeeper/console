@@ -3,27 +3,25 @@
     v-for="(msg, index) in snackbarMsgs"
     :key="index"
     v-model="msg.visible"
-    :timeout="msg.ttl"
     location="top"
+    :timeout="msg.ttl"
     :timer="getTimerColor(msg)"
   >
     {{ msg.text }}
-    <template v-slot:actions>
+    <template #actions>
       <v-btn :color="msg.type" @click="msg.visible = false"> Close </v-btn>
     </template>
   </v-snackbar>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, watch } from "vue";
+import { computed, ref, watch } from 'vue';
 
-import { useVisualStore } from "@/stores/visual";
-import { SnackbarMsg, Type } from "@/common/interfaces";
+import { useVisualStore } from '@/stores/visual';
+import { SnackbarMsg, Type } from '@/common/interfaces';
 
 const visual = useVisualStore();
-const snackbarMsgs = ref<
-  Array<{ text: string; ttl: number; visible: boolean; type: Type }>
->([]);
+const snackbarMsgs = ref<Array<{ text: string; ttl: number; visible: boolean; type: Type }>>([]);
 
 const snackbarMsg = computed<SnackbarMsg>(() => {
   const obj: SnackbarMsg = visual.getSnackbarMsg();
@@ -41,22 +39,22 @@ watch(
         type: snackbarMsg.value.type,
       });
     }
-  }
+  },
 );
 
 function getTimerColor(msg: { type: Type }): string {
   // Cover over types Success and Info and colors
   switch (msg.type) {
     case Type.ERROR:
-      return "red";
+      return 'red';
     case Type.WARNING:
-      return "orange";
+      return 'orange';
     case Type.INFO:
-      return "blue";
+      return 'blue';
     case Type.SUCCESS:
-      return "green";
+      return 'green';
     default:
-      return "grey";
+      return 'grey';
   }
 }
 </script>
