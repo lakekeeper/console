@@ -1,7 +1,6 @@
-<template><div/></template>
+<template><div /></template>
 
 <script lang="ts" setup>
-
 import { UserManager } from 'oidc-client-ts';
 import { useUserStore } from '../stores/user';
 import { User } from '@/common/interfaces';
@@ -55,5 +54,4 @@ onMounted(async () => {
 onUnmounted(() => {
   visual.showAppOrNavBar = true;
 });
-
 </script>
