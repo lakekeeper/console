@@ -130,11 +130,7 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                  <v-icon
-                    color="error"
-                    @click="dropView(item)"
-                    >mdi-delete-outline</v-icon
-                  >
+                  <v-icon color="error" @click="dropView(item)">mdi-delete-outline</v-icon>
                 </template>
                 <template #no-data>
                   <div>No views in this namespace</div>
@@ -159,10 +155,7 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                    <v-icon
-                      color="error"
-                      @click="undropTabular(item)"
-                    >mdi-restore</v-icon>
+                  <v-icon color="error" @click="undropTabular(item)">mdi-restore</v-icon>
                 </template>
                 <template #no-data>
                   <div>No deleted tabulars in this namespace</div>
@@ -199,7 +192,7 @@ import {
   WarehouseAssignment,
 } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
-
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthorization } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 
@@ -222,7 +215,19 @@ const headers: readonly Header[] = Object.freeze([
 
 const headersDeleted: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
-  { title: "Actions", key: "actions", align: "end", sortable: false },
+  {
+    title: 'Deleted At',
+    key: 'deleted_at',
+    align: 'start',
+    value: (item: any) => formatDistanceToNow(parseISO(item.deleted_at), { addSuffix: true }),
+  },
+  {
+    title: 'Expires At',
+    key: 'expiration_date',
+    align: 'start',
+    value: (item: any) => formatDistanceToNow(parseISO(item.expiration_date), { addSuffix: true }),
+  },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
 const loadedNamespaces: Item[] = reactive([]);
@@ -493,16 +498,14 @@ async function dropTable(item: TableIdentifierExtended) {
 
 async function undropTabular(item: DeletedTabularResponseExtended) {
   try {
-    const res = await functions.undropTabular(
-      visual.whId,
-      item.id,
-      item.typ
-    );
-    if (res) throw new Error();
-
+    loading.value = true;
+    await functions.undropTabular(visual.whId, item.id, item.typ);
+    loading.value = true;
     await listDeletedTabulars();
   } catch (error: any) {
-    console.error(`Failed to undrop table-${item.name}  - `, error);
+    console.error(`Failed to undrop table-${item.name}  - due to: `, error);
+  } finally {
+    loading.value = false;
   }
 }
 </script>
