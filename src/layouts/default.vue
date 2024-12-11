@@ -13,6 +13,6 @@
 <script lang="ts" setup>
 //
 
-import { useVisualStore } from "@/stores/visual";
+import { useVisualStore } from '@/stores/visual';
 const visual = useVisualStore();
 </script>

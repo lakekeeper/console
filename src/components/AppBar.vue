@@ -1,6 +1,6 @@
 <template>
   <v-app-bar :elevation="2">
-    <template v-slot:prepend>
+    <template #prepend>
       <v-app-bar-nav-icon :icon="navIcon" @click="navBar"></v-app-bar-nav-icon>
     </template>
 
@@ -10,7 +10,7 @@
     </v-list-item>
     <v-spacer></v-spacer>
 
-    <v-menu open-on-hover v-if="userStorage.isAuthenticated">
+    <v-menu v-if="userStorage.isAuthenticated" open-on-hover>
       <template #activator="{ props }">
         <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
       </template>
@@ -20,23 +20,20 @@
             {{ userStorage.user.given_name }}
             {{ userStorage.user.family_name }}
             <v-btn
-              @click="toggleTheme"
-              size="x-small"
               :icon="themeLight ? 'mdi-lightbulb-off' : 'mdi-lightbulb-on'"
+              size="x-small"
               variant="text"
+              @click="toggleTheme"
             ></v-btn>
           </v-list-item-title>
         </v-list-item>
 
         <v-divider></v-divider>
 
-        <v-list-item
-          @click="goToUserProfile"
-          prepend-icon="mdi-account-circle-outline"
-        >
+        <v-list-item prepend-icon="mdi-account-circle-outline" @click="goToUserProfile">
           <v-list-item-title>User Profile</v-list-item-title>
         </v-list-item>
-        <v-list-item @click="getNewToken" prepend-icon="mdi-key-change">
+        <v-list-item prepend-icon="mdi-key-change" @click="getNewToken">
           <v-list-item-title>Create Token</v-list-item-title>
         </v-list-item>
 
@@ -51,7 +48,7 @@
       </v-list>
     </v-menu>
 
-    <v-menu open-on-hover v-if="!enabledAuthorization">
+    <v-menu v-if="!enabledAuthorization" open-on-hover>
       <template #activator="{ props }">
         <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
       </template>
@@ -61,10 +58,10 @@
             {{ userStorage.user.given_name }}
             {{ userStorage.user.family_name }}
             <v-btn
-              @click="toggleTheme"
-              size="x-small"
               :icon="themeLight ? 'mdi-lightbulb-off' : 'mdi-lightbulb-on'"
+              size="x-small"
               variant="text"
+              @click="toggleTheme"
             ></v-btn>
           </v-list-item-title>
         </v-list-item>
@@ -74,12 +71,12 @@
 </template>
 
 <script setup lang="ts">
-import { useTheme } from "vuetify";
-import { useAuth } from "../plugins/auth";
-import { useVisualStore } from "../stores/visual";
-import { enabledAuthorization } from "../app.config";
-import { useUserStore } from "../stores/user";
-import { useFunctions } from "@/plugins/functions";
+import { useTheme } from 'vuetify';
+import { useAuth } from '../plugins/auth';
+import { useVisualStore } from '../stores/visual';
+import { enabledAuthorization } from '../app.config';
+import { useUserStore } from '../stores/user';
+import { useFunctions } from '@/plugins/functions';
 
 const router = useRouter();
 const visual = useVisualStore();
@@ -93,11 +90,11 @@ const themeLight = computed(() => {
 });
 
 const themeText = computed(() => {
-  return themeLight.value ? "light" : "dark";
+  return themeLight.value ? 'light' : 'dark';
 });
 
 const navIcon = computed(() => {
-  return visual.navBarShow ? "mdi-menu-open" : "mdi-menu";
+  return visual.navBarShow ? 'mdi-menu-open' : 'mdi-menu';
 });
 
 onMounted(async () => {
@@ -119,7 +116,7 @@ function logout() {
 }
 
 function goToUserProfile() {
-  router.push("/user-profile");
+  router.push('/user-profile');
 }
 
 async function getNewToken() {

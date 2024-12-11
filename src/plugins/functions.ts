@@ -1,11 +1,16 @@
-import { App } from "vue";
-import { useUserStore } from "@/stores/user";
-import { useVisualStore } from "@/stores/visual";
-import * as env from "@/app.config";
-import { globals } from "@/common/globals";
+import * as env from '@/app.config';
+import { globals } from '@/common/globals';
+import { NamespaceResponse, Type } from '@/common/interfaces';
+import * as ice from '@/gen/iceberg/services.gen';
+import {
+  GetNamespaceResponse,
+  ListTablesResponse,
+  LoadTableResult,
+  LoadViewResult,
+  Namespace,
+} from '@/gen/iceberg/types.gen';
 
-import * as mng from "@/gen/management/services.gen";
-import * as ice from "@/gen/iceberg/services.gen";
+import * as mng from '@/gen/management/services.gen';
 import {
   CreateRoleRequest,
   CreateWarehouseRequest,
@@ -40,44 +45,39 @@ import {
   ViewAssignment,
   WarehouseAction,
   WarehouseAssignment,
-} from "@/gen/management/types.gen";
-import {
-  GetNamespaceResponse,
-  ListTablesResponse,
-  LoadTableResult,
-  LoadViewResult,
-  Namespace,
-} from "@/gen/iceberg/types.gen";
+} from '@/gen/management/types.gen';
 
-import router from "@/router";
-import { NamespaceResponse, Type } from "@/common/interfaces";
+import router from '@/router';
+import { useUserStore } from '@/stores/user';
+import { useVisualStore } from '@/stores/visual';
+import { App } from 'vue';
 
-//General
+// General
 function init() {
   const userStore = useUserStore();
-  const access_token = userStore.user.access_token;
+  const accessToken = userStore.user.access_token;
 
   mng.client.setConfig({
     baseUrl: env.icebergCatalogUrl,
   });
 
-  mng.client.interceptors.request.use((request, options) => {
-    request.headers.set("Authorization", `Bearer ${access_token}`);
+  mng.client.interceptors.request.use((request) => {
+    request.headers.set('Authorization', `Bearer ${accessToken}`);
     return request;
   });
 
   ice.client.setConfig({
-    baseUrl: env.icebergCatalogUrl + "/catalog/",
+    baseUrl: env.icebergCatalogUrl + '/catalog/',
   });
 
-  ice.client.interceptors.request.use((request, options) => {
-    request.headers.set("Authorization", `Bearer ${access_token}`);
+  ice.client.interceptors.request.use((request) => {
+    request.headers.set('Authorization', `Bearer ${accessToken}`);
     return request;
   });
 }
 
 function parseErrorText(errorText: string): { message: string; code: number } {
-  let messageMatch = errorText.match(/: (.*) at/);
+  const messageMatch = errorText.match(/: (.*) at/);
   const codeMatch = errorText.match(/: (.*):/);
 
   const message = messageMatch ? messageMatch[1] : errorText;
@@ -88,29 +88,22 @@ function parseErrorText(errorText: string): { message: string; code: number } {
 
 function handleError(error: any, functionError: Error) {
   try {
-    if (error.message === "Failed to fetch") {
-      if (window.location.pathname !== "/server-offline")
-        router.push("/server-offline");
+    if (error.message === 'Failed to fetch') {
+      if (window.location.pathname !== '/server-offline') router.push('/server-offline');
 
       return;
     }
 
     const functionName =
-      functionError.stack
-        ?.split("\n")[1]
-        ?.trim()
-        ?.split(" ")[1]
-        .replace("Object.", "") || "unknown";
+      functionError.stack?.split('\n')[1]?.trim()?.split(' ')[1].replace('Object.', '') ||
+      'unknown';
 
     setError(error, 3000, functionName, Type.ERROR);
-  } catch (error: any) {
-    if (
-      typeof error === "string" &&
-      error.includes("net::ERR_CONNECTION_REFUSED")
-    ) {
-      console.error("Connection refused");
+  } catch (newError: any) {
+    if (typeof newError === 'string' && error.includes('net::ERR_CONNECTION_REFUSED')) {
+      console.error('Connection refused');
     } else {
-      console.error("Failed to handle error", error);
+      console.error('Failed to handle error', newError);
     }
   }
 }
@@ -118,55 +111,50 @@ function handleError(error: any, functionError: Error) {
 function setError(error: any, ttl: number, functionCaused: string, type: Type) {
   const visual = useVisualStore();
   try {
-    let message = "";
+    let message = '';
     let code = 0;
 
-    if (typeof error === "string") {
+    if (typeof error === 'string') {
       const data = parseErrorText(error);
       message = data.message;
       code = data.code;
     } else {
-      message = error?.error?.message || "An unknown error occurred";
+      message = error?.error?.message || 'An unknown error occurred';
       code = error?.error?.code;
     }
 
-    if (code == 401) {
-      router.push("/login");
+    if (code === 401) {
+      router.push('/login');
     } else {
       visual.setSnackbarMsg({
         function: functionCaused,
         text: message,
-        ttl: ttl,
+        ttl,
         ts: Date.now(),
-        type: type,
+        type,
       });
     }
-  } catch (error) {
-    console.error("Failed to set error", error);
+  } catch (newError) {
+    console.error('Failed to set error', newError);
   }
 }
 
-function sendSnackbar(
-  message: string,
-  ttl: number,
-  functionCaused: string,
-  type: Type
-) {
+function sendSnackbar(message: string, ttl: number, functionCaused: string, type: Type) {
   const visual = useVisualStore();
   try {
     visual.setSnackbarMsg({
       function: functionCaused,
       text: message,
-      ttl: ttl,
+      ttl,
       ts: Date.now(),
-      type: type,
+      type,
     });
   } catch (error) {
-    console.error("Failed to set error", error);
+    console.error('Failed to set error', error);
   }
 }
 
-//Server
+// Server
 async function getServerInfo(): Promise<ServerInfo> {
   try {
     const client = mng.client;
@@ -191,19 +179,19 @@ async function bootstrapServer(): Promise<boolean> {
 
     const { error } = await mng.bootstrap({
       client,
-      body: { "accept-terms-of-use": true },
+      body: { 'accept-terms-of-use': true },
     });
     if (error) throw error;
 
     return true;
   } catch (error: any) {
-    console.error("Failed to bootstrap server", error);
+    console.error('Failed to bootstrap server', error);
     handleError(error, new Error());
     return error;
   }
 }
 
-//Project
+// Project
 async function loadProjectList(): Promise<GetProjectResponse[]> {
   try {
     const { data, error } = await mng.listProjects({ client: mng.client });
@@ -212,7 +200,7 @@ async function loadProjectList(): Promise<GetProjectResponse[]> {
     if (data) {
       useVisualStore().setProjectList(data.projects || []);
 
-      //auto select project
+      // auto select project
       for (const proj of data.projects || []) {
         Object.assign(useVisualStore().projectSelected, proj);
       }
@@ -234,7 +222,7 @@ async function getProjectById(projectId: string): Promise<GetProjectResponse> {
     if (error) throw error;
 
     if (data === undefined) {
-      throw new Error("Failed to get project by ID");
+      throw new Error('Failed to get project by ID');
     }
 
     return data;
@@ -248,11 +236,11 @@ async function createProject(name: string): Promise<string> {
   try {
     const { data, error } = await mng.createProject({
       client: mng.client,
-      body: { "project-name": name },
+      body: { 'project-name': name },
     });
     if (error) throw error;
 
-    return data?.["project-id"] ?? "";
+    return data?.['project-id'] ?? '';
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
@@ -273,14 +261,11 @@ async function deleteProjectById(projectId: string): Promise<boolean> {
   }
 }
 
-async function renameProjectById(
-  body: RenameProjectRequest,
-  projectId: string
-): Promise<boolean> {
+async function renameProjectById(body: RenameProjectRequest, projectId: string): Promise<boolean> {
   try {
     const { error } = await mng.renameProjectById({
       client: mng.client,
-      body: body,
+      body,
       path: { project_id: projectId },
     });
     if (error) throw error;
@@ -292,7 +277,7 @@ async function renameProjectById(
   }
 }
 
-//Warehouse
+// Warehouse
 async function listWarehouses(): Promise<ListWarehousesResponse> {
   try {
     const client = mng.client;
@@ -325,9 +310,7 @@ async function getWarehouse(id: string): Promise<GetWarehouseResponse> {
   }
 }
 
-async function createWarehouse(
-  wh: CreateWarehouseRequest
-): Promise<CreateWarehouseResponse> {
+async function createWarehouse(wh: CreateWarehouseRequest): Promise<CreateWarehouseResponse> {
   try {
     init();
 
@@ -371,7 +354,7 @@ async function listDeletedTabulars(
   id: string,
   namespaceId: string,
   pageSizeNumber?: number,
-  pageToken?: string
+  pageToken?: string,
 ): Promise<ListDeletedTabularsResponse> {
   try {
     const client = mng.client;
@@ -380,9 +363,9 @@ async function listDeletedTabulars(
       client,
       path: { warehouse_id: id },
       query: {
-        namespaceId: namespaceId,
+        namespaceId,
         pageSize: pageSizeNumber,
-        pageToken: pageToken,
+        pageToken,
       },
     });
     if (error) throw error;
@@ -402,7 +385,7 @@ async function renameWarehouse(whId: string, name: string): Promise<boolean> {
 
     await mng.renameWarehouse({
       client,
-      body: { "new-name": name },
+      body: { 'new-name': name },
       path: {
         warehouse_id: whId,
       },
@@ -412,16 +395,13 @@ async function renameWarehouse(whId: string, name: string): Promise<boolean> {
 
     return true;
   } catch (error: any) {
-    console.error("Failed to rename warehouse", error);
+    console.error('Failed to rename warehouse', error);
     handleError(error, new Error());
     throw error;
   }
 }
 
-async function updateStorageCredential(
-  whId: string,
-  storageCredentials: StorageCredential
-) {
+async function updateStorageCredential(whId: string, storageCredentials: StorageCredential) {
   try {
     init();
 
@@ -429,18 +409,13 @@ async function updateStorageCredential(
 
     const { data, error } = await mng.updateStorageCredential({
       client,
-      body: { "new-storage-credential": storageCredentials },
+      body: { 'new-storage-credential': storageCredentials },
       path: {
         warehouse_id: whId,
       },
     });
     if (error) throw error;
-    sendSnackbar(
-      "Storage Credential Updated",
-      3000,
-      "updateStorageCredential",
-      Type.SUCCESS
-    );
+    sendSnackbar('Storage Credential Updated', 3000, 'updateStorageCredential', Type.SUCCESS);
 
     return data;
   } catch (error) {
@@ -451,7 +426,7 @@ async function updateStorageCredential(
 async function updateStorageProfile(
   whId: string,
   storageCredentials: StorageCredential,
-  storageProfile: StorageProfile
+  storageProfile: StorageProfile,
 ) {
   try {
     init();
@@ -461,8 +436,8 @@ async function updateStorageProfile(
     await mng.updateStorageProfile({
       client,
       body: {
-        "storage-profile": storageProfile,
-        "storage-credential": storageCredentials,
+        'storage-profile': storageProfile,
+        'storage-credential': storageCredentials,
       },
       path: {
         warehouse_id: whId,
@@ -476,10 +451,7 @@ async function updateStorageProfile(
   }
 }
 
-async function updateWarehouseDeleteProfile(
-  whId: string,
-  deleteProfile: TabularDeleteProfile
-) {
+async function updateWarehouseDeleteProfile(whId: string, deleteProfile: TabularDeleteProfile) {
   try {
     init();
 
@@ -488,7 +460,7 @@ async function updateWarehouseDeleteProfile(
     await mng.updateWarehouseDeleteProfile({
       client,
       body: {
-        "delete-profile": deleteProfile,
+        'delete-profile': deleteProfile,
       },
       path: {
         warehouse_id: whId,
@@ -517,18 +489,15 @@ async function getWarehouseById(warehouseId: string): Promise<boolean> {
     });
     if (error) throw error;
 
-    return data?.["managed-access"] ?? false;
+    return data?.['managed-access'] ?? false;
   } catch (error) {
     handleError(error, new Error());
     throw error;
   }
 }
 
-//Namespace
-async function listNamespaces(
-  id: string,
-  parentNS?: string
-): Promise<NamespaceResponse> {
+// Namespace
+async function listNamespaces(id: string, parentNS?: string): Promise<NamespaceResponse> {
   try {
     const client = ice.client;
     const { data, error } = await ice.listNamespaces({
@@ -542,13 +511,12 @@ async function listNamespaces(
     if (error) throw error;
 
     const namespaces = data.namespaces as Namespace[];
-    const namespaceUuids = data["namespace-uuids"] as string[];
+    const namespaceUuids = data['namespace-uuids'] as string[];
     const namespaceMap: Record<string, string> = {};
 
     namespaces.forEach((namespaceArray, index) => {
-      const namespace = namespaceArray.join(".");
-      const uuid = namespaceUuids[index];
-      namespaceMap[namespace] = uuid;
+      const namespace = namespaceArray.join('.');
+      namespaceMap[namespace] = namespaceUuids[index];
     });
 
     return { namespaceMap, namespaces };
@@ -558,15 +526,12 @@ async function listNamespaces(
   }
 }
 
-async function loadNamespaceMetadata(
-  id: string,
-  namespace: string
-): Promise<GetNamespaceResponse> {
+async function loadNamespaceMetadata(id: string, namespace: string): Promise<GetNamespaceResponse> {
   try {
     const client = ice.client;
     const { data, error } = await ice.loadNamespaceMetadata({
       client,
-      path: { namespace: namespace, prefix: id },
+      path: { namespace, prefix: id },
       query: { returnUuids: true },
     });
 
@@ -615,14 +580,12 @@ async function dropNamespace(id: string, ns: string) {
     return data;
   } catch (error: any) {
     handleError(error, new Error());
-    console.error("Failed to drop namespace", error);
+    console.error('Failed to drop namespace', error);
     return error;
   }
 }
 
-async function getNamespaceById(
-  namespaceId: string
-): Promise<GetNamespaceAuthPropertiesResponse> {
+async function getNamespaceById(namespaceId: string): Promise<GetNamespaceAuthPropertiesResponse> {
   try {
     init();
 
@@ -644,18 +607,15 @@ async function getNamespaceById(
   }
 }
 
-//Table
-async function listTables(
-  id: string,
-  ns?: string
-): Promise<ListTablesResponse> {
+// Table
+async function listTables(id: string, ns?: string): Promise<ListTablesResponse> {
   try {
     const client = ice.client;
     const { data, error } = await ice.listTables({
       client,
       path: {
         prefix: id,
-        namespace: ns ?? "",
+        namespace: ns ?? '',
       },
     });
     if (error) throw error;
@@ -670,7 +630,7 @@ async function listTables(
 async function loadTable(
   warehouseId: string,
   namespacePath: string,
-  tableName: string
+  tableName: string,
 ): Promise<LoadTableResult> {
   try {
     const client = ice.client;
@@ -694,7 +654,7 @@ async function loadTable(
 async function dropTable(
   warehouseId: string,
   namespacePath: string,
-  tableName: string
+  tableName: string,
 ): Promise<boolean> {
   try {
     const client = ice.client;
@@ -715,7 +675,7 @@ async function dropTable(
   }
 }
 
-//View
+// View
 async function listViews(id: string, ns?: string): Promise<ListTablesResponse> {
   try {
     const client = ice.client;
@@ -723,7 +683,7 @@ async function listViews(id: string, ns?: string): Promise<ListTablesResponse> {
       client,
       path: {
         prefix: id,
-        namespace: ns ?? "",
+        namespace: ns ?? '',
       },
     });
     if (error) throw error;
@@ -738,7 +698,7 @@ async function listViews(id: string, ns?: string): Promise<ListTablesResponse> {
 async function loadView(
   warehouseId: string,
   namespacePath: string,
-  viewName: string
+  viewName: string,
 ): Promise<LoadViewResult> {
   try {
     const client = ice.client;
@@ -759,11 +719,7 @@ async function loadView(
   }
 }
 
-async function dropView(
-  warehouseId: string,
-  namespacePath: string,
-  viewName: string
-) {
+async function dropView(warehouseId: string, namespacePath: string, viewName: string) {
   try {
     const client = ice.client;
     const { data, error } = await ice.dropView({
@@ -784,10 +740,8 @@ async function dropView(
   }
 }
 
-//Assignments
-async function getWarehouseAssignmentsById(
-  warehouse_id: string
-): Promise<WarehouseAssignment[]> {
+// Assignments
+async function getWarehouseAssignmentsById(warehouseId: string): Promise<WarehouseAssignment[]> {
   try {
     if (!env.enabledAuthorization) return [];
     init();
@@ -797,15 +751,13 @@ async function getWarehouseAssignmentsById(
     const { data, error } = await mng.getWarehouseAssignmentsById({
       client,
       path: {
-        warehouse_id: warehouse_id,
+        warehouse_id: warehouseId,
       },
     });
 
     if (error) throw error;
 
-    const assignments = (data ?? {})["assignments"] as WarehouseAssignment[];
-
-    return assignments;
+    return (data ?? {}).assignments as WarehouseAssignment[];
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
@@ -813,9 +765,9 @@ async function getWarehouseAssignmentsById(
 }
 
 async function updateWarehouseAssignmentsById(
-  warehouse_id: string,
+  warehouseId: string,
   deletes: WarehouseAssignment[],
-  writes: WarehouseAssignment[]
+  writes: WarehouseAssignment[],
 ): Promise<boolean> {
   try {
     init();
@@ -824,9 +776,9 @@ async function updateWarehouseAssignmentsById(
 
     const { error } = await mng.updateWarehouseAssignmentsById({
       client,
-      body: { deletes: deletes, writes: writes },
+      body: { deletes, writes },
       path: {
-        warehouse_id: warehouse_id,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -840,8 +792,8 @@ async function updateWarehouseAssignmentsById(
 }
 
 async function setWarehouseManagedAccess(
-  warehouse_id: string,
-  managedAccess: boolean
+  warehouseId: string,
+  managedAccess: boolean,
 ): Promise<boolean> {
   try {
     init();
@@ -850,9 +802,9 @@ async function setWarehouseManagedAccess(
 
     const { error } = await mng.setWarehouseManagedAccess({
       client,
-      body: { "managed-access": managedAccess },
+      body: { 'managed-access': managedAccess },
       path: {
-        warehouse_id: warehouse_id,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -865,9 +817,7 @@ async function setWarehouseManagedAccess(
   }
 }
 
-async function getRoleAssignmentsById(
-  role_id: string
-): Promise<RoleAssignment[]> {
+async function getRoleAssignmentsById(roleId: string): Promise<RoleAssignment[]> {
   try {
     if (!env.enabledAuthorization) return [];
 
@@ -878,15 +828,13 @@ async function getRoleAssignmentsById(
     const { data, error } = await mng.getRoleAssignmentsById({
       client,
       path: {
-        role_id: role_id,
+        role_id: roleId,
       },
     });
 
     if (error) throw error;
 
-    const assignments = ((data ?? {})["assignments"] as RoleAssignment[]) ?? [];
-
-    return assignments;
+    return ((data ?? {}).assignments as RoleAssignment[]) ?? [];
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
@@ -894,9 +842,9 @@ async function getRoleAssignmentsById(
 }
 
 async function updateRoleAssignmentsById(
-  role_id: string,
+  roleId: string,
   deletes: RoleAssignment[],
-  writes: RoleAssignment[]
+  writes: RoleAssignment[],
 ): Promise<boolean> {
   try {
     init();
@@ -905,9 +853,9 @@ async function updateRoleAssignmentsById(
 
     const { error } = await mng.updateRoleAssignmentsById({
       client,
-      body: { deletes: deletes, writes: writes },
+      body: { deletes, writes },
       path: {
-        role_id: role_id,
+        role_id: roleId,
       },
     });
 
@@ -933,8 +881,7 @@ async function getServerAssignments(): Promise<ServerAssignment[]> {
 
     if (error) throw error;
 
-    const assignments =
-      ((data ?? {})["assignments"] as ServerAssignment[]) ?? [];
+    const assignments = ((data ?? {}).assignments as ServerAssignment[]) ?? [];
     return assignments;
   } catch (error: any) {
     handleError(error, new Error());
@@ -944,7 +891,7 @@ async function getServerAssignments(): Promise<ServerAssignment[]> {
 
 async function updateServerAssignments(
   deletes: ServerAssignment[],
-  writes: ServerAssignment[]
+  writes: ServerAssignment[],
 ): Promise<boolean> {
   try {
     init();
@@ -953,7 +900,7 @@ async function updateServerAssignments(
 
     const { error } = await mng.updateServerAssignments({
       client,
-      body: { deletes: deletes, writes: writes },
+      body: { deletes, writes },
     });
 
     if (error) throw error;
@@ -978,8 +925,7 @@ async function getProjectAssignments(): Promise<ProjectAssignment[]> {
 
     if (error) throw error;
 
-    const assignments =
-      ((data ?? {})["assignments"] as ProjectAssignment[]) ?? [];
+    const assignments = ((data ?? {}).assignments as ProjectAssignment[]) ?? [];
     return assignments;
   } catch (error: any) {
     handleError(error, new Error());
@@ -989,7 +935,7 @@ async function getProjectAssignments(): Promise<ProjectAssignment[]> {
 
 async function updateProjectAssignments(
   deletes: ProjectAssignment[],
-  writes: ProjectAssignment[]
+  writes: ProjectAssignment[],
 ): Promise<boolean> {
   try {
     init();
@@ -998,7 +944,7 @@ async function updateProjectAssignments(
 
     const { error } = await mng.updateProjectAssignments({
       client,
-      body: { deletes: deletes, writes: writes },
+      body: { deletes, writes },
     });
 
     if (error) throw error;
@@ -1010,9 +956,7 @@ async function updateProjectAssignments(
   }
 }
 
-async function getNamespaceAssignmentsById(
-  ns_id: string
-): Promise<NamespaceAssignment[]> {
+async function getNamespaceAssignmentsById(namespaceId: string): Promise<NamespaceAssignment[]> {
   try {
     if (!env.enabledAuthorization) return [];
 
@@ -1022,14 +966,13 @@ async function getNamespaceAssignmentsById(
     const { data, error } = await mng.getNamespaceAssignmentsById({
       client,
       path: {
-        namespace_id: ns_id,
+        namespace_id: namespaceId,
       },
     });
 
     if (error) throw error;
 
-    const assignments =
-      ((data ?? {})["assignments"] as NamespaceAssignment[]) ?? [];
+    const assignments = ((data ?? {}).assignments as NamespaceAssignment[]) ?? [];
     return assignments;
   } catch (error: any) {
     handleError(error, new Error());
@@ -1038,9 +981,9 @@ async function getNamespaceAssignmentsById(
 }
 
 async function updateNamespaceAssignmentsById(
-  ns_id: string,
+  namespaceId: string,
   deletes: NamespaceAssignment[],
-  writes: NamespaceAssignment[]
+  writes: NamespaceAssignment[],
 ): Promise<boolean> {
   try {
     init();
@@ -1049,33 +992,7 @@ async function updateNamespaceAssignmentsById(
 
     const { error } = await mng.updateNamespaceAssignmentsById({
       client,
-      body: { deletes: deletes, writes: writes },
-      path: {
-        namespace_id: ns_id,
-      },
-    });
-
-    if (error) throw error;
-
-    return true;
-  } catch (error: any) {
-    handleError(error, new Error());
-    throw error;
-  }
-}
-
-async function setNamespaceManagedAccess(
-  namespaceId: string,
-  managedAccess: boolean
-): Promise<boolean> {
-  try {
-    init();
-
-    const client = mng.client;
-
-    const { error } = await mng.setNamespaceManagedAccess({
-      client,
-      body: { "managed-access": managedAccess },
+      body: { deletes, writes },
       path: {
         namespace_id: namespaceId,
       },
@@ -1090,9 +1007,33 @@ async function setNamespaceManagedAccess(
   }
 }
 
-async function getTableAssignmentsById(
-  table_id: string
-): Promise<TableAssignment[]> {
+async function setNamespaceManagedAccess(
+  namespaceId: string,
+  managedAccess: boolean,
+): Promise<boolean> {
+  try {
+    init();
+
+    const client = mng.client;
+
+    const { error } = await mng.setNamespaceManagedAccess({
+      client,
+      body: { 'managed-access': managedAccess },
+      path: {
+        namespace_id: namespaceId,
+      },
+    });
+
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getTableAssignmentsById(tableId: string): Promise<TableAssignment[]> {
   try {
     if (!env.enabledAuthorization) return [];
 
@@ -1102,14 +1043,13 @@ async function getTableAssignmentsById(
     const { data, error } = await mng.getTableAssignmentsById({
       client,
       path: {
-        table_id: table_id,
+        table_id: tableId,
       },
     });
 
     if (error) throw error;
 
-    const assignments =
-      ((data ?? {})["assignments"] as TableAssignment[]) ?? [];
+    const assignments = ((data ?? {}).assignments as TableAssignment[]) ?? [];
     return assignments;
   } catch (error: any) {
     handleError(error, new Error());
@@ -1118,9 +1058,9 @@ async function getTableAssignmentsById(
 }
 
 async function updateTableAssignmentsById(
-  table_id: string,
+  tableId: string,
   deletes: TableAssignment[],
-  writes: TableAssignment[]
+  writes: TableAssignment[],
 ): Promise<boolean> {
   try {
     init();
@@ -1129,9 +1069,9 @@ async function updateTableAssignmentsById(
 
     const { error } = await mng.updateTableAssignmentsById({
       client,
-      body: { deletes: deletes, writes: writes },
+      body: { deletes, writes },
       path: {
-        table_id: table_id,
+        table_id: tableId,
       },
     });
 
@@ -1144,9 +1084,7 @@ async function updateTableAssignmentsById(
   }
 }
 
-async function getViewAssignmentsById(
-  view_id: string
-): Promise<ViewAssignment[]> {
+async function getViewAssignmentsById(viewId: string): Promise<ViewAssignment[]> {
   try {
     if (!env.enabledAuthorization) return [];
 
@@ -1156,14 +1094,13 @@ async function getViewAssignmentsById(
     const { data, error } = await mng.getViewAssignmentsById({
       client,
       path: {
-        view_id: view_id,
+        view_id: viewId,
       },
     });
 
     if (error) throw error;
 
-    const assignments = ((data ?? {})["assignments"] as ViewAssignment[]) ?? [];
-    return assignments;
+    return ((data ?? {}).assignments as ViewAssignment[]) ?? [];
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
@@ -1171,9 +1108,9 @@ async function getViewAssignmentsById(
 }
 
 async function updateViewAssignmentsById(
-  view_id: string,
+  viewId: string,
   deletes: ViewAssignment[],
-  writes: ViewAssignment[]
+  writes: ViewAssignment[],
 ): Promise<boolean> {
   try {
     init();
@@ -1182,9 +1119,9 @@ async function updateViewAssignmentsById(
 
     const { error } = await mng.updateViewAssignmentsById({
       client,
-      body: { deletes: deletes, writes: writes },
+      body: { deletes, writes },
       path: {
-        view_id: view_id,
+        view_id: viewId,
       },
     });
 
@@ -1197,7 +1134,7 @@ async function updateViewAssignmentsById(
   }
 }
 
-//User
+// User
 async function createUser() {
   try {
     init();
@@ -1206,7 +1143,7 @@ async function createUser() {
 
     const { data, error } = await mng.createUser({
       client,
-      body: { "update-if-exists": true },
+      body: { 'update-if-exists': true },
     });
     if (error) throw error;
 
@@ -1235,7 +1172,7 @@ async function whoAmI() {
   }
 }
 
-async function searchUser(searchUser: string): Promise<User[]> {
+async function searchUser(search: string): Promise<User[]> {
   try {
     init();
 
@@ -1243,7 +1180,7 @@ async function searchUser(searchUser: string): Promise<User[]> {
 
     const { data, error } = await mng.searchUser({
       client,
-      body: { search: searchUser },
+      body: { search },
     });
 
     if (error) throw error;
@@ -1255,7 +1192,7 @@ async function searchUser(searchUser: string): Promise<User[]> {
   }
 }
 
-async function getUser(user_id: string): Promise<User> {
+async function getUser(userId: string): Promise<User> {
   try {
     init();
 
@@ -1264,7 +1201,7 @@ async function getUser(user_id: string): Promise<User> {
     const { data, error } = await mng.getUser({
       client,
       path: {
-        id: user_id,
+        id: userId,
       },
     });
 
@@ -1277,7 +1214,7 @@ async function getUser(user_id: string): Promise<User> {
   }
 }
 
-async function deleteUser(user_id: string): Promise<boolean> {
+async function deleteUser(userId: string): Promise<boolean> {
   try {
     init();
 
@@ -1286,7 +1223,7 @@ async function deleteUser(user_id: string): Promise<boolean> {
     const { error } = await mng.deleteUser({
       client,
       path: {
-        id: user_id,
+        id: userId,
       },
     });
 
@@ -1327,8 +1264,8 @@ async function updateUserById(name: string, userId: string): Promise<boolean> {
     const { error } = await mng.updateUser({
       client,
       body: {
-        name: name,
-        user_type: "application",
+        name,
+        user_type: 'application',
       },
       path: {
         id: userId,
@@ -1344,8 +1281,8 @@ async function updateUserById(name: string, userId: string): Promise<boolean> {
   }
 }
 
-//Roles
-async function searchRole(searchRole: string): Promise<Role[]> {
+// Roles
+async function searchRole(search: string): Promise<Role[]> {
   try {
     init();
 
@@ -1355,8 +1292,8 @@ async function searchRole(searchRole: string): Promise<Role[]> {
     const { data, error } = await mng.searchRole({
       client,
       body: {
-        "project-id": visual.projectSelected["project-id"] || "",
-        search: searchRole,
+        'project-id': visual.projectSelected['project-id'] || '',
+        search,
       },
     });
 
@@ -1369,10 +1306,7 @@ async function searchRole(searchRole: string): Promise<Role[]> {
   }
 }
 
-async function listRoles(
-  pageSize?: number,
-  pageToken?: string
-): Promise<Role[]> {
+async function listRoles(pageSize?: number, pageToken?: string): Promise<Role[]> {
   try {
     init();
     const visual = useVisualStore();
@@ -1382,9 +1316,9 @@ async function listRoles(
     const { data, error } = await mng.listRoles({
       client,
       query: {
-        pageSize: pageSize,
-        pageToken: pageToken,
-        projectId: visual.projectSelected["project-id"],
+        pageSize,
+        pageToken,
+        projectId: visual.projectSelected['project-id'],
       },
     });
 
@@ -1425,14 +1359,14 @@ async function createRole(name: string, description?: string): Promise<Role> {
     const visual = useVisualStore();
 
     const body: CreateRoleRequest = {
-      name: name,
-      description: description || "",
-      "project-id": visual.projectSelected["project-id"],
+      name,
+      description: description || '',
+      'project-id': visual.projectSelected['project-id'],
     };
 
     const { data, error } = await mng.createRole({
       client,
-      body: body,
+      body,
     });
 
     if (error) throw error;
@@ -1444,24 +1378,20 @@ async function createRole(name: string, description?: string): Promise<Role> {
   }
 }
 
-async function updateRole(
-  roleId: string,
-  name: string,
-  description?: string
-): Promise<Role> {
+async function updateRole(roleId: string, name: string, description?: string): Promise<Role> {
   try {
     init();
 
     const client = mng.client;
 
     const body: UpdateRoleRequest = {
-      name: name,
-      description: description || "",
+      name,
+      description: description || '',
     };
 
     const { data, error } = await mng.updateRole({
       client,
-      body: body,
+      body,
       path: { id: roleId },
     });
 
@@ -1487,18 +1417,17 @@ async function deleteRole(roleId: string): Promise<boolean> {
 
     return true;
   } catch (error: any) {
-    console.error("Failed to delete role", error);
+    console.error('Failed to delete role', error);
     handleError(error, new Error());
     throw error;
   }
 }
 
-//Access
+// Access
 
 async function getServerAccess(): Promise<ServerAction[]> {
   try {
-    if (!env.enabledAuthorization)
-      return globals.serverActions as ServerAction[];
+    if (!env.enabledAuthorization) return globals.serverActions as ServerAction[];
     init();
 
     const client = mng.client;
@@ -1509,7 +1438,7 @@ async function getServerAccess(): Promise<ServerAction[]> {
 
     if (error) throw error;
 
-    const actions = (data ?? {})["allowed-actions"] as ServerAction[];
+    const actions = (data ?? {})['allowed-actions'] as ServerAction[];
 
     return actions;
   } catch (error: any) {
@@ -1520,8 +1449,7 @@ async function getServerAccess(): Promise<ServerAction[]> {
 
 async function getProjectAccess(): Promise<ProjectAction[]> {
   try {
-    if (!env.enabledAuthorization)
-      return globals.projectActions as ProjectAction[];
+    if (!env.enabledAuthorization) return globals.projectActions as ProjectAction[];
     init();
 
     const client = mng.client;
@@ -1532,7 +1460,7 @@ async function getProjectAccess(): Promise<ProjectAction[]> {
 
     if (error) throw error;
 
-    const actions = (data ?? {})["allowed-actions"] as ProjectAction[];
+    const actions = (data ?? {})['allowed-actions'] as ProjectAction[];
 
     return actions;
   } catch (error: any) {
@@ -1541,12 +1469,9 @@ async function getProjectAccess(): Promise<ProjectAction[]> {
   }
 }
 
-async function getWarehouseAccessById(
-  warehouse_id: string
-): Promise<WarehouseAction[]> {
+async function getWarehouseAccessById(warehouseId: string): Promise<WarehouseAction[]> {
   try {
-    if (!env.enabledAuthorization)
-      return globals.warehouseActions as WarehouseAction[];
+    if (!env.enabledAuthorization) return globals.warehouseActions as WarehouseAction[];
     init();
 
     const client = mng.client;
@@ -1554,13 +1479,13 @@ async function getWarehouseAccessById(
     const { data, error } = await mng.getWarehouseAccessById({
       client,
       path: {
-        warehouse_id: warehouse_id,
+        warehouse_id: warehouseId,
       },
     });
 
     if (error) throw error;
 
-    const actions = (data ?? {})["allowed-actions"] as WarehouseAction[];
+    const actions = (data ?? {})['allowed-actions'] as WarehouseAction[];
 
     return actions;
   } catch (error: any) {
@@ -1568,12 +1493,9 @@ async function getWarehouseAccessById(
     return error;
   }
 }
-async function getNamespaceAccessById(
-  namespace_id: string
-): Promise<NamespaceAction[]> {
+async function getNamespaceAccessById(namespaceId: string): Promise<NamespaceAction[]> {
   try {
-    if (!env.enabledAuthorization)
-      return globals.namespaceActions as NamespaceAction[];
+    if (!env.enabledAuthorization) return globals.namespaceActions as NamespaceAction[];
     init();
 
     const client = mng.client;
@@ -1581,13 +1503,13 @@ async function getNamespaceAccessById(
     const { data, error } = await mng.getNamespaceAccessById({
       client,
       path: {
-        namespace_id: namespace_id,
+        namespace_id: namespaceId,
       },
     });
 
     if (error) throw error;
 
-    const actions = (data ?? {})["allowed-actions"] as NamespaceAction[];
+    const actions = (data ?? {})['allowed-actions'] as NamespaceAction[];
 
     return actions;
   } catch (error: any) {
@@ -1596,7 +1518,7 @@ async function getNamespaceAccessById(
   }
 }
 
-async function getTableAccessById(table_id: string): Promise<TableAction[]> {
+async function getTableAccessById(tableId: string): Promise<TableAction[]> {
   try {
     if (!env.enabledAuthorization) return globals.tableActions as TableAction[];
 
@@ -1607,13 +1529,13 @@ async function getTableAccessById(table_id: string): Promise<TableAction[]> {
     const { data, error } = await mng.getTableAccessById({
       client,
       path: {
-        table_id: table_id,
+        table_id: tableId,
       },
     });
 
     if (error) throw error;
 
-    const actions = (data ?? {})["allowed-actions"] as TableAction[];
+    const actions = (data ?? {})['allowed-actions'] as TableAction[];
 
     return actions;
   } catch (error: any) {
@@ -1622,7 +1544,7 @@ async function getTableAccessById(table_id: string): Promise<TableAction[]> {
   }
 }
 
-async function getViewAccessById(view_id: string): Promise<ViewAction[]> {
+async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
   try {
     if (!env.enabledAuthorization) return globals.viewActions as ViewAction[];
     init();
@@ -1632,13 +1554,13 @@ async function getViewAccessById(view_id: string): Promise<ViewAction[]> {
     const { data, error } = await mng.getViewAccessById({
       client,
       path: {
-        view_id: view_id,
+        view_id: viewId,
       },
     });
 
     if (error) throw error;
 
-    const actions = (data ?? {})["allowed-actions"] as ViewAction[];
+    const actions = (data ?? {})['allowed-actions'] as ViewAction[];
 
     return actions;
   } catch (error: any) {
@@ -1647,7 +1569,7 @@ async function getViewAccessById(view_id: string): Promise<ViewAction[]> {
   }
 }
 
-async function getRoleAccessById(role_id: string): Promise<RoleAction[]> {
+async function getRoleAccessById(roleId: string): Promise<RoleAction[]> {
   try {
     if (!env.enabledAuthorization) return globals.roleActions as RoleAction[];
     init();
@@ -1657,13 +1579,13 @@ async function getRoleAccessById(role_id: string): Promise<RoleAction[]> {
     const { data, error } = await mng.getRoleAccessById({
       client,
       path: {
-        role_id: role_id,
+        role_id: roleId,
       },
     });
 
     if (error) throw error;
 
-    const actions = (data ?? {})["allowed-actions"] as RoleAction[];
+    const actions = (data ?? {})['allowed-actions'] as RoleAction[];
 
     return actions;
   } catch (error: any) {
@@ -1672,7 +1594,7 @@ async function getRoleAccessById(role_id: string): Promise<RoleAction[]> {
   }
 }
 
-//internal
+// internal
 function copyToClipboard(text: string) {
   const visual = useVisualStore();
 
@@ -1681,7 +1603,7 @@ function copyToClipboard(text: string) {
       const msg = `Copied to clipboard: ${text}`;
 
       visual.setSnackbarMsg({
-        function: "copyToClipboard",
+        function: 'copyToClipboard',
         text: msg,
         ttl: 3000,
         ts: Date.now(),
@@ -1691,13 +1613,13 @@ function copyToClipboard(text: string) {
     (err) => {
       const msg = `Failed to copy: ${err}`;
       visual.setSnackbarMsg({
-        function: "copyToClipboard",
+        function: 'copyToClipboard',
         text: msg,
         ttl: 3000,
         ts: Date.now(),
         type: Type.ERROR,
       });
-    }
+    },
   );
 }
 export function useFunctions() {
@@ -1775,7 +1697,7 @@ export function useFunctions() {
 export default {
   install: (app: App) => {
     const functions = useFunctions();
-    app.provide("functions", functions);
+    app.provide('functions', functions);
     app.config.globalProperties.$functions = functions;
   },
 };

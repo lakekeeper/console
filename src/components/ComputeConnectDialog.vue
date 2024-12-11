@@ -1,49 +1,49 @@
 <template>
-  <v-dialog max-width="900" v-model="isDialogActive" min-height="60vh">
-    <template v-slot:activator="{ props: activatorProps }">
+  <v-dialog v-model="isDialogActive" max-width="900" min-height="60vh">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
-        text="Connect Compute"
-        size="small"
         color="info"
+        size="small"
+        text="Connect Compute"
         variant="flat"
       ></v-btn>
     </template>
     <v-stepper-vertical>
-      <template v-slot:default="{ step }">
+      <template #default="{ step }">
         <v-stepper-vertical-item
-          :complete="step as number > 1"
+          :complete="(step as number) > 1"
           title="Choose your compute"
           value="1"
         >
           <v-row>
             <v-col>
               <v-card
-                :color="compute == 'spark' ? 'grey-lighten-1' : 'white'"
                 class="mx-auto"
+                :color="compute == 'spark' ? 'grey-lighten-1' : 'white'"
+                hover
                 max-width="344"
                 subtitle="Connect Spark to Lakekeeper "
                 title="Apache Spark"
-                hover
                 @click="compute = 'spark'"
               >
-                <template v-slot:prepend>
-                  <v-img :width="80" src="@/assets/spark-icon.svg"></v-img>
+                <template #prepend>
+                  <v-img src="@/assets/spark-icon.svg" :width="80"></v-img>
                 </template>
               </v-card>
             </v-col>
             <v-col>
               <v-card
-                :color="compute == 'python' ? 'grey-lighten-1' : 'white'"
                 class="mx-auto"
+                :color="compute == 'python' ? 'grey-lighten-1' : 'white'"
+                hover
                 max-width="344"
                 subtitle="Connect Python to Lakekeeper "
                 title="PyIceberg"
-                hover
                 @click="compute = 'python'"
               >
-                <template v-slot:prepend>
-                  <v-img :width="60" src="@/assets/python-icon.svg"></v-img>
+                <template #prepend>
+                  <v-img src="@/assets/python-icon.svg" :width="60"></v-img>
                 </template>
               </v-card>
             </v-col>
@@ -52,38 +52,30 @@
           <v-row>
             <v-col>
               <v-card
-                :color="compute == 'trino' ? 'grey-lighten-1' : 'white'"
                 class="mx-auto"
+                :color="compute == 'trino' ? 'grey-lighten-1' : 'white'"
+                hover
                 max-width="344"
                 subtitle="Connect Trino to Lakekeeper "
                 title="Trino"
-                hover
                 @click="compute = 'trino'"
               >
-                <template v-slot:prepend>
-                  <v-img :width="60" src="@/assets/trino-icon.svg"></v-img>
+                <template #prepend>
+                  <v-img src="@/assets/trino-icon.svg" :width="60"></v-img>
                 </template>
               </v-card>
             </v-col>
             <v-col> </v-col>
           </v-row>
           <!-- @vue-skip -->
-          <template v-slot:next="{ next }">
-            <v-btn
-              color="primary"
-              @click="next"
-              :disabled="compute == ''"
-            ></v-btn>
+          <template #next="{ next }">
+            <v-btn color="primary" :disabled="compute == ''" @click="next"></v-btn>
           </template>
 
-          <template v-slot:prev></template>
+          <template #prev></template>
         </v-stepper-vertical-item>
 
-        <v-stepper-vertical-item
-          title="Create Catalog"
-          value="2"
-          @click:next="onClickFinish"
-        >
+        <v-stepper-vertical-item title="Create Catalog" value="2" @click:next="onClickFinish">
           <v-tabs v-model="tab">
             <v-tab value="human">human flow</v-tab>
             <v-tab value="machine">machine flow </v-tab>
@@ -96,8 +88,8 @@
                   <div style="display: flex; justify-content: flex-end">
                     <v-btn
                       icon="mdi-content-copy"
-                      variant="flat"
                       size="small"
+                      variant="flat"
                       @click="functions.copyToClipboard(formattedTrinoSQL)"
                     ></v-btn>
                   </div>
@@ -112,11 +104,11 @@
           </v-tabs-window>
 
           <!-- @vue-skip -->
-          <template v-slot:next="{ next }">
+          <template #next="{ next }">
             <v-btn color="primary" text="Finish" @click="next"></v-btn>
           </template>
           <!-- @vue-skip -->
-          <template v-slot:prev="{ prev }">
+          <template #prev="{ prev }">
             <v-btn v-if="!finished" variant="plain" @click="prev"></v-btn>
           </template>
         </v-stepper-vertical-item>
@@ -126,27 +118,27 @@
 </template>
 
 <script lang="ts" setup>
-import { useFunctions } from "@/plugins/functions";
-import { useVisualStore } from "@/stores/visual";
-import { useAuth } from "@/plugins/auth";
-import * as env from "@/app.config";
+import { useFunctions } from '@/plugins/functions';
+import { useVisualStore } from '@/stores/visual';
+import { useAuth } from '@/plugins/auth';
+import * as env from '@/app.config';
 
 const visuals = useVisualStore();
 const functions = useFunctions();
-const tab = ref("human");
+const tab = ref('human');
 
 const isDialogActive = ref(false);
 const userFunctions = useAuth();
-const accessToken = ref("");
+const accessToken = ref('');
 
 const props = defineProps<{
   warehouseName: string;
 }>();
 
-const compute = ref("");
+const compute = ref('');
 const extraConfigS3 =
-  ", \"s3.regio\" = 'dummy', \"s3.path-style-access\" = 'true',  \"s3.endpoint\" = '{settings.s3_endpoint}', \"fs.native-s3.enabled\" = 'true'";
-const formattedTrinoSQL = ref("");
+  ', "s3.regio" = \'dummy\', "s3.path-style-access" = \'true\',  "s3.endpoint" = \'{settings.s3_endpoint}\', "fs.native-s3.enabled" = \'true\'';
+const formattedTrinoSQL = ref('');
 
 onMounted(async () => {
   // Object.assign(role, props.role);
@@ -154,13 +146,13 @@ onMounted(async () => {
     const user = await userFunctions.refreshToken();
 
     accessToken.value = user.access_token;
-    console.log("Access token: ", accessToken.value);
+    console.log('Access token: ', accessToken.value);
     formattedTrinoSQL.value = `
   CREATE CATALOG ${props.warehouseName} USING iceberg 
   WITH (
   "iceberg.catalog.type" = 'rest',
   "iceberg.rest-catalog.uri" = '${env.icebergCatalogUrl}',
-  "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected["project-id"]}/${props.warehouseName}',
+  "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected['project-id']}/${props.warehouseName}',
   "iceberg.rest-catalog.security" = 'OAUTH2',
   "iceberg.rest-catalog.oauth2.token" = '${accessToken.value}'
   ${extraConfigS3} )`;
@@ -171,6 +163,6 @@ onMounted(async () => {
 
 function onClickFinish() {
   isDialogActive.value = false;
-  compute.value = "";
+  compute.value = '';
 }
 </script>

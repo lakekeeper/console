@@ -1,12 +1,12 @@
 <template>
-  <v-container class="fill-height" v-if="loading">
+  <v-container v-if="loading" class="fill-height">
     <v-responsive class="align-centerfill-height mx-auto" max-width="900">
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
-          :size="126"
-          indeterminate
           color="info"
+          indeterminate
+          :size="126"
         ></v-progress-circular>
       </v-row>
 
@@ -16,50 +16,48 @@
   <span v-else>
     <v-row class="ml-1">
       <v-col>
-        <v-toolbar flat density="compact" class="mb-4" color="transparent">
+        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">Roles </span>
           </v-toolbar-title>
-          <template v-slot:prepend>
+          <template #prepend>
             <v-icon>mdi-account-box-multiple-outline</v-icon>
           </template>
           <v-spacer></v-spacer>
-          <roleDialog @roleInput="roleInput" :actionType="'add'" />
+          <roleDialog :action-type="'add'" @role-input="roleInput" />
         </v-toolbar>
         <v-data-table
           v-if="canListRoles"
-          :headers="headers"
           fixed-header
+          :headers="headers"
           hover
           :items="roles"
           :sort-by="[{ key: 'name', order: 'asc' }]"
         >
-          <template v-slot:item.name="{ item }">
-            <td @click="getRole(item.id)" class="pointer-cursor">
+          <template #item.name="{ item }">
+            <td class="pointer-cursor" @click="getRole(item.id)">
               <span class="icon-text">
-                <v-icon color="info" class="mr-2"
-                  >mdi-account-box-multiple-outline</v-icon
-                >
+                <v-icon class="mr-2" color="info">mdi-account-box-multiple-outline</v-icon>
                 {{ item.name }}</span
               >
             </td>
           </template>
-          <template v-slot:item.actions="{ item }">
+          <template #item.actions="{ item }">
             <span icon-text>
               <v-icon
-                :disabled="!myAccess.includes('delete')"
                 class="mr-1"
                 color="error"
+                :disabled="!myAccess.includes('delete')"
                 @click="deleteRole(item.id)"
                 >mdi-delete-outline</v-icon
               >
             </span>
           </template>
-          <template v-slot:no-data>
+          <template #no-data>
             <roleDialog
               v-if="myAccess.includes('create_role')"
-              @roleInput="roleInput"
-              :actionType="'add'"
+              :action-type="'add'"
+              @role-input="roleInput"
             />
           </template>
         </v-data-table>
@@ -68,24 +66,24 @@
   </span>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref, reactive } from "vue";
-import { useFunctions } from "../../plugins/functions";
-import { ProjectAction, Role } from "../../gen/management/types.gen";
-import router from "../../router";
-import { Header } from "../../common/interfaces";
+import { onMounted, reactive, ref } from 'vue';
+import { useFunctions } from '../../plugins/functions';
+import { ProjectAction, Role } from '../../gen/management/types.gen';
+import router from '../../router';
+import { Header } from '../../common/interfaces';
 
 const functions = useFunctions();
 const roles = ref<Role[]>([]);
 const loading = ref(true);
 
 const role = reactive({
-  name: "",
-  description: "",
+  name: '',
+  description: '',
 });
-const headers: readonly Header<any>[] = Object.freeze([
-  { title: "Name", key: "name", align: "start" },
-  { title: "Description", key: "description", align: "start" },
-  { title: "Actions", key: "actions", align: "end", sortable: false },
+const headers: readonly Header[] = Object.freeze([
+  { title: 'Name', key: 'name', align: 'start' },
+  { title: 'Description', key: 'description', align: 'start' },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
 const isDialogActive = ref(false); // Declare the isDialogActive property
@@ -107,7 +105,7 @@ function getRole(id: string) {
 async function init() {
   roles.value = [];
   Object.assign(myAccess, await functions.getProjectAccess());
-  canListRoles.value = myAccess.includes("list_roles");
+  canListRoles.value = myAccess.includes('list_roles');
   Object.assign(roles.value, await functions.listRoles());
 }
 
