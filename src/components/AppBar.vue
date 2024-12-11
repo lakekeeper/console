@@ -15,7 +15,7 @@
         <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
       </template>
       <v-list>
-        <v-list-item>
+        <v-list-item prepend-icon="mdi-account">
           <v-list-item-title>
             {{ userStorage.user.given_name }}
             {{ userStorage.user.family_name }}
@@ -30,8 +30,14 @@
 
         <v-divider></v-divider>
 
-        <v-list-item @click="goToUserProfile">
+        <v-list-item
+          @click="goToUserProfile"
+          prepend-icon="mdi-account-circle-outline"
+        >
           <v-list-item-title>User Profile</v-list-item-title>
+        </v-list-item>
+        <v-list-item @click="getNewToken" prepend-icon="mdi-key-change">
+          <v-list-item-title>Create Token</v-list-item-title>
         </v-list-item>
 
         <v-divider class="mt-2"></v-divider>
@@ -73,9 +79,11 @@ import { useAuth } from "../plugins/auth";
 import { useVisualStore } from "../stores/visual";
 import { enabledAuthorization } from "../app.config";
 import { useUserStore } from "../stores/user";
+import { useFunctions } from "@/plugins/functions";
 
 const router = useRouter();
 const visual = useVisualStore();
+const functions = useFunctions();
 
 const userStorage = useUserStore();
 
@@ -112,5 +120,11 @@ function logout() {
 
 function goToUserProfile() {
   router.push("/user-profile");
+}
+
+async function getNewToken() {
+  const auth = useAuth();
+  const user = await auth.refreshToken();
+  functions.copyToClipboard(user.access_token);
 }
 </script>

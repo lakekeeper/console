@@ -19,10 +19,6 @@ const userStorage = useUserStore();
 
 const userManager = new UserManager(settings);
 
-(async () => {
-  init;
-})();
-
 async function init() {
   try {
     const user = await userManager.signinRedirectCallback();

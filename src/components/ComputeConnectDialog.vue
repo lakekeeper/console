@@ -67,6 +67,7 @@
             </v-col>
             <v-col> </v-col>
           </v-row>
+          <!-- @vue-skip -->
           <template v-slot:next="{ next }">
             <v-btn
               color="primary"
@@ -110,10 +111,11 @@
             <v-tabs-window-item value="machine"> </v-tabs-window-item>
           </v-tabs-window>
 
+          <!-- @vue-skip -->
           <template v-slot:next="{ next }">
             <v-btn color="primary" text="Finish" @click="next"></v-btn>
           </template>
-
+          <!-- @vue-skip -->
           <template v-slot:prev="{ prev }">
             <v-btn v-if="!finished" variant="plain" @click="prev"></v-btn>
           </template>
@@ -124,8 +126,6 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowRef } from "vue";
-
 import { useFunctions } from "@/plugins/functions";
 import { useVisualStore } from "@/stores/visual";
 import { useAuth } from "@/plugins/auth";
@@ -135,7 +135,6 @@ const visuals = useVisualStore();
 const functions = useFunctions();
 const tab = ref("human");
 
-const finished = shallowRef(false);
 const isDialogActive = ref(false);
 const userFunctions = useAuth();
 const accessToken = ref("");
