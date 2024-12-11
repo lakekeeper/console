@@ -79,94 +79,36 @@
         </v-stepper-vertical-item>
 
         <v-stepper-vertical-item
-          :complete="step as number > 2"
-          title="Create Credantials"
+          title="Create Catalog"
           value="2"
+          @click:next="onClickFinish"
         >
-          <v-card>
-            <v-card-text>
-              {{ refreshToken }}
-              <br />
-              <v-btn
-                icon="mdi-content-copy"
-                variant="flat"
-                size="small"
-                @click="functions.copyToClipboard(refreshToken)"
-              ></v-btn>
-            </v-card-text>
-          </v-card>
+          <v-tabs v-model="tab">
+            <v-tab value="human">human flow</v-tab>
+            <v-tab value="machine">machine flow </v-tab>
+          </v-tabs>
 
-          <template v-slot:next="{ next }">
-            <v-btn color="primary" @click="next"></v-btn>
-          </template>
-
-          <template v-slot:prev="{ prev }">
-            <v-btn variant="plain" @click="prev"></v-btn>
-          </template>
-        </v-stepper-vertical-item>
-
-        <v-stepper-vertical-item
-          title="Create Catalog"
-          value="3"
-          @click:next="compute != 'trino' ? (isDialogActive = false) : null"
-        >
-          <v-card>
-            <v-card-text>
-              <span
-                style="
-                  width: 800;
-                  display: block;
-                  overflow: auto;
-                  text-align: left;
-                "
-              >
-                <pre
-                  class="language-sql"
-                  style="white-space: pre-wrap; word-wrap: break-word"
-                >
-          <code ref="codeRef" class="language-sql" style="text-align: left;">{{ formattedTrinoSQL }}</code>
-        </pre>
-              </span>
-            </v-card-text>
-          </v-card>
-
-          <template v-slot:next="{ next }" v-if="compute != 'trino'">
-            <v-btn color="primary" text="Finish" @click="next"></v-btn>
-          </template>
-          <template v-slot:next="{ next }" v-else>
-            <v-btn color="primary" @click="next"></v-btn>
-          </template>
-
-          <template v-slot:prev="{ prev }">
-            <v-btn v-if="!finished" variant="plain" @click="prev"></v-btn>
-          </template>
-        </v-stepper-vertical-item>
-
-        <v-stepper-vertical-item
-          v-if="compute == 'trino'"
-          title="Create Catalog"
-          value="4"
-          @click:next="isDialogActive = false"
-        >
-          <v-card>
-            <v-card-text>
-              <span
-                style="
-                  width: 800;
-                  display: block;
-                  overflow: auto;
-                  text-align: left;
-                "
-              >
-                <pre
-                  class="language-sql"
-                  style="white-space: pre-wrap; word-wrap: break-word"
-                >
-          <code ref="codeRef" class="language-sql" style="text-align: left;">{{ formattedTrinoSQL }}</code>
-        </pre>
-              </span>
-            </v-card-text>
-          </v-card>
+          <v-tabs-window v-model="tab">
+            <v-tabs-window-item value="human">
+              <v-card>
+                <v-card-text>
+                  <div style="display: flex; justify-content: flex-end">
+                    <v-btn
+                      icon="mdi-content-copy"
+                      variant="flat"
+                      size="small"
+                      @click="functions.copyToClipboard(formattedTrinoSQL)"
+                    ></v-btn>
+                  </div>
+                  <pre style="white-space: pre-wrap; word-break: break-all">
+                    <code class="language-sql" v-html="formattedTrinoSQL"></code>
+                    
+                   </pre>
+                </v-card-text>
+              </v-card>
+            </v-tabs-window-item>
+            <v-tabs-window-item value="machine"> </v-tabs-window-item>
+          </v-tabs-window>
 
           <template v-slot:next="{ next }">
             <v-btn color="primary" text="Finish" @click="next"></v-btn>
@@ -182,22 +124,21 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, defineEmits, defineProps, shallowRef } from "vue";
-import { useUserStore } from "@/stores/user";
+import { shallowRef } from "vue";
+
 import { useFunctions } from "@/plugins/functions";
 import { useVisualStore } from "@/stores/visual";
+import { useAuth } from "@/plugins/auth";
 import * as env from "@/app.config";
 
 const visuals = useVisualStore();
 const functions = useFunctions();
-const userStore = useUserStore();
+const tab = ref("human");
+
 const finished = shallowRef(false);
 const isDialogActive = ref(false);
-const refreshToken = computed(() => userStore.getUser().refresh_token);
-const accessToken = computed(() => userStore.getUser().access_token);
-const emit = defineEmits<{
-  (e: "roleInput", role: { name: string; description: string }): void;
-}>();
+const userFunctions = useAuth();
+const accessToken = ref("");
 
 const props = defineProps<{
   warehouseName: string;
@@ -206,34 +147,31 @@ const props = defineProps<{
 const compute = ref("");
 const extraConfigS3 =
   ", \"s3.regio\" = 'dummy', \"s3.path-style-access\" = 'true',  \"s3.endpoint\" = '{settings.s3_endpoint}', \"fs.native-s3.enabled\" = 'true'";
-const formattedTrinoSQL = ref(
-  `\nCREATE CATALOG ${props.warehouseName} USING iceberg\n WITH (\n "iceberg.catalog.type" = 'rest',\n "iceberg.rest-catalog.uri" = '${env.icebergCatalogUrl}',\n "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected["project-id"]}/${props.warehouseName}',\n "iceberg.rest-catalog.security" = 'OAUTH2',\n "iceberg.rest-catalog.oauth2.token" = '${accessToken.value}'${extraConfigS3} )`
-);
+const formattedTrinoSQL = ref("");
 
-const role = reactive({
-  name: "",
-  description: "",
-});
-
-const roleRule = (value: string) =>
-  value.length >= 3 || "Namespace must be at least 3 characters long";
-
-function createRole() {
-  emit("roleInput", { name: role.name, description: role.description });
-  cancelRoleInput();
-}
-
-function cancelRoleInput() {
-  // if (props.actionType == "add") initRoleInput();
-  isDialogActive.value = false;
-}
-
-function initRoleInput() {
-  role.name = "";
-  role.description = "";
-}
-
-onMounted(() => {
+onMounted(async () => {
   // Object.assign(role, props.role);
+  try {
+    const user = await userFunctions.refreshToken();
+
+    accessToken.value = user.access_token;
+    console.log("Access token: ", accessToken.value);
+    formattedTrinoSQL.value = `
+  CREATE CATALOG ${props.warehouseName} USING iceberg 
+  WITH (
+  "iceberg.catalog.type" = 'rest',
+  "iceberg.rest-catalog.uri" = '${env.icebergCatalogUrl}',
+  "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected["project-id"]}/${props.warehouseName}',
+  "iceberg.rest-catalog.security" = 'OAUTH2',
+  "iceberg.rest-catalog.oauth2.token" = '${accessToken.value}'
+  ${extraConfigS3} )`;
+  } catch (error) {
+    console.error(error);
+  }
 });
+
+function onClickFinish() {
+  isDialogActive.value = false;
+  compute.value = "";
+}
 </script>

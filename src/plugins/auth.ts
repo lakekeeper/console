@@ -16,7 +16,7 @@ const oidcSettings: UserManagerSettings = {
   redirect_uri: `${window.location.origin}/ui${env.idpRedirectPath}`,
   response_type: "code",
   scope: env.idpScope,
-  resource: env.idpResource !== '' ? env.idpResource : undefined,
+  resource: env.idpResource !== "" ? env.idpResource : undefined,
   post_logout_redirect_uri: `${window.location.origin}/ui${env.idpLogoutRedirectPath}`,
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
 };
@@ -62,7 +62,7 @@ const signOut = async () => {
   }
 };
 
-const refreshToken = async () => {
+async function refreshToken(): Promise<any> {
   try {
     const user = await userManager.signinSilent();
 
@@ -77,11 +77,12 @@ const refreshToken = async () => {
       given_name: user?.profile.given_name || "",
     };
     useUserStore().setUser(newUser);
+    return newUser;
   } catch (error: any) {
     console.error("Token refresh failed", error);
     await userManager.signinRedirect(); // Redirect on true failure
   }
-};
+}
 
 // let tokenCheckInterval: number | undefined;
 

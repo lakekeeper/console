@@ -19,7 +19,6 @@
     "oidc-client-ts": "^3.1.0",
     "openapi-fetch": "^0.13.0",
     "pinia-plugin-persistedstate-2": "^2.0.21",
-    "prismjs": "^1.29.0",
     "roboto-fontface": "*",
     "rxjs": "^7.8.1",
     "url-parse": "^1.5.10",
