@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { UserManager } from 'oidc-client-ts';
 import { useUserStore } from '../stores/user';
-import { User } from '@/common/interfaces';
+import type { User } from '@/common/interfaces';
 import router from '@/router';
 import { useAuth } from '../plugins/auth';
 import { useFunctions } from '../plugins/functions';
