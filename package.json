@@ -37,7 +37,7 @@
     "@mdi/font": "^7.4.47",
     "@types/node": "^20.14.10",
     "@vitejs/plugin-vue": "^5.0.5",
-    "@vue/eslint-config-typescript": "^13.0.0",
+    "@vue/eslint-config-typescript": "^14.0.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard": "^17.1.0",
