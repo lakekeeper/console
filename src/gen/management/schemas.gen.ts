@@ -1876,7 +1876,7 @@ export const UndropTabularsRequestSchema = {
       items: {
         $ref: '#/components/schemas/TabularIdentUuid',
       },
-      description: 'Undrop target specification',
+      description: 'Tabulars to undrop',
     },
   },
 } as const;

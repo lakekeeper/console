@@ -150,9 +150,31 @@
                     <span class="icon-text">
                       <v-icon v-if="item.type == 'view'" class="mr-2">mdi-view-grid-outline</v-icon>
                       <v-icon v-else class="mr-2">mdi-table</v-icon>
-                      {{ item.name }} {{ item.type }}</span
-                    >
+                      {{ item.name }} {{ item.type }}
+                    </span>
                   </td>
+                </template>
+                <template #item.deleted_at="{ item }">
+                  <v-tooltip location="top">
+                    <template #activator="{ props }">
+                      <span v-bind="props">
+                        {{ formatDistanceToNow(parseISO(item.deleted_at), { addSuffix: true }) }}
+                      </span>
+                    </template>
+                    {{ parseISO(item.deleted_at) }}
+                  </v-tooltip>
+                </template>
+                <template #item.expiration_date="{ item }">
+                  <v-tooltip location="top">
+                    <template #activator="{ props }">
+                      <span v-bind="props">
+                        {{
+                          formatDistanceToNow(parseISO(item.expiration_date), { addSuffix: true })
+                        }}
+                      </span>
+                    </template>
+                    {{ parseISO(item.expiration_date) }}
+                  </v-tooltip>
                 </template>
                 <template #item.actions="{ item }">
                   <v-icon color="error" @click="undropTabular(item)">mdi-restore</v-icon>
@@ -192,7 +214,7 @@ import {
   WarehouseAssignment,
 } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
-import { formatDistanceToNow, parseISO } from 'date-fns';
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthorization } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 
@@ -216,13 +238,13 @@ const headers: readonly Header[] = Object.freeze([
 const headersDeleted: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
   {
-    title: 'Deleted At',
+    title: 'Deleted',
     key: 'deleted_at',
     align: 'start',
     value: (item: any) => formatDistanceToNow(parseISO(item.deleted_at), { addSuffix: true }),
   },
   {
-    title: 'Expires At',
+    title: 'Expires',
     key: 'expiration_date',
     align: 'start',
     value: (item: any) => formatDistanceToNow(parseISO(item.expiration_date), { addSuffix: true }),

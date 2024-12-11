@@ -741,11 +741,7 @@ async function dropView(warehouseId: string, namespacePath: string, viewName: st
 }
 
 // Tabular
-async function undropTabular(
-  warehouseId: string,
-  id: string,
-  type: 'table' | 'view',
-): Promise<boolean> {
+async function undropTabular(warehouseId: string, id: string, type: 'table' | 'view') {
   try {
     const client = mng.client;
     const { error } = await mng.undropTabulars({
@@ -755,9 +751,8 @@ async function undropTabular(
         warehouse_id: warehouseId,
       },
     });
-    if (error) throw error;
 
-    return true;
+    if (error) throw error;
   } catch (error: any) {
     handleError(error, new Error());
     throw error;

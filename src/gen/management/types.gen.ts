@@ -798,7 +798,7 @@ export type TabularType = 'table' | 'view';
 
 export type UndropTabularsRequest = {
   /**
-   * Undrop target specification
+   * Tabulars to undrop
    */
   targets: Array<TabularIdentUuid>;
 };
