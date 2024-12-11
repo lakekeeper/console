@@ -1,11 +1,14 @@
-<script setup lang="ts">
+<template><div/></template>
+
+<script lang="ts" setup>
+
 import { UserManager } from 'oidc-client-ts';
 import { useUserStore } from '../stores/user';
-import type { User } from '@/common/interfaces';
+import { User } from '@/common/interfaces';
 import router from '@/router';
 import { useAuth } from '../plugins/auth';
 import { useFunctions } from '../plugins/functions';
-import { onUnmounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useVisualStore } from '../stores/visual';
 
 const visual = useVisualStore();
@@ -14,7 +17,7 @@ const settings = useAuth().oidcSettings;
 const userStorage = useUserStore();
 const userManager = new UserManager(settings);
 
-(async () => {
+onMounted(async () => {
   try {
     const user = await userManager.signinRedirectCallback();
 
@@ -47,9 +50,10 @@ const userManager = new UserManager(settings);
   } finally {
     router.push('/');
   }
-})();
+});
 
 onUnmounted(() => {
   visual.showAppOrNavBar = true;
 });
+
 </script>
