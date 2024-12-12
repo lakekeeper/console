@@ -46,11 +46,11 @@
             @update-deletion-profile="updateDelitionProfile"
         /></v-list-item-title>
       </v-list-item>
-      <v-list-item>
+      <!--v-list-item>
         <v-list-item-title>
           <ComputeConnectDialog :warehouse-name="warehouse.name" />
         </v-list-item-title>
-      </v-list-item>
+      </v-list-item-->
     </v-list>
   </v-menu>
 </template>
