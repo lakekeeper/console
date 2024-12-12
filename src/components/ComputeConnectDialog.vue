@@ -44,12 +44,18 @@
             <v-col>
               <v-card
                 class="mx-auto"
-                :color="compute == 'trino' ? 'grey-lighten-1' : 'white'"
-                hover
+                :color="
+                  warehouse['storage-profile'].type !== 's3'
+                    ? 'grey-lighten-1'
+                    : compute == 'trino'
+                      ? 'grey-lighten-1'
+                      : 'white'
+                "
+                :hover="warehouse['storage-profile'].type === 's3'"
                 max-width="344"
                 subtitle="Connect Trino to Lakekeeper "
                 title="Trino"
-                @click="compute = 'trino'">
+                @click="unsupportedWarehouseForTrino">
                 <template #prepend>
                   <v-img src="@/assets/trino-icon.svg" :width="60"></v-img>
                 </template>
@@ -164,6 +170,20 @@ const connectionStringMachineFlow = ref('');
 function onClickFinish() {
   isDialogActive.value = false;
   compute.value = '';
+}
+
+function unsupportedWarehouseForTrino() {
+  console.log('unsupportedWarehouseForTrino');
+  if (props.warehouse['storage-profile'].type === 's3') {
+    compute.value = 'trino';
+  } else {
+    visuals.setSnackbarMsg({
+      text: `The warehouse storage profile (${props.warehouse['storage-profile'].type}) is not supported by Trino`,
+      ttl: 5000,
+      type: Type.WARNING,
+      ts: Date.now(),
+    });
+  }
 }
 
 function formatExpiresAt(timestamp: number) {
