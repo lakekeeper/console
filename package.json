@@ -15,6 +15,7 @@
   "dependencies": {
     "@mdi/font": "7.4.47",
     "core-js": "^3.37.1",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
     "es6-promise": "^4.2.8",
     "oidc-client-ts": "^3.1.0",

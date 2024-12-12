@@ -124,12 +124,7 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                  <v-icon
-                    color="error"
-                    :disabled="!myAccess.includes('delete')"
-                    @click="dropView(item)">
-                    mdi-delete-outline
-                  </v-icon>
+                  <v-icon color="error" @click="dropView(item)">mdi-delete-outline</v-icon>
                 </template>
                 <template #no-data>
                   <div>No views in this namespace</div>
@@ -152,7 +147,31 @@
                     </span>
                   </td>
                 </template>
-
+                <template #item.deleted_at="{ item }">
+                  <v-tooltip location="top">
+                    <template #activator="{ props }">
+                      <span v-bind="props">
+                        {{ formatDistanceToNow(parseISO(item.deleted_at), { addSuffix: true }) }}
+                      </span>
+                    </template>
+                    {{ parseISO(item.deleted_at) }}
+                  </v-tooltip>
+                </template>
+                <template #item.expiration_date="{ item }">
+                  <v-tooltip location="top">
+                    <template #activator="{ props }">
+                      <span v-bind="props">
+                        {{
+                          formatDistanceToNow(parseISO(item.expiration_date), { addSuffix: true })
+                        }}
+                      </span>
+                    </template>
+                    {{ parseISO(item.expiration_date) }}
+                  </v-tooltip>
+                </template>
+                <template #item.actions="{ item }">
+                  <v-icon color="error" @click="undropTabular(item)">mdi-restore</v-icon>
+                </template>
                 <template #no-data>
                   <div>No deleted tabulars in this namespace</div>
                 </template>
@@ -187,7 +206,7 @@ import {
   WarehouseAssignment,
 } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
-
+import { formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthorization } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 
@@ -210,11 +229,25 @@ const headers: readonly Header[] = Object.freeze([
 
 const headersDeleted: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
+  {
+    title: 'Deleted',
+    key: 'deleted_at',
+    align: 'start',
+    value: (item: any) => formatDistanceToNow(parseISO(item.deleted_at), { addSuffix: true }),
+  },
+  {
+    title: 'Expires',
+    key: 'expiration_date',
+    align: 'start',
+    value: (item: any) => formatDistanceToNow(parseISO(item.expiration_date), { addSuffix: true }),
+  },
+  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
 const loadedNamespaces: Item[] = reactive([]);
 export type TableIdentifierExtended = TableIdentifier & {
   actions: string[];
+  id: string;
   type: string;
 };
 
@@ -472,6 +505,19 @@ async function dropTable(item: TableIdentifierExtended) {
     loading.value = true;
   } catch (error: any) {
     console.error(`Failed to drop table-${item.name}  - `, error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function undropTabular(item: DeletedTabularResponseExtended) {
+  try {
+    loading.value = true;
+    await functions.undropTabular(visual.whId, item.id, item.typ);
+    loading.value = true;
+    await listDeletedTabulars();
+  } catch (error: any) {
+    console.error(`Failed to undrop table-${item.name}  - due to: `, error);
   } finally {
     loading.value = false;
   }

@@ -113,13 +113,16 @@ function setError(error: any, ttl: number, functionCaused: string, type: Type) {
   try {
     let message = '';
     let code = 0;
-
     if (typeof error === 'string') {
       const data = parseErrorText(error);
       message = data.message;
       code = data.code;
     } else {
-      message = error?.error?.message || 'An unknown error occurred';
+      const api_error_type = error?.error?.type || '';
+      const msg = error?.error?.message || 'An unknown error occurred';
+      if (api_error_type !== '') {
+        message = `${api_error_type}: ${msg}`;
+      }
       code = error?.error?.code;
     }
 
@@ -732,6 +735,25 @@ async function dropView(warehouseId: string, namespacePath: string, viewName: st
     if (error) throw error;
 
     return data;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+// Tabular
+async function undropTabular(warehouseId: string, id: string, type: 'table' | 'view') {
+  try {
+    const client = mng.client;
+    const { error } = await mng.undropTabulars({
+      client,
+      body: { targets: [{ id, type }] },
+      path: {
+        warehouse_id: warehouseId,
+      },
+    });
+
+    if (error) throw error;
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
@@ -1620,6 +1642,7 @@ function copyToClipboard(text: string) {
     },
   );
 }
+
 export function useFunctions() {
   init();
   return {
@@ -1689,6 +1712,7 @@ export function useFunctions() {
     getWarehouseById,
     getProjectById,
     updateUserById,
+    undropTabular,
   };
 }
 

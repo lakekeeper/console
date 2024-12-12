@@ -24,7 +24,7 @@
         v-else-if="props.objectType === ObjectType.DELETION_PROFILE"
         class="text-subtitle-2"
         v-bind="activatorProps">
-        Change Delition
+        Change Deletion
       </span>
     </template>
     <v-card style="max-height: 90vh; overflow-y: auto">
@@ -113,7 +113,7 @@
                     delProfileSoftActive === loadedDelProfileSoftActive
                   "
                   @click="emitDeletionProfile">
-                  Change Delition
+                  Change Deletion
                 </v-btn>
               </v-col>
             </v-row>

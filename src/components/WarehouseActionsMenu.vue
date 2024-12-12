@@ -42,7 +42,7 @@
             :process-status="processStatus"
             :warehouse="warehouse"
             @cancel="menuOpen = false"
-            @update-deletion-profile="updateDelitionProfile" />
+            @update-deletion-profile="updateDeletionProfile" />
         </v-list-item-title>
       </v-list-item>
       <v-list-item prepend-icon="mdi-connection">
@@ -101,7 +101,7 @@ function updateStorageCredential(e: StorageCredential) {
 //   menuOpen.value = false;
 // }
 
-function updateDelitionProfile(e: TabularDeleteProfile) {
+function updateDeletionProfile(e: TabularDeleteProfile) {
   emit('updateDelprofile', e);
   menuOpen.value = false;
 }
