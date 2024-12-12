@@ -113,13 +113,14 @@ function setError(error: any, ttl: number, functionCaused: string, type: Type) {
   try {
     let message = '';
     let code = 0;
-
     if (typeof error === 'string') {
       const data = parseErrorText(error);
       message = data.message;
       code = data.code;
     } else {
-      message = error?.error?.message || 'An unknown error occurred';
+      const api_error_type = error?.error?.type || '';
+      const msg = error?.error?.message || 'An unknown error occurred';
+      message = `${api_error_type}: ${msg}`;
       code = error?.error?.code;
     }
 
