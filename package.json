@@ -19,7 +19,6 @@
     "es6-promise": "^4.2.8",
     "oidc-client-ts": "^3.1.0",
     "pinia-plugin-persistedstate-2": "^2.0.21",
-    "prismjs": "^1.29.0",
     "roboto-fontface": "*",
     "vue": "^3.4.31",
     "vue-json-pretty": "^2.4.0",

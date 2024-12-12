@@ -70,7 +70,6 @@ import { useFunctions } from '../../plugins/functions';
 import { LoadViewResult } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
-import 'prismjs/themes/prism.css';
 
 import { enabledAuthorization } from '@/app.config';
 
