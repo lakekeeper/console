@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@babel/types": "^7.24.7",
+    "@eslint/js": "^9.16.0",
     "@hey-api/openapi-ts": "^0.55.3",
     "@mdi/font": "^7.4.47",
     "@types/node": "^20.14.10",
@@ -47,6 +48,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.4.0",
     "eslint-plugin-vue": "^9.32.0",
+    "globals": "^15.13.0",
     "material-design-icons-iconfont": "^6.7.0",
     "openapi-typescript": "^7.4.2",
     "openapi-typescript-codegen": "^0.29.0",
@@ -55,6 +57,7 @@
     "sass": "1.77.6",
     "sass-embedded": "^1.77.8",
     "typescript": "^5.6.3",
+    "typescript-eslint": "^8.18.0",
     "unplugin-auto-import": "^0.17.6",
     "unplugin-fonts": "^1.1.1",
     "unplugin-vue-components": "^0.27.2",
