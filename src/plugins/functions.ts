@@ -120,7 +120,9 @@ function setError(error: any, ttl: number, functionCaused: string, type: Type) {
     } else {
       const api_error_type = error?.error?.type || '';
       const msg = error?.error?.message || 'An unknown error occurred';
-      message = `${api_error_type}: ${msg}`;
+      if (api_error_type !== '') {
+        message = `${api_error_type}: ${msg}`;
+      }
       code = error?.error?.code;
     }
 
