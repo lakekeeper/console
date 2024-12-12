@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.0](https://github.com/lakekeeper/console/compare/v0.1.0...v0.2.0) (2024-12-12)
+
+
+### Features
+
+* Add azure key-prefix field ([#40](https://github.com/lakekeeper/console/issues/40)) ([a49f53d](https://github.com/lakekeeper/console/commit/a49f53d118d1f0aeda598449cf324e11845e4368))
+* Add id search user or role ([#43](https://github.com/lakekeeper/console/issues/43)) ([68651b2](https://github.com/lakekeeper/console/commit/68651b224e2b3fa7c441584dabf4cc326bd353c3))
+* Add load tab data ([#45](https://github.com/lakekeeper/console/issues/45)) ([edebbc7](https://github.com/lakekeeper/console/commit/edebbc735c2272d074451b1de0e944a1738e9e34))
+* connect compute ([#60](https://github.com/lakekeeper/console/issues/60)) ([633c94c](https://github.com/lakekeeper/console/commit/633c94c6d0a4702095f3d4983bcfb7ee24b691ae))
+* get token ([#51](https://github.com/lakekeeper/console/issues/51)) ([02b5176](https://github.com/lakekeeper/console/commit/02b5176ca7b09a749da43bfbeccd27e775542156))
+* undrop tabulars ([#44](https://github.com/lakekeeper/console/issues/44)) ([b250595](https://github.com/lakekeeper/console/commit/b250595e7b23ed2d18442939f694ea7d0bc24cf1))
+
+
+### Bug Fixes
+
+* callback.vue user import ([#49](https://github.com/lakekeeper/console/issues/49)) ([f832aab](https://github.com/lakekeeper/console/commit/f832aab686aeb9180482e3d1dde55aac22a5c6f6))
+* refresh tab after delete ([#47](https://github.com/lakekeeper/console/issues/47)) ([283644d](https://github.com/lakekeeper/console/commit/283644d11a66f284d7915ffa83a1f2dfa760b00f))
+* rename-project ([#58](https://github.com/lakekeeper/console/issues/58)) ([15c7309](https://github.com/lakekeeper/console/commit/15c730976eccc666f1ef5344551d3ef937e47ebe))
+* rust build location ([#38](https://github.com/lakekeeper/console/issues/38)) ([6d54659](https://github.com/lakekeeper/console/commit/6d5465997c17191ffe28e04b1653b4f4356da521))
+
 ## 0.1.0 (2024-12-06)
 
 
