@@ -12,7 +12,7 @@
 
     <v-menu v-if="userStorage.isAuthenticated" open-on-hover>
       <template #activator="{ props }">
-        <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
+        <v-btn v-bind="props"><v-icon>mdi-account</v-icon></v-btn>
       </template>
       <v-list>
         <v-list-item prepend-icon="mdi-account">
@@ -23,8 +23,7 @@
               :icon="themeLight ? 'mdi-lightbulb-off' : 'mdi-lightbulb-on'"
               size="x-small"
               variant="text"
-              @click="toggleTheme"
-            ></v-btn>
+              @click="toggleTheme"></v-btn>
           </v-list-item-title>
         </v-list-item>
 
@@ -50,7 +49,7 @@
 
     <v-menu v-if="!enabledAuthorization" open-on-hover>
       <template #activator="{ props }">
-        <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
+        <v-btn v-bind="props"><v-icon>mdi-account</v-icon></v-btn>
       </template>
       <v-list>
         <v-list-item>
@@ -61,8 +60,7 @@
               :icon="themeLight ? 'mdi-lightbulb-off' : 'mdi-lightbulb-on'"
               size="x-small"
               variant="text"
-              @click="toggleTheme"
-            ></v-btn>
+              @click="toggleTheme"></v-btn>
           </v-list-item-title>
         </v-list-item>
       </v-list>
@@ -71,12 +69,15 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue';
 import { useTheme } from 'vuetify';
 import { useAuth } from '../plugins/auth';
 import { useVisualStore } from '../stores/visual';
 import { enabledAuthorization } from '../app.config';
 import { useUserStore } from '../stores/user';
 import { useFunctions } from '@/plugins/functions';
+
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const visual = useVisualStore();

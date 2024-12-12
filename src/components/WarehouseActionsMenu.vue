@@ -19,8 +19,7 @@
             :warehouse="warehouse"
             @cancel="menuOpen = false"
             @close="$emit('close')"
-            @update-credentials="updateStorageCredential"
-          />
+            @update-credentials="updateStorageCredential" />
         </v-list-item-title>
       </v-list-item>
       <!--v-list-item>
@@ -43,8 +42,8 @@
             :process-status="processStatus"
             :warehouse="warehouse"
             @cancel="menuOpen = false"
-            @update-deletion-profile="updateDelitionProfile"
-        /></v-list-item-title>
+            @update-deletion-profile="updateDelitionProfile" />
+        </v-list-item-title>
       </v-list-item>
       <!--v-list-item>
         <v-list-item-title>
@@ -62,7 +61,7 @@ import {
   StorageProfile,
   TabularDeleteProfile,
 } from '../gen/management/types.gen';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { Intent, ObjectType } from '../common/enums';
 
 const menuOpen = ref(false);

@@ -6,9 +6,9 @@
           class="mt-4"
           color="info"
           indeterminate
-          :size="126"
-        ></v-progress-circular> </v-row
-    ></v-responsive>
+          :size="126"></v-progress-circular>
+      </v-row>
+    </v-responsive>
   </v-container>
   <span v-else>
     <v-row class="ml-1">
@@ -39,8 +39,7 @@
                   <v-col>
                     View SQL Statement:
                     <pre
-                      class="language-sql"
-                    ><code ref="codeRef" class="language-sql">{{ sqlStatement }}</code></pre>
+                      class="language-sql"><code ref="codeRef" class="language-sql">{{ sqlStatement }}</code></pre>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -54,8 +53,7 @@
                 :assignable-obj="permissionObject"
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
-                @permissions="assign"
-              />
+                @permissions="assign" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>

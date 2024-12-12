@@ -1,9 +1,7 @@
 <template>
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
-    <v-tab v-if="canReadAssignments && enabledAuthorization" value="permissions"
-      >Permissions
-    </v-tab>
+    <v-tab v-if="canReadAssignments && enabledAuthorization" value="permissions">Permissions</v-tab>
     <v-tab v-if="canListUsers && enabledAuthorization" value="users">users</v-tab>
   </v-tabs>
   <v-row>
@@ -31,8 +29,7 @@
               :assignable-obj="permissionObject"
               :existing-permissions-from-obj="existingAssignments"
               :relation-type="permissionType"
-              @permissions="assign"
-            />
+              @permissions="assign" />
           </v-card>
         </v-tabs-window-item>
         <v-tabs-window-item v-if="canListUsers && enabledAuthorization" value="users">
@@ -42,8 +39,7 @@
                 class="mt-4"
                 color="info"
                 indeterminate
-                :size="126"
-              ></v-progress-circular>
+                :size="126"></v-progress-circular>
             </v-row>
             <UserManager
               v-else
@@ -51,8 +47,7 @@
               :loaded-users="users"
               :status="status"
               @deleted-user="listUser"
-              @rename-user-name="renameUser"
-            />
+              @rename-user-name="renameUser" />
           </v-card>
         </v-tabs-window-item>
       </v-tabs-window>

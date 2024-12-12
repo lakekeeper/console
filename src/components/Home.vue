@@ -6,12 +6,11 @@
           class="mt-4"
           color="info"
           indeterminate
-          :size="126"
-        ></v-progress-circular>
+          :size="126"></v-progress-circular>
       </v-row>
 
-      ></v-responsive
-    >
+      >
+    </v-responsive>
   </v-container>
   <span v-else>
     <v-container v-if="assignedToProjects" class="fill-height">
@@ -32,7 +31,10 @@
               <v-btn height="60" href="https://github.com/lakekeeper/lakekeeper" target="_blank">
                 <v-icon icon="mdi-github" size="40" />
                 <div class="text-center text-none ml-2 mb-2">
-                  <div class="text-h5">Give us a <v-icon color="yellow" icon="mdi-star" /></div>
+                  <div class="text-h5">
+                    Give us a
+                    <v-icon color="yellow" icon="mdi-star" />
+                  </div>
                   <div class="d-flex align-center">
                     <v-icon icon="mdi-tag-outline" />
                     <span class="mr-2">{{ version }}</span>
@@ -52,15 +54,13 @@
                 height="50"
                 href="https://discord.gg/jkAGG8p93B"
                 target="_blank"
-                variant="flat"
-              >
+                variant="flat">
                 <img
                   alt="Discord"
                   data-canonical-src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&amp;logo=discord&amp;logoColor=white"
                   height="50"
                   src="https://camo.githubusercontent.com/404c37b96536f6a6f4740fe538fbbd1a05885008f18efd46c127a6964d3fb9fc/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f446973636f72642d2532333538363546322e7376673f7374796c653d666f722d7468652d6261646765266c6f676f3d646973636f7264266c6f676f436f6c6f723d7768697465"
-                  style="max-width: 100%"
-                />
+                  style="max-width: 100%" />
               </v-btn>
             </div>
           </v-col>
@@ -81,8 +81,7 @@
               max-width="344"
               outlined
               @mouseleave="hover = false"
-              @mouseover="hover = true"
-            >
+              @mouseover="hover = true">
               <v-list-item three-line>
                 <div class="text-overline text-primary mb-2">Warehouses</div>
                 <v-list-item-title class="text-h5 font-weight-bold">
@@ -93,7 +92,7 @@
                 </v-list-item-subtitle>
               </v-list-item>
               <v-card-actions>
-                <v-btn color="primary" outlined rounded to="/warehouse"> Manage Warehouses </v-btn>
+                <v-btn color="primary" outlined rounded to="/warehouse">Manage Warehouses</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -106,19 +105,16 @@
               max-width="344"
               outlined
               @mouseleave="hoverRoles = false"
-              @mouseover="hoverRoles = true"
-            >
+              @mouseover="hoverRoles = true">
               <v-list-item three-line>
                 <div class="text-overline text-success mb-2">Roles</div>
-                <v-list-item-title class="text-h5 font-weight-bold">
-                  Manage Roles
-                </v-list-item-title>
+                <v-list-item-title class="text-h5 font-weight-bold">Manage Roles</v-list-item-title>
                 <v-list-item-subtitle>
                   Define and control user roles to ensure secure data access across your platform.
                 </v-list-item-subtitle>
               </v-list-item>
               <v-card-actions>
-                <v-btn color="success" outlined rounded to="/roles"> Manage Roles </v-btn>
+                <v-btn color="success" outlined rounded to="/roles">Manage Roles</v-btn>
               </v-card-actions>
             </v-card>
           </v-col>
@@ -131,8 +127,7 @@
               max-width="344"
               outlined
               @mouseleave="hoverDocs = false"
-              @mouseover="hoverDocs = true"
-            >
+              @mouseover="hoverDocs = true">
               <v-list-item three-line>
                 <div class="text-overline text-info mb-2">Documentation</div>
                 <v-list-item-title class="text-h5 font-weight-bold">
@@ -148,8 +143,7 @@
                   href="https://docs.lakekeeper.io"
                   outlined
                   rounded
-                  target="_blank"
-                >
+                  target="_blank">
                   View Docs
                 </v-btn>
               </v-card-actions>
@@ -173,12 +167,11 @@
               icon="mdi-content-copy"
               size="small"
               variant="flat"
-              @click="functions.copyToClipboard(user.id)"
-            ></v-btn>
+              @click="functions.copyToClipboard(user.id)"></v-btn>
           </div>
         </v-card-subtitle>
         <v-card-text>
-          <v-btn block color="primary" large @click="checkAccessStatus"> Check status </v-btn>
+          <v-btn block color="primary" large @click="checkAccessStatus">Check status</v-btn>
         </v-card-text>
         <v-card-actions>
           <v-btn @click="logout">Logout</v-btn>

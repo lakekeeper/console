@@ -4,8 +4,7 @@
     :headers="headers"
     hover
     :items="permissionRows"
-    :sort-by="[{ key: 'name', order: 'asc' }]"
-  >
+    :sort-by="[{ key: 'name', order: 'asc' }]">
     <template #top>
       <v-toolbar color="transparent" density="compact" flat>
         <v-switch
@@ -14,8 +13,7 @@
           class="ml-4 mt-4"
           color="info"
           :label="managedAccess"
-          @click="switchManagedAccess"
-        ></v-switch>
+          @click="switchManagedAccess"></v-switch>
 
         <v-spacer></v-spacer>
         <span class="icon-text">
@@ -26,8 +24,7 @@
             class="mr-2"
             :obj="props.assignableObj"
             :relation="props.relationType"
-            @assignments="assign"
-          />
+            @assignments="assign" />
         </span>
       </v-toolbar>
     </template>
@@ -55,8 +52,7 @@
         :assignments="props.existingPermissionsFromObj"
         :obj="props.assignableObj"
         :relation="props.relationType"
-        @assignments="assign"
-      />
+        @assignments="assign" />
       <v-chip v-for="(t, i) in item.type" :key="i" class="mr-1" size="small">{{ t }}</v-chip>
     </template>
     <template #no-data>
@@ -66,15 +62,14 @@
         :assignments="props.existingPermissionsFromObj"
         :obj="props.assignableObj"
         :relation="props.relationType"
-        @assignments="assign"
-      />
+        @assignments="assign" />
     </template>
   </v-data-table>
 </template>
 
 <script lang="ts" setup>
 import { useFunctions } from '@/plugins/functions';
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, computed, ref } from 'vue';
 
 import { AssignmentCollection, Header, RelationType } from '@/common/interfaces';
 

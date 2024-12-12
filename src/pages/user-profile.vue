@@ -8,17 +8,16 @@
             {{ user.given_name }} {{ user.family_name }}
           </v-list-item-title>
           <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
-          <v-list-item-subtitle class="mt-2"
-            >{{ userCatalog.id }}
+          <v-list-item-subtitle class="mt-2">
+            {{ userCatalog.id }}
 
             <v-btn
               :disabled="userCatalog.id == ''"
               icon="mdi-content-copy"
               size="small"
               variant="flat"
-              @click="functions.copyToClipboard(userCatalog.id)"
-            ></v-btn
-          ></v-list-item-subtitle>
+              @click="functions.copyToClipboard(userCatalog.id)"></v-btn>
+          </v-list-item-subtitle>
         </v-list-item>
       </v-card>
     </v-col>
@@ -26,6 +25,7 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted, reactive } from 'vue';
 import { User } from '@/gen/management/types.gen';
 import { useUserStore } from '../stores/user';
 import { useFunctions } from '@/plugins/functions';

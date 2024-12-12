@@ -9,8 +9,7 @@
             class="mt-4"
             color="error"
             indeterminate
-            :size="126"
-          ></v-progress-circular>
+            :size="126"></v-progress-circular>
         </v-row>
       </v-card-text>
     </v-card>
@@ -18,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import { watch, onMounted, ref } from 'vue';
 
 const isDialogActive = ref(false);
 
