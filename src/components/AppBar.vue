@@ -78,6 +78,7 @@ import { useUserStore } from '../stores/user';
 import { useFunctions } from '@/plugins/functions';
 
 import { useRouter } from 'vue-router';
+import { User } from '@/common/interfaces';
 
 const router = useRouter();
 const visual = useVisualStore();
@@ -122,7 +123,7 @@ function goToUserProfile() {
 
 async function getNewToken() {
   const auth = useAuth();
-  const user = await auth.refreshToken();
+  const user = (await auth.refreshToken()) as User;
   functions.copyToClipboard(user.access_token);
 }
 </script>
