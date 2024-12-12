@@ -58,7 +58,7 @@ const signOut = async () => {
   }
 };
 
-async function refreshToken(): Promise<any> {
+async function refreshToken(): Promise<User | undefined> {
   try {
     const user = await userManager.signinSilent();
 

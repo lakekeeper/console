@@ -5,12 +5,12 @@
     </template>
 
     <v-list activatable>
-      <v-list-item>
+      <v-list-item prepend-icon="mdi-rename-outline">
         <v-list-item-title>
           <RenameWarehouseDialog :warehouse-name="warehouse.name" @rename-warehouse="emitRename" />
         </v-list-item-title>
       </v-list-item>
-      <v-list-item>
+      <v-list-item prepend-icon="mdi-key-change">
         <v-list-item-title>
           <AddWarehouseDialog
             :intent="Intent.UPDATE"
@@ -34,7 +34,7 @@
           />
         </v-list-item-title>
       </v-list-item-->
-      <v-list-item>
+      <v-list-item prepend-icon="mdi-update">
         <v-list-item-title>
           <AddWarehouseDialog
             :intent="Intent.UPDATE"
@@ -45,11 +45,11 @@
             @update-deletion-profile="updateDelitionProfile" />
         </v-list-item-title>
       </v-list-item>
-      <!--v-list-item>
+      <v-list-item prepend-icon="mdi-connection">
         <v-list-item-title>
-          <ComputeConnectDialog :warehouse-name="warehouse.name" />
+          <ComputeConnectDialog :warehouse="warehouse" />
         </v-list-item-title>
-      </v-list-item-->
+      </v-list-item>
     </v-list>
   </v-menu>
 </template>

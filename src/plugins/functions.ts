@@ -1598,7 +1598,7 @@ function copyToClipboard(text: string) {
 
   navigator.clipboard.writeText(text).then(
     () => {
-      const msg = `Copied to clipboard: ${text}`;
+      const msg = `Copied to clipboard: ${text.substring(0, 20)}...`;
 
       visual.setSnackbarMsg({
         function: 'copyToClipboard',
