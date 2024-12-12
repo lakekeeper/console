@@ -779,10 +779,29 @@ export type TabularDeleteProfile =
 
 export type type7 = 'hard';
 
+export type TabularIdentUuid =
+  | {
+      id: string;
+      type: 'table';
+    }
+  | {
+      id: string;
+      type: 'view';
+    };
+
+export type type8 = 'table';
+
 /**
  * Type of tabular
  */
 export type TabularType = 'table' | 'view';
+
+export type UndropTabularsRequest = {
+  /**
+   * Tabulars to undrop
+   */
+  targets: Array<TabularIdentUuid>;
+};
 
 export type UpdateNamespaceAssignmentsRequest = {
   deletes?: Array<NamespaceAssignment>;
@@ -1754,6 +1773,17 @@ export type ListDeletedTabularsData = {
 export type ListDeletedTabularsResponse2 = ListDeletedTabularsResponse;
 
 export type ListDeletedTabularsError = unknown;
+
+export type UndropTabularsData = {
+  body: UndropTabularsRequest;
+  path: {
+    warehouse_id: string;
+  };
+};
+
+export type UndropTabularsResponse = void;
+
+export type UndropTabularsError = unknown;
 
 export type RenameWarehouseData = {
   body: RenameWarehouseRequest;
