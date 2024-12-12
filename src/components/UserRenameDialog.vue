@@ -6,8 +6,7 @@
         color="warning"
         size="small"
         text="Rename"
-        variant="outlined"
-      ></v-btn>
+        variant="outlined"></v-btn>
     </template>
 
     <v-card title="New user name">
@@ -15,8 +14,7 @@
         <v-text-field
           v-model="newName"
           label="New user name"
-          placeholder="user name"
-        ></v-text-field>
+          placeholder="user name"></v-text-field>
       </v-card-text>
 
       <v-card-actions>
@@ -25,9 +23,9 @@
         <v-btn
           color="success"
           :disabled="props.name === newName || newName === ''"
-          @click="emmitNewUserName"
-          >submit</v-btn
-        >
+          @click="emmitNewUserName">
+          submit
+        </v-btn>
         <v-btn color="error" text="Cancel" @click="cancelRoleInput"></v-btn>
       </v-card-actions>
     </v-card>
@@ -35,6 +33,7 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted, ref, watch } from 'vue';
 import { StatusIntent } from '@/common/enums';
 
 const isDialogActive = ref(false);

@@ -6,8 +6,7 @@
           class="mt-4"
           color="info"
           indeterminate
-          :size="126"
-        ></v-progress-circular>
+          :size="126"></v-progress-circular>
       </v-row>
     </v-responsive>
   </v-container>
@@ -34,8 +33,7 @@
             v-if="myAccess.includes('create_namespace')"
             :parent-path="namespacePath"
             :status-intent="StatusIntent.STARTING"
-            @add-namespace="addNamespace"
-          />
+            @add-namespace="addNamespace" />
         </v-toolbar>
         <v-tabs v-model="tab">
           <v-tab value="namespaces" @click="loadTabData">namespaces</v-tab>
@@ -55,14 +53,13 @@
                 :headers="headers"
                 hover
                 :items="loadedNamespaces"
-                :sort-by="[{ key: 'name', order: 'asc' }]"
-              >
+                :sort-by="[{ key: 'name', order: 'asc' }]">
                 <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToNamespace(item)">
                     <span class="icon-text">
                       <v-icon class="mr-2">mdi-folder</v-icon>
-                      {{ item.name }}</span
-                    >
+                      {{ item.name }}
+                    </span>
                   </td>
                 </template>
                 <template #item.actions="{ item }">
@@ -70,17 +67,16 @@
                     v-if="item.type === 'namespace'"
                     color="error"
                     :disabled="!myAccess.includes('delete')"
-                    @click="dropNamespace(item)"
-                    >mdi-delete-outline</v-icon
-                  >
+                    @click="dropNamespace(item)">
+                    mdi-delete-outline
+                  </v-icon>
                 </template>
                 <template #no-data>
                   <addNamespaceDialog
                     v-if="myAccess.includes('create_namespace')"
                     :parent-path="namespacePath"
                     :status-intent="StatusIntent.STARTING"
-                    @add-namespace="addNamespace"
-                  />
+                    @add-namespace="addNamespace" />
                 </template>
               </v-data-table>
             </v-tabs-window-item>
@@ -90,23 +86,22 @@
                 :headers="headers"
                 hover
                 :items="loadedTables"
-                :sort-by="[{ key: 'name', order: 'asc' }]"
-              >
+                :sort-by="[{ key: 'name', order: 'asc' }]">
                 <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToTable(item)">
                     <span class="icon-text">
                       <v-icon class="mr-2">mdi-table</v-icon>
-                      {{ item.name }}</span
-                    >
+                      {{ item.name }}
+                    </span>
                   </td>
                 </template>
                 <template #item.actions="{ item }">
                   <v-icon
                     color="error"
                     :disabled="!myAccess.includes('delete')"
-                    @click="dropTable(item)"
-                    >mdi-delete-outline</v-icon
-                  >
+                    @click="dropTable(item)">
+                    mdi-delete-outline
+                  </v-icon>
                 </template>
                 <template #no-data>
                   <div>No table in this namespace</div>
@@ -119,14 +114,13 @@
                 :headers="headers"
                 hover
                 :items="loadedViews"
-                :sort-by="[{ key: 'name', order: 'asc' }]"
-              >
+                :sort-by="[{ key: 'name', order: 'asc' }]">
                 <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToView(item)">
                     <span class="icon-text">
                       <v-icon class="mr-2">mdi-view-grid-outline</v-icon>
-                      {{ item.name }}</span
-                    >
+                      {{ item.name }}
+                    </span>
                   </td>
                 </template>
                 <template #item.actions="{ item }">
@@ -143,8 +137,7 @@
                 :headers="headersDeleted"
                 hover
                 :items="deletedTabulars"
-                :sort-by="[{ key: 'name', order: 'asc' }]"
-              >
+                :sort-by="[{ key: 'name', order: 'asc' }]">
                 <template #item.name="{ item }">
                   <td class="pointer-cursor">
                     <span class="icon-text">
@@ -190,8 +183,7 @@
                 :assignable-obj="permissionObject"
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
-                @permissions="assign"
-              />
+                @permissions="assign" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>

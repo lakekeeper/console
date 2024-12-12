@@ -4,29 +4,26 @@
 
     <v-switch
       v-model="useFileInput"
-      :label="!useFileInput ? 'Enable File Input' : 'Enable Text Input'"
-    ></v-switch>
+      :label="!useFileInput ? 'Enable File Input' : 'Enable Text Input'"></v-switch>
 
     <v-file-input
       v-if="useFileInput"
       accept="application/json"
       label="key.json"
       :rules="[rules.required]"
-      @change="handleFileInput"
-    ></v-file-input>
+      @change="handleFileInput"></v-file-input>
     <v-textarea
       v-else
       v-model="keyString"
       label="GCS credentials key json"
       :rules="[rules.required, rules.validJson]"
-      @update:model-value="verifyKeyJson"
-    ></v-textarea>
+      @update:model-value="verifyKeyJson"></v-textarea>
     <v-btn
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
       color="success"
       :disabled="!keyStringValid"
-      @click="emitNewCredentials"
-      >Update Credentials
+      @click="emitNewCredentials">
+      Update Credentials
     </v-btn>
 
     <v-divider></v-divider>
@@ -37,33 +34,30 @@
       v-if="
         props.objectType === ObjectType.STORAGE_PROFILE ||
         (props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE)
-      "
-    >
+      ">
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].bucket"
         label="Bucket"
         placeholder="my-bucket"
-        :rules="[rules.required]"
-      ></v-text-field>
+        :rules="[rules.required]"></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key-prefix"
-        placeholder="key-prefix"
-      ></v-text-field>
+        placeholder="key-prefix"></v-text-field>
 
       <v-btn
         v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
         color="success"
         :disabled="!keyStringValid || warehouseObjectData['storage-profile'].bucket == ''"
-        type="submit"
-        >Submit
+        type="submit">
+        Submit
       </v-btn>
       <v-btn
         v-if="props.intent === Intent.UPDATE && props.objectType === ObjectType.STORAGE_PROFILE"
         color="success"
         :disabled="!warehouseObjectData['storage-profile'].bucket"
-        @click="emitNewProfile"
-        >Update Profile
+        @click="emitNewProfile">
+        Update Profile
       </v-btn>
     </div>
   </v-form>
@@ -79,7 +73,7 @@ import {
 } from '@/gen/management/types.gen';
 import { Intent, ObjectType } from '@/common/enums';
 import { WarehousObject } from '@/common/interfaces';
-import { ref } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 
 const keyString = ref('');
 const keyStringValid = ref(false);
@@ -137,6 +131,7 @@ const rules = {
       verifyKeyJson();
       return true;
     } catch (error) {
+      console.error('Error parsing JSON:', error);
       return 'Invalid JSON';
     }
   },

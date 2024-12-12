@@ -1,11 +1,13 @@
-<script setup lang="ts">
+<template><div /></template>
+
+<script lang="ts" setup>
 import { UserManager } from 'oidc-client-ts';
 import { useUserStore } from '../stores/user';
 import { User } from '@/common/interfaces';
 import router from '@/router';
 import { useAuth } from '../plugins/auth';
 import { useFunctions } from '../plugins/functions';
-import { onUnmounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useVisualStore } from '../stores/visual';
 
 const visual = useVisualStore();
@@ -14,7 +16,7 @@ const settings = useAuth().oidcSettings;
 const userStorage = useUserStore();
 const userManager = new UserManager(settings);
 
-(async () => {
+async function init() {
   try {
     const user = await userManager.signinRedirectCallback();
 
@@ -47,7 +49,23 @@ const userManager = new UserManager(settings);
   } finally {
     router.push('/');
   }
-})();
+}
+
+onMounted(async () => {
+  try {
+    await init();
+    const data = await functions.getServerInfo();
+
+    if (!data.bootstrapped) {
+      router.push('/bootstrap');
+    } else {
+      // router.push("/");
+    }
+    visual.showAppOrNavBar = true;
+  } catch (error) {
+    console.error('Error during callback processing:', error);
+  }
+});
 
 onUnmounted(() => {
   visual.showAppOrNavBar = true;

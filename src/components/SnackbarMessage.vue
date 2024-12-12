@@ -5,11 +5,10 @@
     v-model="msg.visible"
     location="top"
     :timeout="msg.ttl"
-    :timer="getTimerColor(msg)"
-  >
+    :timer="getTimerColor(msg)">
     {{ msg.text }}
     <template #actions>
-      <v-btn :color="msg.type" @click="msg.visible = false"> Close </v-btn>
+      <v-btn :color="msg.type" @click="msg.visible = false">Close</v-btn>
     </template>
   </v-snackbar>
 </template>

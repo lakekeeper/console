@@ -14,6 +14,7 @@ declare module 'vue' {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     AssignToRoleDialogSingle: typeof import('./components/assignToRoleDialogSingle.vue')['default']
     BreadcrumbsFromUrl: typeof import('./components/BreadcrumbsFromUrl.vue')['default']
+    ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']
     DeletingDialog: typeof import('./components/deletingDialog.vue')['default']
     DialogDeleteConfirm: typeof import('./components/dialogDeleteConfirm.vue')['default']
     EULA: typeof import('./components/EULA.vue')['default']

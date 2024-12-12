@@ -58,7 +58,7 @@ const signOut = async () => {
   }
 };
 
-const refreshToken = async () => {
+async function refreshToken(): Promise<any> {
   try {
     const user = await userManager.signinSilent();
 
@@ -73,11 +73,12 @@ const refreshToken = async () => {
       given_name: user?.profile.given_name || '',
     };
     useUserStore().setUser(newUser);
+    return newUser;
   } catch (error: any) {
     console.error('Token refresh failed', error);
     await userManager.signinRedirect(); // Redirect on true failure
   }
-};
+}
 
 // let tokenCheckInterval: number | undefined;
 

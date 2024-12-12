@@ -6,9 +6,9 @@
           class="mt-4"
           color="info"
           indeterminate
-          :size="126"
-        ></v-progress-circular> </v-row
-    ></v-responsive>
+          :size="126"></v-progress-circular>
+      </v-row>
+    </v-responsive>
   </v-container>
   <span v-else>
     <v-row class="ml-1">
@@ -36,26 +36,23 @@
             <v-tabs-window-item value="overview">
               <v-treeview :items="schemaFieldsTransformed" open-on-click>
                 <template #prepend="{ item }">
-                  <v-icon v-if="item.datatype == 'string'" size="small"> mdi-alphabetical </v-icon>
-                  <v-icon v-else-if="item.datatype == 'int'" size="small"> mdi-numeric </v-icon>
+                  <v-icon v-if="item.datatype == 'string'" size="small">mdi-alphabetical</v-icon>
+                  <v-icon v-else-if="item.datatype == 'int'" size="small">mdi-numeric</v-icon>
                   <v-icon
                     v-else-if="item.datatype == 'long' || item.datatype == 'double'"
-                    size="small"
-                  >
+                    size="small">
                     mdi-decimal
                   </v-icon>
 
                   <v-icon v-else-if="item.datatype == 'array'" size="small">
                     mdi-format-list-group
                   </v-icon>
-                  <v-icon v-else size="small"> mdi-pound-box-outline </v-icon>
+                  <v-icon v-else size="small">mdi-pound-box-outline</v-icon>
                 </template>
                 <template #append="{ item }">
-                  <span
-                    ><span v-if="item.required" style="font-size: 0.575rem"> required </span>
-                    <v-icon v-if="item.required" color="error" size="x-small">
-                      mdi-asterisk
-                    </v-icon>
+                  <span>
+                    <span v-if="item.required" style="font-size: 0.575rem">required</span>
+                    <v-icon v-if="item.required" color="error" size="x-small">mdi-asterisk</v-icon>
                   </span>
                 </template>
               </v-treeview>
@@ -69,8 +66,7 @@
                 :assignable-obj="permissionObject"
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
-                @permissions="assign"
-              />
+                @permissions="assign" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>

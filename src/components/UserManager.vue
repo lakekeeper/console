@@ -4,8 +4,7 @@
     :headers="headers"
     hover
     :items="users"
-    :sort-by="[{ key: 'name', order: 'asc' }]"
-  >
+    :sort-by="[{ key: 'name', order: 'asc' }]">
     <template #item.actions="{ item }">
       <span v-for="(action, i) in item.actions" :key="i">
         <user-rename-dialog
@@ -13,24 +12,23 @@
           :id="item.id"
           :name="item.name"
           :status="props.status"
-          @rename-user-name="renameUser"
-        ></user-rename-dialog>
+          @rename-user-name="renameUser"></user-rename-dialog>
 
-        <v-icon v-else color="error" :disabled="!props.canDeleteUsers" @click="deleteUser(item)"
-          >mdi-delete-outline</v-icon
-        >
+        <v-icon v-else color="error" :disabled="!props.canDeleteUsers" @click="deleteUser(item)">
+          mdi-delete-outline
+        </v-icon>
       </span>
     </template>
 
     <template #item.name="{ item }">
       <td>
         <span class="icon-text">
-          <v-icon v-if="item['user-type'] === 'application'" class="mr-2"
-            >mdi-robot-happy-outline</v-icon
-          >
+          <v-icon v-if="item['user-type'] === 'application'" class="mr-2">
+            mdi-robot-happy-outline
+          </v-icon>
           <v-icon v-else class="mr-2">mdi-account-circle-outline</v-icon>
-          {{ item.name }}</span
-        >
+          {{ item.name }}
+        </span>
       </td>
     </template>
 
@@ -41,7 +39,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { onMounted, reactive } from 'vue';
 import { User } from '@/gen/management/types.gen';
 
 import { Header } from '@/common/interfaces';

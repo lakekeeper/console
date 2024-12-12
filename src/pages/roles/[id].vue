@@ -1,7 +1,7 @@
 <template>
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
-    <v-tab v-if="enabledAuthorization" value="permissions">Permissions </v-tab>
+    <v-tab v-if="enabledAuthorization" value="permissions">Permissions</v-tab>
   </v-tabs>
 
   <v-card>
@@ -14,9 +14,8 @@
         icon="mdi-content-copy"
         size="small"
         variant="flat"
-        @click="functions.copyToClipboard(role.id)"
-      ></v-btn
-    ></v-card-subtitle>
+        @click="functions.copyToClipboard(role.id)"></v-btn>
+    </v-card-subtitle>
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="overview">
         <v-card-text>
@@ -27,9 +26,8 @@
                 label="Role description"
                 placeholder="my role description"
                 readonly
-                style="max-width: 500px"
-              ></v-textarea
-            ></v-col>
+                style="max-width: 500px"></v-textarea>
+            </v-col>
           </v-row>
         </v-card-text>
         <v-card-actions>
@@ -38,8 +36,7 @@
             v-if="role.name != ''"
             :action-type="'edit'"
             :role="role"
-            @role-input="editRole"
-          />
+            @role-input="editRole" />
         </v-card-actions>
       </v-tabs-window-item>
       <v-tabs-window-item value="permissions">
@@ -48,8 +45,7 @@
           :assignable-obj="role"
           :existing-permissions-from-obj="existingPermissions"
           :relation-type="type"
-          @permissions="assign"
-        />
+          @permissions="assign" />
       </v-tabs-window-item>
     </v-tabs-window>
   </v-card>

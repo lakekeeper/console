@@ -6,12 +6,11 @@
           class="mt-4"
           color="info"
           indeterminate
-          :size="126"
-        ></v-progress-circular>
+          :size="126"></v-progress-circular>
       </v-row>
 
-      ></v-responsive
-    >
+      >
+    </v-responsive>
   </v-container>
   <span v-else>
     <v-row class="ml-1">
@@ -19,7 +18,7 @@
         <v-breadcrumbs :items="['warhouses']"></v-breadcrumbs>
         <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
-            <span class="text-subtitle-1">Warehouses </span>
+            <span class="text-subtitle-1">Warehouses</span>
           </v-toolbar-title>
           <template #prepend>
             <v-icon>mdi-warehouse</v-icon>
@@ -31,8 +30,7 @@
             :object-type="ObjectType.WAREHOUSE"
             :process-status="'starting'"
             :warehouse="undefined"
-            @added-warehouse="listWarhouse"
-          />
+            @added-warehouse="listWarhouse" />
         </v-toolbar>
         <v-data-table
           v-if="myAccess.includes('list_warehouses')"
@@ -40,8 +38,7 @@
           :headers="headers"
           hover
           :items="whResponse"
-          :sort-by="[{ key: 'name', order: 'asc' }]"
-        >
+          :sort-by="[{ key: 'name', order: 'asc' }]">
           <template #item.name="{ item }">
             <td class="pointer-cursor" @click="navigateToWarehouse(item)">
               <span class="icon-text">
@@ -52,9 +49,9 @@
                   "
                   class="mr-2"
                   color="orange"
-                  size="large"
-                  >mdi-aws</v-icon
-                >
+                  size="large">
+                  mdi-aws
+                </v-icon>
                 <v-img
                   v-if="
                     item['storage-profile'].type === 's3' &&
@@ -62,28 +59,28 @@
                   "
                   class="mb-2 mr-2"
                   src="@/assets/s3.svg"
-                  :width="24"
-                ></v-img>
+                  :width="24"></v-img>
                 <v-icon
                   v-if="item['storage-profile'].type === 'adls'"
                   class="mr-2"
                   color="primary"
-                  size="large"
-                  >mdi-microsoft-azure</v-icon
-                >
+                  size="large">
+                  mdi-microsoft-azure
+                </v-icon>
                 <v-icon
                   v-if="item['storage-profile'].type === 'gcs'"
                   class="mr-2"
                   color="info"
-                  size="large"
-                  >mdi-google-cloud</v-icon
-                >
+                  size="large">
+                  mdi-google-cloud
+                </v-icon>
                 <v-icon class="mr-2">mdi-database</v-icon>
 
-                {{ item.name }}</span
-              >
+                {{ item.name }}
+              </span>
             </td>
           </template>
+          <!--eslint-disable-next-line-->
           <template #item.actions="{ item }">
             <span icon-text>
               <v-icon
@@ -91,9 +88,9 @@
                 class="mr-1"
                 color="error"
                 :disabled="!myAccess.includes('delete')"
-                @click="deleteWarehouse(item.id)"
-                >mdi-delete-outline</v-icon
-              >
+                @click="deleteWarehouse(item.id)">
+                mdi-delete-outline
+              </v-icon>
             </span>
           </template>
           <template #no-data>
@@ -103,8 +100,7 @@
               :object-type="ObjectType.WAREHOUSE"
               :process-status="'starting'"
               :warehouse="undefined"
-              @added-warehouse="listWarhouse"
-            />
+              @added-warehouse="listWarhouse" />
           </template>
         </v-data-table>
         <div v-else>You don't have permission to list warehouses</div>
@@ -115,7 +111,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, ref, onUnmounted } from 'vue';
 import { Intent, ObjectType } from '../../common/enums';
 
 import { GetWarehouseResponse, ProjectAction } from '../../gen/management/types.gen';

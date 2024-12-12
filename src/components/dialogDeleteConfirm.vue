@@ -13,8 +13,7 @@
           v-model="deleteName"
           :label="`${props.type} Name`"
           maxlength="500"
-          :placeholder="$props.name"
-        ></v-text-field>
+          :placeholder="$props.name"></v-text-field>
       </v-card-text>
 
       <v-card-actions>
@@ -24,8 +23,7 @@
           color="success"
           :disabled="deleteName != $props.name"
           text="Confirm"
-          @click="confirm"
-        ></v-btn>
+          @click="confirm"></v-btn>
         <v-btn color="error" text="Cancel" @click="reject"></v-btn>
       </v-card-actions>
     </v-card>

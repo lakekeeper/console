@@ -7,34 +7,30 @@
         color="info"
         size="small"
         text="Add Warehouse"
-        variant="flat"
-      ></v-btn>
+        variant="flat"></v-btn>
       <span
         v-else-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
         class="text-subtitle-2"
-        v-bind="activatorProps"
-      >
-        Update Credentials</span
-      >
+        v-bind="activatorProps">
+        Update Credentials
+      </span>
       <span
         v-else-if="props.objectType === ObjectType.STORAGE_PROFILE"
         class="text-subtitle-2"
-        v-bind="activatorProps"
-      >
-        Update Profile</span
-      >
+        v-bind="activatorProps">
+        Update Profile
+      </span>
       <span
         v-else-if="props.objectType === ObjectType.DELETION_PROFILE"
         class="text-subtitle-2"
-        v-bind="activatorProps"
-      >
-        Change Deletion</span
-      >
+        v-bind="activatorProps">
+        Change Deletion
+      </span>
     </template>
     <v-card style="max-height: 90vh; overflow-y: auto">
-      <v-card-title v-if="props.objectType === ObjectType.WAREHOUSE"
-        >Add new warehouse</v-card-title
-      >
+      <v-card-title v-if="props.objectType === ObjectType.WAREHOUSE">
+        Add new warehouse
+      </v-card-title>
       <v-card-title v-else>Updating Warehouse</v-card-title>
       <span v-if="creatingWarehouse || props.processStatus == 'running'">
         <v-card-text style="min-height: 25vh">
@@ -43,8 +39,7 @@
               class="mt-4"
               color="info"
               indeterminate
-              :size="126"
-            ></v-progress-circular>
+              :size="126"></v-progress-circular>
           </v-row>
         </v-card-text>
       </span>
@@ -60,9 +55,9 @@
             @click="
               isDialogActive = false;
               $emit('close');
-            "
-            >Close</v-btn
-          >
+            ">
+            Close
+          </v-btn>
         </v-card-actions>
       </span>
       <span v-else>
@@ -73,22 +68,19 @@
               v-model="warehouseName"
               label="Warehouse Name"
               placeholder="my-warehouse"
-              :rules="[rules.required, rules.noSlash]"
-            ></v-text-field>
+              :rules="[rules.required, rules.noSlash]"></v-text-field>
             <v-row justify="center">
               <v-col
                 v-if="
                   props.objectType === ObjectType.WAREHOUSE ||
                   props.objectType === ObjectType.DELETION_PROFILE
-                "
-              >
+                ">
                 <v-switch
                   v-model="delProfileSoftActive"
                   color="primary"
                   :label="
                     delProfileSoftActive ? `Soft Deletion is enabled` : `Enable Soft Deletion`
-                  "
-                ></v-switch>
+                  "></v-switch>
               </v-col>
               <v-col class="d-flex justify-center">
                 <v-slider
@@ -99,8 +91,7 @@
                   label="Define number of Days"
                   :max="max"
                   :min="min"
-                  :step="1"
-                >
+                  :step="1">
                   <template #append>
                     <v-text-field
                       v-model="slider"
@@ -108,25 +99,24 @@
                       hide-details
                       single-line
                       style="width: 100px"
-                      type="number"
-                    ></v-text-field>
+                      type="number"></v-text-field>
                   </template>
                 </v-slider>
               </v-col>
             </v-row>
-            <v-row v-if="props.objectType === ObjectType.DELETION_PROFILE"
-              ><v-col>
+            <v-row v-if="props.objectType === ObjectType.DELETION_PROFILE">
+              <v-col>
                 <v-btn
                   color="success"
                   :disabled="
                     slider === loadedDeltionSeconds &&
                     delProfileSoftActive === loadedDelProfileSoftActive
                   "
-                  @click="emitDeletionProfile"
-                  >Change Deletion</v-btn
-                >
-              </v-col></v-row
-            >
+                  @click="emitDeletionProfile">
+                  Change Deletion
+                </v-btn>
+              </v-col>
+            </v-row>
             <span v-if="props.objectType !== ObjectType.DELETION_PROFILE">
               <v-container fluid>
                 <v-radio-group v-model="storageCredentialType" row>
@@ -138,19 +128,18 @@
                           v-model="storageCredentialType"
                           color="primary"
                           :disabled="!emptyWarehouse"
-                          :value="type"
-                        >
+                          :value="type">
                           <template #label>
                             <div>
-                              <v-icon v-if="type === 'S3'" color="primary" size="x-large"
-                                >mdi-aws</v-icon
-                              >
-                              <v-icon v-if="type === 'GCS'" color="primary" size="x-large"
-                                >mdi-google-cloud</v-icon
-                              >
-                              <v-icon v-if="type === 'AZURE'" color="primary" size="x-large"
-                                >mdi-microsoft-azure</v-icon
-                              >
+                              <v-icon v-if="type === 'S3'" color="primary" size="x-large">
+                                mdi-aws
+                              </v-icon>
+                              <v-icon v-if="type === 'GCS'" color="primary" size="x-large">
+                                mdi-google-cloud
+                              </v-icon>
+                              <v-icon v-if="type === 'AZURE'" color="primary" size="x-large">
+                                mdi-microsoft-azure
+                              </v-icon>
                               {{ type }}
                             </div>
                           </template>
@@ -177,8 +166,7 @@
                   :warehouse-object="warehouseObjectS3"
                   @submit="createWarehouse"
                   @update-credentials="newCredentials"
-                  @update-profile="newProfile"
-                ></WarehouseS3>
+                  @update-profile="newProfile"></WarehouseS3>
               </div>
 
               <div v-if="storageCredentialType === 'AZURE'">
@@ -188,8 +176,7 @@
                   :object-type="objectType"
                   :warehouse-object="warehouseObjectAz"
                   @submit="createWarehouse"
-                  @update-credentials="newCredentials"
-                ></WarehouseAzure>
+                  @update-credentials="newCredentials"></WarehouseAzure>
               </div>
 
               <div v-if="storageCredentialType === 'GCS'">
@@ -200,10 +187,10 @@
                   :warehouse-object="warehouseObjectGCS"
                   @submit="createWarehouse"
                   @update-credentials="newCredentials"
-                  @update-profile="newProfile"
-                ></WarehouseGCS>
-              </div> </span
-          ></v-form>
+                  @update-profile="newProfile"></WarehouseGCS>
+              </div>
+            </span>
+          </v-form>
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -211,9 +198,9 @@
             @click="
               isDialogActive = false;
               $emit('cancel');
-            "
-            >Cancel</v-btn
-          >
+            ">
+            Cancel
+          </v-btn>
         </v-card-actions>
       </span>
     </v-card>
@@ -221,7 +208,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, watch, computed, onMounted } from 'vue';
 import { useFunctions } from '../plugins/functions';
 
 import { useVisualStore } from '../stores/visual';

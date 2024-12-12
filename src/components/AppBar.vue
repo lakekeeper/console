@@ -12,10 +12,10 @@
 
     <v-menu v-if="userStorage.isAuthenticated" open-on-hover>
       <template #activator="{ props }">
-        <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
+        <v-btn v-bind="props"><v-icon>mdi-account</v-icon></v-btn>
       </template>
       <v-list>
-        <v-list-item>
+        <v-list-item prepend-icon="mdi-account">
           <v-list-item-title>
             {{ userStorage.user.given_name }}
             {{ userStorage.user.family_name }}
@@ -23,15 +23,17 @@
               :icon="themeLight ? 'mdi-lightbulb-off' : 'mdi-lightbulb-on'"
               size="x-small"
               variant="text"
-              @click="toggleTheme"
-            ></v-btn>
+              @click="toggleTheme"></v-btn>
           </v-list-item-title>
         </v-list-item>
 
         <v-divider></v-divider>
 
-        <v-list-item @click="goToUserProfile">
+        <v-list-item prepend-icon="mdi-account-circle-outline" @click="goToUserProfile">
           <v-list-item-title>User Profile</v-list-item-title>
+        </v-list-item>
+        <v-list-item prepend-icon="mdi-key-change" @click="getNewToken">
+          <v-list-item-title>Create Token</v-list-item-title>
         </v-list-item>
 
         <v-divider class="mt-2"></v-divider>
@@ -47,7 +49,7 @@
 
     <v-menu v-if="!enabledAuthorization" open-on-hover>
       <template #activator="{ props }">
-        <v-btn v-bind="props"> <v-icon>mdi-account</v-icon> </v-btn>
+        <v-btn v-bind="props"><v-icon>mdi-account</v-icon></v-btn>
       </template>
       <v-list>
         <v-list-item>
@@ -58,8 +60,7 @@
               :icon="themeLight ? 'mdi-lightbulb-off' : 'mdi-lightbulb-on'"
               size="x-small"
               variant="text"
-              @click="toggleTheme"
-            ></v-btn>
+              @click="toggleTheme"></v-btn>
           </v-list-item-title>
         </v-list-item>
       </v-list>
@@ -68,14 +69,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed, onMounted } from 'vue';
 import { useTheme } from 'vuetify';
 import { useAuth } from '../plugins/auth';
 import { useVisualStore } from '../stores/visual';
 import { enabledAuthorization } from '../app.config';
 import { useUserStore } from '../stores/user';
+import { useFunctions } from '@/plugins/functions';
+
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const visual = useVisualStore();
+const functions = useFunctions();
 
 const userStorage = useUserStore();
 
@@ -112,5 +118,11 @@ function logout() {
 
 function goToUserProfile() {
   router.push('/user-profile');
+}
+
+async function getNewToken() {
+  const auth = useAuth();
+  const user = await auth.refreshToken();
+  functions.copyToClipboard(user.access_token);
 }
 </script>

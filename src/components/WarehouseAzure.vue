@@ -5,8 +5,7 @@
       v-model="warehouseObjectData['storage-credential']['client-id']"
       label="client-id"
       placeholder=""
-      :rules="[rules.required]"
-    ></v-text-field>
+      :rules="[rules.required]"></v-text-field>
 
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['client-secret']"
@@ -16,14 +15,12 @@
       placeholder="your-client-secret-"
       :rules="[rules.required]"
       :type="showPassword ? 'text' : 'password'"
-      @click:append-inner="showPassword = !showPassword"
-    ></v-text-field>
+      @click:append-inner="showPassword = !showPassword"></v-text-field>
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['tenant-id']"
       label="tenant-id"
       placeholder=""
-      :rules="[rules.required]"
-    ></v-text-field>
+      :rules="[rules.required]"></v-text-field>
 
     <v-btn
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
@@ -33,8 +30,8 @@
         !warehouseObjectData['storage-credential']['client-secret'] ||
         !warehouseObjectData['storage-credential']['tenant-id']
       "
-      @click="emitNewCredentials"
-      >Update Credentials
+      @click="emitNewCredentials">
+      Update Credentials
     </v-btn>
 
     <v-divider></v-divider>
@@ -44,31 +41,27 @@
       v-if="
         props.objectType === ObjectType.STORAGE_PROFILE ||
         (props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE)
-      "
-    >
+      ">
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['account-name']"
         label="account-name"
         placeholder="my-account"
-        :rules="[rules.required]"
-      ></v-text-field>
+        :rules="[rules.required]"></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['filesystem']"
         label="Filesystem"
         placeholder="my-filesystem"
-        :rules="[rules.required, rules.noSlash]"
-      ></v-text-field>
+        :rules="[rules.required, rules.noSlash]"></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key Prefix"
-        placeholder="path/to/warehouse"
-      ></v-text-field>
+        placeholder="path/to/warehouse"></v-text-field>
 
       <v-btn
         v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
         color="success"
-        type="submit"
-        >Submit
+        type="submit">
+        Submit
       </v-btn>
       <v-btn
         v-if="props.intent === Intent.UPDATE && props.objectType === ObjectType.STORAGE_PROFILE"
@@ -77,14 +70,15 @@
           !warehouseObjectData['storage-profile']['account-name'] ||
           !warehouseObjectData['storage-profile']['filesystem']
         "
-        @click="emitNewProfile"
-        >Update Profile
+        @click="emitNewProfile">
+        Update Profile
       </v-btn>
     </div>
   </v-form>
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref, reactive } from 'vue';
 import {
   AdlsProfile,
   AzCredential,

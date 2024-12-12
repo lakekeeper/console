@@ -5,7 +5,7 @@
  */
 
 // Styles
-import 'material-design-icons-iconfont/dist/material-design-icons.css';
+// import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
 import '@mdi/font/css/materialdesignicons.css';
 import 'vuetify/styles';
@@ -13,6 +13,7 @@ import { VTreeview } from 'vuetify/labs/VTreeview';
 
 // Composables
 import { createVuetify } from 'vuetify';
+import { VStepperVertical, VStepperVerticalItem } from 'vuetify/labs/VStepperVertical';
 
 const myCustomLightTheme = {
   dark: false,
@@ -56,6 +57,8 @@ const myCustomLightTheme = {
 export default createVuetify({
   components: {
     VTreeview,
+    VStepperVertical,
+    VStepperVerticalItem,
   },
   theme: {
     defaultTheme: 'myCustomLightTheme',

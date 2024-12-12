@@ -6,16 +6,14 @@
         link
         prepend-icon="mdi-warehouse"
         title="Warehouses"
-        to="/warehouse"
-      ></v-list-item>
+        to="/warehouse"></v-list-item>
       <v-dialog v-model="isDialogActive" max-width="500">
         <template #activator="{ props: activatorProps }">
           <v-list-item
             v-bind="activatorProps"
             link
             prepend-icon="mdi-bucket"
-            title="Volumes"
-          ></v-list-item>
+            title="Volumes"></v-list-item>
         </template>
 
         <v-card title="Welcome to the Roadmap">
@@ -24,8 +22,9 @@
 
             Join the conversation and shape the journey!
             <a href="https://github.com/lakekeeper/lakekeeper/discussions/409" target="_blank">
-              Click here </a
-            >to explore and contribute to the roadmap discussion about Volumes on GitHub.
+              Click here
+            </a>
+            to explore and contribute to the roadmap discussion about Volumes on GitHub.
           </v-card-text>
 
           <v-card-actions>
@@ -39,20 +38,19 @@
         link
         prepend-icon="mdi-account-key"
         title="Roles"
-        @click="routeToRoles"
-      ></v-list-item>
+        @click="routeToRoles"></v-list-item>
       <v-list-item
         link
         prepend-icon="mdi-cog"
         title="Server settings"
-        to="/server-settings"
-      ></v-list-item>
+        to="/server-settings"></v-list-item>
     </v-list>
-    <v-snackbar v-model="snackbarVisible" timeout="3000"> Volumes are not active yet </v-snackbar>
+    <v-snackbar v-model="snackbarVisible" timeout="3000">Volumes are not active yet</v-snackbar>
   </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useVisualStore } from '../stores/visual';
 
 import router from '../router';

@@ -4,8 +4,7 @@
       <v-list-item-title
         v-bind="activatorProps"
         prepend-icon="mdi-home-silo"
-        :text="project['project-name']"
-      >
+        :text="project['project-name']">
         <div class="text-center pa-4">
           <v-btn prepend-icon="mdi-home-silo" :text="project['project-name']"></v-btn>
         </div>
@@ -22,20 +21,19 @@
       </v-toolbar>
       <v-tabs v-model="tab">
         <v-tab value="overview">overview</v-tab>
-        <v-tab v-if="canReadAssignments && enabledAuthorization" value="permissions"
-          >Permissions
+        <v-tab v-if="canReadAssignments && enabledAuthorization" value="permissions">
+          Permissions
         </v-tab>
       </v-tabs>
       <v-tabs-window v-model="tab">
         <v-tabs-window-item value="overview">
           <v-list lines="two" subheader>
-            <v-list-subheader>Selected Project </v-list-subheader>
+            <v-list-subheader>Selected Project</v-list-subheader>
 
             <v-list-item
               link
               :subtitle="`ID: ${project['project-id']}`"
-              :title="`${project['project-name']}`"
-            ></v-list-item>
+              :title="`${project['project-name']}`"></v-list-item>
 
             <v-divider class="mt-8"></v-divider>
           </v-list>
@@ -45,8 +43,7 @@
             :headers="headers"
             hover
             :items="availableProjects"
-            :sort-by="[{ key: 'name', order: 'asc' }]"
-          >
+            :sort-by="[{ key: 'name', order: 'asc' }]">
             <template #top>
               <v-toolbar color="transparent" density="compact" flat>
                 <v-spacer></v-spacer>
@@ -56,7 +53,7 @@
             </template>
 
             <template #item.info="{ item }">
-              <v-chip v-if="item.info === 'selected'" class="mr-2">selected </v-chip>
+              <v-chip v-if="item.info === 'selected'" class="mr-2">selected</v-chip>
               <v-chip v-if="item.info === 'switch'" class="mr-2">switch</v-chip>
             </template>
 
@@ -65,8 +62,7 @@
                 :id="item['project-id']"
                 :action-type="'edit'"
                 :name="item['project-name']"
-                @emit-project-newname="renameProject"
-              />
+                @emit-project-newname="renameProject" />
             </template>
 
             <template #no-data>
@@ -80,8 +76,7 @@
             :assignable-obj="permissionObject"
             :existing-permissions-from-obj="existingAssignments"
             :relation-type="permissionType"
-            @permissions="assign"
-          />
+            @permissions="assign" />
         </v-tabs-window-item>
       </v-tabs-window>
     </v-card>
@@ -89,6 +84,7 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted, ref, reactive, computed } from 'vue';
 import { useVisualStore } from '../stores/visual';
 import { enabledAuthorization } from '../app.config';
 
@@ -100,7 +96,6 @@ import {
   RenameProjectRequest,
 } from '../gen/management/types.gen';
 import { AssignmentCollection, Header, RelationType } from '../common/interfaces';
-import { computed, ref } from 'vue';
 
 const dialog = ref(false);
 const tab = ref('overview');
