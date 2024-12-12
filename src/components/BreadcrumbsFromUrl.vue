@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts" setup>
+import { reactive, watch } from 'vue';
 import { Breadcrumb } from '../common/interfaces';
 import { useVisualStore } from '../stores/visual';
 import { useFunctions } from '@/plugins/functions';

@@ -16,7 +16,7 @@ const settings = useAuth().oidcSettings;
 const userStorage = useUserStore();
 const userManager = new UserManager(settings);
 
-onMounted(async () => {
+async function init() {
   try {
     const user = await userManager.signinRedirectCallback();
 
@@ -48,6 +48,22 @@ onMounted(async () => {
     console.error('Error during callback processing:', error);
   } finally {
     router.push('/');
+  }
+}
+
+onMounted(async () => {
+  try {
+    await init();
+    const data = await functions.getServerInfo();
+
+    if (!data.bootstrapped) {
+      router.push('/bootstrap');
+    } else {
+      // router.push("/");
+    }
+    visual.showAppOrNavBar = true;
+  } catch (error) {
+    console.error('Error during callback processing:', error);
   }
 });
 

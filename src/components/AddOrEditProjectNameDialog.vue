@@ -6,8 +6,7 @@
         color="info"
         size="small"
         :text="props.actionType == 'add' ? 'Add Project' : 'Rename'"
-        :variant="props.actionType == 'add' ? 'flat' : 'outlined'"
-      ></v-btn>
+        :variant="props.actionType == 'add' ? 'flat' : 'outlined'"></v-btn>
     </template>
 
     <v-card :title="props.actionType == 'add' ? 'Add Project' : 'Rename'">
@@ -15,8 +14,7 @@
         <v-text-field
           v-model="project"
           :label="props.actionType == 'add' ? 'Add Project' : 'Rename'"
-          placeholder="my-project"
-        ></v-text-field>
+          placeholder="my-project"></v-text-field>
       </v-card-text>
 
       <v-card-actions>
@@ -25,9 +23,9 @@
         <v-btn
           color="success"
           :disabled="project == '' || project == props.name"
-          @click="emitProjectName"
-          >Submit</v-btn
-        >
+          @click="emitProjectName">
+          Submit
+        </v-btn>
         <v-btn color="error" text="Cancel" @click="isDialogActive = false"></v-btn>
       </v-card-actions>
     </v-card>
@@ -35,7 +33,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { RenameProjectRequest } from '../gen/management/types.gen';
 
 const isDialogActive = ref(false);

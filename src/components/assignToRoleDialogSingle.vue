@@ -8,9 +8,7 @@
         size="small"
         slim
         :text="`${props.actionType}`"
-        variant="outlined"
-      >
-      </v-btn>
+        variant="outlined"></v-btn>
 
       <v-btn
         v-else
@@ -18,8 +16,7 @@
         v-bind="activatorProps"
         size="small"
         slim
-        variant="flat"
-      ></v-btn>
+        variant="flat"></v-btn>
     </template>
 
     <v-card
@@ -27,8 +24,7 @@
         $props.actionType == 'grant'
           ? `Create assignment to ${props.relation} - ${props.obj?.name}`
           : `Edit Assignment on ${props.relation} - ${props.obj?.name}`
-      "
-    >
+      ">
       <v-card-text>
         <span>
           <v-row>
@@ -46,9 +42,7 @@
                     ? 'mdi-account-box-multiple-outline'
                     : 'mdi-account-circle-outline'
                 "
-                @update:model-value="clearSelectedItem"
-              >
-              </v-switch>
+                @update:model-value="clearSelectedItem"></v-switch>
             </v-col>
             <v-col>
               <v-checkbox v-model="byIdActivated" label="by Id"></v-checkbox>
@@ -68,8 +62,7 @@
           variant="solo"
           @update:focused="items.splice(0, items.length)"
           @update:model-value="selectedObject"
-          @update:search="searchMember"
-        >
+          @update:search="searchMember">
           <template #item="{ props: itemProps, item }">
             <v-list-item
               v-bind="itemProps"
@@ -79,9 +72,7 @@
                   : 'mdi-account-circle-outline'
               "
               :subtitle="item.raw.email"
-              :title="item.raw.name"
-            >
-            </v-list-item>
+              :title="item.raw.name"></v-list-item>
           </template>
         </v-autocomplete>
         <v-text-field
@@ -91,11 +82,10 @@
           dense
           label="Search by ID"
           outlined
-          @update:model-value="searchMemberById"
-        ></v-text-field>
+          @update:model-value="searchMemberById"></v-text-field>
         <span class="mt-16">
           <v-card-title>
-            <span v-if="selectedItem.id == undefined"> Search for a {{ searchForType }} </span>
+            <span v-if="selectedItem.id == undefined">Search for a {{ searchForType }}</span>
             <span v-else>
               {{ selectedItem.name }}
             </span>
@@ -108,9 +98,8 @@
                 icon="mdi-content-copy"
                 size="small"
                 variant="flat"
-                @click="functions.copyToClipboard(selectedItem.id)"
-              ></v-btn
-            ></v-card-subtitle>
+                @click="functions.copyToClipboard(selectedItem.id)"></v-btn>
+            </v-card-subtitle>
             <v-card-text>
               <v-row no-gutters>
                 <v-col v-for="(rel, i) in objRelation" :key="i" cols="4" lg="4" md="4" sm="4">
@@ -119,8 +108,7 @@
                     :disabled="selectedItem.id == ''"
                     :label="rel"
                     :value="rel"
-                    @update:model-value="sendAssignment($event)"
-                  ></v-checkbox>
+                    @update:model-value="sendAssignment($event)"></v-checkbox>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -133,8 +121,7 @@
         <v-btn
           color="success"
           :disabled="toWrite.length == 0 && toDelete.length == 0"
-          @click="assign"
-        >
+          @click="assign">
           save
         </v-btn>
         <v-btn color="error" text="Cancel" @click="cancelRoleAssignment"></v-btn>
@@ -144,7 +131,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps, reactive } from 'vue';
+import { defineEmits, defineProps, reactive, ref, onMounted, computed } from 'vue';
 import {
   NamespaceRelation,
   ProjectRelation,

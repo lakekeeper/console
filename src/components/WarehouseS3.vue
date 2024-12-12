@@ -6,8 +6,7 @@
       autocomplete="username"
       label="AWS Access Key ID"
       placeholder="AKIAIOSFODNN7EXAMPLE"
-      :rules="[rules.required]"
-    ></v-text-field>
+      :rules="[rules.required]"></v-text-field>
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['aws-secret-access-key']"
       :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
@@ -16,8 +15,7 @@
       placeholder="your-aws-secret-access-key"
       :rules="[rules.required]"
       :type="showPassword ? 'text' : 'password'"
-      @click:append-inner="showPassword = !showPassword"
-    ></v-text-field>
+      @click:append-inner="showPassword = !showPassword"></v-text-field>
     <v-btn
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
       color="success"
@@ -25,8 +23,8 @@
         !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
         !warehouseObjectData['storage-credential']['aws-secret-access-key']
       "
-      @click="emitNewCredentials"
-      >Update Credentials
+      @click="emitNewCredentials">
+      Update Credentials
     </v-btn>
 
     <v-divider></v-divider>
@@ -36,8 +34,7 @@
       v-if="
         props.objectType === ObjectType.STORAGE_PROFILE ||
         (props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE)
-      "
-    >
+      ">
       <v-select
         v-model="warehouseObjectData['storage-profile'].flavor"
         item-title="name"
@@ -45,36 +42,32 @@
         :items="s3Flavor"
         label="S3 Flavor"
         placeholder="Select S3 Flavor"
-        :rules="[rules.required]"
-      >
+        :rules="[rules.required]">
         <template #item="{ props: itemProps, item }">
-          <v-list-item v-bind="itemProps" :subtitle="item.raw.code"></v-list-item> </template
-      ></v-select>
+          <v-list-item v-bind="itemProps" :subtitle="item.raw.code"></v-list-item>
+        </template>
+      </v-select>
 
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].bucket"
         label="Bucket"
         placeholder="my-bucket"
-        :rules="[rules.required]"
-      ></v-text-field>
+        :rules="[rules.required]"></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key Prefix"
-        placeholder="path/to/warehouse (optional)"
-      ></v-text-field>
+        placeholder="path/to/warehouse (optional)"></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].endpoint"
         label="Endpoint"
-        placeholder="https://s3.custom.example.com (optional)"
-      ></v-text-field>
+        placeholder="https://s3.custom.example.com (optional)"></v-text-field>
 
       <v-combobox
         v-model="warehouseObjectData['storage-profile'].region"
         :items="regions"
         label="Bucket Region"
         placeholder="eu-central-1"
-        :rules="[rules.required]"
-      ></v-combobox>
+        :rules="[rules.required]"></v-combobox>
 
       <v-row>
         <v-col cols="3">
@@ -85,17 +78,15 @@
               warehouseObjectData['storage-profile']['sts-enabled']
                 ? `STS is enabled `
                 : `Enable STS`
-            "
-          ></v-switch
-        ></v-col>
-        <v-col
-          ><v-text-field
+            "></v-switch>
+        </v-col>
+        <v-col>
+          <v-text-field
             v-if="warehouseObjectData['storage-profile']['sts-enabled']"
             v-model="warehouseObjectData['storage-profile']['sts-role-arn']"
             label="STS Role ARN"
-            placeholder="arn:aws:iam::123456789012:role/role-name"
-          ></v-text-field
-        ></v-col>
+            placeholder="arn:aws:iam::123456789012:role/role-name"></v-text-field>
+        </v-col>
       </v-row>
 
       <v-btn
@@ -110,8 +101,8 @@
           (warehouseObjectData['storage-profile']['sts-enabled'] &&
             !warehouseObjectData['storage-profile']['sts-role-arn'])
         "
-        type="submit"
-        >Submit
+        type="submit">
+        Submit
       </v-btn>
       <v-btn
         v-if="props.intent === Intent.UPDATE && props.objectType === ObjectType.STORAGE_PROFILE"
@@ -125,15 +116,15 @@
           (warehouseObjectData['storage-profile']['sts-enabled'] &&
             !warehouseObjectData['storage-profile']['sts-role-arn'])
         "
-        @click="emitNewProfile"
-        >Update Profile
+        @click="emitNewProfile">
+        Update Profile
       </v-btn>
     </div>
   </v-form>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 
 import {
   S3Credential,

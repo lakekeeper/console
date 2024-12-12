@@ -537,9 +537,7 @@ async function loadNamespaceMetadata(id: string, namespace: string): Promise<Get
 
     if (error) throw error;
 
-    data as GetNamespaceResponse;
-
-    return data;
+    return data as GetNamespaceResponse;
   } catch (error: any) {
     handleError(error, new Error());
     return error;

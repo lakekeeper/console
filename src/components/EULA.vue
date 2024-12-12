@@ -1,7 +1,7 @@
 <template>
   <v-container class="fill-height d-flex justify-center align-center">
     <v-card class="pa-8 text-left" elevation="0" max-width="600">
-      <v-card-title> <div class="mb-3 text-center">Apache License</div></v-card-title>
+      <v-card-title><div class="mb-3 text-center">Apache License</div></v-card-title>
       <v-card-subtitle>
         <div class="mb-3 text-center">
           Version 2.0, January 2004
@@ -213,8 +213,8 @@
               file except in compliance with the License. You may obtain a copy of the License at
               <br />
               <a class="ml-4" href="http://www.apache.org/licenses/LICENSE-2.0">
-                http://www.apache.org/licenses/LICENSE-2.0</a
-              >
+                http://www.apache.org/licenses/LICENSE-2.0
+              </a>
             </div>
 
             <div class="mb-3">

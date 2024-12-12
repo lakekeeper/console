@@ -6,8 +6,7 @@
         :color="actionType == 'add' ? 'info' : 'warning'"
         size="small"
         :text="`${props.actionType} Role`"
-        :variant="actionType == 'add' ? 'flat' : 'outlined'"
-      ></v-btn>
+        :variant="actionType == 'add' ? 'flat' : 'outlined'"></v-btn>
     </template>
 
     <v-card :title="$props.actionType == 'add' ? 'New Role' : 'Edit Role'">
@@ -16,15 +15,13 @@
           v-model="roleData.name"
           label="Role Name"
           placeholder="my-role"
-          :rules="[roleRule]"
-        ></v-text-field>
+          :rules="[roleRule]"></v-text-field>
         <v-textarea
           v-model="roleData.description"
           label="Role description"
           maxlength="500"
           placeholder="my role description"
-          :rules="[roleRule]"
-        ></v-textarea>
+          :rules="[roleRule]"></v-textarea>
       </v-card-text>
 
       <v-card-actions>
@@ -33,9 +30,9 @@
         <v-btn
           color="success"
           :disabled="roleData.name == '' || roleData.name.length < 3"
-          @click="createRole"
-          >save role</v-btn
-        >
+          @click="createRole">
+          save role
+        </v-btn>
         <v-btn color="error" text="Cancel" @click="cancelRoleInput"></v-btn>
       </v-card-actions>
     </v-card>
@@ -43,7 +40,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps, reactive } from 'vue';
+import { defineEmits, defineProps, reactive, onMounted, ref } from 'vue';
 
 const isDialogActive = ref(false);
 const emit = defineEmits<{

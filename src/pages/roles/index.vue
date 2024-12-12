@@ -6,19 +6,18 @@
           class="mt-4"
           color="info"
           indeterminate
-          :size="126"
-        ></v-progress-circular>
+          :size="126"></v-progress-circular>
       </v-row>
 
-      ></v-responsive
-    >
+      >
+    </v-responsive>
   </v-container>
   <span v-else>
     <v-row class="ml-1">
       <v-col>
         <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
-            <span class="text-subtitle-1">Roles </span>
+            <span class="text-subtitle-1">Roles</span>
           </v-toolbar-title>
           <template #prepend>
             <v-icon>mdi-account-box-multiple-outline</v-icon>
@@ -32,14 +31,13 @@
           :headers="headers"
           hover
           :items="roles"
-          :sort-by="[{ key: 'name', order: 'asc' }]"
-        >
+          :sort-by="[{ key: 'name', order: 'asc' }]">
           <template #item.name="{ item }">
             <td class="pointer-cursor" @click="getRole(item.id)">
               <span class="icon-text">
                 <v-icon class="mr-2" color="info">mdi-account-box-multiple-outline</v-icon>
-                {{ item.name }}</span
-              >
+                {{ item.name }}
+              </span>
             </td>
           </template>
           <template #item.actions="{ item }">
@@ -48,17 +46,16 @@
                 class="mr-1"
                 color="error"
                 :disabled="!myAccess.includes('delete')"
-                @click="deleteRole(item.id)"
-                >mdi-delete-outline</v-icon
-              >
+                @click="deleteRole(item.id)">
+                mdi-delete-outline
+              </v-icon>
             </span>
           </template>
           <template #no-data>
             <roleDialog
               v-if="myAccess.includes('create_role')"
               :action-type="'add'"
-              @role-input="roleInput"
-            />
+              @role-input="roleInput" />
           </template>
         </v-data-table>
       </v-col>
@@ -66,7 +63,7 @@
   </span>
 </template>
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
 import { useFunctions } from '../../plugins/functions';
 import { ProjectAction, Role } from '../../gen/management/types.gen';
 import router from '../../router';

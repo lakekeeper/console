@@ -6,9 +6,9 @@
           class="mt-4"
           color="info"
           indeterminate
-          :size="126"
-        ></v-progress-circular> </v-row
-    ></v-responsive>
+          :size="126"></v-progress-circular>
+      </v-row>
+    </v-responsive>
   </v-container>
   <span v-else>
     <v-row class="ml-1">
@@ -39,8 +39,7 @@
                   <v-col>
                     View SQL Statement:
                     <pre
-                      class="language-sql"
-                    ><code ref="codeRef" class="language-sql">{{ sqlStatement }}</code></pre>
+                      class="language-sql"><code ref="codeRef" class="language-sql">{{ sqlStatement }}</code></pre>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -54,8 +53,7 @@
                 :assignable-obj="permissionObject"
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
-                @permissions="assign"
-              />
+                @permissions="assign" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
@@ -72,7 +70,6 @@ import { useFunctions } from '../../plugins/functions';
 import { LoadViewResult } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
-import 'prismjs/themes/prism.css';
 
 import { enabledAuthorization } from '@/app.config';
 
