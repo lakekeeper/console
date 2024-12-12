@@ -35,6 +35,10 @@ export const useVisualStore = defineStore(
 
     const projectList = reactive<Project[]>([]);
 
+    function getTheme(): string {
+      return themeLight ? 'light' : 'dark';
+    }
+
     function toggleThemeLight() {
       themeLight.value = !themeLight.value;
     }
@@ -74,6 +78,7 @@ export const useVisualStore = defineStore(
       projectList,
       projectSelected,
       snackbarMsg,
+      getTheme,
       toggleThemeLight,
       setProjectList,
       navBarSwitch,

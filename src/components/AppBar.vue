@@ -69,6 +69,7 @@
 </template>
 
 <script setup lang="ts">
+import { User } from '@/common/interfaces';
 import { computed, onMounted } from 'vue';
 import { useTheme } from 'vuetify';
 import { useAuth } from '../plugins/auth';
@@ -122,7 +123,7 @@ function goToUserProfile() {
 
 async function getNewToken() {
   const auth = useAuth();
-  const user = await auth.refreshToken();
+  const user = (await auth.refreshToken()) as User;
   functions.copyToClipboard(user.access_token);
 }
 </script>
