@@ -62,7 +62,7 @@
                 :id="item['project-id']"
                 :action-type="'edit'"
                 :name="item['project-name']"
-                @emit-project-newname="renameProject" />
+                @emit-project-new-name="renameProject" />
             </template>
 
             <template #no-data>
