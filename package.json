@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@mdi/font": "7.4.47",
+    "@wdns/vue-code-block": "^2.3.3",
     "core-js": "^3.37.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
@@ -26,7 +27,6 @@
     "vuetify": "^3.6.14"
   },
   "devDependencies": {
-    "typescript-eslint": "^8.18.0",
     "@eslint/js": "^9.14.0",
     "@hey-api/client-fetch": "^0.4.3",
     "@hey-api/openapi-ts": "^0.55.3",
@@ -45,6 +45,7 @@
     "sass": "1.77.8",
     "sass-embedded": "^1.77.8",
     "typescript": "~5.6.3",
+    "typescript-eslint": "^8.18.0",
     "unplugin-auto-import": "^0.17.6",
     "unplugin-fonts": "^1.1.1",
     "unplugin-vue-components": "^0.27.2",

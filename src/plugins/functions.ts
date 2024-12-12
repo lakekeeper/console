@@ -67,7 +67,7 @@ function init() {
   });
 
   ice.client.setConfig({
-    baseUrl: env.icebergCatalogUrl + '/catalog/',
+    baseUrl: env.icebergCatalogUrlSuffixed,
   });
 
   ice.client.interceptors.request.use((request) => {
@@ -1617,30 +1617,34 @@ async function getRoleAccessById(roleId: string): Promise<RoleAction[]> {
 // internal
 function copyToClipboard(text: string) {
   const visual = useVisualStore();
+  const t = `${text}`;
 
-  navigator.clipboard.writeText(text).then(
-    () => {
-      const msg = `Copied to clipboard: ${text}`;
+  setTimeout(() => {
+    navigator.clipboard.writeText(t).then(
+      () => {
+        const msg = `Copied to clipboard: ${t.substring(0, 20)}...`;
 
-      visual.setSnackbarMsg({
-        function: 'copyToClipboard',
-        text: msg,
-        ttl: 3000,
-        ts: Date.now(),
-        type: Type.SUCCESS,
-      });
-    },
-    (err) => {
-      const msg = `Failed to copy: ${err}`;
-      visual.setSnackbarMsg({
-        function: 'copyToClipboard',
-        text: msg,
-        ttl: 3000,
-        ts: Date.now(),
-        type: Type.ERROR,
-      });
-    },
-  );
+        visual.setSnackbarMsg({
+          function: 'copyToClipboard',
+          text: msg,
+          ttl: 3000,
+          ts: Date.now(),
+          type: Type.SUCCESS,
+        });
+      },
+      (err) => {
+        console.log('failed', err);
+        const msg = `Failed to copy: ${err} ${t}`;
+        visual.setSnackbarMsg({
+          function: 'copyToClipboard',
+          text: msg,
+          ttl: 3000,
+          ts: Date.now(),
+          type: Type.ERROR,
+        });
+      },
+    );
+  });
 }
 
 export function useFunctions() {
