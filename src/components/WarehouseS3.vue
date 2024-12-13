@@ -66,8 +66,7 @@
         v-model="warehouseObjectData['storage-profile'].region"
         :items="regions"
         label="Bucket Region"
-        placeholder="eu-central-1"
-        :rules="[rules.required]"></v-combobox>
+        placeholder="eu-central-1"></v-combobox>
 
       <v-row>
         <v-col cols="3">
@@ -97,7 +96,6 @@
           !warehouseObjectData['storage-credential']['aws-secret-access-key'] ||
           !warehouseObjectData['storage-profile'].bucket ||
           !warehouseObjectData['storage-profile'].region ||
-          !warehouseObjectData['storage-profile']['key-prefix'] ||
           (warehouseObjectData['storage-profile']['sts-enabled'] &&
             !warehouseObjectData['storage-profile']['sts-role-arn'])
         "
@@ -112,7 +110,6 @@
           !warehouseObjectData['storage-credential']['aws-secret-access-key'] ||
           !warehouseObjectData['storage-profile'].bucket ||
           !warehouseObjectData['storage-profile'].region ||
-          !warehouseObjectData['storage-profile']['key-prefix'] ||
           (warehouseObjectData['storage-profile']['sts-enabled'] &&
             !warehouseObjectData['storage-profile']['sts-role-arn'])
         "
