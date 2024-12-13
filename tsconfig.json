@@ -10,7 +10,7 @@
       "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
-    "types": ["vite/client", "vite-plugin-vue-layouts/client", "unplugin-vue-router/client"],
+    "types": ["vite/client", "vite-plugin-vue-layouts/client", "unplugin-vue-router/client", "jest", "selenium-webdriver"],
     "allowJs": true,
     "strict": true,
     "strictNullChecks": true,
