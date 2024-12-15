@@ -32,7 +32,7 @@
         <v-list-item prepend-icon="mdi-account-circle-outline" @click="goToUserProfile">
           <v-list-item-title>User Profile</v-list-item-title>
         </v-list-item>
-        <v-list-item prepend-icon="mdi-key-change" @click="getNewToken">
+        <v-list-item prepend-icon="mdi-key-change" @click="getNewToken" v-if="enabledAuthorization">
           <v-list-item-title>Create Token</v-list-item-title>
         </v-list-item>
 

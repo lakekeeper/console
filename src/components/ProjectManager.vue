@@ -21,7 +21,9 @@
       </v-toolbar>
       <v-tabs v-model="tab">
         <v-tab value="overview">overview</v-tab>
-        <v-tab v-if="canReadAssignments && enabledAuthorization" value="permissions">
+        <v-tab
+          v-if="canReadAssignments && enabledAuthorization && permissionEnabled"
+          value="permissions">
           Permissions
         </v-tab>
       </v-tabs>
@@ -72,7 +74,7 @@
         </v-tabs-window-item>
         <v-tabs-window-item v-if="canReadAssignments" value="permissions">
           <PermissionManager
-            v-if="loaded"
+            v-if="loaded && permissionEnabled"
             :assignable-obj="permissionObject"
             :existing-permissions-from-obj="existingAssignments"
             :relation-type="permissionType"
@@ -131,6 +133,10 @@ const project = computed(() => {
   return visual.projectSelected;
 });
 
+const permissionEnabled = computed(() => {
+  return visual.projectInfo['authz-backend'] != 'allow-all';
+});
+
 const permissionObject = reactive<any>({
   id: '',
   description: '',
@@ -139,11 +145,16 @@ const permissionObject = reactive<any>({
 
 async function init() {
   try {
+    console.log('init', visual.projectInfo['authz-backend']);
     permissionObject.id = project.value['project-id'];
     permissionObject.name = project.value['project-name'];
 
     myAccess.splice(0, myAccess.length);
-    Object.assign(myAccess, await functions.getProjectAccess());
+    if (visual.projectInfo['authz-backend'] !== 'allow-all') {
+      Object.assign(myAccess, await functions.getProjectAccess());
+    } else {
+      Object.assign(myAccess, []);
+    }
 
     canReadAssignments.value = !!myAccess.includes('read_assignments');
 
