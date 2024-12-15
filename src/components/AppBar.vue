@@ -6,7 +6,7 @@
 
     <v-app-bar-title>Lakekeeper</v-app-bar-title>
     <v-list-item>
-      <ProjectManager />
+      <ProjectManager v-if="userStorage.isAuthenticated" />
     </v-list-item>
     <v-spacer></v-spacer>
 
