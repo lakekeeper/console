@@ -345,7 +345,6 @@ async function listNamespaces() {
 
     // remove later not needed
 
-    // console.log(namespaceMap, namespaces);
     // if (namespaceMap) {
     //   for (const [_, value] of Object.entries(namespaceMap)) {
     //     namespaceId.value = value as string;

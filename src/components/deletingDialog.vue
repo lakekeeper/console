@@ -33,8 +33,11 @@ onMounted(() => {
 
 watch(
   () => deleting,
-  (oldVal: boolean, newVal: boolean) => {
+  (newVal: boolean) => {
     isDialogActive.value = newVal;
+  },
+  {
+    immediate: true,
   },
 );
 </script>

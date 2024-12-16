@@ -1676,7 +1676,7 @@ function copyToClipboard(text: string) {
         });
       },
       (err) => {
-        console.log('failed', err);
+        console.error('failed', err);
         const msg = `Failed to copy: ${err} ${t}`;
         visual.setSnackbarMsg({
           function: 'copyToClipboard',

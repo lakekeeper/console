@@ -450,7 +450,6 @@ async function addNamespace(namespace: string[]) {
 
 const dropNamespace = async (item: Item) => {
   try {
-    console.log('dropping namespace', item);
     const res = await functions.dropNamespace(
       params.value.id,
       item.parentPath.join(String.fromCharCode(0x1f)),

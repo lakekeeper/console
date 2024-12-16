@@ -137,7 +137,7 @@ async function listUser() {
   try {
     if (!canListUsers.value) return;
     users.splice(0, users.length);
-    console.log('server-settings', users);
+
     Object.assign(users, await functions.listUser());
   } catch (error) {
     console.error(error);
@@ -218,7 +218,7 @@ const projectInfo = computed(() => {
 async function renameUser(user: { name: string; id: string }) {
   try {
     status.value = StatusIntent.STARTING;
-    console.log('server-settings', user);
+
     await functions.updateUserById(user.name, user.id);
     await listUser();
     status.value = StatusIntent.SUCCESS;

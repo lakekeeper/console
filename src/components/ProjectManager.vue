@@ -19,6 +19,7 @@
 
         <v-spacer></v-spacer>
       </v-toolbar>
+
       <v-tabs v-model="tab">
         <v-tab value="overview">overview</v-tab>
         <v-tab
@@ -145,7 +146,6 @@ const permissionObject = reactive<any>({
 
 async function init() {
   try {
-    console.log('init', visual.projectInfo['authz-backend']);
     permissionObject.id = project.value['project-id'];
     permissionObject.name = project.value['project-name'];
 

@@ -179,7 +179,6 @@ function onClickFinish() {
 }
 
 function unsupportedWarehouseForTrino() {
-  console.log('unsupportedWarehouseForTrino');
   if (props.warehouse['storage-profile'].type === 's3') {
     compute.value = 'trino';
   } else {
