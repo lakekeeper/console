@@ -18,6 +18,7 @@ pub struct LakekeeperConsoleConfig {
     #[derivative(Default(value = "\"/logout\".to_string()"))]
     pub idp_post_logout_redirect_path: String,
     pub enable_authorization: bool,
+    pub enable_permissions: bool,
     pub app_iceberg_catalog_url: String,
 }
 
@@ -33,6 +34,7 @@ pub fn get_file(
         idp_resource,
         idp_post_logout_redirect_path,
         enable_authorization,
+        enable_permissions,
         app_iceberg_catalog_url,
     } = config;
 
@@ -57,7 +59,8 @@ pub fn get_file(
                 .replace(
                     "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
                     &app_iceberg_catalog_url,
-                );
+                )
+                .replace("VITE_ENABLE_PERMISSIONS_PLACEHOLDER", &enable_permissions);
 
             file.data = data.into_bytes().into();
             file
@@ -95,6 +98,7 @@ mod tests {
             idp_resource: "foo-bar-test".to_string(),
             idp_post_logout_redirect_path: "/logout-test".to_string(),
             enable_authorization: true,
+            enable_permissions: false,
             app_iceberg_catalog_url: "https://catalog.example.com".to_string(),
         };
         let files = LakekeeperConsole::iter().collect::<Vec<_>>();
