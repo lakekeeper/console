@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/lakekeeper/console/compare/v0.2.0...v0.3.0) (2024-12-17)
+
+
+### Features
+
+* Introduce VITE_ENABLE_PERMISSIONS, rename VITE_ENABLE_AUTHORIZATION ([#72](https://github.com/lakekeeper/console/issues/72)) ([a3af238](https://github.com/lakekeeper/console/commit/a3af238110dec9f27901a1a16c603003fc42c046))
+
+
+### Bug Fixes
+
+* aws key prefix is optional ([#65](https://github.com/lakekeeper/console/issues/65)) ([5683708](https://github.com/lakekeeper/console/commit/568370898e4580e6fb686dd40fd766a768c7026c))
+* UI by enabled authentication and disabled authorization ([#70](https://github.com/lakekeeper/console/issues/70)) ([d29d453](https://github.com/lakekeeper/console/commit/d29d453370217ea4d2d55de26b3e35f8a67a4b6b))
+
 ## [0.2.0](https://github.com/lakekeeper/console/compare/v0.1.0...v0.2.0) (2024-12-12)
 
 
