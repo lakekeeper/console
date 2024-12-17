@@ -27,7 +27,10 @@
         <v-tabs v-model="tab">
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
-          <v-tab v-if="enabledAuthorization" value="permissions" @click="loadTabData">
+          <v-tab
+            v-if="enabledAuthorization && permissionEnabled"
+            value="permissions"
+            @click="loadTabData">
             Permissions
           </v-tab>
         </v-tabs>
@@ -77,7 +80,7 @@
 <script lang="ts" setup>
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import { LoadTableResult, StructField } from '../../gen/iceberg/types.gen';
@@ -85,6 +88,7 @@ import { TableAction, TableAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 
 import { enabledAuthorization } from '@/app.config';
+import { useVisualStore } from '@/stores/visual';
 
 const functions = useFunctions();
 const route = useRoute();
@@ -103,7 +107,10 @@ const table = reactive<LoadTableResult>({
     'table-uuid': '',
   },
 });
-
+const visual = useVisualStore();
+const permissionEnabled = computed(() => {
+  return visual.projectInfo['authz-backend'] != 'allow-all';
+});
 const permissionType = ref<RelationType>('table');
 const permissionObject = reactive<any>({
   id: '',

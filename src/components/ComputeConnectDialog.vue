@@ -1,8 +1,9 @@
 <template>
-  <v-dialog v-model="isDialogActive" max-width="900" min-height="60vh">
+  <v-dialog v-model="isDialogActive" max-width="900">
     <template #activator="{ props: activatorProps }">
       <span class="text-subtitle-2" v-bind="activatorProps">Connect Compute</span>
     </template>
+
     <v-stepper-vertical>
       <template #default="{ step }">
         <v-stepper-vertical-item
@@ -75,7 +76,8 @@
           v-if="compute != ''"
           :title="`Connect Catalog  for ${compute}`"
           value="2"
-          @click:next="onClickFinish">
+          @click:next="onClickFinish"
+          style="max-height: 60vh; overflow-y: auto">
           <v-tabs v-model="tab">
             <v-tab value="human">human flow</v-tab>
             <v-tab value="machine">machine flow</v-tab>
@@ -85,7 +87,10 @@
             <v-tabs-window-item value="human">
               <v-card>
                 <v-card-text>
-                  <span class="text-h5">Token expires at {{ formatExpiresAt(expiresAt) }}</span>
+                  <span v-if="enabledAuthorization" class="text-h5">
+                    Token expires at {{ formatExpiresAt(expiresAt) }}
+                  </span>
+
                   <div style="display: flex; justify-content: flex-end">
                     <v-btn
                       icon="mdi-content-copy"
@@ -104,7 +109,7 @@
             <v-tabs-window-item value="machine">
               <v-card>
                 <v-card-text>
-                  <span class="text-h5">
+                  <span v-if="enabledAuthorization" class="text-h5">
                     Ask your Administrotor for Client Id and Client Secret
                   </span>
                   <div style="display: flex; justify-content: flex-end">
@@ -148,6 +153,7 @@ import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
 import { VCodeBlock } from '@wdns/vue-code-block';
 import { ref, watch } from 'vue';
+import { enabledAuthorization } from '@/app.config';
 
 const visuals = useVisualStore();
 const functions = useFunctions();
@@ -173,7 +179,6 @@ function onClickFinish() {
 }
 
 function unsupportedWarehouseForTrino() {
-  console.log('unsupportedWarehouseForTrino');
   if (props.warehouse['storage-profile'].type === 's3') {
     compute.value = 'trino';
   } else {
@@ -220,7 +225,9 @@ function formatExpiresAt(timestamp: number) {
 watch(
   () => compute.value,
   async (newValue) => {
-    const user = (await userFunctions.refreshToken()) as User;
+    const user = enabledAuthorization
+      ? ((await userFunctions.refreshToken()) as User)
+      : { access_token: '', token_expires_at: 0 };
     let tokenEndpoint = '';
     try {
       const response = await fetch(userFunctions.userManager.settings.metadataUrl);
@@ -259,12 +266,18 @@ config = {
     "spark.sql.catalog.${props.warehouse.name}.type": "rest",
     "spark.sql.catalog.${props.warehouse.name}.uri": "${icebergCatalogUrlSuffixed}",
     "spark.sql.catalog.${props.warehouse.name}.warehouse": "${props.warehouse.name}",
-    "spark.sql.catalog.${props.warehouse.name}.token": "${user.access_token}",
+    ${enabledAuthorization ? `"spark.sql.catalog.${props.warehouse.name}.token": "${user.access_token}",` : '##'}
     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
     "spark.jars.packages": f"""org.apache.iceberg:iceberg-spark-runtime-{SPARK_MINOR_VERSION}_2.12:{ICEBERG_VERSION},org.apache.iceberg:iceberg-azure-bundle:{ICEBERG_VERSION},org.apache.iceberg:iceberg-aws-bundle:{ICEBERG_VERSION},org.apache.iceberg:iceberg-gcp-bundle:{ICEBERG_VERSION}"""
 }
 
 ${suffix}`;
+
+      connectionStringHumanFlow.value = connectionStringHumanFlow.value
+        .split('\n')
+        .filter((line) => !line.includes('##'))
+        .join('\n')
+        .trim();
       connectionStringMachineFlow.value = `
 ${prefix}
 
@@ -277,7 +290,7 @@ conf = {
     "spark.sql.catalog.${props.warehouse.name}": "org.apache.iceberg.spark.SparkCatalog",
     "spark.sql.catalog.${props.warehouse.name}.type": "rest",
     "spark.sql.catalog.${props.warehouse.name}.uri": "${icebergCatalogUrlSuffixed}",
-    "spark.sql.catalog.${props.warehouse.name}.credential": f"{CLIENT_ID}:{CLIENT_SECRET}",
+    ${enabledAuthorization ? `"spark.sql.catalog.${props.warehouse.name}.credential": f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
     "spark.sql.catalog.${props.warehouse.name}.warehouse": "${props.warehouse.name}",
     "spark.sql.catalog.${props.warehouse.name}.scope": "lakekeeper",
     "spark.sql.catalog.${props.warehouse.name}.oauth2-server-uri": "${idpAuthority}",
@@ -285,6 +298,11 @@ conf = {
 
 ${suffix}
 `;
+      connectionStringMachineFlow.value = connectionStringMachineFlow.value
+        .split('\n')
+        .filter((line) => !line.includes('##'))
+        .join('\n')
+        .trim();
     } else if (newValue === 'python') {
       connectionStringHumanFlow.value = `
 from pyiceberg.catalog.rest import RestCatalog
@@ -293,8 +311,13 @@ catalog = RestCatalog(
     name="${props.warehouse.name}",
     warehouse="${props.warehouse.name}",
     uri="${icebergCatalogUrlSuffixed}",
-    token="${user.access_token}",
+    ${enabledAuthorization ? `token="${user.access_token}",` : '##'}
 )`;
+      connectionStringHumanFlow.value = connectionStringHumanFlow.value
+        .split('\n')
+        .filter((line) => !line.includes('##'))
+        .join('\n')
+        .trim();
       connectionStringMachineFlow.value = `
 from pyiceberg.catalog.rest import RestCatalog
 
@@ -305,16 +328,20 @@ catalog = RestCatalog(
     name="${props.warehouse.name}",
     warehouse="${props.warehouse.name}",
     uri="${icebergCatalogUrlSuffixed}",
-    credential=f"{CLIENT_ID}:{CLIENT_SECRET}",
+    ${enabledAuthorization ? `credential=f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
     **{"rest.authorization-url": "${tokenEndpoint}", "scope": "lakekeeper"},
 )`;
+      connectionStringMachineFlow.value = connectionStringMachineFlow.value
+        .split('\n')
+        .filter((line) => !line.includes('##'))
+        .join('\n')
+        .trim();
     } else if (newValue === 'trino') {
       const storageDetails = props.warehouse['storage-profile'];
       let extraOpts = '';
       if (storageDetails.type === 's3') {
         let s3Details = storageDetails as S3Profile;
-        extraOpts = `,
-"fs.native-s3.enabled" = 'true',
+        extraOpts = `"fs.native-s3.enabled" = 'true',
 "s3.region" = '${s3Details.region || 'dummy'}'`;
         if (s3Details['path-style-access']) {
           extraOpts += `,
@@ -327,8 +354,7 @@ catalog = RestCatalog(
 `;
         }
       } else if (storageDetails.type === 'adls') {
-        extraOpts = `,
-"fs.native-azure.enabled" = 'true'`;
+        extraOpts = `"fs.native-azure.enabled" = 'true'`;
         visuals.setSnackbarMsg({
           text: "Adls will probably not work with Trino. We're on it.",
           ttl: 5000,
@@ -336,8 +362,7 @@ catalog = RestCatalog(
           ts: Date.now(),
         });
       } else if (storageDetails.type === 'gcs') {
-        extraOpts = `,
-fs.native-gcs.enabled = 'true'
+        extraOpts = `fs.native-gcs.enabled = 'true'
 `;
         visuals.setSnackbarMsg({
           text: "GCS will probably not work with Trino. We're on it.",
@@ -366,7 +391,8 @@ WITH (
 "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected['project-id']}/${props.warehouse.name}',
 "iceberg.rest-catalog.security" = 'OAUTH2',
 "iceberg.rest-catalog.vended-credentials-enabled" = 'true',
-"iceberg.rest-catalog.oauth2.token" = '${accessToken.value}'${extraOpts})
+${enabledAuthorization ? `"iceberg.rest-catalog.oauth2.token" = '${accessToken.value}',` : '##'}
+${extraOpts})
 """)
 
 conn = connect(
@@ -374,6 +400,12 @@ conn = connect(
     user="trino",
     catalog="${props.warehouse.name}",
 )`;
+
+      connectionStringHumanFlow.value = connectionStringHumanFlow.value
+        .split('\n')
+        .filter((line) => !line.includes('##'))
+        .join('\n')
+        .trim();
 
       connectionStringMachineFlow.value = `
 from trino.dbapi import connect
@@ -396,7 +428,7 @@ WITH (
 "iceberg.rest-catalog.uri" = '${env.icebergCatalogUrlSuffixed}',
 "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected['project-id']}/${props.warehouse.name}',
 "iceberg.rest-catalog.security" = 'OAUTH2',
-"iceberg.rest-catalog.oauth2.credential" = '{CLIENT_ID}:{CLIENT_SECRET}',
+${enabledAuthorization ? `"iceberg.rest-catalog.oauth2.credential" = '{CLIENT_ID}:{CLIENT_SECRET}',` : '##'}
 "iceberg.rest-catalog.vended-credentials-enabled" = 'true',
 "iceberg.rest-catalog.oauth2.scope" = 'lakekeeper',
 "iceberg.rest-catalog.oauth2.server-uri" = '${tokenEndpoint}'${extraOpts})
@@ -408,6 +440,10 @@ conn = connect(
     catalog="${props.warehouse.name}",
 )
 `;
+      connectionStringMachineFlow.value = connectionStringMachineFlow.value
+        .split('\n')
+        .filter((line) => !line.includes('##'))
+        .join('\n');
     }
   },
 );

@@ -179,6 +179,7 @@ const deleteWarehouse = async (id: string) => {
 
     await functions.deleteWarehouse(id);
     whResponse.splice(0, whResponse.length);
+
     await listWarhouse();
 
     deleting.value = false;

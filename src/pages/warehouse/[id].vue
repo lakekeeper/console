@@ -43,7 +43,7 @@
         <v-tabs v-model="tab" density="compact">
           <v-tab density="compact" value="namespaces" @click="loadTabData">namespaces</v-tab>
           <v-tab
-            v-if="canReadPermissions && enabledAuthorization"
+            v-if="canReadPermissions && enabledAuthorization && permissionEnabled"
             density="compact"
             value="permissions"
             @click="loadTabData">
@@ -375,7 +375,9 @@ const relationId = ref('');
 const canReadPermissions = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
-
+const permissionEnabled = computed(() => {
+  return visual.projectInfo['authz-backend'] != 'allow-all';
+});
 const processStatus = ref('starting');
 
 const permissionObject = reactive<any>({
@@ -448,7 +450,6 @@ async function addNamespace(namespace: string[]) {
 
 const dropNamespace = async (item: Item) => {
   try {
-    console.log('dropping namespace', item);
     const res = await functions.dropNamespace(
       params.value.id,
       item.parentPath.join(String.fromCharCode(0x1f)),

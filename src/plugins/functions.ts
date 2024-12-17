@@ -763,7 +763,10 @@ async function undropTabular(warehouseId: string, id: string, type: 'table' | 'v
 // Assignments
 async function getWarehouseAssignmentsById(warehouseId: string): Promise<WarehouseAssignment[]> {
   try {
-    if (!env.enabledAuthorization) return [];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return [];
     init();
 
     const client = mng.client;
@@ -839,7 +842,10 @@ async function setWarehouseManagedAccess(
 
 async function getRoleAssignmentsById(roleId: string): Promise<RoleAssignment[]> {
   try {
-    if (!env.enabledAuthorization) return [];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return [];
 
     init();
 
@@ -890,7 +896,10 @@ async function updateRoleAssignmentsById(
 
 async function getServerAssignments(): Promise<ServerAssignment[]> {
   try {
-    if (!env.enabledAuthorization) return [];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return [];
 
     init();
 
@@ -934,7 +943,10 @@ async function updateServerAssignments(
 
 async function getProjectAssignments(): Promise<ProjectAssignment[]> {
   try {
-    if (!env.enabledAuthorization) return [];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return [];
 
     init();
 
@@ -978,7 +990,10 @@ async function updateProjectAssignments(
 
 async function getNamespaceAssignmentsById(namespaceId: string): Promise<NamespaceAssignment[]> {
   try {
-    if (!env.enabledAuthorization) return [];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return [];
 
     init();
 
@@ -1055,7 +1070,10 @@ async function setNamespaceManagedAccess(
 
 async function getTableAssignmentsById(tableId: string): Promise<TableAssignment[]> {
   try {
-    if (!env.enabledAuthorization) return [];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return [];
 
     init();
 
@@ -1106,7 +1124,10 @@ async function updateTableAssignmentsById(
 
 async function getViewAssignmentsById(viewId: string): Promise<ViewAssignment[]> {
   try {
-    if (!env.enabledAuthorization) return [];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return [];
 
     init();
 
@@ -1447,7 +1468,11 @@ async function deleteRole(roleId: string): Promise<boolean> {
 
 async function getServerAccess(): Promise<ServerAction[]> {
   try {
-    if (!env.enabledAuthorization) return globals.serverActions as ServerAction[];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return globals.serverActions as ServerAction[];
+
     init();
 
     const client = mng.client;
@@ -1469,7 +1494,10 @@ async function getServerAccess(): Promise<ServerAction[]> {
 
 async function getProjectAccess(): Promise<ProjectAction[]> {
   try {
-    if (!env.enabledAuthorization) return globals.projectActions as ProjectAction[];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return globals.projectActions as ProjectAction[];
     init();
 
     const client = mng.client;
@@ -1491,7 +1519,10 @@ async function getProjectAccess(): Promise<ProjectAction[]> {
 
 async function getWarehouseAccessById(warehouseId: string): Promise<WarehouseAction[]> {
   try {
-    if (!env.enabledAuthorization) return globals.warehouseActions as WarehouseAction[];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return globals.warehouseActions as WarehouseAction[];
     init();
 
     const client = mng.client;
@@ -1515,7 +1546,10 @@ async function getWarehouseAccessById(warehouseId: string): Promise<WarehouseAct
 }
 async function getNamespaceAccessById(namespaceId: string): Promise<NamespaceAction[]> {
   try {
-    if (!env.enabledAuthorization) return globals.namespaceActions as NamespaceAction[];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return globals.namespaceActions as NamespaceAction[];
     init();
 
     const client = mng.client;
@@ -1540,7 +1574,10 @@ async function getNamespaceAccessById(namespaceId: string): Promise<NamespaceAct
 
 async function getTableAccessById(tableId: string): Promise<TableAction[]> {
   try {
-    if (!env.enabledAuthorization) return globals.tableActions as TableAction[];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return globals.tableActions as TableAction[];
 
     init();
 
@@ -1566,7 +1603,10 @@ async function getTableAccessById(tableId: string): Promise<TableAction[]> {
 
 async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
   try {
-    if (!env.enabledAuthorization) return globals.viewActions as ViewAction[];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return globals.viewActions as ViewAction[];
     init();
 
     const client = mng.client;
@@ -1591,7 +1631,10 @@ async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
 
 async function getRoleAccessById(roleId: string): Promise<RoleAction[]> {
   try {
-    if (!env.enabledAuthorization) return globals.roleActions as RoleAction[];
+    const visual = useVisualStore();
+    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthorization || authOff) return globals.roleActions as RoleAction[];
     init();
 
     const client = mng.client;
@@ -1633,7 +1676,7 @@ function copyToClipboard(text: string) {
         });
       },
       (err) => {
-        console.log('failed', err);
+        console.error('failed', err);
         const msg = `Failed to copy: ${err} ${t}`;
         visual.setSnackbarMsg({
           function: 'copyToClipboard',
