@@ -39,6 +39,7 @@ async function init() {
     await functions.createUser();
 
     const data = await functions.getServerInfo();
+
     if (!data.bootstrapped) {
       router.push('/bootstrap');
     }

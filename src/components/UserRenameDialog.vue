@@ -56,7 +56,6 @@ function cancelRoleInput() {
 }
 
 onMounted(() => {
-  console.log(props.name);
   newName.value = props.name;
 });
 
