@@ -28,7 +28,7 @@
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab
-            v-if="enabledAuthorization && permissionEnabled"
+            v-if="enabledAuthorization && enabledPermissions"
             value="permissions"
             @click="loadTabData">
             Permissions
@@ -74,7 +74,7 @@ import { LoadViewResult } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 
-import { enabledAuthorization } from '@/app.config';
+import { enabledAuthorization, enabledPermissions } from '@/app.config';
 import { useVisualStore } from '@/stores/visual';
 
 const functions = useFunctions();
@@ -116,9 +116,6 @@ const canReadPermissions = ref(false);
 
 const currentVersionId = ref(0);
 const sqlStatement = ref('');
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
-});
 async function loadTabData() {
   await init();
 }

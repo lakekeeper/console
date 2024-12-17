@@ -1,7 +1,7 @@
 <template>
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
-    <v-tab v-if="enabledAuthorization && permissionEnabled" value="permissions">Permissions</v-tab>
+    <v-tab v-if="enabledAuthorization && enabledPermissions" value="permissions">Permissions</v-tab>
   </v-tabs>
 
   <v-card>
@@ -56,7 +56,7 @@ import { useRoute } from 'vue-router';
 import { RoleAssignment } from '../../gen/management/types.gen';
 import { useFunctions } from '../../plugins/functions';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
-import { enabledAuthorization } from '@/app.config';
+import { enabledAuthorization, enabledPermissions } from '@/app.config';
 import { useVisualStore } from '@/stores/visual';
 
 const functions = useFunctions();
@@ -84,9 +84,6 @@ onMounted(async () => {
 });
 
 const rolePermissions = reactive<RoleAssignment[]>([]);
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
-});
 async function init() {
   rolePermissions.splice(0, rolePermissions.length);
   permissions.splice(0, permissions.length);

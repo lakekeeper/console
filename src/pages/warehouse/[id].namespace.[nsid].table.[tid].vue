@@ -28,7 +28,7 @@
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab
-            v-if="enabledAuthorization && permissionEnabled"
+            v-if="enabledAuthorization && enabledPermissions"
             value="permissions"
             @click="loadTabData">
             Permissions
@@ -87,7 +87,7 @@ import { LoadTableResult, StructField } from '../../gen/iceberg/types.gen';
 import { TableAction, TableAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 
-import { enabledAuthorization } from '@/app.config';
+import { enabledAuthorization, enabledPermissions } from '@/app.config';
 import { useVisualStore } from '@/stores/visual';
 
 const functions = useFunctions();
@@ -108,9 +108,6 @@ const table = reactive<LoadTableResult>({
   },
 });
 const visual = useVisualStore();
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
-});
 const permissionType = ref<RelationType>('table');
 const permissionObject = reactive<any>({
   id: '',
