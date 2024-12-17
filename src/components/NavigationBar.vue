@@ -54,7 +54,7 @@ import { ref } from 'vue';
 import { useVisualStore } from '../stores/visual';
 
 import router from '../router';
-import { enabledAuthorization, enabledPermissions } from '../app.config';
+import { enabledAuthentication, enabledPermissions } from '../app.config';
 import { Type } from '../common/interfaces';
 
 const visual = useVisualStore();
@@ -62,7 +62,7 @@ const snackbarVisible = ref(false);
 const isDialogActive = ref(false);
 
 function routeToRoles() {
-  if (enabledAuthorization && enabledPermissions) {
+  if (enabledAuthentication && enabledPermissions) {
     router.push('/roles');
   } else {
     visual.setSnackbarMsg({

@@ -28,7 +28,7 @@
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab
-            v-if="enabledAuthorization && enabledPermissions"
+            v-if="enabledAuthentication && enabledPermissions"
             value="permissions"
             @click="loadTabData">
             Permissions
@@ -74,7 +74,7 @@ import { LoadViewResult } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 
-import { enabledAuthorization, enabledPermissions } from '@/app.config';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 const functions = useFunctions();
 const route = useRoute();

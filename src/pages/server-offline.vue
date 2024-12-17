@@ -33,7 +33,7 @@ async function chekServerStatus() {
 }
 
 onMounted(async () => {
-  // if (enabledAuthorization) auth.initUser(); // Initialize the user on mount
+  // if (enabledAuthentication) auth.initUser(); // Initialize the user on mount
 
   visual.showAppOrNavBar = false;
 });

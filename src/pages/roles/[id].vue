@@ -1,7 +1,7 @@
 <template>
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
-    <v-tab v-if="enabledAuthorization && enabledPermissions" value="permissions">Permissions</v-tab>
+    <v-tab v-if="enabledAuthentication && enabledPermissions" value="permissions">Permissions</v-tab>
   </v-tabs>
 
   <v-card>
@@ -56,7 +56,7 @@ import { useRoute } from 'vue-router';
 import { RoleAssignment } from '../../gen/management/types.gen';
 import { useFunctions } from '../../plugins/functions';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
-import { enabledAuthorization, enabledPermissions } from '@/app.config';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 const functions = useFunctions();
 const route = useRoute();

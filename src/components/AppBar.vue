@@ -32,7 +32,7 @@
         <v-list-item prepend-icon="mdi-account-circle-outline" @click="goToUserProfile">
           <v-list-item-title>User Profile</v-list-item-title>
         </v-list-item>
-        <v-list-item prepend-icon="mdi-key-change" @click="getNewToken" v-if="enabledAuthorization">
+        <v-list-item prepend-icon="mdi-key-change" @click="getNewToken" v-if="enabledAuthentication">
           <v-list-item-title>Create Token</v-list-item-title>
         </v-list-item>
 
@@ -47,7 +47,7 @@
       </v-list>
     </v-menu>
 
-    <v-menu v-if="!enabledAuthorization" open-on-hover>
+    <v-menu v-if="!enabledAuthentication" open-on-hover>
       <template #activator="{ props }">
         <v-btn v-bind="props"><v-icon>mdi-account</v-icon></v-btn>
       </template>
@@ -74,7 +74,7 @@ import { computed, onMounted } from 'vue';
 import { useTheme } from 'vuetify';
 import { useAuth } from '../plugins/auth';
 import { useVisualStore } from '../stores/visual';
-import { enabledAuthorization } from '../app.config';
+import { enabledAuthentication } from '../app.config';
 import { useUserStore } from '../stores/user';
 import { useFunctions } from '@/plugins/functions';
 

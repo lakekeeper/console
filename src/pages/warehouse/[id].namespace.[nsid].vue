@@ -41,7 +41,7 @@
           <v-tab value="views" @click="loadTabData">views</v-tab>
           <v-tab value="deleted" @click="loadTabData">deleted</v-tab>
           <v-tab
-            v-if="canReadPermissions && enabledAuthorization && enabledPermissions"
+            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
             value="permissions">
             Permissions
           </v-tab>
@@ -209,7 +209,7 @@ import {
 } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { enabledAuthorization, enabledPermissions } from '@/app.config';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 
 const visual = useVisualStore();

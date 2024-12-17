@@ -44,7 +44,7 @@ router.beforeEach((to, from, next) => {
     return next();
   }
 
-  if (env.enabledAuthorization) {
+  if (env.enabledAuthentication) {
     // Check if the user is authenticated and project bootstrap is not done
 
     if (
@@ -68,7 +68,7 @@ router.beforeEach((to, from, next) => {
     // Allow access if authenticated and not redirected
     next();
   } else {
-    // For cases where enabledAuthorization is false
+    // For cases where enabledAuthentication is false
 
     if (!visual.projectInfo.bootstrapped && to.path !== '/bootstrap') {
       return next('/bootstrap');

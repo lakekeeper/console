@@ -23,7 +23,7 @@
       <v-tabs v-model="tab">
         <v-tab value="overview">overview</v-tab>
         <v-tab
-          v-if="canReadAssignments && enabledAuthorization && enabledPermissions"
+          v-if="canReadAssignments && enabledAuthentication && enabledPermissions"
           value="permissions">
           Permissions
         </v-tab>
@@ -89,7 +89,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, reactive, computed } from 'vue';
 import { useVisualStore } from '../stores/visual';
-import { enabledAuthorization, enabledPermissions } from '../app.config';
+import { enabledAuthentication, enabledPermissions } from '../app.config';
 
 import { useFunctions } from '../plugins/functions';
 import {

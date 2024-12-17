@@ -87,7 +87,7 @@
             <v-tabs-window-item value="human">
               <v-card>
                 <v-card-text>
-                  <span v-if="enabledAuthorization" class="text-h5">
+                  <span v-if="enabledAuthentication" class="text-h5">
                     Token expires at {{ formatExpiresAt(expiresAt) }}
                   </span>
 
@@ -109,7 +109,7 @@
             <v-tabs-window-item value="machine">
               <v-card>
                 <v-card-text>
-                  <span v-if="enabledAuthorization" class="text-h5">
+                  <span v-if="enabledAuthentication" class="text-h5">
                     Ask your Administrotor for Client Id and Client Secret
                   </span>
                   <div style="display: flex; justify-content: flex-end">
@@ -153,7 +153,7 @@ import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
 import { VCodeBlock } from '@wdns/vue-code-block';
 import { ref, watch } from 'vue';
-import { enabledAuthorization } from '@/app.config';
+import { enabledAuthentication } from '@/app.config';
 
 const visuals = useVisualStore();
 const functions = useFunctions();
@@ -225,7 +225,7 @@ function formatExpiresAt(timestamp: number) {
 watch(
   () => compute.value,
   async (newValue) => {
-    const user = enabledAuthorization
+    const user = enabledAuthentication
       ? ((await userFunctions.refreshToken()) as User)
       : { access_token: '', token_expires_at: 0 };
     let tokenEndpoint = '';
@@ -266,7 +266,7 @@ config = {
     "spark.sql.catalog.${props.warehouse.name}.type": "rest",
     "spark.sql.catalog.${props.warehouse.name}.uri": "${icebergCatalogUrlSuffixed}",
     "spark.sql.catalog.${props.warehouse.name}.warehouse": "${props.warehouse.name}",
-    ${enabledAuthorization ? `"spark.sql.catalog.${props.warehouse.name}.token": "${user.access_token}",` : '##'}
+    ${enabledAuthentication ? `"spark.sql.catalog.${props.warehouse.name}.token": "${user.access_token}",` : '##'}
     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
     "spark.jars.packages": f"""org.apache.iceberg:iceberg-spark-runtime-{SPARK_MINOR_VERSION}_2.12:{ICEBERG_VERSION},org.apache.iceberg:iceberg-azure-bundle:{ICEBERG_VERSION},org.apache.iceberg:iceberg-aws-bundle:{ICEBERG_VERSION},org.apache.iceberg:iceberg-gcp-bundle:{ICEBERG_VERSION}"""
 }
@@ -290,7 +290,7 @@ conf = {
     "spark.sql.catalog.${props.warehouse.name}": "org.apache.iceberg.spark.SparkCatalog",
     "spark.sql.catalog.${props.warehouse.name}.type": "rest",
     "spark.sql.catalog.${props.warehouse.name}.uri": "${icebergCatalogUrlSuffixed}",
-    ${enabledAuthorization ? `"spark.sql.catalog.${props.warehouse.name}.credential": f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
+    ${enabledAuthentication ? `"spark.sql.catalog.${props.warehouse.name}.credential": f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
     "spark.sql.catalog.${props.warehouse.name}.warehouse": "${props.warehouse.name}",
     "spark.sql.catalog.${props.warehouse.name}.scope": "lakekeeper",
     "spark.sql.catalog.${props.warehouse.name}.oauth2-server-uri": "${idpAuthority}",
@@ -311,7 +311,7 @@ catalog = RestCatalog(
     name="${props.warehouse.name}",
     warehouse="${props.warehouse.name}",
     uri="${icebergCatalogUrlSuffixed}",
-    ${enabledAuthorization ? `token="${user.access_token}",` : '##'}
+    ${enabledAuthentication ? `token="${user.access_token}",` : '##'}
 )`;
       connectionStringHumanFlow.value = connectionStringHumanFlow.value
         .split('\n')
@@ -328,7 +328,7 @@ catalog = RestCatalog(
     name="${props.warehouse.name}",
     warehouse="${props.warehouse.name}",
     uri="${icebergCatalogUrlSuffixed}",
-    ${enabledAuthorization ? `credential=f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
+    ${enabledAuthentication ? `credential=f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
     **{"rest.authorization-url": "${tokenEndpoint}", "scope": "lakekeeper"},
 )`;
       connectionStringMachineFlow.value = connectionStringMachineFlow.value
@@ -391,7 +391,7 @@ WITH (
 "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected['project-id']}/${props.warehouse.name}',
 "iceberg.rest-catalog.security" = 'OAUTH2',
 "iceberg.rest-catalog.vended-credentials-enabled" = 'true',
-${enabledAuthorization ? `"iceberg.rest-catalog.oauth2.token" = '${accessToken.value}',` : '##'}
+${enabledAuthentication ? `"iceberg.rest-catalog.oauth2.token" = '${accessToken.value}',` : '##'}
 ${extraOpts})
 """)
 
@@ -428,7 +428,7 @@ WITH (
 "iceberg.rest-catalog.uri" = '${env.icebergCatalogUrlSuffixed}',
 "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected['project-id']}/${props.warehouse.name}',
 "iceberg.rest-catalog.security" = 'OAUTH2',
-${enabledAuthorization ? `"iceberg.rest-catalog.oauth2.credential" = '{CLIENT_ID}:{CLIENT_SECRET}',` : '##'}
+${enabledAuthentication ? `"iceberg.rest-catalog.oauth2.credential" = '{CLIENT_ID}:{CLIENT_SECRET}',` : '##'}
 "iceberg.rest-catalog.vended-credentials-enabled" = 'true',
 "iceberg.rest-catalog.oauth2.scope" = 'lakekeeper',
 "iceberg.rest-catalog.oauth2.server-uri" = '${tokenEndpoint}'${extraOpts})

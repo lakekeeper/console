@@ -43,7 +43,7 @@
         <v-tabs v-model="tab" density="compact">
           <v-tab density="compact" value="namespaces" @click="loadTabData">namespaces</v-tab>
           <v-tab
-            v-if="canReadPermissions && enabledAuthorization && enabledPermissions"
+            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
             density="compact"
             value="permissions"
             @click="loadTabData">
@@ -328,7 +328,7 @@ import {
   WarehouseAssignment,
 } from '@/gen/management/types.gen';
 
-import { enabledAuthorization, enabledPermissions } from '@/app.config';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 const route = useRoute();
