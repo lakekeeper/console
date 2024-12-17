@@ -41,7 +41,7 @@
           <v-tab value="views" @click="loadTabData">views</v-tab>
           <v-tab value="deleted" @click="loadTabData">deleted</v-tab>
           <v-tab
-            v-if="canReadPermissions && enabledAuthorization && permissionEnabled"
+            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
             value="permissions">
             Permissions
           </v-tab>
@@ -209,7 +209,7 @@ import {
 } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import { enabledAuthorization } from '@/app.config';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 
 const visual = useVisualStore();
@@ -224,9 +224,6 @@ const permissionType = ref<RelationType>('namespace');
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
 // const namespaceId = ref<string>("");
 
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
-});
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },

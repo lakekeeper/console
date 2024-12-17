@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import { enabledAuthorization } from '@/app.config';
+import { enabledAuthentication } from '@/app.config';
 import router from '@/router';
 import { useVisualStore } from '@/stores/visual';
 import { useFunctions } from '@/plugins/functions';
@@ -19,7 +19,7 @@ const visual = useVisualStore();
 
 onMounted(async () => {
   try {
-    if (!enabledAuthorization) {
+    if (!enabledAuthentication) {
       const serverInfo = await functions.getServerInfo();
 
       if (!serverInfo.bootstrapped) router.push('/bootstrap');

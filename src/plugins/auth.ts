@@ -84,7 +84,7 @@ async function refreshToken(): Promise<User | undefined> {
 
 const checkTokenExpiry = async () => {
   try {
-    if (useUserStore().isAuthenticated && env.enabledAuthorization) {
+    if (useUserStore().isAuthenticated && env.enabledAuthentication) {
       const user = useUserStore().getUser();
       const now = Math.floor(Date.now() / 1000); // Convert to seconds
       const timeLeft = user.token_expires_at - now;
@@ -127,7 +127,7 @@ export function useAuth() {
 // Vue Plugin Installation Function
 export default {
   install: (app: App) => {
-    if (env.enabledAuthorization) {
+    if (env.enabledAuthentication) {
       const auth = useAuth();
       app.provide('auth', auth);
       app.config.globalProperties.$auth = auth;

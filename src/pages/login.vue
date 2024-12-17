@@ -13,18 +13,18 @@
 <script lang="ts" setup>
 import { onUnmounted } from 'vue';
 import { useAuth } from '../plugins/auth';
-import { enabledAuthorization } from '../app.config';
+import { enabledAuthentication } from '../app.config';
 import { onMounted } from 'vue';
 import { useVisualStore } from '../stores/visual';
 const visual = useVisualStore();
 const auth = useAuth();
 
 function login() {
-  if (enabledAuthorization) auth.initUser();
+  if (enabledAuthentication) auth.initUser();
 }
 
 onMounted(() => {
-  // if (enabledAuthorization) auth.initUser(); // Initialize the user on mount
+  // if (enabledAuthentication) auth.initUser(); // Initialize the user on mount
   visual.showAppOrNavBar = false;
 });
 onUnmounted(() => {

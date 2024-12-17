@@ -28,7 +28,7 @@
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab
-            v-if="enabledAuthorization && permissionEnabled"
+            v-if="enabledAuthentication && enabledPermissions"
             value="permissions"
             @click="loadTabData">
             Permissions
@@ -67,22 +67,20 @@
 <script lang="ts" setup>
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
-import { onMounted, reactive, ref, computed } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import { LoadViewResult } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 
-import { enabledAuthorization } from '@/app.config';
-import { useVisualStore } from '@/stores/visual';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 const functions = useFunctions();
 const route = useRoute();
 const tab = ref('overview');
 const crumbPath = ref('');
 const loading = ref(true);
-const visual = useVisualStore();
 
 const myAccess = reactive<TableAction[]>([]);
 
@@ -116,9 +114,6 @@ const canReadPermissions = ref(false);
 
 const currentVersionId = ref(0);
 const sqlStatement = ref('');
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
-});
 async function loadTabData() {
   await init();
 }
