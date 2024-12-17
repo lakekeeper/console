@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { Project, SnackbarMsg, Type } from '@/common/interfaces';
 import { ServerInfo } from '@/gen//management/types.gen';
+import { enabledPermissions } from '@/app.config';
 
 export const useVisualStore = defineStore(
   'visual',
@@ -13,12 +14,12 @@ export const useVisualStore = defineStore(
     const whId = ref('');
     const wahrehouseName = ref('');
     const namespacePath = ref('');
-    const projectInfo = reactive<ServerInfo>({
+    const serverInfo = reactive<ServerInfo>({
       version: '0.0.0',
       bootstrapped: true,
       'server-id': '00000000-0000-0000-0000-000000000000',
       'default-project-id': '00000000-0000-0000-0000-000000000000',
-      'authz-backend': 'allow-all',
+      'authz-backend': `${enabledPermissions ? 'openfga' : 'allow-all'}`,
     });
 
     const projectSelected = reactive<Project>({
@@ -47,11 +48,14 @@ export const useVisualStore = defineStore(
       navBarShow.value = !navBarShow.value;
     }
 
-    function setProjectCatalog(projectCatalog: ServerInfo) {
-      Object.assign(projectInfo, projectCatalog);
+    function setServerInfo(serverInfoInput: ServerInfo) {
+      serverInfo['authz-backend'] =
+        `${enabledPermissions ? serverInfoInput['authz-backend'] : 'allow-all'}`;
+      Object.assign(serverInfo, serverInfoInput);
     }
-    function setProject(p: Project) {
-      Object.assign(projectInfo, p);
+
+    function getServerInfo() {
+      return serverInfo;
     }
 
     function setProjectList(p: Project[]) {
@@ -74,7 +78,6 @@ export const useVisualStore = defineStore(
       namespacePath,
       themeLight,
       navBarShow,
-      projectInfo,
       projectList,
       projectSelected,
       snackbarMsg,
@@ -82,8 +85,8 @@ export const useVisualStore = defineStore(
       toggleThemeLight,
       setProjectList,
       navBarSwitch,
-      setProjectCatalog,
-      setProject,
+      setServerInfo,
+      getServerInfo,
       setSnackbarMsg,
       getSnackbarMsg,
     };
