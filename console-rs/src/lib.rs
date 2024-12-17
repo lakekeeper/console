@@ -60,7 +60,10 @@ pub fn get_file(
                     "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
                     &app_iceberg_catalog_url,
                 )
-                .replace("VITE_ENABLE_PERMISSIONS_PLACEHOLDER", &enable_permissions);
+                .replace(
+                    "VITE_ENABLE_PERMISSIONS_PLACEHOLDER",
+                    &enable_permissions.to_string(),
+                );
 
             file.data = data.into_bytes().into();
             file
