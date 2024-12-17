@@ -1,7 +1,9 @@
 <template>
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
-    <v-tab v-if="enabledAuthentication && enabledPermissions" value="permissions">Permissions</v-tab>
+    <v-tab v-if="enabledAuthentication && enabledPermissions" value="permissions">
+      Permissions
+    </v-tab>
   </v-tabs>
 
   <v-card>
