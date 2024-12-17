@@ -2,11 +2,11 @@
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
     <v-tab
-      v-if="canReadAssignments && enabledAuthorization && permissionEnabled"
+      v-if="canReadAssignments && enabledAuthentication && enabledPermissions"
       value="permissions">
       Permissions
     </v-tab>
-    <v-tab v-if="canListUsers && enabledAuthorization" value="users">users</v-tab>
+    <v-tab v-if="canListUsers && enabledAuthentication" value="users">users</v-tab>
   </v-tabs>
   <v-row>
     <v-col cols="10">
@@ -27,18 +27,18 @@
           </v-card>
         </v-tabs-window-item>
         <v-tabs-window-item
-          v-if="canReadAssignments && enabledAuthorization && permissionEnabled"
+          v-if="canReadAssignments && enabledAuthentication && enabledPermissions"
           value="permissions">
           <v-card>
             <PermissionManager
-              v-if="loaded && permissionEnabled"
+              v-if="loaded && enabledPermissions"
               :assignable-obj="permissionObject"
               :existing-permissions-from-obj="existingAssignments"
               :relation-type="permissionType"
               @permissions="assign" />
           </v-card>
         </v-tabs-window-item>
-        <v-tabs-window-item v-if="canListUsers && enabledAuthorization" value="users">
+        <v-tabs-window-item v-if="canListUsers && enabledAuthentication" value="users">
           <v-card>
             <v-row v-if="users.length === 0" justify="center">
               <v-progress-circular
@@ -67,7 +67,7 @@ import { useFunctions } from '@/plugins/functions';
 import { computed, onMounted, reactive, ref } from 'vue';
 import { ServerAction, ServerAssignment, User } from '@/gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '@/common/interfaces';
-import { enabledAuthorization } from '@/app.config';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 
 const tab = ref('overview');
@@ -93,9 +93,6 @@ const canProvisionUsers = ref(false);
 const canUpdateUsers = ref(false);
 
 const users = reactive<User[]>([]);
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
-});
 const assignments = reactive<
   { id: string; name: string; email: string; type: string; kind: string }[]
 >([]);

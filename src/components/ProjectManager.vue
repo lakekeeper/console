@@ -23,7 +23,7 @@
       <v-tabs v-model="tab">
         <v-tab value="overview">overview</v-tab>
         <v-tab
-          v-if="canReadAssignments && enabledAuthorization && permissionEnabled"
+          v-if="canReadAssignments && enabledAuthentication && enabledPermissions"
           value="permissions">
           Permissions
         </v-tab>
@@ -75,7 +75,7 @@
         </v-tabs-window-item>
         <v-tabs-window-item v-if="canReadAssignments" value="permissions">
           <PermissionManager
-            v-if="loaded && permissionEnabled"
+            v-if="loaded && enabledPermissions"
             :assignable-obj="permissionObject"
             :existing-permissions-from-obj="existingAssignments"
             :relation-type="permissionType"
@@ -89,7 +89,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, reactive, computed } from 'vue';
 import { useVisualStore } from '../stores/visual';
-import { enabledAuthorization } from '../app.config';
+import { enabledAuthentication, enabledPermissions } from '../app.config';
 
 import { useFunctions } from '../plugins/functions';
 import {
@@ -132,10 +132,6 @@ const availableProjects = reactive<(GetProjectResponse & { actions: string[]; in
 
 const project = computed(() => {
   return visual.projectSelected;
-});
-
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
 });
 
 const permissionObject = reactive<any>({

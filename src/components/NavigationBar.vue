@@ -50,22 +50,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useVisualStore } from '../stores/visual';
 
 import router from '../router';
-import { enabledAuthorization } from '../app.config';
+import { enabledAuthentication, enabledPermissions } from '../app.config';
 import { Type } from '../common/interfaces';
 
 const visual = useVisualStore();
 const snackbarVisible = ref(false);
 const isDialogActive = ref(false);
 
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
-});
 function routeToRoles() {
-  if (enabledAuthorization && permissionEnabled.value) {
+  if (enabledAuthentication && enabledPermissions) {
     router.push('/roles');
   } else {
     visual.setSnackbarMsg({
