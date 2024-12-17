@@ -764,7 +764,7 @@ async function undropTabular(warehouseId: string, id: string, type: 'table' | 'v
 async function getWarehouseAssignmentsById(warehouseId: string): Promise<WarehouseAssignment[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return [];
     init();
@@ -843,7 +843,7 @@ async function setWarehouseManagedAccess(
 async function getRoleAssignmentsById(roleId: string): Promise<RoleAssignment[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return [];
 
@@ -897,7 +897,7 @@ async function updateRoleAssignmentsById(
 async function getServerAssignments(): Promise<ServerAssignment[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return [];
 
@@ -944,7 +944,7 @@ async function updateServerAssignments(
 async function getProjectAssignments(): Promise<ProjectAssignment[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return [];
 
@@ -991,7 +991,7 @@ async function updateProjectAssignments(
 async function getNamespaceAssignmentsById(namespaceId: string): Promise<NamespaceAssignment[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return [];
 
@@ -1071,7 +1071,7 @@ async function setNamespaceManagedAccess(
 async function getTableAssignmentsById(tableId: string): Promise<TableAssignment[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return [];
 
@@ -1125,7 +1125,7 @@ async function updateTableAssignmentsById(
 async function getViewAssignmentsById(viewId: string): Promise<ViewAssignment[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return [];
 
@@ -1469,7 +1469,7 @@ async function deleteRole(roleId: string): Promise<boolean> {
 async function getServerAccess(): Promise<ServerAction[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return globals.serverActions as ServerAction[];
 
@@ -1495,7 +1495,7 @@ async function getServerAccess(): Promise<ServerAction[]> {
 async function getProjectAccess(): Promise<ProjectAction[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return globals.projectActions as ProjectAction[];
     init();
@@ -1520,7 +1520,7 @@ async function getProjectAccess(): Promise<ProjectAction[]> {
 async function getWarehouseAccessById(warehouseId: string): Promise<WarehouseAction[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return globals.warehouseActions as WarehouseAction[];
     init();
@@ -1547,7 +1547,7 @@ async function getWarehouseAccessById(warehouseId: string): Promise<WarehouseAct
 async function getNamespaceAccessById(namespaceId: string): Promise<NamespaceAction[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return globals.namespaceActions as NamespaceAction[];
     init();
@@ -1575,7 +1575,7 @@ async function getNamespaceAccessById(namespaceId: string): Promise<NamespaceAct
 async function getTableAccessById(tableId: string): Promise<TableAction[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return globals.tableActions as TableAction[];
 
@@ -1604,7 +1604,7 @@ async function getTableAccessById(tableId: string): Promise<TableAction[]> {
 async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return globals.viewActions as ViewAction[];
     init();
@@ -1632,7 +1632,7 @@ async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
 async function getRoleAccessById(roleId: string): Promise<RoleAction[]> {
   try {
     const visual = useVisualStore();
-    const authOff = visual.projectInfo['authz-backend'] === 'allow-all' ? true : false;
+    const authOff = visual.getProjectCatalog()['authz-backend'] === 'allow-all' ? true : false;
 
     if (!env.enabledAuthentication || authOff) return globals.roleActions as RoleAction[];
     init();

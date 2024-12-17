@@ -146,7 +146,8 @@ async function init() {
     permissionObject.name = project.value['project-name'];
 
     myAccess.splice(0, myAccess.length);
-    if (visual.projectInfo['authz-backend'] !== 'allow-all') {
+
+    if (visual.getProjectCatalog()['authz-backend'] !== 'allow-all') {
       Object.assign(myAccess, await functions.getProjectAccess());
     } else {
       Object.assign(myAccess, []);

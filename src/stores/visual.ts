@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { Project, SnackbarMsg, Type } from '@/common/interfaces';
 import { ServerInfo } from '@/gen//management/types.gen';
+import { enabledPermissions } from '@/app.config';
 
 export const useVisualStore = defineStore(
   'visual',
@@ -18,7 +19,7 @@ export const useVisualStore = defineStore(
       bootstrapped: true,
       'server-id': '00000000-0000-0000-0000-000000000000',
       'default-project-id': '00000000-0000-0000-0000-000000000000',
-      'authz-backend': 'allow-all',
+      'authz-backend': `${enabledPermissions ? 'openfga' : 'allow-all'}`,
     });
 
     const projectSelected = reactive<Project>({
@@ -48,10 +49,13 @@ export const useVisualStore = defineStore(
     }
 
     function setProjectCatalog(projectCatalog: ServerInfo) {
+      projectCatalog['authz-backend'] =
+        `${enabledPermissions ? projectCatalog['authz-backend'] : 'allow-all'}`;
       Object.assign(projectInfo, projectCatalog);
     }
-    function setProject(p: Project) {
-      Object.assign(projectInfo, p);
+
+    function getProjectCatalog() {
+      return projectInfo;
     }
 
     function setProjectList(p: Project[]) {
@@ -74,7 +78,6 @@ export const useVisualStore = defineStore(
       namespacePath,
       themeLight,
       navBarShow,
-      projectInfo,
       projectList,
       projectSelected,
       snackbarMsg,
@@ -83,7 +86,7 @@ export const useVisualStore = defineStore(
       setProjectList,
       navBarSwitch,
       setProjectCatalog,
-      setProject,
+      getProjectCatalog,
       setSnackbarMsg,
       getSnackbarMsg,
     };

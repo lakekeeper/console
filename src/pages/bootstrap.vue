@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!visual.projectInfo.bootstrapped">
+  <div v-if="!visual.getProjectCatalog().bootstrapped">
     <v-row>
       <v-col cols="10" offset="1">
         <v-stepper :items="['Global Admin', 'EULA', 'Submit']">
@@ -82,7 +82,7 @@ async function getServerInfo() {
   try {
     const data: ServerInfo = await functions.getServerInfo();
     visual.setProjectCatalog(data);
-    if (visual.projectInfo.bootstrapped) router.push('/');
+    if (visual.getProjectCatalog().bootstrapped) router.push('/');
   } catch (error) {
     console.error(error);
   }

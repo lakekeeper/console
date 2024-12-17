@@ -100,7 +100,7 @@ const assignments = reactive<
 const existingAssignments = reactive<ServerAssignment[]>([]);
 
 async function init() {
-  permissionObject.id = visual.projectInfo['server-id'];
+  permissionObject.id = visual.getProjectCatalog()['server-id'];
 
   await functions.getServerInfo();
 
@@ -209,7 +209,7 @@ onMounted(async () => {
 });
 
 const projectInfo = computed(() => {
-  return visual.projectInfo;
+  return visual.getProjectCatalog();
 });
 
 async function renameUser(user: { name: string; id: string }) {
