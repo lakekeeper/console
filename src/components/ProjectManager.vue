@@ -147,7 +147,7 @@ async function init() {
 
     myAccess.splice(0, myAccess.length);
 
-    if (visual.getProjectCatalog()['authz-backend'] !== 'allow-all') {
+    if (visual.getServerInfo()['authz-backend'] !== 'allow-all') {
       Object.assign(myAccess, await functions.getProjectAccess());
     } else {
       Object.assign(myAccess, []);

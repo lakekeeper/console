@@ -280,7 +280,7 @@ async function checkAccessStatus() {
     if (data.length === 0) {
       visual.showAppOrNavBar = false;
       assignedToProjects.value = false;
-      if (visual.getProjectCatalog().bootstrapped)
+      if (visual.getServerInfo().bootstrapped)
         visual.setSnackbarMsg({
           function: 'List Project',
           text: 'No projects assigned. Ask your administrator',

@@ -14,7 +14,7 @@ export const useVisualStore = defineStore(
     const whId = ref('');
     const wahrehouseName = ref('');
     const namespacePath = ref('');
-    const projectInfo = reactive<ServerInfo>({
+    const serverInfo = reactive<ServerInfo>({
       version: '0.0.0',
       bootstrapped: true,
       'server-id': '00000000-0000-0000-0000-000000000000',
@@ -48,14 +48,14 @@ export const useVisualStore = defineStore(
       navBarShow.value = !navBarShow.value;
     }
 
-    function setProjectCatalog(projectCatalog: ServerInfo) {
-      projectCatalog['authz-backend'] =
-        `${enabledPermissions ? projectCatalog['authz-backend'] : 'allow-all'}`;
-      Object.assign(projectInfo, projectCatalog);
+    function setServerInfo(serverInfoInput: ServerInfo) {
+      serverInfo['authz-backend'] =
+        `${enabledPermissions ? serverInfoInput['authz-backend'] : 'allow-all'}`;
+      Object.assign(serverInfo, serverInfoInput);
     }
 
-    function getProjectCatalog() {
-      return projectInfo;
+    function getServerInfo() {
+      return serverInfo;
     }
 
     function setProjectList(p: Project[]) {
@@ -85,8 +85,8 @@ export const useVisualStore = defineStore(
       toggleThemeLight,
       setProjectList,
       navBarSwitch,
-      setProjectCatalog,
-      getProjectCatalog,
+      setServerInfo,
+      getServerInfo,
       setSnackbarMsg,
       getSnackbarMsg,
     };
