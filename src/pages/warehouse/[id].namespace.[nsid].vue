@@ -224,6 +224,9 @@ const permissionType = ref<RelationType>('namespace');
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
 // const namespaceId = ref<string>("");
 
+const permissionEnabled = computed(() => {
+  return visual.projectInfo['authz-backend'] != 'allow-all';
+});
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },

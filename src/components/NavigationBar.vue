@@ -61,6 +61,9 @@ const visual = useVisualStore();
 const snackbarVisible = ref(false);
 const isDialogActive = ref(false);
 
+const permissionEnabled = computed(() => {
+  return visual.projectInfo['authz-backend'] != 'allow-all';
+});
 function routeToRoles() {
   if (enabledAuthorization && enabledPermissions) {
     router.push('/roles');
