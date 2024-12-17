@@ -8,7 +8,8 @@ const idpResource = import.meta.env.VITE_IDP_RESOURCE || '';
 const idpLogoutRedirectPath = import.meta.env.VITE_IDP_POST_LOGOUT_REDIRECT_PATH || '';
 const enabledAuthorization =
   import.meta.env.VITE_ENABLE_AUTHORIZATION.toLowerCase() === 'true' || false;
-const enabledPermissions = import.meta.env.VITE_ENABLE_PERMISSIONS.toLowerCase() === 'true' || false;
+const enabledPermissions =
+  import.meta.env.VITE_ENABLE_PERMISSIONS.toLowerCase() === 'true' || false;
 
 export {
   icebergCatalogUrl,
@@ -20,5 +21,5 @@ export {
   idpResource,
   idpLogoutRedirectPath,
   enabledAuthorization,
-  enabledPermissions
+  enabledPermissions,
 };

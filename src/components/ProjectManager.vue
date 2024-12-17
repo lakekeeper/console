@@ -134,7 +134,6 @@ const project = computed(() => {
   return visual.projectSelected;
 });
 
-
 const permissionObject = reactive<any>({
   id: '',
   description: '',
