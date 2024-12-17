@@ -88,19 +88,53 @@ mod tests {
     #[test]
     fn test_get_all_files() {
         let config = LakekeeperConsoleConfig {
-            idp_authority: "https://example.com".to_string(),
-            idp_client_id: "client_id".to_string(),
-            idp_redirect_path: "/callback".to_string(),
-            idp_scope: "openid profile email".to_string(),
-            idp_resource: "foo-bar".to_string(),
-            idp_post_logout_redirect_path: "/logout".to_string(),
+            idp_authority: "https://idp.example.com".to_string(),
+            idp_client_id: "client_id_test".to_string(),
+            idp_redirect_path: "/callback-test".to_string(),
+            idp_scope: "openid profile email test".to_string(),
+            idp_resource: "foo-bar-test".to_string(),
+            idp_post_logout_redirect_path: "/logout-test".to_string(),
             enable_authorization: true,
-            app_iceberg_catalog_url: "https://example.com".to_string(),
+            app_iceberg_catalog_url: "https://catalog.example.com".to_string(),
         };
         let files = LakekeeperConsole::iter().collect::<Vec<_>>();
 
-        for file in files {
-            get_file(&file, &config.clone()).unwrap();
+        let config_values = vec![
+            &config.idp_authority,
+            &config.idp_client_id,
+            &config.idp_redirect_path,
+            &config.idp_scope,
+            &config.idp_resource,
+            &config.idp_post_logout_redirect_path,
+            &config.app_iceberg_catalog_url,
+        ];
+
+        let mut found_values = vec![false; config_values.len()];
+
+        for file in &files {
+            let templated_file = get_file(file, &config.clone()).unwrap();
+            if file.ends_with(".js") {
+                let file_content = std::str::from_utf8(&templated_file.data).unwrap();
+                assert!(
+                    !file_content.contains("VITE_"),
+                    "File {} still contains VITE_ variables",
+                    file
+                );
+
+                for (i, value) in config_values.iter().enumerate() {
+                    if file_content.contains(*value) {
+                        found_values[i] = true;
+                    }
+                }
+            }
+        }
+
+        for (i, value) in found_values.iter().enumerate() {
+            assert!(
+                *value,
+                "Value '{}' from LakekeeperConsoleConfig not found in any .js file",
+                config_values[i]
+            );
         }
     }
 }
