@@ -134,9 +134,6 @@ const project = computed(() => {
   return visual.projectSelected;
 });
 
-const permissionEnabled = computed(() => {
-  return visual.projectInfo['authz-backend'] != 'allow-all';
-});
 
 const permissionObject = reactive<any>({
   id: '',

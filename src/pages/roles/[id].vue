@@ -57,7 +57,6 @@ import { RoleAssignment } from '../../gen/management/types.gen';
 import { useFunctions } from '../../plugins/functions';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { enabledAuthorization, enabledPermissions } from '@/app.config';
-import { useVisualStore } from '@/stores/visual';
 
 const functions = useFunctions();
 const route = useRoute();
@@ -65,7 +64,6 @@ const loaded = ref(true);
 const params = computed(() => route.params as { id: string });
 const tab = ref('overview');
 const type = ref<RelationType>('role');
-const visual = useVisualStore();
 
 const permissions = reactive<
   { id: string; name: string; email: string; type: string[]; kind: string }[]

@@ -67,7 +67,7 @@
 <script lang="ts" setup>
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
-import { onMounted, reactive, ref, computed } from 'vue';
+import { onMounted, reactive, ref} from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import { LoadViewResult } from '../../gen/iceberg/types.gen';
@@ -75,14 +75,12 @@ import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 
 import { enabledAuthorization, enabledPermissions } from '@/app.config';
-import { useVisualStore } from '@/stores/visual';
 
 const functions = useFunctions();
 const route = useRoute();
 const tab = ref('overview');
 const crumbPath = ref('');
 const loading = ref(true);
-const visual = useVisualStore();
 
 const myAccess = reactive<TableAction[]>([]);
 
