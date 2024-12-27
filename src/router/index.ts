@@ -49,7 +49,7 @@ router.beforeEach((to, from, next) => {
 
     if (
       userStorage.isAuthenticated &&
-      !visual.projectInfo.bootstrapped &&
+      !visual.getServerInfo().bootstrapped &&
       to.path !== '/bootstrap'
     ) {
       return next('/bootstrap');
@@ -70,7 +70,7 @@ router.beforeEach((to, from, next) => {
   } else {
     // For cases where enabledAuthentication is false
 
-    if (!visual.projectInfo.bootstrapped && to.path !== '/bootstrap') {
+    if (!visual.getServerInfo().bootstrapped && to.path !== '/bootstrap') {
       return next('/bootstrap');
     }
 
