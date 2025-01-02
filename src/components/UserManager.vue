@@ -20,6 +20,19 @@
       </span>
     </template>
 
+    <template #item.id="{ item }">
+      <td>
+        <span class="icon-text">
+          {{ item.id }}
+          <v-btn
+            icon="mdi-content-copy"
+            size="small"
+            variant="flat"
+            @click="functions.copyToClipboard(item.id)"></v-btn>
+        </span>
+      </td>
+    </template>
+
     <template #item.name="{ item }">
       <td>
         <span class="icon-text">
@@ -50,7 +63,7 @@ const functions = useFunctions();
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
   { title: 'Email', key: 'email', align: 'start' },
-  { title: 'Email', key: 'email', align: 'start' },
+  { title: 'Id', key: 'id', align: 'start' },
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
