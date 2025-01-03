@@ -390,7 +390,9 @@ WITH (
 "iceberg.rest-catalog.uri" = '${env.icebergCatalogUrlSuffixed}',
 "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected['project-id']}/${props.warehouse.name}',
 "iceberg.rest-catalog.security" = 'OAUTH2',
+"iceberg.rest-catalog.nested-namespace-enabled" = 'true',
 "iceberg.rest-catalog.vended-credentials-enabled" = 'true',
+"fs.native-s3.enabled" = 'true',
 ${enabledAuthentication ? `"iceberg.rest-catalog.oauth2.token" = '${accessToken.value}',` : '##'}
 ${extraOpts})
 """)
