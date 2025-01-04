@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/lakekeeper/console/compare/v0.3.0...v0.4.0) (2025-01-04)
+
+
+### Features
+
+* copy user id from user table ([#77](https://github.com/lakekeeper/console/issues/77)) ([eacc396](https://github.com/lakekeeper/console/commit/eacc39688b191262cce0dca68bf3d1d2d2a8e0cc))
+* warning banner auth is off and .env to manage enabledPermissions to overwrite  'authz-backend' ([#73](https://github.com/lakekeeper/console/issues/73)) ([ec73260](https://github.com/lakekeeper/console/commit/ec73260c3271d5f3155b9b0c17900814761fa841))
+
 ## [0.3.0](https://github.com/lakekeeper/console/compare/v0.2.0...v0.3.0) (2024-12-17)
 
 
