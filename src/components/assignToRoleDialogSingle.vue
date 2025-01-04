@@ -371,10 +371,13 @@ function spliceAssignments() {
 }
 
 function cancelRoleAssignment() {
-  clearSelectedItem();
+  console.log('cancelRoleAssignment', props.actionType);
+  if (props.actionType === 'grant') {
+    clearSelectedItem();
+    spliceAssignments();
+    selectedReleations.value.splice(0, selectedReleations.value.length);
+  }
   isDialogActive.value = false;
-  spliceAssignments();
-  selectedReleations.value.splice(0, selectedReleations.value.length);
 }
 
 function assign() {
