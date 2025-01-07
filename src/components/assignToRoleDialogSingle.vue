@@ -371,7 +371,6 @@ function spliceAssignments() {
 }
 
 function cancelRoleAssignment() {
-  console.log('cancelRoleAssignment', props.actionType);
   if (props.actionType === 'grant') {
     clearSelectedItem();
     spliceAssignments();
