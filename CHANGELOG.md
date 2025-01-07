@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.4.0](https://github.com/lakekeeper/console/compare/v0.3.0...v0.4.0) (2025-01-07)
+
+
+### Features
+
+* copy user id from user table ([#77](https://github.com/lakekeeper/console/issues/77)) ([eacc396](https://github.com/lakekeeper/console/commit/eacc39688b191262cce0dca68bf3d1d2d2a8e0cc))
+* warning banner auth is off and .env to manage enabledPermissions to overwrite  'authz-backend' ([#73](https://github.com/lakekeeper/console/issues/73)) ([ec73260](https://github.com/lakekeeper/console/commit/ec73260c3271d5f3155b9b0c17900814761fa841))
+
+
+### Bug Fixes
+
+* enable trino nested namespaces ([#76](https://github.com/lakekeeper/console/issues/76)) ([6a13bd2](https://github.com/lakekeeper/console/commit/6a13bd2b39dba7ecdae28043bad9c64434125fee))
+* keep permission data on existing object by cancel ([#79](https://github.com/lakekeeper/console/issues/79)) ([de08068](https://github.com/lakekeeper/console/commit/de080681e1b6f21d1bad2d7654a6026a3723b63f))
+
 ## [0.3.0](https://github.com/lakekeeper/console/compare/v0.2.0...v0.3.0) (2024-12-17)
 
 
