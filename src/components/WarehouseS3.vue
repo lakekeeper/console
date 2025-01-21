@@ -27,7 +27,7 @@
       Update Credentials
     </v-btn>
 
-    <v-divider></v-divider>
+    <v-divider class="mb-2"></v-divider>
     <!--Storage Profile-->
 
     <div
@@ -35,18 +35,32 @@
         props.objectType === ObjectType.STORAGE_PROFILE ||
         (props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE)
       ">
-      <v-select
-        v-model="warehouseObjectData['storage-profile'].flavor"
-        item-title="name"
-        item-value="code"
-        :items="s3Flavor"
-        label="S3 Flavor"
-        placeholder="Select S3 Flavor"
-        :rules="[rules.required]">
-        <template #item="{ props: itemProps, item }">
-          <v-list-item v-bind="itemProps" :subtitle="item.raw.code"></v-list-item>
-        </template>
-      </v-select>
+      <v-row>
+        <v-col>
+          <v-select
+            v-model="warehouseObjectData['storage-profile'].flavor"
+            item-title="name"
+            item-value="code"
+            :items="s3Flavor"
+            label="S3 Flavor"
+            placeholder="Select S3 Flavor"
+            :rules="[rules.required]">
+            <template #item="{ props: itemProps, item }">
+              <v-list-item v-bind="itemProps" :subtitle="item.raw.code"></v-list-item>
+            </template>
+          </v-select>
+        </v-col>
+        <v-col>
+          <v-switch
+            v-model="warehouseObjectData['storage-profile']['path-style-access']"
+            color="primary"
+            :label="
+              warehouseObjectData['storage-profile']['path-style-access']
+                ? `Path style access is enabled`
+                : `Enable path style access`
+            "></v-switch>
+        </v-col>
+      </v-row>
 
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].bucket"
@@ -57,6 +71,7 @@
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key Prefix"
         placeholder="path/to/warehouse (optional)"></v-text-field>
+
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].endpoint"
         label="Endpoint"
