@@ -19,7 +19,7 @@ pub struct LakekeeperConsoleConfig {
     pub idp_post_logout_redirect_path: String,
     pub enable_authentication: bool,
     pub enable_permissions: bool,
-    pub app_iceberg_catalog_url: String,
+    pub app_iceberg_catalog_url: Option<String>,
 }
 
 pub fn get_file(
@@ -57,13 +57,17 @@ pub fn get_file(
                     &enable_authentication.to_string(),
                 )
                 .replace(
-                    "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
-                    &app_iceberg_catalog_url,
-                )
-                .replace(
                     "VITE_ENABLE_PERMISSIONS_PLACEHOLDER",
                     &enable_permissions.to_string(),
                 );
+            let data = if let Some(app_iceberg_catalog_url) = app_iceberg_catalog_url {
+                data.replace(
+                    "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
+                    &app_iceberg_catalog_url,
+                )
+            } else {
+                data
+            };
 
             file.data = data.into_bytes().into();
             file
@@ -102,7 +106,7 @@ mod tests {
             idp_post_logout_redirect_path: "/logout-test".to_string(),
             enable_authentication: true,
             enable_permissions: false,
-            app_iceberg_catalog_url: "https://catalog.example.com".to_string(),
+            app_iceberg_catalog_url: Some("https://catalog.example.com".to_string()),
         };
         let files = LakekeeperConsole::iter().collect::<Vec<_>>();
 
@@ -113,7 +117,7 @@ mod tests {
             &config.idp_scope,
             &config.idp_resource,
             &config.idp_post_logout_redirect_path,
-            &config.app_iceberg_catalog_url,
+            config.app_iceberg_catalog_url.as_ref().unwrap(),
         ];
 
         let mut found_values = vec![false; config_values.len()];
