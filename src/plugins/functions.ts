@@ -58,7 +58,7 @@ function init() {
   const accessToken = userStore.user.access_token;
 
   mng.client.setConfig({
-    baseUrl: env.icebergCatalogUrl,
+    baseUrl: icebergCatalogUrl(),
   });
 
   mng.client.interceptors.request.use((request) => {
@@ -67,7 +67,7 @@ function init() {
   });
 
   ice.client.setConfig({
-    baseUrl: env.icebergCatalogUrlSuffixed,
+    baseUrl: icebergCatalogUrlSuffixed(),
   });
 
   ice.client.interceptors.request.use((request) => {
@@ -75,6 +75,20 @@ function init() {
     return request;
   });
 }
+
+const icebergCatalogUrl = (): string => {
+  let url = env.icebergCatalogUrl;
+
+  if (url === '' || url === 'VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER' || url === undefined) {
+    url = `${location.protocol}//${location.hostname}${location.port ? `:${location.port}` : ''}`;
+  }
+
+  return url.substring(url.length - 1) === '/' ? url : `${url}/`;
+};
+
+const icebergCatalogUrlSuffixed = (): string => {
+  return icebergCatalogUrl() + 'catalog/';
+};
 
 function parseErrorText(errorText: string): { message: string; code: number } {
   const messageMatch = errorText.match(/: (.*) at/);
@@ -1725,6 +1739,8 @@ export function useFunctions() {
     whoAmI,
     getServerAssignments,
     updateServerAssignments,
+    icebergCatalogUrl,
+    icebergCatalogUrlSuffixed,
     getServerAccess,
     getNamespaceAssignmentsById,
     updateNamespaceAssignmentsById,

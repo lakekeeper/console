@@ -144,8 +144,7 @@
 </template>
 
 <script lang="ts" setup>
-import * as env from '@/app.config';
-import { icebergCatalogUrlSuffixed, idpAuthority } from '@/app.config';
+import { idpAuthority } from '@/app.config';
 import { Type, User } from '@/common/interfaces';
 import { GetWarehouseResponse, S3Profile } from '@/gen/management';
 import { useAuth } from '@/plugins/auth';
@@ -264,7 +263,7 @@ config = {
     "spark.sql.defaultCatalog": "${props.warehouse.name}",
     "spark.sql.catalog.${props.warehouse.name}": "org.apache.iceberg.spark.SparkCatalog",
     "spark.sql.catalog.${props.warehouse.name}.type": "rest",
-    "spark.sql.catalog.${props.warehouse.name}.uri": "${icebergCatalogUrlSuffixed}",
+    "spark.sql.catalog.${props.warehouse.name}.uri": "${functions.icebergCatalogUrlSuffixed()}",
     "spark.sql.catalog.${props.warehouse.name}.warehouse": "${props.warehouse.name}",
     ${enabledAuthentication ? `"spark.sql.catalog.${props.warehouse.name}.token": "${user.access_token}",` : '##'}
     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
@@ -289,7 +288,7 @@ conf = {
     "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
     "spark.sql.catalog.${props.warehouse.name}": "org.apache.iceberg.spark.SparkCatalog",
     "spark.sql.catalog.${props.warehouse.name}.type": "rest",
-    "spark.sql.catalog.${props.warehouse.name}.uri": "${icebergCatalogUrlSuffixed}",
+    "spark.sql.catalog.${props.warehouse.name}.uri": "${functions.icebergCatalogUrlSuffixed()}",
     ${enabledAuthentication ? `"spark.sql.catalog.${props.warehouse.name}.credential": f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
     "spark.sql.catalog.${props.warehouse.name}.warehouse": "${props.warehouse.name}",
     "spark.sql.catalog.${props.warehouse.name}.scope": "lakekeeper",
@@ -310,7 +309,7 @@ from pyiceberg.catalog.rest import RestCatalog
 catalog = RestCatalog(
     name="${props.warehouse.name}",
     warehouse="${props.warehouse.name}",
-    uri="${icebergCatalogUrlSuffixed}",
+    uri="${functions.icebergCatalogUrlSuffixed()}",
     ${enabledAuthentication ? `token="${user.access_token}",` : '##'}
 )`;
       connectionStringHumanFlow.value = connectionStringHumanFlow.value
@@ -327,7 +326,7 @@ CLIENT_SECRET = "<ENTER YOUR CLIENT_SECRET HERE>"
 catalog = RestCatalog(
     name="${props.warehouse.name}",
     warehouse="${props.warehouse.name}",
-    uri="${icebergCatalogUrlSuffixed}",
+    uri="${functions.icebergCatalogUrlSuffixed()}",
     ${enabledAuthentication ? `credential=f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
     **{"rest.authorization-url": "${tokenEndpoint}", "scope": "lakekeeper"},
 )`;
@@ -387,7 +386,7 @@ cursor = conn.cursor();
 cursor.execute(f"""CREATE CATALOG ${props.warehouse.name} USING iceberg
 WITH (
 "iceberg.catalog.type" = 'rest',
-"iceberg.rest-catalog.uri" = '${env.icebergCatalogUrlSuffixed}',
+"iceberg.rest-catalog.uri" = '${functions.icebergCatalogUrlSuffixed()}',
 "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected['project-id']}/${props.warehouse.name}',
 "iceberg.rest-catalog.security" = 'OAUTH2',
 "iceberg.rest-catalog.nested-namespace-enabled" = 'true',
@@ -427,7 +426,7 @@ cursor = conn.cursor();
 cursor.execute(f"""CREATE CATALOG ${props.warehouse.name} USING iceberg
 WITH (
 "iceberg.catalog.type" = 'rest',
-"iceberg.rest-catalog.uri" = '${env.icebergCatalogUrlSuffixed}',
+"iceberg.rest-catalog.uri" = '${functions.icebergCatalogUrlSuffixed()}',
 "iceberg.rest-catalog.warehouse" = '${visuals.projectSelected['project-id']}/${props.warehouse.name}',
 "iceberg.rest-catalog.security" = 'OAUTH2',
 ${enabledAuthentication ? `"iceberg.rest-catalog.oauth2.credential" = '{CLIENT_ID}:{CLIENT_SECRET}',` : '##'}
