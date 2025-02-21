@@ -9,32 +9,28 @@ export const AdlsProfileSchema = {
       description: 'Name of the azure storage account.',
     },
     'authority-host': {
-      type: 'string',
+      type: ['string', 'null'],
       format: 'uri',
       description:
         'The authority host to use for authentication. Default: `https://login.microsoftonline.com`.',
-      nullable: true,
     },
     filesystem: {
       type: 'string',
       description: 'Name of the adls filesystem, in blobstorage also known as container.',
     },
     host: {
-      type: 'string',
+      type: ['string', 'null'],
       description: 'The host to use for the storage account. Default: `dfs.core.windows.net`.',
-      nullable: true,
     },
     'key-prefix': {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Subpath in the filesystem to use.
 The same prefix can be used for multiple warehouses.`,
-      nullable: true,
     },
     'sas-token-validity-seconds': {
-      type: 'integer',
+      type: ['integer', 'null'],
       format: 'int64',
       description: 'The validity of the sas token in seconds. Default: 3600.',
-      nullable: true,
       minimum: 0,
     },
   },
@@ -68,9 +64,6 @@ export const AzCredentialSchema = {
       },
     },
   ],
-  discriminator: {
-    propertyName: 'credential-type',
-  },
 } as const;
 
 export const BootstrapRequestSchema = {
@@ -87,25 +80,186 @@ export const BootstrapRequestSchema = {
 a corresponding role. If not specified, the user is treated as a human.`,
     },
     'user-email': {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Email of the user performing bootstrap. Optional. If not provided
 the server will try to parse the email from the provided token.`,
-      nullable: true,
     },
     'user-name': {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Name of the user performing bootstrap. Optional. If not provided
 the server will try to parse the name from the provided token.
 The initial user will become the global admin.`,
-      nullable: true,
     },
     'user-type': {
-      allOf: [
+      oneOf: [
+        {
+          type: 'null',
+        },
         {
           $ref: '#/components/schemas/UserType',
+          description: `Type of the user performing bootstrap. Optional. If not provided
+the server will try to parse the type from the provided token.`,
         },
       ],
-      nullable: true,
+    },
+  },
+} as const;
+
+export const CheckOperationSchema = {
+  oneOf: [
+    {
+      type: 'object',
+      required: ['server'],
+      properties: {
+        server: {
+          type: 'object',
+          required: ['action'],
+          properties: {
+            action: {
+              $ref: '#/components/schemas/ServerAction',
+            },
+          },
+        },
+      },
+    },
+    {
+      type: 'object',
+      required: ['project'],
+      properties: {
+        project: {
+          type: 'object',
+          required: ['action'],
+          properties: {
+            action: {
+              $ref: '#/components/schemas/ProjectAction',
+            },
+            'project-id': {
+              type: ['string', 'null'],
+              format: 'uuid',
+            },
+          },
+        },
+      },
+    },
+    {
+      type: 'object',
+      required: ['warehouse'],
+      properties: {
+        warehouse: {
+          type: 'object',
+          required: ['action', 'warehouse-id'],
+          properties: {
+            action: {
+              $ref: '#/components/schemas/WarehouseAction',
+            },
+            'warehouse-id': {
+              type: 'string',
+              format: 'uuid',
+            },
+          },
+        },
+      },
+    },
+    {
+      type: 'object',
+      required: ['namespace'],
+      properties: {
+        namespace: {
+          allOf: [
+            {
+              $ref: '#/components/schemas/NamespaceIdentOrUuid',
+            },
+            {
+              type: 'object',
+              required: ['action'],
+              properties: {
+                action: {
+                  $ref: '#/components/schemas/NamespaceAction',
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      type: 'object',
+      required: ['table'],
+      properties: {
+        table: {
+          allOf: [
+            {
+              $ref: '#/components/schemas/TabularIdentOrUuid',
+            },
+            {
+              type: 'object',
+              required: ['action'],
+              properties: {
+                action: {
+                  $ref: '#/components/schemas/TableAction',
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+    {
+      type: 'object',
+      required: ['view'],
+      properties: {
+        view: {
+          allOf: [
+            {
+              $ref: '#/components/schemas/TabularIdentOrUuid',
+            },
+            {
+              type: 'object',
+              required: ['action'],
+              properties: {
+                action: {
+                  $ref: '#/components/schemas/ViewAction',
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  ],
+  description: 'Represents an action on an object',
+} as const;
+
+export const CheckRequestSchema = {
+  type: 'object',
+  description: 'Check if a specific action is allowed on the given object',
+  required: ['operation'],
+  properties: {
+    identity: {
+      oneOf: [
+        {
+          type: 'null',
+        },
+        {
+          $ref: '#/components/schemas/UserOrRole',
+          description: 'The user or role to check access for.',
+        },
+      ],
+    },
+    operation: {
+      $ref: '#/components/schemas/CheckOperation',
+      description: 'The operation to check.',
+    },
+  },
+} as const;
+
+export const CheckResponseSchema = {
+  type: 'object',
+  required: ['allowed'],
+  properties: {
+    allowed: {
+      type: 'boolean',
+      description: 'Whether the action is allowed.',
     },
   },
 } as const;
@@ -115,11 +269,10 @@ export const CreateProjectRequestSchema = {
   required: ['project-name'],
   properties: {
     'project-id': {
-      type: 'string',
+      type: ['string', 'null'],
       format: 'uuid',
       description: `Request a specific project ID - optional.
 If not provided, a new project ID will be generated (recommended).`,
-      nullable: true,
     },
     'project-name': {
       type: 'string',
@@ -145,9 +298,8 @@ export const CreateRoleRequestSchema = {
   required: ['name'],
   properties: {
     description: {
-      type: 'string',
+      type: ['string', 'null'],
       description: 'Description of the role',
-      nullable: true,
     },
     name: {
       type: 'string',
@@ -166,24 +318,21 @@ export const CreateUserRequestSchema = {
   type: 'object',
   properties: {
     email: {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Email of the user. If id is not specified, the email is extracted
 from the provided token.`,
-      nullable: true,
     },
     id: {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Subject id of the user - allows user provisioning.
 The id must be identical to the subject in JWT tokens.
 To create users in self-service manner, do not set the id.
 The id is then extracted from the passed JWT token.`,
-      nullable: true,
     },
     name: {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Name of the user. If id is not specified, the name is extracted
 from the provided token.`,
-      nullable: true,
     },
     'update-if-exists': {
       type: 'boolean',
@@ -191,12 +340,15 @@ from the provided token.`,
 Default: false`,
     },
     'user-type': {
-      allOf: [
+      oneOf: [
+        {
+          type: 'null',
+        },
         {
           $ref: '#/components/schemas/UserType',
+          description: 'Type of the user. Useful to override wrongly classified users',
         },
       ],
-      nullable: true,
     },
   },
 } as const;
@@ -207,24 +359,29 @@ export const CreateWarehouseRequestSchema = {
   properties: {
     'delete-profile': {
       $ref: '#/components/schemas/TabularDeleteProfile',
+      description: `Profile to determine behavior upon dropping of tabulars, defaults to soft-deletion with
+7 days expiration.`,
     },
     'project-id': {
-      type: 'string',
+      type: ['string', 'null'],
       format: 'uuid',
       description: `Project ID in which to create the warehouse.
 If no default project is set for this server, this field is required.`,
-      nullable: true,
     },
     'storage-credential': {
-      allOf: [
+      oneOf: [
+        {
+          type: 'null',
+        },
         {
           $ref: '#/components/schemas/StorageCredential',
+          description: 'Optional storage credential to use for the warehouse.',
         },
       ],
-      nullable: true,
     },
     'storage-profile': {
       $ref: '#/components/schemas/StorageProfile',
+      description: 'Storage profile to use for the warehouse.',
     },
     'warehouse-name': {
       type: 'string',
@@ -244,11 +401,6 @@ export const CreateWarehouseResponseSchema = {
       description: 'ID of the created warehouse.',
     },
   },
-} as const;
-
-export const DeleteKindSchema = {
-  type: 'string',
-  enum: ['default', 'purge'],
 } as const;
 
 export const DeletedTabularResponseSchema = {
@@ -297,11 +449,40 @@ export const DeletedTabularResponseSchema = {
     },
     typ: {
       $ref: '#/components/schemas/TabularType',
+      description: 'Type of the tabular',
     },
     warehouse_id: {
       type: 'string',
       format: 'uuid',
       description: 'Warehouse ID where the tabular is stored',
+    },
+  },
+} as const;
+
+export const ErrorModelSchema = {
+  type: 'object',
+  description: 'JSON error payload returned in a response with further details on the error',
+  required: ['message', 'type', 'code'],
+  properties: {
+    code: {
+      type: 'integer',
+      format: 'int32',
+      description: 'HTTP response code',
+      minimum: 0,
+    },
+    message: {
+      type: 'string',
+      description: 'Human-readable error message',
+    },
+    stack: {
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    },
+    type: {
+      type: 'string',
+      description: 'Internal type definition of the error',
     },
   },
 } as const;
@@ -331,23 +512,20 @@ The key is the JSON object obtained when creating a service account key in the G
 Currently only supports Service Account Key
 Example of a key:
 \`\`\`json
-{
-"type": "service_account",
-"project_id": "example-project-1234",
-"private_key_id": "....",
-"private_key": "-----BEGIN PRIVATE KEY-----\n.....\n-----END PRIVATE KEY-----\n",
-"client_email": "abc@example-project-1234.iam.gserviceaccount.com",
-"client_id": "123456789012345678901",
-"auth_uri": "https://accounts.google.com/o/oauth2/auth",
-"token_uri": "https://oauth2.googleapis.com/token",
-"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-"client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abc%example-project-1234.iam.gserviceaccount.com",
-"universe_domain": "googleapis.com"
-}
+    {
+      "type": "service_account",
+      "project_id": "example-project-1234",
+      "private_key_id": "....",
+      "private_key": "-----BEGIN PRIVATE KEY-----\n.....\n-----END PRIVATE KEY-----\n",
+      "client_email": "abc@example-project-1234.iam.gserviceaccount.com",
+      "client_id": "123456789012345678901",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abc%example-project-1234.iam.gserviceaccount.com",
+      "universe_domain": "googleapis.com"
+    }
 \`\`\``,
-  discriminator: {
-    propertyName: 'credential-type',
-  },
 } as const;
 
 export const GcsProfileSchema = {
@@ -359,10 +537,9 @@ export const GcsProfileSchema = {
       description: 'Name of the GCS bucket',
     },
     'key-prefix': {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Subpath in the bucket to use.
 The same prefix can be used for multiple warehouses.`,
-      nullable: true,
     },
   },
 } as const;
@@ -650,6 +827,7 @@ export const GetWarehouseResponseSchema = {
   properties: {
     'delete-profile': {
       $ref: '#/components/schemas/TabularDeleteProfile',
+      description: 'Delete profile used for the warehouse.',
     },
     id: {
       type: 'string',
@@ -667,9 +845,22 @@ export const GetWarehouseResponseSchema = {
     },
     status: {
       $ref: '#/components/schemas/WarehouseStatus',
+      description: 'Whether the warehouse is active.',
     },
     'storage-profile': {
       $ref: '#/components/schemas/StorageProfile',
+      description: 'Storage profile used for the warehouse.',
+    },
+  },
+} as const;
+
+export const IcebergErrorResponseSchema = {
+  type: 'object',
+  description: 'JSON wrapper for all error responses (non-2xx)',
+  required: ['error'],
+  properties: {
+    error: {
+      $ref: '#/components/schemas/ErrorModel',
     },
   },
 } as const;
@@ -679,9 +870,8 @@ export const ListDeletedTabularsResponseSchema = {
   required: ['tabulars'],
   properties: {
     next_page_token: {
-      type: 'string',
+      type: ['string', 'null'],
       description: 'Token to fetch the next page',
-      nullable: true,
     },
     tabulars: {
       type: 'array',
@@ -712,8 +902,7 @@ export const ListRolesResponseSchema = {
   required: ['roles'],
   properties: {
     next_page_token: {
-      type: 'string',
-      nullable: true,
+      type: ['string', 'null'],
     },
     roles: {
       type: 'array',
@@ -729,38 +918,13 @@ export const ListUsersResponseSchema = {
   required: ['users'],
   properties: {
     next_page_token: {
-      type: 'string',
-      nullable: true,
+      type: ['string', 'null'],
     },
     users: {
       type: 'array',
       items: {
         $ref: '#/components/schemas/User',
       },
-    },
-  },
-} as const;
-
-export const ListWarehousesRequestSchema = {
-  type: 'object',
-  properties: {
-    projectId: {
-      allOf: [
-        {
-          $ref: '#/components/schemas/ProjectIdent',
-        },
-      ],
-      nullable: true,
-    },
-    warehouseStatus: {
-      type: 'array',
-      items: {
-        $ref: '#/components/schemas/WarehouseStatus',
-      },
-      description: `Optional filter to return only warehouses
-with the specified status.
-If not provided, only active warehouses are returned.`,
-      nullable: true,
     },
   },
 } as const;
@@ -927,9 +1091,38 @@ export const NamespaceAssignmentSchema = {
       title: 'NamespaceAssignmentModify',
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
+} as const;
+
+export const NamespaceIdentOrUuidSchema = {
+  oneOf: [
+    {
+      type: 'object',
+      required: ['namespace-id'],
+      properties: {
+        'namespace-id': {
+          type: 'string',
+          format: 'uuid',
+        },
+      },
+    },
+    {
+      type: 'object',
+      required: ['namespace', 'warehouse-id'],
+      properties: {
+        namespace: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+        'warehouse-id': {
+          type: 'string',
+          format: 'uuid',
+        },
+      },
+    },
+  ],
+  description: 'Identifier for a namespace, either a UUID or its name and warehouse ID',
 } as const;
 
 export const NamespaceRelationSchema = {
@@ -1106,14 +1299,6 @@ export const ProjectAssignmentSchema = {
       title: 'ProjectAssignmentModify',
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
-} as const;
-
-export const ProjectIdentSchema = {
-  type: 'string',
-  format: 'uuid',
 } as const;
 
 export const ProjectRelationSchema = {
@@ -1139,11 +1324,10 @@ export const RenameProjectRequestSchema = {
       description: 'New name for the project.',
     },
     'project-id': {
-      type: 'string',
+      type: ['string', 'null'],
       format: 'uuid',
       description: `Optional project ID.
 Only required if the project ID cannot be inferred and no default project is set.`,
-      nullable: true,
     },
   },
 } as const;
@@ -1169,9 +1353,8 @@ export const RoleSchema = {
       description: 'Timestamp when the role was created',
     },
     description: {
-      type: 'string',
+      type: ['string', 'null'],
       description: 'Description of the role',
-      nullable: true,
     },
     id: {
       type: 'string',
@@ -1188,10 +1371,9 @@ export const RoleSchema = {
       description: 'Project ID in which the role is created.',
     },
     'updated-at': {
-      type: 'string',
+      type: ['string', 'null'],
       format: 'date-time',
       description: 'Timestamp when the role was last updated',
-      nullable: true,
     },
   },
 } as const;
@@ -1248,9 +1430,6 @@ export const RoleAssignmentSchema = {
       title: 'RoleAssignmentOwnership',
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
 } as const;
 
 export const RoleRelationSchema = {
@@ -1278,9 +1457,6 @@ export const S3CredentialSchema = {
       },
     },
   ],
-  discriminator: {
-    propertyName: 'credential-type',
-  },
 } as const;
 
 export const S3FlavorSchema = {
@@ -1292,38 +1468,43 @@ export const S3ProfileSchema = {
   type: 'object',
   required: ['bucket', 'region', 'sts-enabled'],
   properties: {
+    'allow-alternative-protocols': {
+      type: ['boolean', 'null'],
+      description: `Allow \`s3a://\` and \`s3n://\` in locations.
+This is disabled by default. We do not recommend to use this setting
+except for migration of old hadoop-based tables via the register endpoint.
+Tables with \`s3a\` paths are not accessible outside the Java ecosystem.`,
+    },
     'assume-role-arn': {
-      type: 'string',
+      type: ['string', 'null'],
       description: 'Optional ARN to assume when accessing the bucket',
-      nullable: true,
     },
     bucket: {
       type: 'string',
       description: 'Name of the S3 bucket',
     },
     endpoint: {
-      type: 'string',
+      type: ['string', 'null'],
       format: 'uri',
       description: `Optional endpoint to use for S3 requests, if not provided
 the region will be used to determine the endpoint.
 If both region and endpoint are provided, the endpoint will be used.
 Example: \`http://s3-de.my-domain.com:9000\``,
-      nullable: true,
     },
     flavor: {
       $ref: '#/components/schemas/S3Flavor',
+      description: `S3 flavor to use.
+Defaults to AWS`,
     },
     'key-prefix': {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Subpath in the bucket to use.
 The same prefix can be used for multiple warehouses.`,
-      nullable: true,
     },
     'path-style-access': {
-      type: 'boolean',
+      type: ['boolean', 'null'],
       description: `Path style access for S3 requests.
 If the underlying S3 supports both, we recommend to not set \`path_style_access\`.`,
-      nullable: true,
     },
     region: {
       type: 'string',
@@ -1333,9 +1514,8 @@ If the underlying S3 supports both, we recommend to not set \`path_style_access\
       type: 'boolean',
     },
     'sts-role-arn': {
-      type: 'string',
+      type: ['string', 'null'],
       description: 'Optional role ARN to assume for sts vended-credentials',
-      nullable: true,
     },
   },
 } as const;
@@ -1345,12 +1525,12 @@ export const SearchRoleRequestSchema = {
   required: ['search'],
   properties: {
     'project-id': {
-      allOf: [
-        {
-          $ref: '#/components/schemas/ProjectIdent',
-        },
-      ],
-      nullable: true,
+      type: ['string', 'null'],
+      format: 'uuid',
+      description: `Deprecated: Please use the x-project-id header instead.
+Project ID in which the role is created.
+Only required if the project ID cannot be inferred from the
+users token and no default project is set.`,
     },
     search: {
       type: 'string',
@@ -1379,10 +1559,9 @@ export const SearchUserSchema = {
   required: ['name', 'id', 'user-type'],
   properties: {
     email: {
-      type: 'string',
+      type: ['string', 'null'],
       description: `Email of the user. If id is not specified, the email is extracted
 from the provided token.`,
-      nullable: true,
     },
     id: {
       type: 'string',
@@ -1394,6 +1573,7 @@ from the provided token.`,
     },
     'user-type': {
       $ref: '#/components/schemas/UserType',
+      description: 'Type of the user',
     },
   },
 } as const;
@@ -1477,9 +1657,6 @@ export const ServerAssignmentSchema = {
       title: 'ServerAssignmentOperator',
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
 } as const;
 
 export const ServerInfoSchema = {
@@ -1488,6 +1665,7 @@ export const ServerInfoSchema = {
   properties: {
     'authz-backend': {
       $ref: '#/components/schemas/AuthZBackend',
+      description: `\`AuthZ\` backend in use.`,
     },
     bootstrapped: {
       type: 'boolean',
@@ -1531,6 +1709,19 @@ export const StorageCredentialSchema = {
       allOf: [
         {
           $ref: '#/components/schemas/S3Credential',
+          description: `Credentials for S3 storage
+
+Example payload in the code-snippet below:
+
+\`\`\`
+use iceberg_catalog::service::storage::StorageCredential;
+let cred: StorageCredential = serde_json::from_str(r#"{
+    "type": "s3",
+    "credential-type": "access-key",
+    "aws-access-key-id": "minio-root-user",
+    "aws-secret-access-key": "minio-root-password"
+  }"#).unwrap();
+\`\`\``,
         },
         {
           type: 'object',
@@ -1544,11 +1735,38 @@ export const StorageCredentialSchema = {
         },
       ],
       title: 'StorageCredentialS3',
+      description: `Credentials for S3 storage
+
+Example payload in the code-snippet below:
+
+\`\`\`
+use iceberg_catalog::service::storage::StorageCredential;
+let cred: StorageCredential = serde_json::from_str(r#"{
+    "type": "s3",
+    "credential-type": "access-key",
+    "aws-access-key-id": "minio-root-user",
+    "aws-secret-access-key": "minio-root-password"
+  }"#).unwrap();
+\`\`\``,
     },
     {
       allOf: [
         {
           $ref: '#/components/schemas/AzCredential',
+          description: `Credentials for Az storage
+
+Example payload:
+
+\`\`\`
+use iceberg_catalog::service::storage::StorageCredential;
+let cred: StorageCredential = serde_json::from_str(r#"{
+    "type": "az",
+    "credential-type": "client-credentials",
+    "client-id": "...",
+    "client-secret": "...",
+    "tenant-id": "..."
+  }"#).unwrap();
+\`\`\``,
         },
         {
           type: 'object',
@@ -1562,11 +1780,50 @@ export const StorageCredentialSchema = {
         },
       ],
       title: 'StorageCredentialAz',
+      description: `Credentials for Az storage
+
+Example payload:
+
+\`\`\`
+use iceberg_catalog::service::storage::StorageCredential;
+let cred: StorageCredential = serde_json::from_str(r#"{
+    "type": "az",
+    "credential-type": "client-credentials",
+    "client-id": "...",
+    "client-secret": "...",
+    "tenant-id": "..."
+  }"#).unwrap();
+\`\`\``,
     },
     {
       allOf: [
         {
           $ref: '#/components/schemas/GcsCredential',
+          description: `Credentials for GCS storage
+
+Example payload in the code-snippet below:
+
+\`\`\`
+use iceberg_catalog::service::storage::StorageCredential;
+let cred: StorageCredential = serde_json::from_str(r#"{
+    "type": "gcs",
+    "credential-type": "service-account-key",
+    "key": {
+      "type": "service_account",
+      "project_id": "example-project-1234",
+      "private_key_id": "....",
+      "private_key": "-----BEGIN PRIVATE KEY-----\n.....\n-----END PRIVATE KEY-----\n",
+      "client_email": "abc@example-project-1234.iam.gserviceaccount.com",
+      "client_id": "123456789012345678901",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abc%example-project-1234.iam.gserviceaccount.com",
+      "universe_domain": "googleapis.com"
+    }
+}"#).unwrap();
+\`\`\`
+`,
         },
         {
           type: 'object',
@@ -1580,12 +1837,34 @@ export const StorageCredentialSchema = {
         },
       ],
       title: 'StorageCredentialGcs',
+      description: `Credentials for GCS storage
+
+Example payload in the code-snippet below:
+
+\`\`\`
+use iceberg_catalog::service::storage::StorageCredential;
+let cred: StorageCredential = serde_json::from_str(r#"{
+    "type": "gcs",
+    "credential-type": "service-account-key",
+    "key": {
+      "type": "service_account",
+      "project_id": "example-project-1234",
+      "private_key_id": "....",
+      "private_key": "-----BEGIN PRIVATE KEY-----\n.....\n-----END PRIVATE KEY-----\n",
+      "client_email": "abc@example-project-1234.iam.gserviceaccount.com",
+      "client_id": "123456789012345678901",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abc%example-project-1234.iam.gserviceaccount.com",
+      "universe_domain": "googleapis.com"
+    }
+}"#).unwrap();
+\`\`\`
+`,
     },
   ],
   description: 'Storage secret for a warehouse.',
-  discriminator: {
-    propertyName: 'type',
-  },
 } as const;
 
 export const StorageProfileSchema = {
@@ -1594,6 +1873,7 @@ export const StorageProfileSchema = {
       allOf: [
         {
           $ref: '#/components/schemas/AdlsProfile',
+          description: 'Azure storage profile',
         },
         {
           type: 'object',
@@ -1607,11 +1887,13 @@ export const StorageProfileSchema = {
         },
       ],
       title: 'StorageProfileAdls',
+      description: 'Azure storage profile',
     },
     {
       allOf: [
         {
           $ref: '#/components/schemas/S3Profile',
+          description: 'S3 storage profile',
         },
         {
           type: 'object',
@@ -1625,6 +1907,7 @@ export const StorageProfileSchema = {
         },
       ],
       title: 'StorageProfileS3',
+      description: 'S3 storage profile',
     },
     {
       allOf: [
@@ -1646,9 +1929,6 @@ export const StorageProfileSchema = {
     },
   ],
   description: 'Storage profile for a warehouse.',
-  discriminator: {
-    propertyName: 'type',
-  },
 } as const;
 
 export const TableActionSchema = {
@@ -1781,9 +2061,6 @@ export const TableAssignmentSchema = {
       title: 'TableAssignmentCreate',
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
 } as const;
 
 export const TableRelationSchema = {
@@ -1820,16 +2097,49 @@ export const TabularDeleteProfileSchema = {
       },
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
+} as const;
+
+export const TabularIdentOrUuidSchema = {
+  oneOf: [
+    {
+      type: 'object',
+      required: ['table-id'],
+      properties: {
+        'table-id': {
+          type: 'string',
+          format: 'uuid',
+        },
+      },
+    },
+    {
+      type: 'object',
+      required: ['namespace', 'table', 'warehouse-id'],
+      properties: {
+        namespace: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+        table: {
+          type: 'string',
+          description: 'Name of the table or view',
+        },
+        'warehouse-id': {
+          type: 'string',
+          format: 'uuid',
+        },
+      },
+    },
+  ],
+  description: 'Identifier for a table or view, either a UUID or its name and namespace',
 } as const;
 
 export const TabularIdentUuidSchema = {
   oneOf: [
     {
       type: 'object',
-      required: ['type', 'id'],
+      required: ['id', 'type'],
       properties: {
         id: {
           type: 'string',
@@ -1843,7 +2153,7 @@ export const TabularIdentUuidSchema = {
     },
     {
       type: 'object',
-      required: ['type', 'id'],
+      required: ['id', 'type'],
       properties: {
         id: {
           type: 'string',
@@ -1856,9 +2166,6 @@ export const TabularIdentUuidSchema = {
       },
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
 } as const;
 
 export const TabularTypeSchema = {
@@ -1940,9 +2247,8 @@ export const UpdateRoleRequestSchema = {
   required: ['name'],
   properties: {
     description: {
-      type: 'string',
+      type: ['string', 'null'],
       description: 'Description of the role. If not set, the description will be removed.',
-      nullable: true,
     },
     name: {
       type: 'string',
@@ -1992,8 +2298,7 @@ export const UpdateUserRequestSchema = {
   required: ['name', 'user_type'],
   properties: {
     email: {
-      type: 'string',
-      nullable: true,
+      type: ['string', 'null'],
     },
     name: {
       type: 'string',
@@ -2044,12 +2349,16 @@ export const UpdateWarehouseCredentialRequestSchema = {
   type: 'object',
   properties: {
     'new-storage-credential': {
-      allOf: [
+      oneOf: [
+        {
+          type: 'null',
+        },
         {
           $ref: '#/components/schemas/StorageCredential',
+          description: `New storage credential to use for the warehouse.
+If not specified, the existing credential is removed.`,
         },
       ],
-      nullable: true,
     },
   },
 } as const;
@@ -2069,15 +2378,24 @@ export const UpdateWarehouseStorageRequestSchema = {
   required: ['storage-profile'],
   properties: {
     'storage-credential': {
-      allOf: [
+      oneOf: [
+        {
+          type: 'null',
+        },
         {
           $ref: '#/components/schemas/StorageCredential',
+          description: `Optional storage credential to use for the warehouse.
+The existing credential is not re-used. If no credential is
+provided, we assume that this storage does not require credentials.`,
         },
       ],
-      nullable: true,
     },
     'storage-profile': {
       $ref: '#/components/schemas/StorageProfile',
+      description: `Storage profile to use for the warehouse.
+The new profile must point to the same location as the existing profile
+to avoid data loss. For S3 this means that you may not change the
+bucket, key prefix, or region.`,
     },
   },
 } as const;
@@ -2093,9 +2411,8 @@ export const UserSchema = {
       description: 'Timestamp when the user was created',
     },
     email: {
-      type: 'string',
+      type: ['string', 'null'],
       description: 'Email of the user',
-      nullable: true,
     },
     id: {
       type: 'string',
@@ -2103,19 +2420,20 @@ export const UserSchema = {
     },
     'last-updated-with': {
       $ref: '#/components/schemas/UserLastUpdatedWith',
+      description: 'The endpoint that last updated the user',
     },
     name: {
       type: 'string',
       description: 'Name of the user',
     },
     'updated-at': {
-      type: 'string',
+      type: ['string', 'null'],
       format: 'date-time',
       description: 'Timestamp when the user was last updated',
-      nullable: true,
     },
     'user-type': {
       $ref: '#/components/schemas/UserType',
+      description: 'Type of the user',
     },
   },
 } as const;
@@ -2131,6 +2449,7 @@ export const UserOrRoleSchema = {
     {
       type: 'object',
       title: 'UserOrRoleUser',
+      description: 'Id of the user',
       required: ['user'],
       properties: {
         user: {
@@ -2143,6 +2462,7 @@ export const UserOrRoleSchema = {
     {
       type: 'object',
       title: 'UserOrRoleRole',
+      description: 'Id of the role',
       required: ['role'],
       properties: {
         role: {
@@ -2271,9 +2591,6 @@ export const ViewAssignmentSchema = {
       title: 'ViewAssignmentModify',
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
 } as const;
 
 export const ViewRelationSchema = {
@@ -2436,9 +2753,6 @@ export const WarehouseAssignmentSchema = {
       title: 'WarehouseAssignmentModify',
     },
   ],
-  discriminator: {
-    propertyName: 'type',
-  },
 } as const;
 
 export const WarehouseRelationSchema = {

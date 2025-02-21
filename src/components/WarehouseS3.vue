@@ -60,6 +60,16 @@
                 : `Enable path style access`
             "></v-switch>
         </v-col>
+        <v-col>
+          <v-switch
+            v-model="warehouseObjectData['storage-profile']['allow-alternative-protocols']"
+            color="primary"
+            :label="
+              warehouseObjectData['storage-profile']['allow-alternative-protocols']
+                ? `Alternative protocols are enabled`
+                : `Enable alternative s3 protocols (s3a, s3n)`
+            "></v-switch>
+        </v-col>
       </v-row>
 
       <v-text-field

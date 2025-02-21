@@ -14,6 +14,9 @@ import type {
   RenameDefaultProjectResponse,
   GetServerInfoError,
   GetServerInfoResponse,
+  CheckData,
+  CheckError,
+  CheckResponse2,
   GetNamespaceByIdData,
   GetNamespaceByIdError,
   GetNamespaceByIdResponse,
@@ -261,6 +264,18 @@ export const getServerInfo = <ThrowOnError extends boolean = false>(
   return (options?.client ?? client).get<GetServerInfoResponse, GetServerInfoError, ThrowOnError>({
     ...options,
     url: '/management/v1/info',
+  });
+};
+
+/**
+ * Check if a specific action is allowed on the given object
+ */
+export const check = <ThrowOnError extends boolean = false>(
+  options: Options<CheckData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).post<CheckResponse2, CheckError, ThrowOnError>({
+    ...options,
+    url: '/management/v1/permissions/check',
   });
 };
 

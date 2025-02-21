@@ -60,7 +60,62 @@ export type BootstrapRequest = {
    * The initial user will become the global admin.
    */
   'user-name'?: string | null;
-  'user-type'?: UserType | null;
+  'user-type'?: null | UserType;
+};
+
+/**
+ * Represents an action on an object
+ */
+export type CheckOperation =
+  | {
+      server: {
+        action: ServerAction;
+      };
+    }
+  | {
+      project: {
+        action: ProjectAction;
+        'project-id'?: string | null;
+      };
+    }
+  | {
+      warehouse: {
+        action: WarehouseAction;
+        'warehouse-id': string;
+      };
+    }
+  | {
+      namespace: NamespaceIdentOrUuid & {
+        action: NamespaceAction;
+      };
+    }
+  | {
+      table: TabularIdentOrUuid & {
+        action: TableAction;
+      };
+    }
+  | {
+      view: TabularIdentOrUuid & {
+        action: ViewAction;
+      };
+    };
+
+/**
+ * Check if a specific action is allowed on the given object
+ */
+export type CheckRequest = {
+  identity?: null | UserOrRole;
+  /**
+   * The operation to check.
+   */
+  operation: CheckOperation;
+};
+
+export type CheckResponse = {
+  /**
+   * Whether the action is allowed.
+   */
+  allowed: boolean;
 };
 
 export type CreateProjectRequest = {
@@ -121,17 +176,24 @@ export type CreateUserRequest = {
    * Default: false
    */
   'update-if-exists'?: boolean;
-  'user-type'?: UserType | null;
+  'user-type'?: null | UserType;
 };
 
 export type CreateWarehouseRequest = {
+  /**
+   * Profile to determine behavior upon dropping of tabulars, defaults to soft-deletion with
+   * 7 days expiration.
+   */
   'delete-profile'?: TabularDeleteProfile;
   /**
    * Project ID in which to create the warehouse.
    * If no default project is set for this server, this field is required.
    */
   'project-id'?: string | null;
-  'storage-credential'?: StorageCredential | null;
+  'storage-credential'?: null | StorageCredential;
+  /**
+   * Storage profile to use for the warehouse.
+   */
   'storage-profile': StorageProfile;
   /**
    * Name of the warehouse to create. Must be unique
@@ -172,6 +234,9 @@ export type DeletedTabularResponse = {
    * List of namespace parts the tabular belongs to
    */
   namespace: Array<string>;
+  /**
+   * Type of the tabular
+   */
   typ: TabularType;
   /**
    * Warehouse ID where the tabular is stored
@@ -179,7 +244,24 @@ export type DeletedTabularResponse = {
   warehouse_id: string;
 };
 
-export type DeleteKind = 'default' | 'purge';
+/**
+ * JSON error payload returned in a response with further details on the error
+ */
+export type ErrorModel = {
+  /**
+   * HTTP response code
+   */
+  code: number;
+  /**
+   * Human-readable error message
+   */
+  message: string;
+  stack?: Array<string>;
+  /**
+   * Internal type definition of the error
+   */
+  type: string;
+};
 
 /**
  * GCS Credentials
@@ -313,6 +395,9 @@ export type GetWarehouseAuthPropertiesResponse = {
 };
 
 export type GetWarehouseResponse = {
+  /**
+   * Delete profile used for the warehouse.
+   */
   'delete-profile': TabularDeleteProfile;
   /**
    * ID of the warehouse.
@@ -326,8 +411,21 @@ export type GetWarehouseResponse = {
    * Project ID in which the warehouse is created.
    */
   'project-id': string;
+  /**
+   * Whether the warehouse is active.
+   */
   status: WarehouseStatus;
+  /**
+   * Storage profile used for the warehouse.
+   */
   'storage-profile': StorageProfile;
+};
+
+/**
+ * JSON wrapper for all error responses (non-2xx)
+ */
+export type IcebergErrorResponse = {
+  error: ErrorModel;
 };
 
 export type ListDeletedTabularsResponse = {
@@ -356,16 +454,6 @@ export type ListRolesResponse = {
 export type ListUsersResponse = {
   next_page_token?: string | null;
   users: Array<User>;
-};
-
-export type ListWarehousesRequest = {
-  projectId?: ProjectIdent | null;
-  /**
-   * Optional filter to return only warehouses
-   * with the specified status.
-   * If not provided, only active warehouses are returned.
-   */
-  warehouseStatus?: Array<WarehouseStatus> | null;
 };
 
 export type ListWarehousesResponse = {
@@ -414,6 +502,18 @@ export type NamespaceAssignment =
     });
 
 export type type = 'ownership';
+
+/**
+ * Identifier for a namespace, either a UUID or its name and warehouse ID
+ */
+export type NamespaceIdentOrUuid =
+  | {
+      'namespace-id': string;
+    }
+  | {
+      namespace: Array<string>;
+      'warehouse-id': string;
+    };
 
 export type NamespaceRelation =
   | 'ownership'
@@ -469,8 +569,6 @@ export type ProjectAssignment =
     });
 
 export type type2 = 'project_admin';
-
-export type ProjectIdent = string;
 
 export type ProjectRelation =
   | 'project_admin'
@@ -561,6 +659,13 @@ export type S3Flavor = 'aws' | 's3-compat';
 
 export type S3Profile = {
   /**
+   * Allow `s3a://` and `s3n://` in locations.
+   * This is disabled by default. We do not recommend to use this setting
+   * except for migration of old hadoop-based tables via the register endpoint.
+   * Tables with `s3a` paths are not accessible outside the Java ecosystem.
+   */
+  'allow-alternative-protocols'?: boolean | null;
+  /**
    * Optional ARN to assume when accessing the bucket
    */
   'assume-role-arn'?: string | null;
@@ -575,6 +680,10 @@ export type S3Profile = {
    * Example: `http://s3-de.my-domain.com:9000`
    */
   endpoint?: string | null;
+  /**
+   * S3 flavor to use.
+   * Defaults to AWS
+   */
   flavor?: S3Flavor;
   /**
    * Subpath in the bucket to use.
@@ -598,7 +707,13 @@ export type S3Profile = {
 };
 
 export type SearchRoleRequest = {
-  'project-id'?: ProjectIdent | null;
+  /**
+   * Deprecated: Please use the x-project-id header instead.
+   * Project ID in which the role is created.
+   * Only required if the project ID cannot be inferred from the
+   * users token and no default project is set.
+   */
+  'project-id'?: string | null;
   /**
    * Search string for fuzzy search.
    * Length is truncated to 64 characters.
@@ -627,6 +742,9 @@ export type SearchUser = {
    * Name of the user
    */
   name: string;
+  /**
+   * Type of the user
+   */
   'user-type': UserType;
 };
 
@@ -668,6 +786,9 @@ export type ServerAssignment =
 export type type4 = 'admin';
 
 export type ServerInfo = {
+  /**
+   * `AuthZ` backend in use.
+   */
   'authz-backend': AuthZBackend;
   /**
    * Whether the catalog has been bootstrapped.
@@ -779,6 +900,22 @@ export type TabularDeleteProfile =
 
 export type type7 = 'hard';
 
+/**
+ * Identifier for a table or view, either a UUID or its name and namespace
+ */
+export type TabularIdentOrUuid =
+  | {
+      'table-id': string;
+    }
+  | {
+      namespace: Array<string>;
+      /**
+       * Name of the table or view
+       */
+      table: string;
+      'warehouse-id': string;
+    };
+
 export type TabularIdentUuid =
   | {
       id: string;
@@ -856,7 +993,7 @@ export type UpdateWarehouseAssignmentsRequest = {
 };
 
 export type UpdateWarehouseCredentialRequest = {
-  'new-storage-credential'?: StorageCredential | null;
+  'new-storage-credential'?: null | StorageCredential;
 };
 
 export type UpdateWarehouseDeleteProfileRequest = {
@@ -864,7 +1001,13 @@ export type UpdateWarehouseDeleteProfileRequest = {
 };
 
 export type UpdateWarehouseStorageRequest = {
-  'storage-credential'?: StorageCredential | null;
+  'storage-credential'?: null | StorageCredential;
+  /**
+   * Storage profile to use for the warehouse.
+   * The new profile must point to the same location as the existing profile
+   * to avoid data loss. For S3 this means that you may not change the
+   * bucket, key prefix, or region.
+   */
   'storage-profile': StorageProfile;
 };
 
@@ -884,6 +1027,9 @@ export type User = {
    * The user's ID
    */
   id: string;
+  /**
+   * The endpoint that last updated the user
+   */
   'last-updated-with': UserLastUpdatedWith;
   /**
    * Name of the user
@@ -893,6 +1039,9 @@ export type User = {
    * Timestamp when the user was last updated
    */
   'updated-at'?: string | null;
+  /**
+   * Type of the user
+   */
   'user-type': UserType;
 };
 
@@ -1019,15 +1168,15 @@ export type BootstrapData = {
 
 export type BootstrapResponse = void;
 
-export type BootstrapError = unknown;
+export type BootstrapError = IcebergErrorResponse;
 
 export type GetDefaultProjectResponse = GetProjectResponse;
 
-export type GetDefaultProjectError = unknown;
+export type GetDefaultProjectError = IcebergErrorResponse;
 
 export type DeleteDefaultProjectResponse = void;
 
-export type DeleteDefaultProjectError = unknown;
+export type DeleteDefaultProjectError = IcebergErrorResponse;
 
 export type RenameDefaultProjectData = {
   body: RenameProjectRequest;
@@ -1035,11 +1184,19 @@ export type RenameDefaultProjectData = {
 
 export type RenameDefaultProjectResponse = unknown;
 
-export type RenameDefaultProjectError = unknown;
+export type RenameDefaultProjectError = IcebergErrorResponse;
 
 export type GetServerInfoResponse = ServerInfo;
 
-export type GetServerInfoError = unknown;
+export type GetServerInfoError = IcebergErrorResponse;
+
+export type CheckData = {
+  body: CheckRequest;
+};
+
+export type CheckResponse2 = CheckResponse;
+
+export type CheckError = unknown;
 
 export type GetNamespaceByIdData = {
   path: {
@@ -1066,7 +1223,7 @@ export type GetNamespaceAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole | null;
+    principal?: UserOrRole;
   };
 };
 
@@ -1085,7 +1242,7 @@ export type GetNamespaceAssignmentsByIdData = {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
-    relations?: Array<NamespaceRelation> | null;
+    relations?: Array<NamespaceRelation>;
   };
 };
 
@@ -1127,7 +1284,7 @@ export type GetProjectAccessData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole | null;
+    principal?: UserOrRole;
   };
 };
 
@@ -1140,7 +1297,7 @@ export type GetProjectAssignmentsData = {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
-    relations?: Array<ProjectRelation> | null;
+    relations?: Array<ProjectRelation>;
   };
 };
 
@@ -1168,7 +1325,7 @@ export type GetProjectAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole | null;
+    principal?: UserOrRole;
   };
 };
 
@@ -1187,7 +1344,7 @@ export type GetProjectAssignmentsByIdData = {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
-    relations?: Array<ProjectRelation> | null;
+    relations?: Array<ProjectRelation>;
   };
 };
 
@@ -1216,13 +1373,6 @@ export type GetRoleAccessByIdData = {
      */
     role_id: string;
   };
-  query?: {
-    /**
-     * The user or role to show access for.
-     * If not specified, shows access for the current user.
-     */
-    principal?: UserOrRole | null;
-  };
 };
 
 export type GetRoleAccessByIdResponse = GetRoleAccessResponse;
@@ -1240,7 +1390,7 @@ export type GetRoleAssignmentsByIdData = {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
-    relations?: Array<RoleRelation> | null;
+    relations?: Array<RoleRelation>;
   };
 };
 
@@ -1268,7 +1418,7 @@ export type GetServerAccessData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole | null;
+    principal?: UserOrRole;
   };
 };
 
@@ -1281,7 +1431,7 @@ export type GetServerAssignmentsData = {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
-    relations?: Array<ServerRelation> | null;
+    relations?: Array<ServerRelation>;
   };
 };
 
@@ -1309,7 +1459,7 @@ export type GetTableAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole | null;
+    principal?: UserOrRole;
   };
 };
 
@@ -1328,7 +1478,7 @@ export type GetTableAssignmentsByIdData = {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
-    relations?: Array<TableRelation> | null;
+    relations?: Array<TableRelation>;
   };
 };
 
@@ -1362,7 +1512,7 @@ export type GetViewAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole | null;
+    principal?: UserOrRole;
   };
 };
 
@@ -1381,7 +1531,7 @@ export type GetViewAssignmentsByIdData = {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
-    relations?: Array<ViewRelation> | null;
+    relations?: Array<ViewRelation>;
   };
 };
 
@@ -1428,7 +1578,7 @@ export type GetWarehouseAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole | null;
+    principal?: UserOrRole;
   };
 };
 
@@ -1447,7 +1597,7 @@ export type GetWarehouseAssignmentsByIdData = {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
-    relations?: Array<WarehouseRelation> | null;
+    relations?: Array<WarehouseRelation>;
   };
 };
 
@@ -1489,11 +1639,11 @@ export type CreateProjectData = {
 
 export type CreateProjectResponse2 = CreateProjectResponse;
 
-export type CreateProjectError = unknown;
+export type CreateProjectError = IcebergErrorResponse;
 
 export type ListProjectsResponse2 = ListProjectsResponse;
 
-export type ListProjectsError = unknown;
+export type ListProjectsError = IcebergErrorResponse;
 
 export type GetProjectByIdData = {
   path: {
@@ -1503,7 +1653,7 @@ export type GetProjectByIdData = {
 
 export type GetProjectByIdResponse = GetProjectResponse;
 
-export type GetProjectByIdError = unknown;
+export type GetProjectByIdError = IcebergErrorResponse;
 
 export type DeleteProjectByIdData = {
   path: {
@@ -1513,7 +1663,7 @@ export type DeleteProjectByIdData = {
 
 export type DeleteProjectByIdResponse = void;
 
-export type DeleteProjectByIdError = unknown;
+export type DeleteProjectByIdError = IcebergErrorResponse;
 
 export type RenameProjectByIdData = {
   body: RenameProjectRequest;
@@ -1524,7 +1674,7 @@ export type RenameProjectByIdData = {
 
 export type RenameProjectByIdResponse = unknown;
 
-export type RenameProjectByIdError = unknown;
+export type RenameProjectByIdError = IcebergErrorResponse;
 
 export type ListRolesData = {
   query?: {
@@ -1552,7 +1702,7 @@ export type ListRolesData = {
 
 export type ListRolesResponse2 = ListRolesResponse;
 
-export type ListRolesError = unknown;
+export type ListRolesError = IcebergErrorResponse;
 
 export type CreateRoleData = {
   body: CreateRoleRequest;
@@ -1560,7 +1710,7 @@ export type CreateRoleData = {
 
 export type CreateRoleResponse = Role;
 
-export type CreateRoleError = unknown;
+export type CreateRoleError = IcebergErrorResponse;
 
 export type GetRoleData = {
   path: {
@@ -1570,7 +1720,7 @@ export type GetRoleData = {
 
 export type GetRoleResponse = Role;
 
-export type GetRoleError = unknown;
+export type GetRoleError = IcebergErrorResponse;
 
 export type UpdateRoleData = {
   body: UpdateRoleRequest;
@@ -1581,7 +1731,7 @@ export type UpdateRoleData = {
 
 export type UpdateRoleResponse = Role;
 
-export type UpdateRoleError = unknown;
+export type UpdateRoleError = IcebergErrorResponse;
 
 export type DeleteRoleData = {
   path: {
@@ -1591,7 +1741,7 @@ export type DeleteRoleData = {
 
 export type DeleteRoleResponse = void;
 
-export type DeleteRoleError = unknown;
+export type DeleteRoleError = IcebergErrorResponse;
 
 export type SearchRoleData = {
   body: SearchRoleRequest;
@@ -1599,7 +1749,7 @@ export type SearchRoleData = {
 
 export type SearchRoleResponse2 = SearchRoleResponse;
 
-export type SearchRoleError = unknown;
+export type SearchRoleError = IcebergErrorResponse;
 
 export type SearchUserData = {
   body: SearchUserRequest;
@@ -1607,7 +1757,7 @@ export type SearchUserData = {
 
 export type SearchUserResponse2 = SearchUserResponse;
 
-export type SearchUserError = unknown;
+export type SearchUserError = IcebergErrorResponse;
 
 export type ListUserData = {
   query?: {
@@ -1629,7 +1779,7 @@ export type ListUserData = {
 
 export type ListUserResponse = ListUsersResponse;
 
-export type ListUserError = unknown;
+export type ListUserError = IcebergErrorResponse;
 
 export type CreateUserData = {
   body: CreateUserRequest;
@@ -1637,7 +1787,7 @@ export type CreateUserData = {
 
 export type CreateUserResponse = User;
 
-export type CreateUserError = unknown;
+export type CreateUserError = IcebergErrorResponse;
 
 export type GetUserData = {
   path: {
@@ -1647,7 +1797,7 @@ export type GetUserData = {
 
 export type GetUserResponse = User;
 
-export type GetUserError = unknown;
+export type GetUserError = IcebergErrorResponse;
 
 export type UpdateUserData = {
   body: UpdateUserRequest;
@@ -1658,7 +1808,7 @@ export type UpdateUserData = {
 
 export type UpdateUserResponse = unknown;
 
-export type UpdateUserError = unknown;
+export type UpdateUserError = IcebergErrorResponse;
 
 export type DeleteUserData = {
   path: {
@@ -1668,7 +1818,7 @@ export type DeleteUserData = {
 
 export type DeleteUserResponse = void;
 
-export type DeleteUserError = unknown;
+export type DeleteUserError = IcebergErrorResponse;
 
 export type ListWarehousesData = {
   query?: {
@@ -1682,13 +1832,13 @@ export type ListWarehousesData = {
      * with the specified status.
      * If not provided, only active warehouses are returned.
      */
-    warehouseStatus?: Array<WarehouseStatus> | null;
+    warehouseStatus?: Array<WarehouseStatus>;
   };
 };
 
 export type ListWarehousesResponse2 = ListWarehousesResponse;
 
-export type ListWarehousesError = unknown;
+export type ListWarehousesError = IcebergErrorResponse;
 
 export type CreateWarehouseData = {
   body: CreateWarehouseRequest;
@@ -1696,7 +1846,7 @@ export type CreateWarehouseData = {
 
 export type CreateWarehouseResponse2 = CreateWarehouseResponse;
 
-export type CreateWarehouseError = unknown;
+export type CreateWarehouseError = IcebergErrorResponse;
 
 export type GetWarehouseData = {
   path: {
@@ -1706,7 +1856,7 @@ export type GetWarehouseData = {
 
 export type GetWarehouseResponse2 = GetWarehouseResponse;
 
-export type GetWarehouseError = unknown;
+export type GetWarehouseError = IcebergErrorResponse;
 
 export type DeleteWarehouseData = {
   path: {
@@ -1716,7 +1866,7 @@ export type DeleteWarehouseData = {
 
 export type DeleteWarehouseResponse = void;
 
-export type DeleteWarehouseError = unknown;
+export type DeleteWarehouseError = IcebergErrorResponse;
 
 export type ActivateWarehouseData = {
   path: {
@@ -1726,7 +1876,7 @@ export type ActivateWarehouseData = {
 
 export type ActivateWarehouseResponse = unknown;
 
-export type ActivateWarehouseError = unknown;
+export type ActivateWarehouseError = IcebergErrorResponse;
 
 export type DeactivateWarehouseData = {
   path: {
@@ -1736,7 +1886,7 @@ export type DeactivateWarehouseData = {
 
 export type DeactivateWarehouseResponse = unknown;
 
-export type DeactivateWarehouseError = unknown;
+export type DeactivateWarehouseError = IcebergErrorResponse;
 
 export type UpdateWarehouseDeleteProfileData = {
   body: UpdateWarehouseDeleteProfileRequest;
@@ -1747,7 +1897,7 @@ export type UpdateWarehouseDeleteProfileData = {
 
 export type UpdateWarehouseDeleteProfileResponse = unknown;
 
-export type UpdateWarehouseDeleteProfileError = unknown;
+export type UpdateWarehouseDeleteProfileError = IcebergErrorResponse;
 
 export type ListDeletedTabularsData = {
   path: {
@@ -1772,7 +1922,7 @@ export type ListDeletedTabularsData = {
 
 export type ListDeletedTabularsResponse2 = ListDeletedTabularsResponse;
 
-export type ListDeletedTabularsError = unknown;
+export type ListDeletedTabularsError = IcebergErrorResponse;
 
 export type UndropTabularsData = {
   body: UndropTabularsRequest;
@@ -1783,7 +1933,7 @@ export type UndropTabularsData = {
 
 export type UndropTabularsResponse = void;
 
-export type UndropTabularsError = unknown;
+export type UndropTabularsError = IcebergErrorResponse;
 
 export type RenameWarehouseData = {
   body: RenameWarehouseRequest;
@@ -1794,7 +1944,7 @@ export type RenameWarehouseData = {
 
 export type RenameWarehouseResponse = unknown;
 
-export type RenameWarehouseError = unknown;
+export type RenameWarehouseError = IcebergErrorResponse;
 
 export type UpdateStorageProfileData = {
   body: UpdateWarehouseStorageRequest;
@@ -1805,7 +1955,7 @@ export type UpdateStorageProfileData = {
 
 export type UpdateStorageProfileResponse = unknown;
 
-export type UpdateStorageProfileError = unknown;
+export type UpdateStorageProfileError = IcebergErrorResponse;
 
 export type UpdateStorageCredentialData = {
   body: UpdateWarehouseCredentialRequest;
@@ -1816,8 +1966,8 @@ export type UpdateStorageCredentialData = {
 
 export type UpdateStorageCredentialResponse = unknown;
 
-export type UpdateStorageCredentialError = unknown;
+export type UpdateStorageCredentialError = IcebergErrorResponse;
 
 export type WhoamiResponse = User;
 
-export type WhoamiError = unknown;
+export type WhoamiError = IcebergErrorResponse;
