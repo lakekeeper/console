@@ -398,11 +398,20 @@ function newProfile(item: { profile: StorageProfile; credentials: StorageCredent
 onMounted(() => {
   if (props.warehouse) {
     emptyWarehouse.value = false;
-    if (props.warehouse['storage-profile'].type === 's3') storageCredentialType.value = 'S3';
+    if (props.warehouse['storage-profile'].type === 's3') {
+      storageCredentialType.value = 'S3';
+      Object.assign(warehouseObjectS3, props.warehouse);
+    }
 
-    if (props.warehouse['storage-profile'].type === 'adls') storageCredentialType.value = 'AZURE';
+    if (props.warehouse['storage-profile'].type === 'adls') {
+      storageCredentialType.value = 'AZURE';
+      Object.assign(warehouseObjectAz, props.warehouse);
+    }
 
-    if (props.warehouse['storage-profile'].type === 'gcs') storageCredentialType.value = 'GCS';
+    if (props.warehouse['storage-profile'].type === 'gcs') {
+      storageCredentialType.value = 'GCS';
+      Object.assign(warehouseObjectGCS, props.warehouse);
+    }
     if (
       props.objectType === ObjectType.DELETION_PROFILE &&
       props.warehouse['delete-profile'].type === 'soft'
