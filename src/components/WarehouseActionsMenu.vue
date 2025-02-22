@@ -22,7 +22,7 @@
             @update-credentials="updateStorageCredential" />
         </v-list-item-title>
       </v-list-item>
-      <!--v-list-item>
+      <v-list-item prepend-icon="mdi-playlist-edit">
         <v-list-item-title>
           <AddWarehouseDialog
             :warehouse="warehouse"
@@ -30,10 +30,9 @@
             :intent="Intent.UPDATE"
             :object-type="ObjectType.STORAGE_PROFILE"
             @update-profile="updateStorageProfile"
-            @cancel="menuOpen = false"
-          />
+            @cancel="menuOpen = false" />
         </v-list-item-title>
-      </v-list-item-->
+      </v-list-item>
       <v-list-item prepend-icon="mdi-update">
         <v-list-item-title>
           <AddWarehouseDialog
@@ -93,13 +92,10 @@ function updateStorageCredential(e: StorageCredential) {
   emit('updateCredentials', e);
 }
 
-// function updateStorageProfile(e: {
-//   profile: StorageProfile;
-//   credentials: StorageCredential;
-// }) {
-//   emit("update-profile", e);
-//   menuOpen.value = false;
-// }
+function updateStorageProfile(e: { profile: StorageProfile; credentials: StorageCredential }) {
+  emit('updateProfile', e);
+  menuOpen.value = false;
+}
 
 function updateDeletionProfile(e: TabularDeleteProfile) {
   emit('updateDelprofile', e);

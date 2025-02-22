@@ -168,6 +168,12 @@
                         <v-list-item-title>Status</v-list-item-title>
                         <v-list-item-subtitle>{{ selectedWarehouse.status }}</v-list-item-subtitle>
                       </v-list-item>
+                      <v-list-item>
+                        <v-list-item-title>Allow Alternative Protocols (s3a)</v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ selectedWarehouse['storage-profile']['allow-alternative-protocols'] }}
+                        </v-list-item-subtitle>
+                      </v-list-item>
 
                       <v-list-item>
                         <v-list-item-title>Deletion Profile</v-list-item-title>
