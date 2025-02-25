@@ -39,7 +39,7 @@
                     color="info"></v-btn>
                 </template>
 
-                <v-card title="Warehouse Staistics">
+                <v-card title="Warehouse Statistics">
                   <v-card-text>
                     <v-row>
                       <v-col>
