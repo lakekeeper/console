@@ -15,10 +15,60 @@
       <v-col>
         <BreadcrumbsFromUrl v-if="!renaming" />
 
-        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
+        <v-toolbar color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
               {{ selectedWarehouse.name }}
+
+              <v-chip size="small" color="secondary" label class="ma-2">
+                <v-icon icon="mdi-table" start></v-icon>
+                number of tables: {{ stats[0].number_of_tables }}
+              </v-chip>
+              <v-chip size="small" color="primary" label class="ma-2">
+                <v-icon icon="mdi-view-grid-outline" start></v-icon>
+                number of views: {{ stats[0].number_of_views }}
+              </v-chip>
+
+              <v-dialog v-model="isDialogActive" max-width="800">
+                <template #activator="{ props: activatorProps }">
+                  <v-btn
+                    v-bind="activatorProps"
+                    density="default"
+                    icon="mdi-information-box-outline"
+                    size="small"
+                    color="info"></v-btn>
+                </template>
+
+                <v-card title="Warehouse Staistics">
+                  <v-card-text>
+                    <v-row>
+                      <v-col>
+                        <v-data-table
+                          fixed-header
+                          :headers="headersStatistics"
+                          hover
+                          :items="stats">
+                          <template v-slot:item.timestamp="{ item }">
+                            {{ formatDate(item.timestamp) }}
+                          </template>
+                          <template v-slot:item.updated_at="{ item }">
+                            {{ formatDate(item.updated_at) }}
+                          </template>
+                          <template #no-data>
+                            <div>No statiscs available</div>
+                          </template>
+                        </v-data-table>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn color="info" text="Close" @click="isDialogActive = false"></v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </span>
           </v-toolbar-title>
           <template #prepend>
@@ -40,6 +90,7 @@
             :status-intent="createNamespaceStatus"
             @add-namespace="addNamespace" />
         </v-toolbar>
+
         <v-tabs v-model="tab" density="compact">
           <v-tab density="compact" value="namespaces" @click="loadTabData">namespaces</v-tab>
           <v-tab
@@ -326,6 +377,7 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import router from '../../router';
 import {
   GetWarehouseResponse,
+  GetWarehouseStatisticsResponse,
   NamespaceAction,
   StorageCredential,
   StorageProfile,
@@ -339,11 +391,20 @@ import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 const route = useRoute();
 
+const isDialogActive = ref(false);
+
 const tab = ref('overview');
 const loading = ref(true);
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
+]);
+
+const headersStatistics: readonly Header[] = Object.freeze([
+  { title: 'Number of tables', key: 'number_of_tables', align: 'start' },
+  { title: 'Number of views', key: 'number_of_views' },
+  { title: 'Created', key: 'timestamp' },
+  { title: 'Updated', key: 'updated_at' },
 ]);
 const loaded = ref(true);
 
@@ -382,6 +443,14 @@ const canReadPermissions = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
+const stats = reactive([
+  {
+    timestamp: '1900-01-01T00:00:00Z',
+    number_of_tables: 3,
+    number_of_views: 0,
+    updated_at: '1900-01-01T00:00:00.000000Z',
+  },
+]);
 
 const permissionObject = reactive<any>({
   id: '',
@@ -414,6 +483,7 @@ async function loadTabData() {
 async function init() {
   try {
     loaded.value = false;
+
     myAccess.splice(0, myAccess.length);
     namespaceId.value = '';
     relationId.value = params.value.id;
@@ -429,7 +499,7 @@ async function init() {
       canReadPermissions.value ? await functions.getWarehouseAssignmentsById(params.value.id) : [],
     );
     loaded.value = true;
-    await Promise.all([loadWarehouse(), listNamespaces()]);
+    await Promise.all([loadWarehouse(), listNamespaces(), getWarehouseStatistics()]);
     loading.value = false;
   } catch (error) {
     console.error(error);
@@ -520,6 +590,20 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
   }
 }
 
+async function getWarehouseStatistics() {
+  try {
+    const stat: GetWarehouseStatisticsResponse = await functions.getWarehouseStatistics(
+      params.value.id,
+    );
+
+    // stats.splice(0, stats.length);
+    Object.assign(stats, stat.stats);
+    console.log(stat);
+  } catch (error: any) {
+    console.error(`Failed to get warehouse-statistics  - `, error);
+  }
+}
+
 async function renameWarehouse(name: string) {
   try {
     renaming.value = true;
@@ -577,6 +661,18 @@ async function updateDelProfile(profile: TabularDeleteProfile) {
   } catch (error: any) {
     console.error(`Failed to update deletion profile for warehouse-${params.value.id}  - `, error);
   }
+}
+
+function formatDate(dateString: string) {
+  const options = {
+    year: 'numeric' as const,
+    month: '2-digit' as const,
+    day: '2-digit' as const,
+    hour: '2-digit' as const,
+    minute: '2-digit' as const,
+    second: '2-digit' as const,
+  };
+  return new Date(dateString).toLocaleDateString('en-US', options).replace(',', '');
 }
 </script>
 

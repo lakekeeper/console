@@ -18,6 +18,8 @@ import {
   GetNamespaceAuthPropertiesResponse,
   GetProjectResponse,
   GetWarehouseResponse,
+  GetWarehouseStatisticsData,
+  GetWarehouseStatisticsResponse,
   ListDeletedTabularsResponse,
   ListRolesResponse,
   ListWarehousesResponse,
@@ -340,6 +342,35 @@ async function createWarehouse(wh: CreateWarehouseRequest): Promise<CreateWareho
     if (error) throw error;
 
     return data as CreateWarehouseResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getWarehouseStatistics(
+  whId: string,
+  page_size?: number,
+  page_token?: string,
+): Promise<GetWarehouseStatisticsResponse> {
+  try {
+    init();
+
+    const client = mng.client;
+
+    const { data, error } = await mng.getWarehouseStatistics({
+      client,
+      path: {
+        warehouse_id: whId,
+      },
+      query: {
+        page_size: page_size,
+        page_token: page_token,
+      },
+    });
+    if (error) throw error;
+
+    return data as GetWarehouseStatisticsResponse;
   } catch (error) {
     handleError(error, new Error());
     throw error;
@@ -1776,6 +1807,7 @@ export function useFunctions() {
     getProjectById,
     updateUserById,
     undropTabular,
+    getWarehouseStatistics,
   };
 }
 
