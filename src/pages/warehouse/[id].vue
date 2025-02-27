@@ -28,47 +28,7 @@
                 <v-icon icon="mdi-view-grid-outline" start></v-icon>
                 number of views: {{ stats[0].number_of_views }}
               </v-chip>
-
-              <v-dialog v-model="isDialogActive" max-width="800">
-                <template #activator="{ props: activatorProps }">
-                  <v-btn
-                    v-bind="activatorProps"
-                    density="default"
-                    icon="mdi-information-box-outline"
-                    size="small"
-                    color="info"></v-btn>
-                </template>
-
-                <v-card title="Warehouse Statistics">
-                  <v-card-text>
-                    <v-row>
-                      <v-col>
-                        <v-data-table
-                          fixed-header
-                          :headers="headersStatistics"
-                          hover
-                          :items="stats">
-                          <template v-slot:item.timestamp="{ item }">
-                            {{ formatDate(item.timestamp) }}
-                          </template>
-                          <template v-slot:item.updated_at="{ item }">
-                            {{ formatDate(item.updated_at) }}
-                          </template>
-                          <template #no-data>
-                            <div>No statiscs available</div>
-                          </template>
-                        </v-data-table>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn color="info" text="Close" @click="isDialogActive = false"></v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+              <StatisticsDialog :stats="stats"></StatisticsDialog>
             </span>
           </v-toolbar-title>
           <template #prepend>
@@ -391,8 +351,6 @@ import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 const route = useRoute();
 
-const isDialogActive = ref(false);
-
 const tab = ref('overview');
 const loading = ref(true);
 const headers: readonly Header[] = Object.freeze([
@@ -400,12 +358,6 @@ const headers: readonly Header[] = Object.freeze([
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
-const headersStatistics: readonly Header[] = Object.freeze([
-  { title: 'Number of tables', key: 'number_of_tables', align: 'start' },
-  { title: 'Number of views', key: 'number_of_views' },
-  { title: 'Created', key: 'timestamp' },
-  { title: 'Updated', key: 'updated_at' },
-]);
 const loaded = ref(true);
 
 const storageProfile = reactive<StorageProfile>({
@@ -661,18 +613,6 @@ async function updateDelProfile(profile: TabularDeleteProfile) {
   } catch (error: any) {
     console.error(`Failed to update deletion profile for warehouse-${params.value.id}  - `, error);
   }
-}
-
-function formatDate(dateString: string) {
-  const options = {
-    year: 'numeric' as const,
-    month: '2-digit' as const,
-    day: '2-digit' as const,
-    hour: '2-digit' as const,
-    minute: '2-digit' as const,
-    second: '2-digit' as const,
-  };
-  return new Date(dateString).toLocaleDateString('en-US', options).replace(',', '');
 }
 </script>
 
