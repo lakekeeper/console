@@ -35,7 +35,7 @@
                     Give us a
                     <v-icon color="yellow" icon="mdi-star" />
                   </div>
-                  <div class="d-flex align-center">
+                  <div class="d-flex align-center" v-if="starCount > 0">
                     <v-icon icon="mdi-tag-outline" />
                     <span class="mr-2">{{ version }}</span>
                     <v-icon icon="mdi-star-outline" />
@@ -216,7 +216,7 @@ const version = ref('0');
 const loading = ref(true);
 
 onMounted(async () => {
-  await fetchGitHub();
+  fetchGitHub();
   await checkAccessStatus();
 
   loading.value = false;
