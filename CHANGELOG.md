@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0](https://github.com/lakekeeper/console/compare/v0.4.0...v0.5.0) (2025-02-27)
+
+
+### Features
+
+* added s3 path sytle access option ([#81](https://github.com/lakekeeper/console/issues/81)) ([11abbcf](https://github.com/lakekeeper/console/commit/11abbcfa25a179b5bc57dfb9bb38d71a63095988))
+* allow-alternative-protocols ([#87](https://github.com/lakekeeper/console/issues/87)) ([4c67bf7](https://github.com/lakekeeper/console/commit/4c67bf761e7a8c2d294221158917cd4a571c4587))
+* update warehouse profile ([#88](https://github.com/lakekeeper/console/issues/88)) ([7cd090a](https://github.com/lakekeeper/console/commit/7cd090a76757a70085783403c47019577652f421))
+
+
+### Bug Fixes
+
+* **deps:** update dependency pinia-plugin-persistedstate-2 to v2.0.28 ([#68](https://github.com/lakekeeper/console/issues/68)) ([66dcf9f](https://github.com/lakekeeper/console/commit/66dcf9f49863ac88535105a7f58ded5df179a808))
+
 ## [0.4.0](https://github.com/lakekeeper/console/compare/v0.3.0...v0.4.0) (2025-01-07)
 
 
