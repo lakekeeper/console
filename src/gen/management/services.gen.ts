@@ -181,6 +181,9 @@ import type {
   RenameWarehouseData,
   RenameWarehouseError,
   RenameWarehouseResponse,
+  GetWarehouseStatisticsData,
+  GetWarehouseStatisticsError,
+  GetWarehouseStatisticsResponse,
   UpdateStorageProfileData,
   UpdateStorageProfileError,
   UpdateStorageProfileResponse,
@@ -1105,6 +1108,38 @@ export const renameWarehouse = <ThrowOnError extends boolean = false>(
   >({
     ...options,
     url: '/management/v1/warehouse/{warehouse_id}/rename',
+  });
+};
+
+/**
+ * Get warehouse statistics
+ * Get statistics about the warehouse, currently table and view counts over time.
+ *
+ * We lazily create a new statistics entry every hour, in between hours, the existing entry is
+ * being updated. If there's a change at created_at + 1 hour, a new entry is created.
+ * If there's been no change, no new entry is created, meaning there may be gaps.
+ *
+ * Example:
+ * - 00:16:32: warehouse created:
+ * - timestamp: 01:00:00, created_at: 00:16:32, updated_at: null, 0 tables, 0 views
+ * - 00:30:00: table created:
+ * - timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:30:00, 1 table, 0 views
+ * - 00:45:00: view created:
+ * - timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view
+ * - 01:00:36: table deleted:
+ * - timestamp: 02:00:00, created_at: 01:00:36, updated_at: null, 0 tables, 1 view
+ * - timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view
+ */
+export const getWarehouseStatistics = <ThrowOnError extends boolean = false>(
+  options: Options<GetWarehouseStatisticsData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).get<
+    GetWarehouseStatisticsResponse,
+    GetWarehouseStatisticsError,
+    ThrowOnError
+  >({
+    ...options,
+    url: '/management/v1/warehouse/{warehouse_id}/statistics',
   });
 };
 
