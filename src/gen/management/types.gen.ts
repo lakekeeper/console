@@ -30,12 +30,17 @@ export type AdlsProfile = {
 
 export type AuthZBackend = 'allow-all' | 'openfga';
 
-export type AzCredential = {
-  'client-id': string;
-  'client-secret': string;
-  'credential-type': 'client-credentials';
-  'tenant-id': string;
-};
+export type AzCredential =
+  | {
+      'client-id': string;
+      'client-secret': string;
+      'credential-type': 'client-credentials';
+      'tenant-id': string;
+    }
+  | {
+      'credential-type': 'shared-access-key';
+      key: string;
+    };
 
 export type credential_type = 'client-credentials';
 
@@ -1157,6 +1162,44 @@ export type WarehouseRelation =
   | 'create'
   | 'modify';
 
+export type WarehouseStatistics = {
+  /**
+   * Number of tables in the warehouse.
+   */
+  number_of_tables: number;
+  /**
+   * Number of views in the warehouse.
+   */
+  number_of_views: number;
+  /**
+   * Timestamp of when these statistics are valid until
+   *
+   * We lazily create a new statistics entry every hour, in between hours, the existing entry
+   * is being updated. If there's a change at `created_at` + 1 hour, a new entry is created. If
+   * there's no change, no new entry is created.
+   */
+  timestamp: string;
+  /**
+   * Timestamp of when these statistics were last updated
+   */
+  updated_at: string;
+};
+
+export type WarehouseStatisticsResponse = {
+  /**
+   * Next page token
+   */
+  'next-page-token'?: string | null;
+  /**
+   * Ordered list of warehouse statistics.
+   */
+  stats: Array<WarehouseStatistics>;
+  /**
+   * ID of the warehouse for which the stats were collected.
+   */
+  'warehouse-ident': string;
+};
+
 /**
  * Status of a warehouse
  */
@@ -1945,6 +1988,26 @@ export type RenameWarehouseData = {
 export type RenameWarehouseResponse = unknown;
 
 export type RenameWarehouseError = IcebergErrorResponse;
+
+export type GetWarehouseStatisticsData = {
+  path: {
+    warehouse_id: string;
+  };
+  query?: {
+    /**
+     * Signals an upper bound of the number of results that a client will receive.
+     */
+    page_size?: number | null;
+    /**
+     * Next page token
+     */
+    page_token?: string;
+  };
+};
+
+export type GetWarehouseStatisticsResponse = WarehouseStatisticsResponse;
+
+export type GetWarehouseStatisticsError = IcebergErrorResponse;
 
 export type UpdateStorageProfileData = {
   body: UpdateWarehouseStorageRequest;

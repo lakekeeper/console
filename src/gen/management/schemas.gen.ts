@@ -63,6 +63,20 @@ export const AzCredentialSchema = {
         },
       },
     },
+    {
+      type: 'object',
+      title: 'AzCredentialSharedAccessKey',
+      required: ['key', 'credential-type'],
+      properties: {
+        'credential-type': {
+          type: 'string',
+          enum: ['shared-access-key'],
+        },
+        key: {
+          type: 'string',
+        },
+      },
+    },
   ],
 } as const;
 
@@ -2758,6 +2772,60 @@ export const WarehouseAssignmentSchema = {
 export const WarehouseRelationSchema = {
   type: 'string',
   enum: ['ownership', 'pass_grants', 'manage_grants', 'describe', 'select', 'create', 'modify'],
+} as const;
+
+export const WarehouseStatisticsSchema = {
+  type: 'object',
+  required: ['timestamp', 'number_of_tables', 'number_of_views', 'updated_at'],
+  properties: {
+    number_of_tables: {
+      type: 'integer',
+      format: 'int64',
+      description: 'Number of tables in the warehouse.',
+    },
+    number_of_views: {
+      type: 'integer',
+      format: 'int64',
+      description: 'Number of views in the warehouse.',
+    },
+    timestamp: {
+      type: 'string',
+      format: 'date-time',
+      description: `Timestamp of when these statistics are valid until
+
+We lazily create a new statistics entry every hour, in between hours, the existing entry
+is being updated. If there's a change at \`created_at\` + 1 hour, a new entry is created. If
+there's no change, no new entry is created.`,
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      description: 'Timestamp of when these statistics were last updated',
+    },
+  },
+} as const;
+
+export const WarehouseStatisticsResponseSchema = {
+  type: 'object',
+  required: ['warehouse-ident', 'stats'],
+  properties: {
+    'next-page-token': {
+      type: ['string', 'null'],
+      description: 'Next page token',
+    },
+    stats: {
+      type: 'array',
+      items: {
+        $ref: '#/components/schemas/WarehouseStatistics',
+      },
+      description: 'Ordered list of warehouse statistics.',
+    },
+    'warehouse-ident': {
+      type: 'string',
+      format: 'uuid',
+      description: 'ID of the warehouse for which the stats were collected.',
+    },
+  },
 } as const;
 
 export const WarehouseStatusSchema = {

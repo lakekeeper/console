@@ -1,41 +1,69 @@
 <template>
   <v-form @submit.prevent="handleSubmit">
+    <!--Credential Type Selection-->
+    <v-container fluid>
+      <v-radio-group v-model="credentialType" row>
+        <v-col>
+          <v-radio
+            value="client-credentials"
+            color="primary"
+            label="Client Credentials"
+            v-model="warehouseObjectData['storage-credential']['credential-type']" />
+        </v-col>
+        <v-col>
+          <v-radio value="shared-access-key" label="Shared Key" />
+        </v-col>
+      </v-radio-group>
+    </v-container>
     <!--Storage Credentials-->
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential']['client-id']"
-      label="client-id"
-      placeholder=""
-      :rules="[rules.required]"></v-text-field>
+    <template v-if="isClientCredentials(warehouseObjectData['storage-credential'])">
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential']['client-id']"
+        label="client-id"
+        placeholder=""
+        :rules="[rules.required]"></v-text-field>
 
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential']['client-secret']"
-      :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
-      autocomplete="current-password"
-      label="client-secret"
-      placeholder="your-client-secret-"
-      :rules="[rules.required]"
-      :type="showPassword ? 'text' : 'password'"
-      @click:append-inner="showPassword = !showPassword"></v-text-field>
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential']['tenant-id']"
-      label="tenant-id"
-      placeholder=""
-      :rules="[rules.required]"></v-text-field>
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential']['client-secret']"
+        :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
+        autocomplete="current-password"
+        label="client-secret"
+        placeholder="your-client-secret-"
+        :rules="[rules.required]"
+        :type="showPassword ? 'text' : 'password'"
+        @click:append-inner="showPassword = !showPassword"></v-text-field>
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential']['tenant-id']"
+        label="tenant-id"
+        placeholder=""
+        :rules="[rules.required]"></v-text-field>
 
-    <v-btn
-      v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
-      color="success"
-      :disabled="
-        !warehouseObjectData['storage-credential']['client-id'] ||
-        !warehouseObjectData['storage-credential']['client-secret'] ||
-        !warehouseObjectData['storage-credential']['tenant-id']
-      "
-      @click="emitNewCredentials">
-      Update Credentials
-    </v-btn>
+      <v-btn
+        v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
+        color="success"
+        :disabled="
+          !warehouseObjectData['storage-credential']['client-id'] ||
+          !warehouseObjectData['storage-credential']['client-secret'] ||
+          !warehouseObjectData['storage-credential']['tenant-id']
+        "
+        @click="emitNewCredentials">
+        Update Credentials
+      </v-btn>
+    </template>
 
-    <v-divider></v-divider>
-    <!--Storage Profile-->
+    <template v-else-if="isSharedAccessKey(warehouseObjectData['storage-credential'])">
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential']['key']"
+        :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
+        label="key"
+        placeholder="your-access-key"
+        :rules="[rules.required]"
+        :type="showPassword ? 'text' : 'password'"
+        @click:append-inner="showPassword = !showPassword"></v-text-field>
+    </template>
+
+    <v-divider />
+    <!--    Storage Profile-->
 
     <div
       v-if="
@@ -78,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, reactive } from 'vue';
+import { onMounted, ref, reactive, watch, Ref } from 'vue';
 import {
   AdlsProfile,
   AzCredential,
@@ -89,6 +117,7 @@ import { Intent, ObjectType } from '@/common/enums';
 import { WarehousObject } from '@/common/interfaces';
 
 const showPassword = ref(false);
+const credentialType: Ref<'client-credentials' | 'shared-access-key'> = ref('client-credentials');
 
 const props = defineProps<{
   credentialsOnly: boolean;
@@ -124,6 +153,41 @@ const warehouseObjectData = reactive<{
   },
 });
 
+watch(credentialType, (newValue) => {
+  warehouseObjectData['storage-credential']['credential-type'] = newValue;
+  if (newValue === 'client-credentials') {
+    warehouseObjectData['storage-credential'] = {
+      'client-id': '',
+      'client-secret': '',
+      'credential-type': 'client-credentials',
+      'tenant-id': '',
+      type: 'az',
+    };
+  } else if (newValue === 'shared-access-key') {
+    warehouseObjectData['storage-credential'] = {
+      'credential-type': 'shared-access-key',
+      key: '',
+      type: 'az',
+    };
+  }
+});
+
+function isClientCredentials(credential: AzCredential): credential is {
+  'client-id': string;
+  'client-secret': string;
+  'credential-type': 'client-credentials';
+  'tenant-id': string;
+} {
+  return credential['credential-type'] === 'client-credentials';
+}
+
+function isSharedAccessKey(credential: AzCredential): credential is {
+  'credential-type': 'shared-access-key';
+  key: string;
+} {
+  return credential['credential-type'] === 'shared-access-key';
+}
+
 const rules = {
   required: (value: any) => !!value || 'Required.',
   noSlash: (value: string) => !value.includes('/') || 'Cannot contain "/"',
@@ -134,15 +198,23 @@ const handleSubmit = () => {
 };
 
 const emitNewCredentials = () => {
-  const credentials = {
-    type: 'az',
-    'credential-type': warehouseObjectData['storage-credential']['credential-type'],
-    'client-id': warehouseObjectData['storage-credential']['client-id'],
-    'client-secret': warehouseObjectData['storage-credential']['client-secret'],
-    'tenant-id': warehouseObjectData['storage-credential']['tenant-id'],
-  } as StorageCredential;
-
-  emit('updateCredentials', credentials);
+  if (isClientCredentials(warehouseObjectData['storage-credential'])) {
+    emit('updateCredentials', {
+      type: 'az',
+      'credential-type': warehouseObjectData['storage-credential']['credential-type'],
+      'client-id': warehouseObjectData['storage-credential']['client-id'],
+      'client-secret': warehouseObjectData['storage-credential']['client-secret'],
+      'tenant-id': warehouseObjectData['storage-credential']['tenant-id'],
+    });
+  } else if (isSharedAccessKey(warehouseObjectData['storage-credential'])) {
+    emit('updateCredentials', {
+      type: 'az',
+      'credential-type': warehouseObjectData['storage-credential']['credential-type'],
+      key: warehouseObjectData['storage-credential']['key'],
+    });
+  } else {
+    throw new Error('Invalid credential type');
+  }
 };
 
 const emitNewProfile = () => {
@@ -157,5 +229,7 @@ const emitNewProfile = () => {
 
 onMounted(() => {
   if (props.warehouseObject) Object.assign(warehouseObjectData, props.warehouseObject);
+  credentialType.value =
+    warehouseObjectData['storage-credential']['credential-type'] || 'client-credentials';
 });
 </script>
