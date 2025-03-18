@@ -1,18 +1,30 @@
 <template>
   <v-form @submit.prevent="handleSubmit">
     <!--Credential Type Selection-->
+    <v-divider />
     <v-container fluid>
       <v-radio-group v-model="credentialType" row>
-        <v-col>
-          <v-radio
-            value="client-credentials"
-            color="primary"
-            label="Client Credentials"
-            v-model="warehouseObjectData['storage-credential']['credential-type']" />
-        </v-col>
-        <v-col>
-          <v-radio value="shared-access-key" label="Shared Key" />
-        </v-col>
+        <v-row>
+          <v-col>
+            <span class="text-grey">Credential Type:</span>
+          </v-col>
+          <v-radio value="client-credentials" color="primary">
+            <template #label>
+              <div>
+                <v-icon color="primary">mdi-account-key</v-icon>
+                Client Credentials
+              </div>
+            </template>
+          </v-radio>
+          <v-radio value="shared-access-key" color="primary">
+            <template #label>
+              <div>
+                <v-icon color="primary">mdi-key</v-icon>
+                Shared Access Key
+              </div>
+            </template>
+          </v-radio>
+        </v-row>
       </v-radio-group>
     </v-container>
     <!--Storage Credentials-->
@@ -21,7 +33,7 @@
         v-model="warehouseObjectData['storage-credential']['client-id']"
         label="client-id"
         placeholder=""
-        :rules="[rules.required]"></v-text-field>
+        :rules="[rules.required]" />
 
       <v-text-field
         v-model="warehouseObjectData['storage-credential']['client-secret']"
@@ -31,12 +43,12 @@
         placeholder="your-client-secret-"
         :rules="[rules.required]"
         :type="showPassword ? 'text' : 'password'"
-        @click:append-inner="showPassword = !showPassword"></v-text-field>
+        @click:append-inner="showPassword = !showPassword" />
       <v-text-field
         v-model="warehouseObjectData['storage-credential']['tenant-id']"
         label="tenant-id"
         placeholder=""
-        :rules="[rules.required]"></v-text-field>
+        :rules="[rules.required]" />
 
       <v-btn
         v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
@@ -55,11 +67,18 @@
       <v-text-field
         v-model="warehouseObjectData['storage-credential']['key']"
         :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
-        label="key"
+        label="Shared Access Key"
         placeholder="your-access-key"
         :rules="[rules.required]"
         :type="showPassword ? 'text' : 'password'"
-        @click:append-inner="showPassword = !showPassword"></v-text-field>
+        @click:append-inner="showPassword = !showPassword" />
+      <v-btn
+        v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
+        color="success"
+        :disabled="!warehouseObjectData['storage-credential']['key']"
+        @click="emitNewCredentials">
+        Update Credentials
+      </v-btn>
     </template>
 
     <v-divider />
