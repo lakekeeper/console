@@ -14,11 +14,13 @@
         <v-row>
           <v-col>
             <v-tabs v-model="tab" density="compact">
-              <v-tab density="compact" value="plat">plot</v-tab>
+              <v-tab density="compact" value="plot">plot</v-tab>
               <v-tab density="compact" value="tables">table</v-tab>
             </v-tabs>
             <v-tabs-window v-model="tab">
-              <v-tabs-window-item value="plot"></v-tabs-window-item>
+              <v-tabs-window-item value="plot">
+                <Line :data="data" :options="options" />
+              </v-tabs-window-item>
               <v-tabs-window-item value="tables">
                 <v-data-table fixed-header :headers="headersStatistics" hover :items="props.stats">
                   <template v-slot:item.timestamp="{ item }">
@@ -50,12 +52,62 @@
 import { Header } from '@/common/interfaces';
 import { WarehouseStatistics } from '@/gen/management/types.gen';
 import { defineProps, ref } from 'vue';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'vue-chartjs';
 
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 const isDialogActive = ref(false);
 const tab = ref('plot');
 const props = defineProps<{
   stats: WarehouseStatistics[];
 }>();
+onMounted(() => {
+  const sortedStats = [...props.stats].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+  );
+  data.labels = sortedStats.map((stat) => formatDate(stat.timestamp));
+  data.datasets[0].data = sortedStats.map((stat) => stat.number_of_tables);
+  data.datasets[1].data = sortedStats.map((stat) => stat.number_of_views);
+});
+
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    backgroundColor: string;
+    data: number[];
+  }[];
+}
+
+const data = reactive<ChartData>({
+  labels: [],
+  datasets: [
+    {
+      label: 'Number of Tables',
+      backgroundColor: '#1e857d',
+      data: [],
+    },
+    {
+      label: 'Number of Views',
+      backgroundColor: '#0097fb',
+      data: [],
+    },
+  ],
+});
+
+const options = reactive({
+  responsive: true,
+  maintainAspectRatio: false,
+});
 
 const headersStatistics: readonly Header[] = Object.freeze([
   { title: 'Number of tables', key: 'number_of_tables', align: 'start' },
