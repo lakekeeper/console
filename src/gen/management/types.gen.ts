@@ -2027,6 +2027,26 @@ export type RenameWarehouseResponse = unknown;
 
 export type RenameWarehouseError = IcebergErrorResponse;
 
+export type GetWarehouseStatisticsData = {
+  path: {
+    warehouse_id: string;
+  };
+  query?: {
+    /**
+     * Signals an upper bound of the number of results that a client will receive.
+     */
+    page_size?: number | null;
+    /**
+     * Next page token
+     */
+    page_token?: string;
+  };
+};
+
+export type GetWarehouseStatisticsResponse = WarehouseStatisticsResponse;
+
+export type GetWarehouseStatisticsError = IcebergErrorResponse;
+
 export type UpdateStorageProfileData = {
   body: UpdateWarehouseStorageRequest;
   path: {
