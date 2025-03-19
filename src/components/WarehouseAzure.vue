@@ -115,7 +115,13 @@
         color="success"
         :disabled="
           !warehouseObjectData['storage-profile']['account-name'] ||
-          !warehouseObjectData['storage-profile']['filesystem']
+          !warehouseObjectData['storage-profile']['filesystem'] ||
+          (isClientCredentials(warehouseObjectData['storage-credential']) &&
+            (!warehouseObjectData['storage-credential']['client-id'] ||
+              !warehouseObjectData['storage-credential']['client-secret'] ||
+              !warehouseObjectData['storage-credential']['tenant-id'])) ||
+          (isSharedAccessKey(warehouseObjectData['storage-credential']) &&
+            !warehouseObjectData['storage-credential']['key'])
         "
         @click="emitNewProfile">
         Update Profile
@@ -241,6 +247,15 @@ const emitNewProfile = () => {
     profile: warehouseObjectData['storage-profile'],
     credentials: {
       type: 'az',
+      'credential-type': warehouseObjectData['storage-credential']['credential-type'],
+      ...(isClientCredentials(warehouseObjectData['storage-credential']) && {
+        'client-id': warehouseObjectData['storage-credential']['client-id'],
+        'client-secret': warehouseObjectData['storage-credential']['client-secret'],
+        'tenant-id': warehouseObjectData['storage-credential']['tenant-id'],
+      }),
+      ...(isSharedAccessKey(warehouseObjectData['storage-credential']) && {
+        key: warehouseObjectData['storage-credential']['key'],
+      }),
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
   emit('updateProfile', newProfile);

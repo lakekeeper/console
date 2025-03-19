@@ -29,6 +29,7 @@
             :processStatus="processStatus"
             :intent="Intent.UPDATE"
             :object-type="ObjectType.STORAGE_PROFILE"
+            @close="$emit('close')"
             @update-profile="updateStorageProfile"
             @cancel="menuOpen = false" />
         </v-list-item-title>
@@ -94,7 +95,6 @@ function updateStorageCredential(e: StorageCredential) {
 
 function updateStorageProfile(e: { profile: StorageProfile; credentials: StorageCredential }) {
   emit('updateProfile', e);
-  menuOpen.value = false;
 }
 
 function updateDeletionProfile(e: TabularDeleteProfile) {
@@ -106,7 +106,8 @@ watch(
   () => processStatus,
   (newVal) => {
     if (newVal === 'success') {
-      menuOpen.value = false;
+      console.log('closing menu', newVal);
+      // menuOpen.value = false;
     }
   },
   {

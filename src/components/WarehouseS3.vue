@@ -237,7 +237,7 @@ const rules = {
 
 const s3Flavor = [
   { name: 'AWS', code: 'aws' },
-  { name: 'S3 Compatible Stotage', code: 's3-compat' },
+  { name: 'S3 Compatible Storage', code: 's3-compat' },
 ];
 
 const handleSubmit = () => {

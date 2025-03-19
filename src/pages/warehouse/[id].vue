@@ -28,7 +28,7 @@
           <WarehouseActionsMenu
             :process-status="processStatus"
             :warehouse="selectedWarehouse"
-            @close="processStatus = 'running'"
+            @close="processStatus = 'starting'"
             @rename-warehouse="renameWarehouse"
             @update-credentials="updateCredentials"
             @update-delprofile="updateDelProfile"
@@ -552,6 +552,7 @@ async function updateProfile(newPprofile: {
   credentials: StorageCredential;
 }) {
   try {
+    processStatus.value = 'running';
     await functions.updateStorageProfile(
       params.value.id,
       newPprofile.credentials,
@@ -559,7 +560,9 @@ async function updateProfile(newPprofile: {
     );
 
     await loadWarehouse();
+    processStatus.value = 'success';
   } catch (error: any) {
+    processStatus.value = 'error';
     console.error(`Failed to update profile for warehouse-${params.value.id}  - `, error);
   }
 }
