@@ -29,6 +29,7 @@
             :processStatus="processStatus"
             :intent="Intent.UPDATE"
             :object-type="ObjectType.STORAGE_PROFILE"
+            @close="$emit('close')"
             @update-profile="updateStorageProfile"
             @cancel="menuOpen = false" />
         </v-list-item-title>
@@ -106,7 +107,7 @@ watch(
   () => processStatus,
   (newVal) => {
     if (newVal === 'success') {
-      menuOpen.value = false;
+      // menuOpen.value = false;
     }
   },
   {

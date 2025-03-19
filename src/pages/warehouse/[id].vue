@@ -28,7 +28,7 @@
           <WarehouseActionsMenu
             :process-status="processStatus"
             :warehouse="selectedWarehouse"
-            @close="processStatus = 'running'"
+            @close="processStatus = 'staring'"
             @rename-warehouse="renameWarehouse"
             @update-credentials="updateCredentials"
             @update-delprofile="updateDelProfile"
