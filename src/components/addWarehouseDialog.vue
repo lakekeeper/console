@@ -46,7 +46,10 @@
       <span v-else-if="creatingWarehouse || props.processStatus == 'success'">
         <v-card-text style="min-height: 25vh">
           <v-row class="mt-6" justify="center">
-            <div class="text-h4">Your Credentials are successfully updated</div>
+            <div v-if="props.objectType == ObjectType.STORAGE_PROFILE" class="text-h4">
+              Your Warehouse Profile was successfully updated!
+            </div>
+            <div v-else class="text-h4">Your Credentials were successfully updated!</div>
           </v-row>
         </v-card-text>
         <v-card-actions>
@@ -176,7 +179,8 @@
                   :object-type="objectType"
                   :warehouse-object="warehouseObjectAz"
                   @submit="createWarehouse"
-                  @update-credentials="newCredentials"></WarehouseAzure>
+                  @update-credentials="newCredentials"
+                  @update-profile="newProfile"></WarehouseAzure>
               </div>
 
               <div v-if="storageCredentialType === 'GCS'">
