@@ -258,7 +258,6 @@ const emitNewProfile = () => {
       }),
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
-  console.log('newProfile -wa', newProfile);
   emit('updateProfile', newProfile);
 };
 
