@@ -95,7 +95,6 @@ function updateStorageCredential(e: StorageCredential) {
 
 function updateStorageProfile(e: { profile: StorageProfile; credentials: StorageCredential }) {
   emit('updateProfile', e);
-  menuOpen.value = false;
 }
 
 function updateDeletionProfile(e: TabularDeleteProfile) {
@@ -107,6 +106,7 @@ watch(
   () => processStatus,
   (newVal) => {
     if (newVal === 'success') {
+      console.log('closing menu', newVal);
       // menuOpen.value = false;
     }
   },

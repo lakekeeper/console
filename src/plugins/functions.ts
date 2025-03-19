@@ -450,7 +450,7 @@ async function updateStorageProfile(
 
     const client = mng.client;
 
-    await mng.updateStorageProfile({
+    const { data, error } = await mng.updateStorageProfile({
       client,
       body: {
         'storage-profile': storageProfile,
@@ -460,8 +460,8 @@ async function updateStorageProfile(
         warehouse_id: whId,
       },
     });
-
-    return true;
+    if (error) throw error;
+    return data;
   } catch (error) {
     handleError(error, new Error());
     throw error;
