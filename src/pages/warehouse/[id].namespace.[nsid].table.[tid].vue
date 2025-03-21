@@ -212,7 +212,7 @@ function getMaxDepth(obj: any): number {
         maxDepth = depth;
       }
       for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
           findDepth(obj[key], depth);
         }
       }
