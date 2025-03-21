@@ -15,13 +15,13 @@
         <v-btn v-bind="props"><v-icon>mdi-help-box</v-icon></v-btn>
       </template>
       <v-list>
-        <v-list-item prepend-icon="mdi-file-document-check-outline" @click="goToDocumentaion">
+        <v-list-item prepend-icon="mdi-file-document-check-outline" @click="goToDocumentation">
           <v-list-item-title>Documentation</v-list-item-title>
         </v-list-item>
         <v-list-item prepend-icon="mdi-alert-circle-outline" @click="openIssue">
           <v-list-item-title>Create an Issue</v-list-item-title>
         </v-list-item>
-        <v-list-item prepend-icon="mdi-face-agent" @click="gotToSupport">
+        <v-list-item prepend-icon="mdi-face-agent" @click="goToSupport">
           <v-list-item-title>Support</v-list-item-title>
         </v-list-item>
       </v-list>
@@ -142,7 +142,7 @@ function goToUserProfile() {
   router.push('/user-profile');
 }
 
-function goToDocumentaion() {
+function goToDocumentation() {
   window.open('https://docs.lakekeeper.io/docs/nightly/concepts/', '_blank');
 }
 
@@ -150,7 +150,7 @@ function openIssue() {
   window.open('https://github.com/lakekeeper/lakekeeper/issues/new/choose', '_blank');
 }
 
-function gotToSupport() {
+function goToSupport() {
   window.open('https://discord.com/invite/jkAGG8p93B', '_blank');
 }
 
