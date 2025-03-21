@@ -12,6 +12,23 @@
 
     <v-menu v-if="userStorage.isAuthenticated" open-on-hover>
       <template #activator="{ props }">
+        <v-btn v-bind="props"><v-icon>mdi-help-box</v-icon></v-btn>
+      </template>
+      <v-list>
+        <v-list-item prepend-icon="mdi-file-document-check-outline" @click="goToDocumentaion">
+          <v-list-item-title>Documentation</v-list-item-title>
+        </v-list-item>
+        <v-list-item prepend-icon="mdi-alert-circle-outline" @click="openIssue">
+          <v-list-item-title>Create an Issue</v-list-item-title>
+        </v-list-item>
+        <v-list-item prepend-icon="mdi-face-agent" @click="gotToSupport">
+          <v-list-item-title>Support</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-menu>
+
+    <v-menu v-if="userStorage.isAuthenticated" open-on-hover>
+      <template #activator="{ props }">
         <v-btn v-bind="props"><v-icon>mdi-account</v-icon></v-btn>
       </template>
       <v-list>
@@ -32,6 +49,7 @@
         <v-list-item prepend-icon="mdi-account-circle-outline" @click="goToUserProfile">
           <v-list-item-title>User Profile</v-list-item-title>
         </v-list-item>
+
         <v-list-item
           prepend-icon="mdi-key-change"
           @click="getNewToken"
@@ -122,6 +140,18 @@ function logout() {
 
 function goToUserProfile() {
   router.push('/user-profile');
+}
+
+function goToDocumentaion() {
+  window.open('https://docs.lakekeeper.io/docs/nightly/concepts/', '_blank');
+}
+
+function openIssue() {
+  window.open('https://github.com/lakekeeper/lakekeeper/issues/new/choose', '_blank');
+}
+
+function gotToSupport() {
+  window.open('https://discord.com/invite/jkAGG8p93B', '_blank');
 }
 
 async function getNewToken() {
