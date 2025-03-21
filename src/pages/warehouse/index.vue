@@ -15,7 +15,7 @@
   <span v-else>
     <v-row class="ml-1">
       <v-col>
-        <v-breadcrumbs :items="['warhouses']"></v-breadcrumbs>
+        <v-breadcrumbs :items="['warehouses']"></v-breadcrumbs>
         <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">Warehouses</span>
@@ -30,7 +30,7 @@
             :object-type="ObjectType.WAREHOUSE"
             :process-status="'starting'"
             :warehouse="undefined"
-            @added-warehouse="listWarhouse" />
+            @added-warehouse="listWarehouse" />
         </v-toolbar>
         <v-data-table
           v-if="myAccess.includes('list_warehouses')"
@@ -100,7 +100,7 @@
               :object-type="ObjectType.WAREHOUSE"
               :process-status="'starting'"
               :warehouse="undefined"
-              @added-warehouse="listWarhouse" />
+              @added-warehouse="listWarehouse" />
           </template>
         </v-data-table>
         <div v-else>You don't have permission to list warehouses</div>
@@ -141,7 +141,7 @@ onMounted(async () => {
     visual.whId = '';
     visual.wahrehouseName = '';
     Object.assign(myAccess, await functions.getProjectAccess());
-    if (myAccess.includes('list_warehouses')) await listWarhouse();
+    if (myAccess.includes('list_warehouses')) await listWarehouse();
     loading.value = false;
   } catch (err: any) {
     missAccessPermission.value = false;
@@ -149,7 +149,7 @@ onMounted(async () => {
   }
 });
 
-async function listWarhouse() {
+async function listWarehouse() {
   try {
     whResponse.splice(0, whResponse.length);
     const wh = await functions.listWarehouses();
@@ -180,7 +180,7 @@ const deleteWarehouse = async (id: string) => {
     await functions.deleteWarehouse(id);
     whResponse.splice(0, whResponse.length);
 
-    await listWarhouse();
+    await listWarehouse();
 
     deleting.value = false;
   } catch (error) {
