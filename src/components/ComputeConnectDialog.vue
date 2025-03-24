@@ -110,7 +110,7 @@
               <v-card>
                 <v-card-text>
                   <span v-if="enabledAuthentication" class="text-h5">
-                    Ask your Administrotor for Client Id and Client Secret
+                    Ask your Administrator for Client Id and Client Secret
                   </span>
                   <div style="display: flex; justify-content: flex-end">
                     <v-btn
@@ -328,7 +328,7 @@ catalog = RestCatalog(
     warehouse="${props.warehouse.name}",
     uri="${functions.icebergCatalogUrlSuffixed()}",
     ${enabledAuthentication ? `credential=f"{CLIENT_ID}:{CLIENT_SECRET}",` : '##'}
-    **{"rest.authorization-url": "${tokenEndpoint}", "scope": "lakekeeper"},
+    **{"oauth2-server-uri": "${tokenEndpoint}", "scope": "lakekeeper"},
 )`;
       connectionStringMachineFlow.value = connectionStringMachineFlow.value
         .split('\n')
