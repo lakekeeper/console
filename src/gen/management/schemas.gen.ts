@@ -283,7 +283,6 @@ export const CreateProjectRequestSchema = {
     properties: {
         'project-id': {
             type: ['string', 'null'],
-            format: 'uuid',
             description: `Request a specific project ID - optional.
 If not provided, a new project ID will be generated (recommended).`
         },
@@ -300,7 +299,6 @@ export const CreateProjectResponseSchema = {
     properties: {
         'project-id': {
             type: 'string',
-            format: 'uuid',
             description: 'ID of the created project.'
         }
     }
@@ -319,10 +317,9 @@ export const CreateRoleRequestSchema = {
             description: 'Name of the role to create'
         },
         'project-id': {
-            type: 'string',
-            format: 'uuid',
+            type: ['string', 'null'],
             description: `Project ID in which the role is created.
-Only required if the project ID cannot be inferred and no default project is set.`
+Deprecated: Please use the \`x-project-id\` header instead.`
         }
     }
 } as const;
@@ -377,9 +374,8 @@ export const CreateWarehouseRequestSchema = {
         },
         'project-id': {
             type: ['string', 'null'],
-            format: 'uuid',
             description: `Project ID in which to create the warehouse.
-If no default project is set for this server, this field is required.`
+Deprecated: Please use the \`x-project-id\` header instead.`
         },
         'storage-credential': {
             oneOf: [
@@ -459,6 +455,110 @@ export const DeletedTabularResponseSchema = {
             type: 'string',
             format: 'uuid',
             description: 'Warehouse ID where the tabular is stored'
+        }
+    }
+} as const;
+
+export const EndpointStatisticSchema = {
+    type: 'object',
+    required: ['count', 'http_route', 'status_code', 'created_at'],
+    properties: {
+        count: {
+            type: 'integer',
+            format: 'int64',
+            description: 'Number of requests to this endpoint for the current time-slice.'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            description: `Timestamp at which the datapoint was created in the database.
+
+This is the exact time at which the current endpoint-status-warehouse combination was called
+for the first time in the current time-slice.`
+        },
+        http_route: {
+            type: 'string',
+            description: `The route of the endpoint.
+
+Format: \`METHOD /path/to/endpoint\``
+        },
+        status_code: {
+            type: 'integer',
+            format: 'int32',
+            description: 'The status code of the response.',
+            minimum: 0
+        },
+        updated_at: {
+            type: ['string', 'null'],
+            format: 'date-time',
+            description: `Timestamp at which the datapoint was last updated.
+
+This is the exact time at which the current datapoint was last updated.`
+        },
+        warehouse_id: {
+            type: ['string', 'null'],
+            format: 'uuid',
+            description: `The ID of the warehouse that handled the request.
+
+Only present for requests that could be associated with a warehouse. Some management
+endpoints cannot be associated with a warehouse, e.g. warehouse creation or user management
+will not have a \`warehouse_id\`.`
+        },
+        warehouse_name: {
+            type: ['string', 'null'],
+            description: `The name of the warehouse that handled the request.
+
+Only present for requests that could be associated with a warehouse. Some management
+endpoints cannot be associated with a warehouse, e.g. warehouse creation or user management
+will not have a \`warehouse_id\``
+        }
+    }
+} as const;
+
+export const EndpointStatisticsResponseSchema = {
+    type: 'object',
+    required: ['timestamps', 'called_endpoints', 'previous_page_token', 'next_page_token'],
+    properties: {
+        called_endpoints: {
+            type: 'array',
+            items: {
+                type: 'array',
+                items: {
+                    '$ref': '#/components/schemas/EndpointStatistic'
+                }
+            },
+            description: `Array of arrays of statistics detailing each called endpoint for each \`timestamp\`.
+
+See docs of \`timestamps\` for more details.`
+        },
+        next_page_token: {
+            type: 'string',
+            description: `Token to get the next page of results.
+
+Inverse of \`previous_page_token\`, see its documentation above.`
+        },
+        previous_page_token: {
+            type: 'string',
+            description: `Token to get the previous page of results.
+
+Endpoint statistics are not paginated through page-limits, we paginate them by stepping
+through time. By default, the list-statistics endpoint will return all statistics for
+\`now()\` - 1 day to \`now()\`. In the request, you can specify a \`range_specifier\` to set the end
+date and step interval. The \`previous_page_token\` will then move to the neighboring window.
+E.g. in the default case of \`now()\` and 1 day, it'd be \`now()\` - 2 days to \`now()\` - 1 day.`
+        },
+        timestamps: {
+            type: 'array',
+            items: {
+                type: 'string',
+                format: 'date-time'
+            },
+            description: `Array of timestamps indicating the time at which each entry in the \`called_endpoints\` array
+is valid.
+
+We lazily create a new statistics entry every hour, in between hours, the existing entry
+is being updated. If any endpoint is called in the following hour, there'll be an entry in
+\`timestamps\` for the following hour. If not, then there'll be no entry.`
         }
     }
 } as const;
@@ -588,6 +688,45 @@ export const GcsServiceKeySchema = {
     }
 } as const;
 
+export const GetEndpointStatisticsRequestSchema = {
+    type: 'object',
+    required: ['warehouse'],
+    properties: {
+        range_specifier: {
+            oneOf: [
+                {
+                    type: 'null'
+                },
+                {
+                    '$ref': '#/components/schemas/TimeWindowSelector',
+                    description: `Range specifier
+
+Either for a explicit range or a page token to paginate through the results. See the docs of
+\`RangeSpecifier\` for more details.`
+                }
+            ]
+        },
+        status_codes: {
+            type: ['array', 'null'],
+            items: {
+                type: 'integer',
+                format: 'int32',
+                minimum: 0
+            },
+            description: `Status code filter
+
+Optional filter to only return statistics for requests with specific status codes.`
+        },
+        warehouse: {
+            '$ref': '#/components/schemas/WarehouseFilter',
+            description: `Warehouse filter
+
+Can return statistics for a specific warehouse, all warehouses or requests that could not be
+associated to any warehouse.`
+        }
+    }
+} as const;
+
 export const GetNamespaceAccessResponseSchema = {
     type: 'object',
     required: ['allowed-actions'],
@@ -663,7 +802,6 @@ export const GetProjectResponseSchema = {
     properties: {
         'project-id': {
             type: 'string',
-            format: 'uuid',
             description: 'ID of the project.'
         },
         'project-name': {
@@ -832,8 +970,7 @@ export const GetWarehouseResponseSchema = {
         },
         'project-id': {
             type: 'string',
-            format: 'uuid',
-            description: 'Project ID in which the warehouse is created.'
+            description: 'Project ID in which the warehouse was created.'
         },
         status: {
             '$ref': '#/components/schemas/WarehouseStatus',
@@ -1274,12 +1411,6 @@ export const RenameProjectRequestSchema = {
         'new-name': {
             type: 'string',
             description: 'New name for the project.'
-        },
-        'project-id': {
-            type: ['string', 'null'],
-            format: 'uuid',
-            description: `Optional project ID.
-Only required if the project ID cannot be inferred and no default project is set.`
         }
     }
 } as const;
@@ -1319,7 +1450,6 @@ export const RoleSchema = {
         },
         'project-id': {
             type: 'string',
-            format: 'uuid',
             description: 'Project ID in which the role is created.'
         },
         'updated-at': {
@@ -1454,6 +1584,25 @@ If the underlying S3 supports both, we recommend to not set \`path_style_access\
             type: 'string',
             description: 'Region to use for S3 requests.'
         },
+        's3-url-detection-mode': {
+            '$ref': '#/components/schemas/S3UrlStyleDetectionMode',
+            description: `S3 URL style detection mode.
+The URL style detection heuristic to use. One of \`auto\`, \`path-style\`, \`virtual-host\`.
+Default: \`auto\`. When set to \`auto\`, Lakekeeper will first try to parse the URL as
+\`virtual-host\` and then attempt \`path-style\`.
+\`path\` assumes the bucket name is the first path segment in the URL. \`virtual-host\`
+assumes the bucket name is the first subdomain if it is preceding \`.s3\` or \`.s3-\`.
+
+Examples
+
+Virtual host:
+  - <https://bucket.s3.endpoint.com/bar/a/key>
+  - <https://bucket.s3-eu-central-1.amazonaws.com/file>
+
+Path style:
+  - <https://s3.endpoint.com/bucket/bar/a/key>
+  - <https://s3.us-east-1.amazonaws.com/bucket/file>`
+        },
         'sts-enabled': {
             type: 'boolean'
         },
@@ -1464,17 +1613,19 @@ If the underlying S3 supports both, we recommend to not set \`path_style_access\
     }
 } as const;
 
+export const S3UrlStyleDetectionModeSchema = {
+    type: 'string',
+    enum: ['path', 'virtual_host', 'auto']
+} as const;
+
 export const SearchRoleRequestSchema = {
     type: 'object',
     required: ['search'],
     properties: {
         'project-id': {
             type: ['string', 'null'],
-            format: 'uuid',
-            description: `Deprecated: Please use the x-project-id header instead.
-Project ID in which the role is created.
-Only required if the project ID cannot be inferred from the
-users token and no default project is set.`
+            description: `Deprecated: Please use the \`x-project-id\` header instead.
+Project ID in which the role is created.`
         },
         search: {
             type: 'string',
@@ -1597,7 +1748,7 @@ export const ServerAssignmentSchema = {
 
 export const ServerInfoSchema = {
     type: 'object',
-    required: ['version', 'bootstrapped', 'server-id', 'default-project-id', 'authz-backend'],
+    required: ['version', 'bootstrapped', 'server-id', 'authz-backend'],
     properties: {
         'authz-backend': {
             '$ref': '#/components/schemas/AuthZBackend',
@@ -1608,8 +1759,7 @@ export const ServerInfoSchema = {
             description: 'Whether the catalog has been bootstrapped.'
         },
         'default-project-id': {
-            type: 'string',
-            format: 'uuid',
+            type: ['string', 'null'],
             description: 'Default Project ID. Null if not set'
         },
         'server-id': {
@@ -2094,6 +2244,48 @@ export const TabularTypeSchema = {
     type: 'string',
     description: 'Type of tabular',
     enum: ['table', 'view']
+} as const;
+
+export const TimeWindowSelectorSchema = {
+    oneOf: [
+        {
+            type: 'object',
+            required: ['end', 'interval', 'type'],
+            properties: {
+                end: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'End timestamp of the time window'
+                },
+                interval: {
+                    type: 'string',
+                    description: `Duration/span of the time window
+
+The effective time range = \`window_end\` - \`window_duration\` to \`end\``
+                },
+                type: {
+                    type: 'string',
+                    enum: ['window']
+                }
+            }
+        },
+        {
+            type: 'object',
+            required: ['token', 'type'],
+            properties: {
+                token: {
+                    type: 'string',
+                    description: `Opaque Token from previous response for paginating through time windows
+
+Use the \`next_page_token\` or \`previous_page_token\` from a previous response`
+                },
+                type: {
+                    type: 'string',
+                    enum: ['page-token']
+                }
+            }
+        }
+    ]
 } as const;
 
 export const UndropTabularsRequestSchema = {
@@ -2641,6 +2833,50 @@ export const WarehouseAssignmentSchema = {
                 }
             ],
             title: 'WarehouseAssignmentModify'
+        }
+    ]
+} as const;
+
+export const WarehouseFilterSchema = {
+    oneOf: [
+        {
+            type: 'object',
+            description: 'Filter for a specific warehouse',
+            required: ['id', 'type'],
+            properties: {
+                id: {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                type: {
+                    type: 'string',
+                    enum: ['warehouse-id']
+                }
+            }
+        },
+        {
+            type: 'object',
+            description: `Filter for requests that could not be associated with any warehouse, e.g. some management
+endpoints`,
+            required: ['type'],
+            properties: {
+                type: {
+                    type: 'string',
+                    enum: ['unmapped']
+                }
+            }
+        },
+        {
+            type: 'object',
+            description: `Do not filter by warehouse and return all statistics for all warehouses and unmapped requests
+for the current project.`,
+            required: ['type'],
+            properties: {
+                type: {
+                    type: 'string',
+                    enum: ['all']
+                }
+            }
         }
     ]
 } as const;
