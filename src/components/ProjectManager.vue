@@ -157,6 +157,8 @@ async function init() {
 
     canDeleteProject.value = !!myAccess.includes('delete');
 
+    // const GetEndpointStatisticsResponse = await functions.getEndpointStatistics({ type: 'all' });
+    // console.log('GetEndpointStatisticsResponse', GetEndpointStatisticsResponse);
     await loadProjects();
 
     Object.assign(
@@ -225,6 +227,7 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
     const writes = item.writes as ProjectAssignment[]; // Define 'del' variable
 
     await functions.updateProjectAssignments(del, writes);
+
     await init();
     loaded.value = true;
   } catch (error) {
@@ -253,9 +256,9 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
 //   }
 // }
 
-async function renameProject(renamedProject: RenameProjectRequest) {
+async function renameProject(renamedProject: RenameProjectRequest & { 'project-id': string }) {
   try {
-    await functions.renameProjectById(renamedProject, renamedProject['project-id'] as string);
+    await functions.renameProjectById(renamedProject, renamedProject['project-id']);
     await loadProjects();
   } catch (error) {
     console.error(error);

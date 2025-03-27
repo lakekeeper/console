@@ -15,10 +15,11 @@ import {
   CreateRoleRequest,
   CreateWarehouseRequest,
   CreateWarehouseResponse,
+  GetEndpointStatisticsRequest,
+  GetEndpointStatisticsResponse,
   GetNamespaceAuthPropertiesResponse,
   GetProjectResponse,
   GetWarehouseResponse,
-  GetWarehouseStatisticsData,
   GetWarehouseStatisticsResponse,
   ListDeletedTabularsResponse,
   ListRolesResponse,
@@ -41,12 +42,14 @@ import {
   TableAction,
   TableAssignment,
   TabularDeleteProfile,
+  TimeWindowSelector,
   UpdateRoleRequest,
   User,
   ViewAction,
   ViewAssignment,
   WarehouseAction,
   WarehouseAssignment,
+  WarehouseFilter,
 } from '@/gen/management/types.gen';
 
 import router from '@/router';
@@ -58,9 +61,11 @@ import { App } from 'vue';
 function init() {
   const userStore = useUserStore();
   const accessToken = userStore.user.access_token;
+  const visual = useVisualStore();
 
   mng.client.setConfig({
     baseUrl: icebergCatalogUrl(),
+    // headers: { 'x-project-id': visual.projectSelected['project-id'] }, //ToDo resolve CORS problem
   });
 
   mng.client.interceptors.request.use((request) => {
@@ -291,6 +296,35 @@ async function renameProjectById(body: RenameProjectRequest, projectId: string):
 
     return true;
   } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getEndpointStatistics(
+  warehouseFilter: WarehouseFilter,
+  range_specifier?: null | TimeWindowSelector,
+  status_codes?: Array<number> | null,
+): Promise<GetEndpointStatisticsResponse> {
+  try {
+    init();
+
+    const GetEndpointStatisticsRequest: GetEndpointStatisticsRequest = {
+      range_specifier: range_specifier || null,
+      warehouse: warehouseFilter,
+      status_codes: status_codes || null,
+    };
+
+    const client = mng.client;
+
+    const { data, error } = await mng.getEndpointStatistics({
+      client,
+      body: GetEndpointStatisticsRequest,
+    });
+    if (error) throw error;
+
+    return data as GetEndpointStatisticsResponse;
+  } catch (error) {
     handleError(error, new Error());
     throw error;
   }
@@ -1404,7 +1438,6 @@ async function listRoles(pageSize?: number, pageToken?: string): Promise<Role[]>
       query: {
         pageSize,
         pageToken,
-        projectId: visual.projectSelected['project-id'],
       },
     });
 
@@ -1808,6 +1841,7 @@ export function useFunctions() {
     updateUserById,
     undropTabular,
     getWarehouseStatistics,
+    getEndpointStatistics,
   };
 }
 
