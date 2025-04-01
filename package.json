@@ -29,7 +29,7 @@
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@hey-api/client-fetch": "^0.4.3",
-    "@hey-api/openapi-ts": "^0.55.3",
+    "@hey-api/openapi-ts": "^0.66.0",
     "@tsconfig/node22": "^22.0.0",
     "@types/node": "^22.9.0",
     "@vitejs/plugin-vue": "^5.1.4",
