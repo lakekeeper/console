@@ -91,7 +91,7 @@ export const renameDefaultProject = <ThrowOnError extends boolean = false>(optio
  * [{"count": 1, "http_route": "DELETE /catalog/v1/{prefix}/namespaces/{namespace}/tables/{table}", "status_code": 200, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "01:00:36", "updated_at": "null"}]]
  */
 export const getEndpointStatistics = <ThrowOnError extends boolean = false>(options: Options<GetEndpointStatisticsData, ThrowOnError>) => {
-    return (options?.client ?? client).get<GetEndpointStatisticsResponse, GetEndpointStatisticsError, ThrowOnError>({
+    return (options?.client ?? client).post<GetEndpointStatisticsResponse, GetEndpointStatisticsError, ThrowOnError>({
         ...options,
         url: '/management/v1/endpoint-statistics'
     });
@@ -428,7 +428,7 @@ export const getProjectById = <ThrowOnError extends boolean = false>(options: Op
 };
 
 /**
- * Delete the default project
+ * Delete a project by ID
  */
 export const deleteProjectById = <ThrowOnError extends boolean = false>(options: Options<DeleteProjectByIdData, ThrowOnError>) => {
     return (options?.client ?? client).delete<DeleteProjectByIdResponse, DeleteProjectByIdError, ThrowOnError>({
