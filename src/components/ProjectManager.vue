@@ -157,8 +157,8 @@ async function init() {
 
     canDeleteProject.value = !!myAccess.includes('delete');
 
-    // const GetEndpointStatisticsResponse = await functions.getEndpointStatistics({ type: 'all' });
-    // console.log('GetEndpointStatisticsResponse', GetEndpointStatisticsResponse);
+    const GetEndpointStatisticsResponse = await functions.getEndpointStatistics({ type: 'all' });
+    console.log('GetEndpointStatisticsResponse', GetEndpointStatisticsResponse);
     await loadProjects();
 
     Object.assign(

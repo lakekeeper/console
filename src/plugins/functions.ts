@@ -310,9 +310,9 @@ async function getEndpointStatistics(
     init();
 
     const GetEndpointStatisticsRequest: GetEndpointStatisticsRequest = {
-      range_specifier: range_specifier || null,
+      'range-specifier': range_specifier || null,
       warehouse: warehouseFilter,
-      status_codes: status_codes || null,
+      'status-codes': status_codes || null,
     };
 
     const client = mng.client;

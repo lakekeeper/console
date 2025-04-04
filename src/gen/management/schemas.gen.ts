@@ -414,19 +414,19 @@ export const CreateWarehouseResponseSchema = {
 
 export const DeletedTabularResponseSchema = {
     type: 'object',
-    required: ['id', 'name', 'namespace', 'typ', 'warehouse_id', 'created_at', 'deleted_at', 'expiration_date'],
+    required: ['id', 'name', 'namespace', 'typ', 'warehouse-id', 'created-at', 'deleted-at', 'expiration-date'],
     properties: {
-        created_at: {
+        'created-at': {
             type: 'string',
             format: 'date-time',
             description: 'Date when the tabular was created'
         },
-        deleted_at: {
+        'deleted-at': {
             type: 'string',
             format: 'date-time',
             description: 'Date when the tabular was deleted'
         },
-        expiration_date: {
+        'expiration-date': {
             type: 'string',
             format: 'date-time',
             description: 'Date when the tabular will not be recoverable anymore'
@@ -451,7 +451,7 @@ export const DeletedTabularResponseSchema = {
             '$ref': '#/components/schemas/TabularType',
             description: 'Type of the tabular'
         },
-        warehouse_id: {
+        'warehouse-id': {
             type: 'string',
             format: 'uuid',
             description: 'Warehouse ID where the tabular is stored'
@@ -461,14 +461,14 @@ export const DeletedTabularResponseSchema = {
 
 export const EndpointStatisticSchema = {
     type: 'object',
-    required: ['count', 'http_route', 'status_code', 'created_at'],
+    required: ['count', 'http-route', 'status-code', 'created-at'],
     properties: {
         count: {
             type: 'integer',
             format: 'int64',
             description: 'Number of requests to this endpoint for the current time-slice.'
         },
-        created_at: {
+        'created-at': {
             type: 'string',
             format: 'date-time',
             description: `Timestamp at which the datapoint was created in the database.
@@ -476,50 +476,50 @@ export const EndpointStatisticSchema = {
 This is the exact time at which the current endpoint-status-warehouse combination was called
 for the first time in the current time-slice.`
         },
-        http_route: {
+        'http-route': {
             type: 'string',
             description: `The route of the endpoint.
 
 Format: \`METHOD /path/to/endpoint\``
         },
-        status_code: {
+        'status-code': {
             type: 'integer',
             format: 'int32',
             description: 'The status code of the response.',
             minimum: 0
         },
-        updated_at: {
+        'updated-at': {
             type: ['string', 'null'],
             format: 'date-time',
             description: `Timestamp at which the datapoint was last updated.
 
 This is the exact time at which the current datapoint was last updated.`
         },
-        warehouse_id: {
+        'warehouse-id': {
             type: ['string', 'null'],
             format: 'uuid',
             description: `The ID of the warehouse that handled the request.
 
 Only present for requests that could be associated with a warehouse. Some management
 endpoints cannot be associated with a warehouse, e.g. warehouse creation or user management
-will not have a \`warehouse_id\`.`
+will not have a \`warehouse-id\`.`
         },
-        warehouse_name: {
+        'warehouse-name': {
             type: ['string', 'null'],
             description: `The name of the warehouse that handled the request.
 
 Only present for requests that could be associated with a warehouse. Some management
 endpoints cannot be associated with a warehouse, e.g. warehouse creation or user management
-will not have a \`warehouse_id\``
+will not have a \`warehouse-id\``
         }
     }
 } as const;
 
 export const EndpointStatisticsResponseSchema = {
     type: 'object',
-    required: ['timestamps', 'called_endpoints', 'previous_page_token', 'next_page_token'],
+    required: ['timestamps', 'called-endpoints', 'previous-page-token', 'next-page-token'],
     properties: {
-        called_endpoints: {
+        'called-endpoints': {
             type: 'array',
             items: {
                 type: 'array',
@@ -531,20 +531,20 @@ export const EndpointStatisticsResponseSchema = {
 
 See docs of \`timestamps\` for more details.`
         },
-        next_page_token: {
+        'next-page-token': {
             type: 'string',
             description: `Token to get the next page of results.
 
-Inverse of \`previous_page_token\`, see its documentation above.`
+Inverse of \`previous-page-token\`, see its documentation above.`
         },
-        previous_page_token: {
+        'previous-page-token': {
             type: 'string',
             description: `Token to get the previous page of results.
 
 Endpoint statistics are not paginated through page-limits, we paginate them by stepping
 through time. By default, the list-statistics endpoint will return all statistics for
 \`now()\` - 1 day to \`now()\`. In the request, you can specify a \`range_specifier\` to set the end
-date and step interval. The \`previous_page_token\` will then move to the neighboring window.
+date and step interval. The \`previous-page-token\` will then move to the neighboring window.
 E.g. in the default case of \`now()\` and 1 day, it'd be \`now()\` - 2 days to \`now()\` - 1 day.`
         },
         timestamps: {
@@ -692,7 +692,7 @@ export const GetEndpointStatisticsRequestSchema = {
     type: 'object',
     required: ['warehouse'],
     properties: {
-        range_specifier: {
+        'range-specifier': {
             oneOf: [
                 {
                     type: 'null'
@@ -706,7 +706,7 @@ Either for a explicit range or a page token to paginate through the results. See
                 }
             ]
         },
-        status_codes: {
+        'status-codes': {
             type: ['array', 'null'],
             items: {
                 type: 'integer',
@@ -998,7 +998,7 @@ export const ListDeletedTabularsResponseSchema = {
     type: 'object',
     required: ['tabulars'],
     properties: {
-        next_page_token: {
+        'next-page-token': {
             type: ['string', 'null'],
             description: 'Token to fetch the next page'
         },
@@ -1030,7 +1030,7 @@ export const ListRolesResponseSchema = {
     type: 'object',
     required: ['roles'],
     properties: {
-        next_page_token: {
+        'next-page-token': {
             type: ['string', 'null']
         },
         roles: {
@@ -1046,7 +1046,7 @@ export const ListUsersResponseSchema = {
     type: 'object',
     required: ['users'],
     properties: {
-        next_page_token: {
+        'next-page-token': {
             type: ['string', 'null']
         },
         users: {
@@ -1516,6 +1516,7 @@ export const S3CredentialSchema = {
         {
             type: 'object',
             title: 'S3CredentialAccessKey',
+            description: 'Authenticate to AWS using access-key and secret-key.',
             required: ['aws-access-key-id', 'aws-secret-access-key', 'credential-type'],
             properties: {
                 'aws-access-key-id': {
@@ -1527,6 +1528,25 @@ export const S3CredentialSchema = {
                 'credential-type': {
                     type: 'string',
                     enum: ['access-key']
+                },
+                'external-id': {
+                    type: ['string', 'null']
+                }
+            }
+        },
+        {
+            type: 'object',
+            title: 'S3CredentialSystemIdentity',
+            description: `Authenticate to AWS using the identity configured on the system
+ that runs lakekeeper. The AWS SDK is used to load the credentials.`,
+            required: ['credential-type'],
+            properties: {
+                'credential-type': {
+                    type: 'string',
+                    enum: ['aws-system-identity']
+                },
+                'external-id': {
+                    type: ['string', 'null']
                 }
             }
         }
@@ -1551,7 +1571,7 @@ Tables with \`s3a\` paths are not accessible outside the Java ecosystem.`
         },
         'assume-role-arn': {
             type: ['string', 'null'],
-            description: 'Optional ARN to assume when accessing the bucket'
+            description: 'Optional ARN to assume when accessing the bucket from Lakekeeper.'
         },
         bucket: {
             type: 'string',
@@ -1608,7 +1628,9 @@ Path style:
         },
         'sts-role-arn': {
             type: ['string', 'null'],
-            description: 'Optional role ARN to assume for sts vended-credentials'
+            description: `Optional role ARN to assume for sts vended-credentials.
+If not provided, \`assume_role_arn\` is used.
+Either \`assume_role_arn\` or \`sts_role_arn\` must be provided if \`sts_enabled\` is true.`
         }
     }
 } as const;
@@ -2255,18 +2277,27 @@ export const TimeWindowSelectorSchema = {
                 end: {
                     type: 'string',
                     format: 'date-time',
-                    description: 'End timestamp of the time window'
+                    description: `End timestamp of the time window
+Specify`,
+                    example: '2023-12-31T23:59:59Z'
                 },
                 interval: {
                     type: 'string',
                     description: `Duration/span of the time window
 
-The effective time range = \`window_end\` - \`window_duration\` to \`end\``
+The returned statistics will be for the time window from \`end\` - \`interval\` to \`end\`.
+Specify a ISO8601 duration string, e.g. \`PT1H\` for 1 hour, \`P1D\` for 1 day.`,
+                    example: 'P1D'
                 },
                 type: {
                     type: 'string',
                     enum: ['window']
                 }
+            },
+            example: {
+                type: 'window',
+                end: '2023-12-31T23:59:59Z',
+                interval: 'P1D'
             }
         },
         {
@@ -2283,6 +2314,10 @@ Use the \`next_page_token\` or \`previous_page_token\` from a previous response`
                     type: 'string',
                     enum: ['page-token']
                 }
+            },
+            example: {
+                type: 'page-token',
+                token: 'xyz'
             }
         }
     ]
@@ -2409,7 +2444,7 @@ export const UpdateTableAssignmentsRequestSchema = {
 
 export const UpdateUserRequestSchema = {
     type: 'object',
-    required: ['name', 'user_type'],
+    required: ['name', 'user-type'],
     properties: {
         email: {
             type: ['string', 'null']
@@ -2417,7 +2452,7 @@ export const UpdateUserRequestSchema = {
         name: {
             type: 'string'
         },
-        user_type: {
+        'user-type': {
             '$ref': '#/components/schemas/UserType'
         }
     }
@@ -2888,14 +2923,14 @@ export const WarehouseRelationSchema = {
 
 export const WarehouseStatisticsSchema = {
     type: 'object',
-    required: ['timestamp', 'number_of_tables', 'number_of_views', 'updated_at'],
+    required: ['timestamp', 'number-of-tables', 'number-of-views', 'updated-at'],
     properties: {
-        number_of_tables: {
+        'number-of-tables': {
             type: 'integer',
             format: 'int64',
             description: 'Number of tables in the warehouse.'
         },
-        number_of_views: {
+        'number-of-views': {
             type: 'integer',
             format: 'int64',
             description: 'Number of views in the warehouse.'
@@ -2909,7 +2944,7 @@ We lazily create a new statistics entry every hour, in between hours, the existi
 is being updated. If there's a change at \`created_at\` + 1 hour, a new entry is created. If
 there's no change, no new entry is created.`
         },
-        updated_at: {
+        'updated-at': {
             type: 'string',
             format: 'date-time',
             description: 'Timestamp of when these statistics were last updated'

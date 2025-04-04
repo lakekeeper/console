@@ -210,15 +210,15 @@ export type DeletedTabularResponse = {
     /**
      * Date when the tabular was created
      */
-    created_at: string;
+    'created-at': string;
     /**
      * Date when the tabular was deleted
      */
-    deleted_at: string;
+    'deleted-at': string;
     /**
      * Date when the tabular will not be recoverable anymore
      */
-    expiration_date: string;
+    'expiration-date': string;
     /**
      * Unique identifier of the tabular
      */
@@ -238,7 +238,7 @@ export type DeletedTabularResponse = {
     /**
      * Warehouse ID where the tabular is stored
      */
-    warehouse_id: string;
+    'warehouse-id': string;
 };
 
 export type EndpointStatistic = {
@@ -252,39 +252,39 @@ export type EndpointStatistic = {
      * This is the exact time at which the current endpoint-status-warehouse combination was called
      * for the first time in the current time-slice.
      */
-    created_at: string;
+    'created-at': string;
     /**
      * The route of the endpoint.
      *
      * Format: `METHOD /path/to/endpoint`
      */
-    http_route: string;
+    'http-route': string;
     /**
      * The status code of the response.
      */
-    status_code: number;
+    'status-code': number;
     /**
      * Timestamp at which the datapoint was last updated.
      *
      * This is the exact time at which the current datapoint was last updated.
      */
-    updated_at?: (string) | null;
+    'updated-at'?: (string) | null;
     /**
      * The ID of the warehouse that handled the request.
      *
      * Only present for requests that could be associated with a warehouse. Some management
      * endpoints cannot be associated with a warehouse, e.g. warehouse creation or user management
-     * will not have a `warehouse_id`.
+     * will not have a `warehouse-id`.
      */
-    warehouse_id?: (string) | null;
+    'warehouse-id'?: (string) | null;
     /**
      * The name of the warehouse that handled the request.
      *
      * Only present for requests that could be associated with a warehouse. Some management
      * endpoints cannot be associated with a warehouse, e.g. warehouse creation or user management
-     * will not have a `warehouse_id`
+     * will not have a `warehouse-id`
      */
-    warehouse_name?: (string) | null;
+    'warehouse-name'?: (string) | null;
 };
 
 export type EndpointStatisticsResponse = {
@@ -293,23 +293,23 @@ export type EndpointStatisticsResponse = {
      *
      * See docs of `timestamps` for more details.
      */
-    called_endpoints: Array<Array<EndpointStatistic>>;
+    'called-endpoints': Array<Array<EndpointStatistic>>;
     /**
      * Token to get the next page of results.
      *
-     * Inverse of `previous_page_token`, see its documentation above.
+     * Inverse of `previous-page-token`, see its documentation above.
      */
-    next_page_token: string;
+    'next-page-token': string;
     /**
      * Token to get the previous page of results.
      *
      * Endpoint statistics are not paginated through page-limits, we paginate them by stepping
      * through time. By default, the list-statistics endpoint will return all statistics for
      * `now()` - 1 day to `now()`. In the request, you can specify a `range_specifier` to set the end
-     * date and step interval. The `previous_page_token` will then move to the neighboring window.
+     * date and step interval. The `previous-page-token` will then move to the neighboring window.
      * E.g. in the default case of `now()` and 1 day, it'd be `now()` - 2 days to `now()` - 1 day.
      */
-    previous_page_token: string;
+    'previous-page-token': string;
     /**
      * Array of timestamps indicating the time at which each entry in the `called_endpoints` array
      * is valid.
@@ -395,13 +395,13 @@ export type GcsServiceKey = {
 };
 
 export type GetEndpointStatisticsRequest = {
-    range_specifier?: (null | TimeWindowSelector);
+    'range-specifier'?: (null | TimeWindowSelector);
     /**
      * Status code filter
      *
      * Optional filter to only return statistics for requests with specific status codes.
      */
-    status_codes?: Array<(number)> | null;
+    'status-codes'?: Array<(number)> | null;
     /**
      * Warehouse filter
      *
@@ -526,7 +526,7 @@ export type ListDeletedTabularsResponse = {
     /**
      * Token to fetch the next page
      */
-    next_page_token?: (string) | null;
+    'next-page-token'?: (string) | null;
     /**
      * List of tabulars
      */
@@ -541,12 +541,12 @@ export type ListProjectsResponse = {
 };
 
 export type ListRolesResponse = {
-    next_page_token?: (string) | null;
+    'next-page-token'?: (string) | null;
     roles: Array<Role>;
 };
 
 export type ListUsersResponse = {
-    next_page_token?: (string) | null;
+    'next-page-token'?: (string) | null;
     users: Array<User>;
 };
 
@@ -670,6 +670,10 @@ export type S3Credential = {
     'aws-access-key-id': string;
     'aws-secret-access-key': string;
     'credential-type': 'access-key';
+    'external-id'?: (string) | null;
+} | {
+    'credential-type': 'aws-system-identity';
+    'external-id'?: (string) | null;
 };
 
 export type credential_type3 = 'access-key';
@@ -685,7 +689,7 @@ export type S3Profile = {
      */
     'allow-alternative-protocols'?: (boolean) | null;
     /**
-     * Optional ARN to assume when accessing the bucket
+     * Optional ARN to assume when accessing the bucket from Lakekeeper.
      */
     'assume-role-arn'?: (string) | null;
     /**
@@ -739,7 +743,9 @@ export type S3Profile = {
     's3-url-detection-mode'?: S3UrlStyleDetectionMode;
     'sts-enabled': boolean;
     /**
-     * Optional role ARN to assume for sts vended-credentials
+     * Optional role ARN to assume for sts vended-credentials.
+     * If not provided, `assume_role_arn` is used.
+     * Either `assume_role_arn` or `sts_role_arn` must be provided if `sts_enabled` is true.
      */
     'sts-role-arn'?: (string) | null;
 };
@@ -928,12 +934,14 @@ export type TabularType = 'table' | 'view';
 export type TimeWindowSelector = {
     /**
      * End timestamp of the time window
+     * Specify
      */
     end: string;
     /**
      * Duration/span of the time window
      *
-     * The effective time range = `window_end` - `window_duration` to `end`
+     * The returned statistics will be for the time window from `end` - `interval` to `end`.
+     * Specify a ISO8601 duration string, e.g. `PT1H` for 1 hour, `P1D` for 1 day.
      */
     interval: string;
     type: 'window';
@@ -995,7 +1003,7 @@ export type UpdateTableAssignmentsRequest = {
 export type UpdateUserRequest = {
     email?: (string) | null;
     name: string;
-    user_type: UserType;
+    'user-type': UserType;
 };
 
 export type UpdateViewAssignmentsRequest = {
@@ -1137,11 +1145,11 @@ export type WarehouseStatistics = {
     /**
      * Number of tables in the warehouse.
      */
-    number_of_tables: number;
+    'number-of-tables': number;
     /**
      * Number of views in the warehouse.
      */
-    number_of_views: number;
+    'number-of-views': number;
     /**
      * Timestamp of when these statistics are valid until
      *
@@ -1153,7 +1161,7 @@ export type WarehouseStatistics = {
     /**
      * Timestamp of when these statistics were last updated
      */
-    updated_at: string;
+    'updated-at': string;
 };
 
 export type WarehouseStatisticsResponse = {
