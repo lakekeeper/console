@@ -22,11 +22,11 @@
 
               <v-chip size="small" color="secondary" label class="ma-2">
                 <v-icon icon="mdi-table" start></v-icon>
-                number of tables: {{ stats[0].number_of_tables }}
+                number of tables: {{ stats[0]['number-of-tables'] }}
               </v-chip>
               <v-chip size="small" color="primary" label class="ma-2">
                 <v-icon icon="mdi-view-grid-outline" start></v-icon>
-                number of views: {{ stats[0].number_of_views }}
+                number of views: {{ stats[0]['number-of-views'] }}
               </v-chip>
               <StatisticsDialog :stats="stats"></StatisticsDialog>
             </span>
@@ -344,6 +344,7 @@ import {
   TabularDeleteProfile,
   WarehouseAction,
   WarehouseAssignment,
+  WarehouseStatistics,
 } from '@/gen/management/types.gen';
 
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -395,12 +396,12 @@ const canReadPermissions = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
-const stats = reactive([
+const stats = reactive<WarehouseStatistics[]>([
   {
+    'number-of-tables': 3,
+    'number-of-views': 0,
     timestamp: '1900-01-01T00:00:00Z',
-    number_of_tables: 3,
-    number_of_views: 0,
-    updated_at: '1900-01-01T00:00:00.000000Z',
+    'updated-at': '1900-01-01T00:00:00.000000Z',
   },
 ]);
 

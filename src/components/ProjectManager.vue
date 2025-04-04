@@ -27,6 +27,12 @@
           value="permissions">
           Permissions
         </v-tab>
+        <v-tab
+          v-if="canReadAssignments && enabledAuthentication && enabledPermissions"
+          value="statistics"
+          @click="getEndpointStatistcs">
+          Statistics
+        </v-tab>
       </v-tabs>
       <v-tabs-window v-model="tab">
         <v-tabs-window-item value="overview">
@@ -81,6 +87,36 @@
             :relation-type="permissionType"
             @permissions="assign" />
         </v-tabs-window-item>
+        <v-tabs-window-item v-if="canReadAssignments" value="statistics">
+          <v-data-table-virtual
+            fixed-header
+            height="50vh"
+            :headers="headersStatistics"
+            hover
+            :items="tableStatisticsFormatted">
+            <template #top>
+              <v-toolbar color="transparent" density="compact" flat>
+                <v-spacer></v-spacer>
+                <span class="icon-text">
+                  <v-btn
+                    size="small"
+                    prepend-icon="mdi-file-download"
+                    variant="outlined"
+                    color="primary"
+                    @click="downloadStatsAsCSV">
+                    Download
+                  </v-btn>
+                </span>
+              </v-toolbar>
+            </template>
+            <template v-slot:item.timestamp="{ item }">
+              {{ formatDate(item.timestamp) }}
+            </template>
+            <template #no-data>
+              <div>No statiscs available</div>
+            </template>
+          </v-data-table-virtual>
+        </v-tabs-window-item>
       </v-tabs-window>
     </v-card>
   </v-dialog>
@@ -93,6 +129,7 @@ import { enabledAuthentication, enabledPermissions } from '../app.config';
 
 import { useFunctions } from '../plugins/functions';
 import {
+  GetEndpointStatisticsResponse,
   GetProjectResponse,
   ProjectAction,
   ProjectAssignment,
@@ -117,6 +154,36 @@ const loaded = ref(true);
 const assignments = reactive<
   { id: string; name: string; email: string; type: string; kind: string }[]
 >([]);
+
+const statistics = reactive<GetEndpointStatisticsResponse>({
+  'called-endpoints': [],
+  'next-page-token': '',
+  'previous-page-token': '',
+  timestamps: [],
+});
+
+const tableStatisticsFormatted = ref<
+  Array<{
+    timestamp: string;
+    count: number;
+    httpRoute: string;
+    statusCode: number;
+    warehouseId: string | null;
+    warehouseName: string | null;
+    createdAt: string;
+    updatedAt: string | null;
+  }>
+>([]);
+const headersStatistics: readonly Header[] = Object.freeze([
+  { title: 'Timestamp', key: 'timestamp', align: 'start' },
+  { title: 'Count', key: 'count', align: 'start' },
+  { title: 'HTTP Route', key: 'httpRoute', align: 'start' },
+  { title: 'Status Code', key: 'statusCode', align: 'start' },
+  { title: 'Warehouse ID', key: 'warehouseId', align: 'start' },
+  { title: 'Warehouse Name', key: 'warehouseName', align: 'start' },
+  { title: 'Created At', key: 'createdAt', align: 'start' },
+  { title: 'Updated At', key: 'updatedAt', align: 'start' },
+]);
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Info', key: 'info', align: 'start' },
@@ -157,8 +224,6 @@ async function init() {
 
     canDeleteProject.value = !!myAccess.includes('delete');
 
-    const GetEndpointStatisticsResponse = await functions.getEndpointStatistics({ type: 'all' });
-    console.log('GetEndpointStatisticsResponse', GetEndpointStatisticsResponse);
     await loadProjects();
 
     Object.assign(
@@ -198,6 +263,21 @@ async function init() {
     }
   } catch (error: any) {
     console.error(error);
+  }
+}
+
+async function getEndpointStatistcs() {
+  try {
+    Object.assign(statistics, await functions.getEndpointStatistics({ type: 'all' }));
+    console.log('GetEndpointStatisticsResponse', statistics);
+    tableStatisticsFormatted.value.splice(0, tableStatisticsFormatted.value.length);
+
+    tableStatisticsFormatted.value.push(...formatStatisticsTable(statistics));
+    console.table(tableStatisticsFormatted.value);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loaded.value = true;
   }
 }
 
@@ -267,4 +347,97 @@ async function renameProject(renamedProject: RenameProjectRequest & { 'project-i
 onMounted(async () => {
   await init();
 });
+
+function formatStatisticsTable(statistics: any) {
+  const result: Array<{
+    timestamp: string;
+    count: number;
+    httpRoute: string;
+    statusCode: number;
+    warehouseId: string | null;
+    warehouseName: string | null;
+    createdAt: string;
+    updatedAt: string | null;
+  }> = [];
+
+  // Iterate over timestamps and their corresponding called-endpoints arrays
+  statistics.timestamps.forEach((timestamp: string, index: number) => {
+    const endpointsGroup = statistics['called-endpoints'][index]; // Get the array of endpoints for the current timestamp
+    if (endpointsGroup) {
+      endpointsGroup.forEach((endpoint: any) => {
+        const row = {
+          timestamp, // Add timestamp to each endpoint object
+          count: endpoint.count,
+          httpRoute: endpoint['http-route'],
+          statusCode: endpoint['status-code'],
+          warehouseId: endpoint['warehouse-id'] ?? null,
+          warehouseName: endpoint['warehouse-name'] ?? null,
+          createdAt: endpoint['created-at'],
+          updatedAt: endpoint['updated-at'] ?? null,
+        };
+        result.push(row);
+      });
+    }
+  });
+
+  return result;
+}
+
+function formatDate(dateString: string) {
+  const options = {
+    year: 'numeric' as const,
+    month: '2-digit' as const,
+    day: '2-digit' as const,
+    hour: '2-digit' as const,
+    minute: '2-digit' as const,
+    second: '2-digit' as const,
+  };
+  return new Date(dateString).toLocaleDateString('en-US', options).replace(',', '');
+}
+
+function downloadStatsAsCSV() {
+  if (!tableStatisticsFormatted.value || tableStatisticsFormatted.value.length === 0) {
+    console.warn('No statistics available to download.');
+    return;
+  }
+
+  // Define CSV headers
+  const csvHeaders = [
+    'Timestamp',
+    'Count',
+    'HTTP Route',
+    'Status Code',
+    'Warehouse ID',
+    'Warehouse Name',
+    'Created At',
+    'Updated At',
+  ];
+
+  // Map rows from tableStatisticsFormatted
+  const csvRows = tableStatisticsFormatted.value.map((stat) => [
+    formatDate(stat.timestamp),
+    stat.count,
+    stat.httpRoute,
+    stat.statusCode,
+    stat.warehouseId ?? '',
+    stat.warehouseName ?? '',
+    formatDate(stat.createdAt),
+    stat.updatedAt ? formatDate(stat.updatedAt) : '',
+  ]);
+
+  // Combine headers and rows into CSV content
+  const csvContent = [
+    csvHeaders.join(','), // Add headers
+    ...csvRows.map((row) => row.join(',')), // Add rows
+  ].join('\n');
+
+  // Create a Blob and trigger download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', 'endpoint-statistics.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 </script>

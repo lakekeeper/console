@@ -23,11 +23,26 @@
               </v-tabs-window-item>
               <v-tabs-window-item value="tables">
                 <v-data-table fixed-header :headers="headersStatistics" hover :items="props.stats">
+                  <template #top>
+                    <v-toolbar color="transparent" density="compact" flat>
+                      <v-spacer></v-spacer>
+                      <span class="icon-text">
+                        <v-btn
+                          size="small"
+                          prepend-icon="mdi-file-download"
+                          variant="outlined"
+                          color="primary"
+                          @click="downloadStatsAsCSV">
+                          Download
+                        </v-btn>
+                      </span>
+                    </v-toolbar>
+                  </template>
                   <template v-slot:item.timestamp="{ item }">
                     {{ formatDate(item.timestamp) }}
                   </template>
                   <template v-slot:item.updated_at="{ item }">
-                    {{ formatDate(item.updated_at) }}
+                    {{ formatDate(item['updated-at']) }}
                   </template>
                   <template #no-data>
                     <div>No statiscs available</div>
@@ -70,13 +85,14 @@ const tab = ref('plot');
 const props = defineProps<{
   stats: WarehouseStatistics[];
 }>();
+
 onMounted(() => {
   const sortedStats = [...props.stats].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
   data.labels = sortedStats.map((stat) => formatDate(stat.timestamp));
-  data.datasets[0].data = sortedStats.map((stat) => stat.number_of_tables);
-  data.datasets[1].data = sortedStats.map((stat) => stat.number_of_views);
+  data.datasets[0].data = sortedStats.map((stat) => stat['number-of-tables']);
+  data.datasets[1].data = sortedStats.map((stat) => stat['number-of-views']);
 });
 
 interface ChartData {
@@ -110,8 +126,8 @@ const options = reactive({
 });
 
 const headersStatistics: readonly Header[] = Object.freeze([
-  { title: 'Number of tables', key: 'number_of_tables', align: 'start' },
-  { title: 'Number of views', key: 'number_of_views' },
+  { title: 'Number of tables', key: 'number-of-tables', align: 'start' },
+  { title: 'Number of views', key: 'number-of-views' },
   { title: 'Created', key: 'timestamp' },
   { title: 'Updated', key: 'updated_at' },
 ]);
@@ -126,5 +142,33 @@ function formatDate(dateString: string) {
     second: '2-digit' as const,
   };
   return new Date(dateString).toLocaleDateString('en-US', options).replace(',', '');
+}
+
+function downloadStatsAsCSV() {
+  if (!props.stats || props.stats.length === 0) {
+    console.warn('No statistics available to download.');
+    return;
+  }
+
+  const csvHeaders = ['Number of Tables', 'Number of Views', 'Created', 'Updated'];
+  const csvRows = props.stats.map((stat) => [
+    stat['number-of-tables'],
+    stat['number-of-views'],
+    formatDate(stat.timestamp),
+    formatDate(stat['updated-at']),
+  ]);
+
+  const csvContent = [
+    csvHeaders.join(','), // Add headers
+    ...csvRows.map((row) => row.join(',')), // Add rows
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute('download', 'warehouse_statistics.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 </script>
