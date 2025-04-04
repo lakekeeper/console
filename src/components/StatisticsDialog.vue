@@ -87,6 +87,7 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
+  console.log(props.stats);
   const sortedStats = [...props.stats].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );

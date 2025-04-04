@@ -88,34 +88,43 @@
             @permissions="assign" />
         </v-tabs-window-item>
         <v-tabs-window-item v-if="canReadAssignments" value="statistics">
-          <v-data-table-virtual
-            fixed-header
-            height="50vh"
-            :headers="headersStatistics"
-            hover
-            :items="tableStatisticsFormatted">
-            <template #top>
-              <v-toolbar color="transparent" density="compact" flat>
-                <v-spacer></v-spacer>
-                <span class="icon-text">
-                  <v-btn
-                    size="small"
-                    prepend-icon="mdi-file-download"
-                    variant="outlined"
-                    color="primary"
-                    @click="downloadStatsAsCSV">
-                    Download
-                  </v-btn>
-                </span>
-              </v-toolbar>
-            </template>
-            <template v-slot:item.timestamp="{ item }">
-              {{ formatDate(item.timestamp) }}
-            </template>
-            <template #no-data>
-              <div>No statiscs available</div>
-            </template>
-          </v-data-table-virtual>
+          <v-card>
+            <v-switch
+              v-model="statisticsVisualTableSwitch"
+              color="primary"
+              :label="statisticsVisualTableSwitch ? 'Table' : 'Chart'"></v-switch>
+
+            <v-data-table-virtual
+              v-if="statisticsVisualTableSwitch"
+              fixed-header
+              height="80vh"
+              :headers="headersStatistics"
+              hover
+              :items="tableStatisticsFormatted">
+              <template #top>
+                <v-toolbar color="transparent" density="compact" flat>
+                  <v-spacer></v-spacer>
+                  <span class="icon-text">
+                    <v-btn
+                      size="small"
+                      prepend-icon="mdi-file-download"
+                      variant="outlined"
+                      color="primary"
+                      @click="downloadStatsAsCSV">
+                      Download
+                    </v-btn>
+                  </span>
+                </v-toolbar>
+              </template>
+              <template v-slot:item.timestamp="{ item }">
+                {{ formatDate(item.timestamp) }}
+              </template>
+              <template #no-data>
+                <div>No statiscs available</div>
+              </template>
+            </v-data-table-virtual>
+            <Line :data="data" :options="options" v-else />
+          </v-card>
         </v-tabs-window-item>
       </v-tabs-window>
     </v-card>
@@ -137,6 +146,38 @@ import {
 } from '../gen/management/types.gen';
 import { AssignmentCollection, Header, RelationType } from '../common/interfaces';
 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartData,
+} from 'chart.js';
+import { Line } from 'vue-chartjs';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+const data = reactive<ChartData<'line'>>({
+  labels: [],
+  datasets: [
+    {
+      label: 'Number of API calls',
+      backgroundColor: '#1e857d',
+      borderColor: '#1e857d',
+      data: [],
+    },
+  ],
+});
+
+const options = reactive({
+  responsive: true,
+  maintainAspectRatio: false,
+});
+
 const dialog = ref(false);
 const tab = ref('overview');
 
@@ -144,7 +185,7 @@ const visual = useVisualStore();
 const functions = useFunctions();
 
 const permissionType = ref<RelationType>('project');
-
+const statisticsVisualTableSwitch = ref(true);
 const myAccess = reactive<ProjectAction[]>([]);
 const canReadAssignments = ref(false);
 const canDeleteProject = ref(false);
