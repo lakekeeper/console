@@ -87,17 +87,16 @@
             :relation-type="permissionType"
             @permissions="assign" />
         </v-tabs-window-item>
-        <v-tabs-window-item v-if="canReadAssignments" value="statistics">
-          <v-card>
-            <v-switch
-              v-model="statisticsVisualTableSwitch"
-              color="primary"
-              :label="statisticsVisualTableSwitch ? 'Table' : 'Chart'"></v-switch>
 
+        <v-tabs-window-item v-if="canReadAssignments" value="statistics">
+          <v-switch
+            v-model="statisticsVisualTableSwitch"
+            color="primary"
+            :label="statisticsVisualTableSwitch ? 'Table' : 'Chart'"></v-switch>
+          <v-card v-if="statisticsVisualTableSwitch">
             <v-data-table-virtual
-              v-if="statisticsVisualTableSwitch"
               fixed-header
-              height="80vh"
+              height="50vh"
               :headers="headersStatistics"
               hover
               :items="tableStatisticsFormatted">
@@ -123,8 +122,10 @@
                 <div>No statiscs available</div>
               </template>
             </v-data-table-virtual>
-            <Line :data="data" :options="options" v-else />
           </v-card>
+          <div v-else style="height: 50vh">
+            <Line :data="data" :options="options" />
+          </div>
         </v-tabs-window-item>
       </v-tabs-window>
     </v-card>
@@ -307,14 +308,70 @@ async function init() {
   }
 }
 
+// async function getEndpointStatistcs() {
+//   try {
+//     Object.assign(statistics, await functions.getEndpointStatistics({ type: 'all' }));
+//     console.log('GetEndpointStatisticsResponse', statistics);
+//     tableStatisticsFormatted.value.splice(0, tableStatisticsFormatted.value.length);
+
+//     tableStatisticsFormatted.value.push(...formatStatisticsTable(statistics));
+//     console.log(tableStatisticsFormatted.value);
+//   } catch (error) {
+//     console.error(error);
+//   } finally {
+//     loaded.value = true;
+//   }
+// }
+
 async function getEndpointStatistcs() {
   try {
+    // Fetch statistics from the backend
     Object.assign(statistics, await functions.getEndpointStatistics({ type: 'all' }));
     console.log('GetEndpointStatisticsResponse', statistics);
-    tableStatisticsFormatted.value.splice(0, tableStatisticsFormatted.value.length);
 
-    tableStatisticsFormatted.value.push(...formatStatisticsTable(statistics));
-    console.table(tableStatisticsFormatted.value);
+    // Step 1: Format the raw statistics into a table-friendly format
+    const formattedTableData = formatStatisticsTable(statistics);
+
+    // Step 2: Aggregate data by date-hour
+    const aggregatedData: { [key: string]: number } = {};
+    const timestamps = formattedTableData.map((entry) => new Date(entry.timestamp));
+
+    // Find the range of timestamps
+    const minTimestamp = new Date(Math.min(...timestamps.map((t) => t.getTime())));
+    const maxTimestamp = new Date(Math.max(...timestamps.map((t) => t.getTime())));
+
+    // Normalize timestamps to date-hour and aggregate counts
+    formattedTableData.forEach((entry) => {
+      const dateHour = new Date(entry.timestamp).toISOString().slice(0, 13) + ':00:00Z';
+      if (!aggregatedData[dateHour]) {
+        aggregatedData[dateHour] = 0;
+      }
+      aggregatedData[dateHour] += entry.count;
+    });
+
+    // Step 3: Fill in gaps with count 0
+    const filledData: { label: string; count: number }[] = [];
+    let currentTimestamp = new Date(minTimestamp);
+
+    while (currentTimestamp <= maxTimestamp) {
+      const dateHour = currentTimestamp.toISOString().slice(0, 13) + ':00:00Z';
+      filledData.push({
+        label: dateHour,
+        count: aggregatedData[dateHour] || 0,
+      });
+      currentTimestamp.setHours(currentTimestamp.getHours() + 1); // Increment by 1 hour
+    }
+
+    // Step 4: Update chart data
+    data.labels = filledData.map((item) => formatDate(item.label));
+    data.datasets[0].data = filledData.map((item) => item.count);
+
+    // Step 5: Update table data
+    tableStatisticsFormatted.value.splice(0, tableStatisticsFormatted.value.length);
+    tableStatisticsFormatted.value.push(...formattedTableData);
+
+    console.log('Aggregated Chart Data:', filledData);
+    console.log('Table Data:', tableStatisticsFormatted.value);
   } catch (error) {
     console.error(error);
   } finally {
