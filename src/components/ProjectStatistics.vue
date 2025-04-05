@@ -37,11 +37,26 @@
     <v-row v-else>
       <v-col cols="6">
         <v-btn color="primary" variant="outlined" @click="drillDownSwitch = !drillDownSwitch">
-          <v-icon left>{{ drillDownSwitch ? 'mdi-database-search' : 'mdi-database' }}</v-icon>
-          {{ drillDownSwitch ? 'Drill-Down View' : 'Aggregated View' }}
+          <v-icon left>
+            {{ drillDownSwitch ? 'mdi-arrow-down-bold-box-outline' : 'mdi-sigma' }}
+          </v-icon>
+          {{ drillDownSwitch ? 'Drill down ' : 'Aggregate' }}
         </v-btn>
         <Line v-if="drillDownSwitch" :data="data_aggr_all" :options="options" />
-        <Line v-else :data="data_aggr_by_code" :options="options" style="height: 40vh" />
+        <span v-else>
+          <Line v-if="filtered" :data="data_aggr_by_code" :options="options" style="height: 40vh" />
+          <span v-else></span>
+        </span>
+      </v-col>
+      <v-col>
+        <v-select
+          v-if="!drillDownSwitch"
+          v-model="selectedCodes"
+          :items="availableCodes"
+          attach
+          chips
+          label="Chips"
+          multiple></v-select>
       </v-col>
     </v-row>
   </v-card>
@@ -65,6 +80,8 @@ import { Header } from '@/common/interfaces';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+const availableCodes = ref(['2xx', '3xx', '4xx', '5xx', 'Other']);
+const selectedCodes = ref(['2xx', '3xx', '4xx', '5xx', 'Other']);
 const headersStatistics: readonly Header[] = Object.freeze([
   { title: 'Timestamp', key: 'timestamp', align: 'start', sortable: true },
   { title: 'Count', key: 'count', align: 'start', sortable: true },
@@ -82,8 +99,13 @@ const data_aggr_all = reactive<ChartData<'line'>>({
   labels: [],
   datasets: [],
 });
-
+const filtered = ref(true);
 const data_aggr_by_code = reactive<ChartData<'line'>>({
+  labels: [],
+  datasets: [],
+});
+
+const data_aggr_by_code_clone = reactive<ChartData<'line'>>({
   labels: [],
   datasets: [],
 });
@@ -136,7 +158,7 @@ onMounted(() => {
       },
       {} as Record<string, number>,
     );
-    console.log('aggregatedAll', aggregatedAll);
+
     data_aggr_all.labels = Object.keys(aggregatedAll);
     data_aggr_all.datasets = [
       {
@@ -158,7 +180,7 @@ onMounted(() => {
       },
       {} as Record<string, Record<string, number>>,
     );
-    console.log('aggregatedByCode', aggregatedByCode);
+
     data_aggr_by_code.labels = Object.keys(aggregatedByCode);
     data_aggr_by_code.datasets = [
       {
@@ -192,7 +214,13 @@ onMounted(() => {
         data: Object.values(aggregatedByCode).map((item) => item['Other']),
       },
     ];
-    console.log('data_aggr_by_code', data_aggr_by_code);
+    data_aggr_by_code_clone.labels?.splice(0, data_aggr_by_code_clone.labels.length);
+    data_aggr_by_code_clone.datasets.splice(0, data_aggr_by_code_clone.datasets.length);
+    data_aggr_by_code_clone.labels = JSON.parse(JSON.stringify(data_aggr_by_code.labels));
+    data_aggr_by_code_clone.datasets = JSON.parse(JSON.stringify(data_aggr_by_code.datasets));
+
+    console.log('data_aggr_by_code', data_aggr_by_code, data_aggr_by_code_clone);
+
     tableStatisticsFormatted.value.splice(0, tableStatisticsFormatted.value.length);
     tableStatisticsFormatted.value.push(...formattedTableData);
   } catch (error) {
@@ -287,4 +315,26 @@ function downloadStatsAsCSV() {
   link.click();
   document.body.removeChild(link);
 }
+
+watch(
+  () => selectedCodes.value,
+  async (newValue) => {
+    filtered.value = false;
+    // Clear the current data_aggr_by_code
+
+    data_aggr_by_code.datasets.splice(0, data_aggr_by_code.datasets.length);
+
+    // Filter datasets based on the selected codes
+    newValue.forEach((code) => {
+      const dataset = data_aggr_by_code_clone.datasets.find((ds) => ds.label === code);
+      if (dataset) {
+        data_aggr_by_code.datasets.push(dataset);
+      }
+    });
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    filtered.value = true;
+  },
+  { immediate: true }, // Ensure it runs immediately on initialization
+);
 </script>
