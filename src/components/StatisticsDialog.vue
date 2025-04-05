@@ -87,13 +87,13 @@ const props = defineProps<{
 }>();
 
 onMounted(() => {
-  console.log(props.stats);
   const sortedStats = [...props.stats].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
   data.labels = sortedStats.map((stat) => formatDate(stat.timestamp));
   data.datasets[0].data = sortedStats.map((stat) => stat['number-of-tables']);
   data.datasets[1].data = sortedStats.map((stat) => stat['number-of-views']);
+  console.log('data', data);
 });
 
 interface ChartData {
