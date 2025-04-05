@@ -2,7 +2,6 @@
   <v-dialog v-model="isDialogActive" max-width="850">
     <template #activator="{ props: activatorProps }">
       <v-list-item
-        prepend-icon="mdi-rename-outline"
         v-bind="activatorProps"
         v-if="creatingWarehouse || props.objectType === ObjectType.WAREHOUSE">
         <v-list-item-title>
