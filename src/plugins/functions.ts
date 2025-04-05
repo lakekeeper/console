@@ -1320,7 +1320,7 @@ async function updateUserById(name: string, userId: string): Promise<boolean> {
       client,
       body: {
         name,
-        user_type: 'application',
+        'user-type': 'application',
       },
       path: {
         id: userId,
