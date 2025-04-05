@@ -34,7 +34,12 @@
     </v-data-table-virtual>
   </v-card>
   <div v-else style="height: 50vh">
-    <Line :data="data" :options="options" />
+    <v-switch
+      v-model="drillDownSwitch"
+      color="primary"
+      :label="drillDownSwitch ? 'Drill-Down View' : 'Aggregated View'"></v-switch>
+    <Line v-if="drillDownSwitch" :data="data" :options="options" />
+    <Line v-else :data="data" :options="options" />
   </div>
 </template>
 
@@ -85,7 +90,7 @@ const headersStatistics: readonly Header[] = Object.freeze([
   { title: 'Created At', key: 'createdAt', align: 'start' },
   { title: 'Updated At', key: 'updatedAt', align: 'start' },
 ]);
-
+const drillDownSwitch = ref(false);
 const tableStatisticsFormatted = ref<
   Array<{
     timestamp: string;
@@ -161,45 +166,120 @@ function downloadStatsAsCSV() {
   link.click();
   document.body.removeChild(link);
 }
+function updateChartData(
+  filledData: Array<{ label: string; counts: { total: number; [statusCategory: string]: number } }>,
+) {
+  data.labels?.splice(0, data.labels.length);
+  data.datasets.splice(0, data.datasets.length);
+  if (drillDownSwitch.value) {
+    // Drill-down view
+    data.labels = filledData.map((item) => formatDate(item.label));
+    data.datasets = [
+      {
+        label: '2xx',
+        backgroundColor: '#4caf50',
+        borderColor: '#4caf50',
+        data: filledData.map((item) => item.counts['2xx']),
+      },
+      {
+        label: '3xx',
+        backgroundColor: '#ff9800',
+        borderColor: '#ff9800',
+        data: filledData.map((item) => item.counts['3xx']),
+      },
+      {
+        label: '4xx',
+        backgroundColor: '#f44336',
+        borderColor: '#f44336',
+        data: filledData.map((item) => item.counts['4xx']),
+      },
+      {
+        label: '5xx',
+        backgroundColor: '#9c27b0',
+        borderColor: '#9c27b0',
+        data: filledData.map((item) => item.counts['5xx']),
+      },
+      {
+        label: 'Other',
+        backgroundColor: '#607d8b',
+        borderColor: '#607d8b',
+        data: filledData.map((item) => item.counts['Other']),
+      },
+    ];
+  } else {
+    // Aggregated view
+    data.labels = filledData.map((item) => formatDate(item.label));
+    data.datasets = [
+      {
+        label: 'Total API Calls',
+        backgroundColor: '#1e857d',
+        borderColor: '#1e857d',
+        data: filledData.map((item) => item.counts.total),
+      },
+    ];
+  }
+}
 
 onMounted(() => {
   try {
     // Step 1: Format the raw statistics into a table-friendly format
     const formattedTableData = formatStatisticsTable(props.stats);
 
-    // Step 2: Aggregate data by date-hour
-    const aggregatedData: { [key: string]: number } = {};
+    // Step 2: Aggregate data by date-hour and status code categories
+    const aggregatedData: { [key: string]: { total: number; [statusCategory: string]: number } } =
+      {};
     const timestamps = formattedTableData.map((entry) => new Date(entry.timestamp));
 
     // Find the range of timestamps
     const minTimestamp = new Date(Math.min(...timestamps.map((t) => t.getTime())));
     const maxTimestamp = new Date(Math.max(...timestamps.map((t) => t.getTime())));
 
-    // Normalize timestamps to date-hour and aggregate counts
+    // Helper function to categorize status codes
+    function getStatusCategory(statusCode: number): string {
+      if (statusCode >= 200 && statusCode < 300) return '2xx';
+      if (statusCode >= 300 && statusCode < 400) return '3xx';
+      if (statusCode >= 400 && statusCode < 500) return '4xx';
+      if (statusCode >= 500 && statusCode < 600) return '5xx';
+      return 'Other';
+    }
+
+    // Normalize timestamps to date-hour and aggregate counts by status category
     formattedTableData.forEach((entry) => {
       const dateHour = new Date(entry.timestamp).toISOString().slice(0, 13) + ':00:00Z';
+      const statusCategory = getStatusCategory(entry.statusCode);
+
       if (!aggregatedData[dateHour]) {
-        aggregatedData[dateHour] = 0;
+        aggregatedData[dateHour] = { total: 0, '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0, Other: 0 };
       }
-      aggregatedData[dateHour] += entry.count;
+      aggregatedData[dateHour].total += entry.count;
+      aggregatedData[dateHour][statusCategory] += entry.count;
     });
 
-    // Step 3: Fill in gaps with count 0
-    const filledData: { label: string; count: number }[] = [];
+    // Step 3: Fill in gaps with count 0 for all status categories
+    const filledData: {
+      label: string;
+      counts: { total: number; [statusCategory: string]: number };
+    }[] = [];
     let currentTimestamp = new Date(minTimestamp);
 
     while (currentTimestamp <= maxTimestamp) {
       const dateHour = currentTimestamp.toISOString().slice(0, 13) + ':00:00Z';
       filledData.push({
         label: dateHour,
-        count: aggregatedData[dateHour] || 0,
+        counts: aggregatedData[dateHour] || {
+          total: 0,
+          '2xx': 0,
+          '3xx': 0,
+          '4xx': 0,
+          '5xx': 0,
+          Other: 0,
+        },
       });
       currentTimestamp.setHours(currentTimestamp.getHours() + 1); // Increment by 1 hour
     }
 
-    // Step 4: Update chart data
-    data.labels = filledData.map((item) => formatDate(item.label));
-    data.datasets[0].data = filledData.map((item) => item.count);
+    // Step 4: Update chart data using the new function
+    updateChartData(filledData);
 
     // Step 5: Update table data
     tableStatisticsFormatted.value.splice(0, tableStatisticsFormatted.value.length);
@@ -211,6 +291,38 @@ onMounted(() => {
     console.error(error);
   } finally {
     loaded.value = true;
+  }
+});
+
+watch(drillDownSwitch, (newValue, old) => {
+  // Reuse the filledData from onMounted or recompute it if necessary
+  if (drillDownSwitch) {
+    const filledData = tableStatisticsFormatted.value.map((item) => ({
+      label: item.timestamp,
+      counts: {
+        total: item.count,
+        '2xx': item.statusCode >= 200 && item.statusCode < 300 ? item.count : 0,
+        '3xx': item.statusCode >= 300 && item.statusCode < 400 ? item.count : 0,
+        '4xx': item.statusCode >= 400 && item.statusCode < 500 ? item.count : 0,
+        '5xx': item.statusCode >= 500 && item.statusCode < 600 ? item.count : 0,
+        Other: item.statusCode < 200 || item.statusCode >= 600 ? item.count : 0,
+      },
+    }));
+    updateChartData(filledData);
+  } else {
+    const filledData = tableStatisticsFormatted.value.map((item) => ({
+      label: item.timestamp,
+      counts: {
+        total: item.count,
+        '2xx': item.statusCode >= 200 && item.statusCode < 300 ? item.count : 0,
+        '3xx': item.statusCode >= 300 && item.statusCode < 400 ? item.count : 0,
+        '4xx': item.statusCode >= 400 && item.statusCode < 500 ? item.count : 0,
+        '5xx': item.statusCode >= 500 && item.statusCode < 600 ? item.count : 0,
+        Other: item.statusCode < 200 || item.statusCode >= 600 ? item.count : 0,
+      },
+    }));
+
+    updateChartData(filledData);
   }
 });
 
