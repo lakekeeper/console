@@ -24,6 +24,7 @@ declare module 'vue' {
     NavigationBar: typeof import('./components/NavigationBar.vue')['default']
     PermissionManager: typeof import('./components/PermissionManager.vue')['default']
     ProjectManager: typeof import('./components/ProjectManager.vue')['default']
+    ProjectStatistics: typeof import('./components/ProjectStatistics.vue')['default']
     RenameWarehouseDialog: typeof import('./components/RenameWarehouseDialog.vue')['default']
     RoleDialog: typeof import('./components/roleDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
