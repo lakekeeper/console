@@ -1604,10 +1604,10 @@ If the underlying S3 supports both, we recommend to not set \`path_style_access\
             type: 'string',
             description: 'Region to use for S3 requests.'
         },
-        's3-url-detection-mode': {
+        'remote-signing-url-style': {
             '$ref': '#/components/schemas/S3UrlStyleDetectionMode',
-            description: `S3 URL style detection mode.
-The URL style detection heuristic to use. One of \`auto\`, \`path-style\`, \`virtual-host\`.
+            description: `S3 URL style detection mode for remote signing.
+One of \`auto\`, \`path-style\`, \`virtual-host\`.
 Default: \`auto\`. When set to \`auto\`, Lakekeeper will first try to parse the URL as
 \`virtual-host\` and then attempt \`path-style\`.
 \`path\` assumes the bucket name is the first path segment in the URL. \`virtual-host\`
@@ -1770,11 +1770,15 @@ export const ServerAssignmentSchema = {
 
 export const ServerInfoSchema = {
     type: 'object',
-    required: ['version', 'bootstrapped', 'server-id', 'authz-backend'],
+    required: ['version', 'bootstrapped', 'server-id', 'authz-backend', 'aws-system-identities-enabled'],
     properties: {
         'authz-backend': {
             '$ref': '#/components/schemas/AuthZBackend',
             description: `\`AuthZ\` backend in use.`
+        },
+        'aws-system-identities-enabled': {
+            type: 'boolean',
+            description: 'If using AWS system identities for S3 storage profiles are enabled.'
         },
         bootstrapped: {
             type: 'boolean',

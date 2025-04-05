@@ -1,16 +1,15 @@
 <template>
   <v-form @submit.prevent="handleSubmit">
     <!--Storage Credentials-->
-    <v-switch
+    <v-select
       v-model="warehouseObjectData['storage-credential']['credential-type']"
-      :value="'access-key'"
-      :false-value="'aws-system-identity'"
+      :items="credentialOptions"
+      item-title="text"
+      item-value="value"
+      label="Credential Type"
       color="primary"
-      :label="
-        warehouseObjectData['storage-credential']['credential-type'] === 'access-key'
-          ? 'Using Access Key Credentials'
-          : 'Using AWS System Identity'
-      "></v-switch>
+      outlined
+      :rules="[rules.required]"></v-select>
 
     <!-- Access Key Fields -->
     <v-text-field
@@ -34,8 +33,8 @@
     <!-- AWS System Identity Fields -->
     <v-text-field
       v-model="warehouseObjectData['storage-credential']['external-id']"
-      label="External ID"
-      placeholder="Enter External ID (optional)"></v-text-field>
+      label="External ID (optional)"
+      placeholder="arn:aws:iam::123456789012..."></v-text-field>
     <v-btn
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
       color="success"
@@ -114,11 +113,11 @@
         </v-col>
         <v-col>
           <v-select
-            v-model="warehouseObjectData['storage-profile']['s3-url-detection-mode']"
+            v-model="warehouseObjectData['storage-profile']['remote-signing-url-style']"
             item-title="name"
             item-value="code"
             :items="s3UrlDetectionModes"
-            label="S3 URL Detection Mode (optional)"
+            label="Remote signing URL style (optional)"
             clearable
             placeholder="optional"></v-select>
         </v-col>
@@ -208,6 +207,11 @@ const s3UrlDetectionModes = [
   { name: 'Path', code: 'path' },
   { name: 'Virtual Host', code: 'virtual_host' },
   { name: 'Auto', code: 'auto' },
+];
+
+const credentialOptions = [
+  { text: 'Access Key ', value: 'access-key' },
+  { text: 'AWS System Identity', value: 'aws-system-identity' },
 ];
 
 const props = defineProps<{

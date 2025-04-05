@@ -723,8 +723,8 @@ export type S3Profile = {
      */
     region: string;
     /**
-     * S3 URL style detection mode.
-     * The URL style detection heuristic to use. One of `auto`, `path-style`, `virtual-host`.
+     * S3 URL style detection mode for remote signing.
+     * One of `auto`, `path-style`, `virtual-host`.
      * Default: `auto`. When set to `auto`, Lakekeeper will first try to parse the URL as
      * `virtual-host` and then attempt `path-style`.
      * `path` assumes the bucket name is the first path segment in the URL. `virtual-host`
@@ -740,7 +740,7 @@ export type S3Profile = {
      * - <https://s3.endpoint.com/bucket/bar/a/key>
      * - <https://s3.us-east-1.amazonaws.com/bucket/file>
      */
-    's3-url-detection-mode'?: S3UrlStyleDetectionMode;
+    'remote-signing-url-style'?: S3UrlStyleDetectionMode;
     'sts-enabled': boolean;
     /**
      * Optional role ARN to assume for sts vended-credentials.
@@ -825,6 +825,10 @@ export type ServerInfo = {
      * `AuthZ` backend in use.
      */
     'authz-backend': AuthZBackend;
+    /**
+     * If using AWS system identities for S3 storage profiles are enabled.
+     */
+    'aws-system-identities-enabled': boolean;
     /**
      * Whether the catalog has been bootstrapped.
      */
