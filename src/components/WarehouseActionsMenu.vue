@@ -5,51 +5,35 @@
     </template>
 
     <v-list activatable>
-      <v-list-item prepend-icon="mdi-rename-outline">
-        <v-list-item-title>
-          <RenameWarehouseDialog :warehouse-name="warehouse.name" @rename-warehouse="emitRename" />
-        </v-list-item-title>
-      </v-list-item>
-      <v-list-item prepend-icon="mdi-key-change">
-        <v-list-item-title>
-          <AddWarehouseDialog
-            :intent="Intent.UPDATE"
-            :object-type="ObjectType.STORAGE_CREDENTIAL"
-            :process-status="processStatus"
-            :warehouse="warehouse"
-            @cancel="menuOpen = false"
-            @close="$emit('close')"
-            @update-credentials="updateStorageCredential" />
-        </v-list-item-title>
-      </v-list-item>
-      <v-list-item prepend-icon="mdi-playlist-edit">
-        <v-list-item-title>
-          <AddWarehouseDialog
-            :warehouse="warehouse"
-            :processStatus="processStatus"
-            :intent="Intent.UPDATE"
-            :object-type="ObjectType.STORAGE_PROFILE"
-            @close="$emit('close')"
-            @update-profile="updateStorageProfile"
-            @cancel="menuOpen = false" />
-        </v-list-item-title>
-      </v-list-item>
-      <v-list-item prepend-icon="mdi-update">
-        <v-list-item-title>
-          <AddWarehouseDialog
-            :intent="Intent.UPDATE"
-            :object-type="ObjectType.DELETION_PROFILE"
-            :process-status="processStatus"
-            :warehouse="warehouse"
-            @cancel="menuOpen = false"
-            @update-deletion-profile="updateDeletionProfile" />
-        </v-list-item-title>
-      </v-list-item>
-      <v-list-item prepend-icon="mdi-connection">
-        <v-list-item-title>
-          <ComputeConnectDialog :warehouse="warehouse" />
-        </v-list-item-title>
-      </v-list-item>
+      <RenameWarehouseDialog :warehouse-name="warehouse.name" @rename-warehouse="emitRename" />
+
+      <AddWarehouseDialog
+        :intent="Intent.UPDATE"
+        :object-type="ObjectType.STORAGE_CREDENTIAL"
+        :process-status="processStatus"
+        :warehouse="warehouse"
+        @cancel="menuOpen = false"
+        @close="$emit('close')"
+        @update-credentials="updateStorageCredential" />
+
+      <AddWarehouseDialog
+        :warehouse="warehouse"
+        :processStatus="processStatus"
+        :intent="Intent.UPDATE"
+        :object-type="ObjectType.STORAGE_PROFILE"
+        @close="$emit('close')"
+        @update-profile="updateStorageProfile"
+        @cancel="menuOpen = false" />
+
+      <AddWarehouseDialog
+        :intent="Intent.UPDATE"
+        :object-type="ObjectType.DELETION_PROFILE"
+        :process-status="processStatus"
+        :warehouse="warehouse"
+        @cancel="menuOpen = false"
+        @update-deletion-profile="updateDeletionProfile" />
+
+      <ComputeConnectDialog :warehouse="warehouse" />
     </v-list>
   </v-menu>
 </template>

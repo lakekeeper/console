@@ -47,7 +47,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'emitProjectNewName', project: RenameProjectRequest): void;
+  (e: 'emitProjectNewName', project: RenameProjectRequest & { 'project-id': string }): void;
 }>();
 
 function emitProjectName() {
