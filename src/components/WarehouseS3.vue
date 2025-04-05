@@ -1,13 +1,27 @@
 <template>
   <v-form @submit.prevent="handleSubmit">
     <!--Storage Credentials-->
+    <v-switch
+      v-model="warehouseObjectData['storage-credential']['credential-type']"
+      :value="'access-key'"
+      :false-value="'aws-system-identity'"
+      color="primary"
+      :label="
+        warehouseObjectData['storage-credential']['credential-type'] === 'access-key'
+          ? 'Using Access Key Credentials'
+          : 'Using AWS System Identity'
+      "></v-switch>
+
+    <!-- Access Key Fields -->
     <v-text-field
+      v-if="warehouseObjectData['storage-credential']['credential-type'] === 'access-key'"
       v-model="warehouseObjectData['storage-credential']['aws-access-key-id']"
       autocomplete="username"
       label="AWS Access Key ID"
       placeholder="AKIAIOSFODNN7EXAMPLE"
       :rules="[rules.required]"></v-text-field>
     <v-text-field
+      v-if="warehouseObjectData['storage-credential']['credential-type'] === 'access-key'"
       v-model="warehouseObjectData['storage-credential']['aws-secret-access-key']"
       :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
       autocomplete="current-password"
@@ -16,12 +30,21 @@
       :rules="[rules.required]"
       :type="showPassword ? 'text' : 'password'"
       @click:append-inner="showPassword = !showPassword"></v-text-field>
+
+    <!-- AWS System Identity Fields -->
+    <v-text-field
+      v-model="warehouseObjectData['storage-credential']['external-id']"
+      label="External ID"
+      placeholder="Enter External ID (optional)"></v-text-field>
     <v-btn
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
       color="success"
       :disabled="
-        !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
-        !warehouseObjectData['storage-credential']['aws-secret-access-key']
+        (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
+          (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
+            !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
+        (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
+          !warehouseObjectData['storage-credential']['external-id'])
       "
       @click="emitNewCredentials">
       Update Credentials
@@ -82,17 +105,29 @@
         label="Key Prefix"
         placeholder="path/to/warehouse (optional)"></v-text-field>
 
-      <v-text-field
-        v-model="warehouseObjectData['storage-profile'].endpoint"
-        label="Endpoint"
-        placeholder="https://s3.custom.example.com (optional)"></v-text-field>
-
+      <v-row>
+        <v-col cols="8">
+          <v-text-field
+            v-model="warehouseObjectData['storage-profile'].endpoint"
+            label="Endpoint"
+            placeholder="https://s3.custom.example.com (optional)"></v-text-field>
+        </v-col>
+        <v-col>
+          <v-select
+            v-model="warehouseObjectData['storage-profile']['s3-url-detection-mode']"
+            item-title="name"
+            item-value="code"
+            :items="s3UrlDetectionModes"
+            label="S3 URL Detection Mode (optional)"
+            clearable
+            placeholder="optional"></v-select>
+        </v-col>
+      </v-row>
       <v-combobox
         v-model="warehouseObjectData['storage-profile'].region"
         :items="regions"
         label="Bucket Region"
         placeholder="eu-central-1"></v-combobox>
-
       <v-row>
         <v-col cols="3">
           <v-switch
@@ -117,8 +152,11 @@
         v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
         color="success"
         :disabled="
-          !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
-          !warehouseObjectData['storage-credential']['aws-secret-access-key'] ||
+          (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
+            (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
+              !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
+          (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
+            !warehouseObjectData['storage-credential']['external-id']) ||
           !warehouseObjectData['storage-profile'].bucket ||
           (warehouseObjectData['storage-profile'].flavor === 'aws' &&
             !warehouseObjectData['storage-profile'].region) ||
@@ -133,8 +171,11 @@
         v-if="props.intent === Intent.UPDATE && props.objectType === ObjectType.STORAGE_PROFILE"
         color="success"
         :disabled="
-          !warehouseObjectData['storage-credential']['aws-access-key-id'] ||
-          !warehouseObjectData['storage-credential']['aws-secret-access-key'] ||
+          (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
+            (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
+              !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
+          (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
+            !warehouseObjectData['storage-credential']['external-id']) ||
           !warehouseObjectData['storage-profile'].bucket ||
           (warehouseObjectData['storage-profile'].flavor === 'aws' &&
             !warehouseObjectData['storage-profile'].region) ||
@@ -163,6 +204,12 @@ import { WarehousObject } from '@/common/interfaces';
 
 const showPassword = ref(false);
 
+const s3UrlDetectionModes = [
+  { name: 'Path', code: 'path' },
+  { name: 'Virtual Host', code: 'virtual_host' },
+  { name: 'Auto', code: 'auto' },
+];
+
 const props = defineProps<{
   credentialsOnly: boolean;
   intent: Intent;
@@ -189,13 +236,15 @@ const warehouseObjectData = reactive<{
     type: 's3',
     bucket: '',
     region: '',
+
     'sts-enabled': false,
   },
   'storage-credential': {
     type: 's3',
+    'credential-type': 'access-key',
     'aws-access-key-id': '',
     'aws-secret-access-key': '',
-    'credential-type': 'access-key',
+    'external-id': null, // Optional, can be used for both credential types
   },
 });
 
@@ -249,27 +298,69 @@ const handleSubmit = () => {
 };
 
 const emitNewCredentials = () => {
-  const credentials = {
+  let credentials: StorageCredential = {
     type: 's3',
     'credential-type': 'access-key',
-    'aws-access-key-id': warehouseObjectData['storage-credential']['aws-access-key-id'],
-    'aws-secret-access-key': warehouseObjectData['storage-credential']['aws-secret-access-key'],
-  } as StorageCredential;
+    'aws-access-key-id': '',
+    'aws-secret-access-key': '',
+    'external-id': null,
+  }; // Initialize with default values
+  const credentialType = warehouseObjectData['storage-credential']['credential-type'];
+
+  if (credentialType === 'access-key') {
+    // Handle 'access-key' type
+    credentials = {
+      type: 's3' as const,
+      'credential-type': 'access-key',
+      'aws-access-key-id': warehouseObjectData['storage-credential']['aws-access-key-id'],
+      'aws-secret-access-key': warehouseObjectData['storage-credential']['aws-secret-access-key'],
+      'external-id': warehouseObjectData['storage-credential']['external-id'] || null, // Optional
+    } as S3Credential & { type: 's3' };
+  } else if (credentialType === 'aws-system-identity') {
+    // Handle 'aws-system-identity' type
+    credentials = {
+      type: 's3' as const,
+      'credential-type': 'aws-system-identity',
+      'external-id': warehouseObjectData['storage-credential']['external-id'] || null, // Optional
+    } as S3Credential & { type: 's3' };
+  }
 
   emit('updateCredentials', credentials);
 };
 
 const emitNewProfile = () => {
-  const newProfile = {
-    profile: warehouseObjectData['storage-profile'],
-    credentials: {
-      type: 's3',
+  let credentials: StorageCredential = {
+    type: 's3',
+    'credential-type': 'access-key',
+    'aws-access-key-id': '',
+    'aws-secret-access-key': '',
+    'external-id': null,
+  }; // Initialize with default values
+  const credentialType = warehouseObjectData['storage-credential']['credential-type'];
+
+  if (credentialType === 'access-key') {
+    // Handle 'access-key' type
+    credentials = {
+      type: 's3' as const,
       'credential-type': 'access-key',
       'aws-access-key-id': warehouseObjectData['storage-credential']['aws-access-key-id'],
       'aws-secret-access-key': warehouseObjectData['storage-credential']['aws-secret-access-key'],
-    } as StorageCredential,
-  } as { profile: StorageProfile; credentials: StorageCredential };
-  emit('updateProfile', newProfile);
+      'external-id': warehouseObjectData['storage-credential']['external-id'] || null, // Optional
+    } as S3Credential & { type: 's3' };
+  } else if (credentialType === 'aws-system-identity') {
+    // Handle 'aws-system-identity' type
+    credentials = {
+      type: 's3' as const,
+      'credential-type': 'aws-system-identity',
+      'external-id': warehouseObjectData['storage-credential']['external-id'] || null, // Optional
+    } as S3Credential & { type: 's3' };
+
+    const newProfile = {
+      profile: warehouseObjectData['storage-profile'],
+      credentials: credentials,
+    } as { profile: StorageProfile; credentials: StorageCredential };
+    emit('updateProfile', newProfile);
+  }
 };
 
 onMounted(() => {
