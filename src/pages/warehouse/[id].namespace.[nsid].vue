@@ -418,7 +418,7 @@ async function listDeletedTabulars() {
   try {
     deletedTabulars.splice(0, deletedTabulars.length);
     const data = await functions.listDeletedTabulars(visual.whId, namespaceId.value || '');
-    console.log('deletedTabulars', data.tabulars);
+
     Object.assign(deletedTabulars, data.tabulars);
     deletedTabulars.forEach((table) => {
       table.actions = ['delete'];

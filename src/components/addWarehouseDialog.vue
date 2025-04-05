@@ -1,31 +1,39 @@
 <template>
   <v-dialog v-model="isDialogActive" max-width="850">
     <template #activator="{ props: activatorProps }">
-      <v-btn
-        v-if="creatingWarehouse || props.objectType === ObjectType.WAREHOUSE"
+      <v-list-item
+        prepend-icon="mdi-rename-outline"
         v-bind="activatorProps"
-        color="info"
-        size="small"
-        text="Add Warehouse"
-        variant="flat"></v-btn>
-      <span
-        v-else-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
-        class="text-subtitle-2"
-        v-bind="activatorProps">
-        Update Credentials
-      </span>
-      <span
-        v-else-if="props.objectType === ObjectType.STORAGE_PROFILE"
-        class="text-subtitle-2"
-        v-bind="activatorProps">
-        Update Profile
-      </span>
-      <span
-        v-else-if="props.objectType === ObjectType.DELETION_PROFILE"
-        class="text-subtitle-2"
-        v-bind="activatorProps">
-        Change Deletion
-      </span>
+        v-if="creatingWarehouse || props.objectType === ObjectType.WAREHOUSE">
+        <v-list-item-title>
+          <v-btn color="info" size="small" text="Add Warehouse" variant="flat"></v-btn>
+        </v-list-item-title>
+      </v-list-item>
+      <v-list-item
+        prepend-icon="mdi-key-change"
+        v-bind="activatorProps"
+        v-else-if="props.objectType === ObjectType.STORAGE_CREDENTIAL">
+        <v-list-item-title>
+          <span class="text-subtitle-2" v-bind="activatorProps">Update Credentials</span>
+        </v-list-item-title>
+      </v-list-item>
+      <v-list-item
+        prepend-icon="mdi-playlist-edit"
+        v-bind="activatorProps"
+        v-else-if="props.objectType === ObjectType.STORAGE_PROFILE">
+        <v-list-item-title>
+          <span class="text-subtitle-2">Update Profile</span>
+        </v-list-item-title>
+      </v-list-item>
+
+      <v-list-item
+        prepend-icon="mdi-update"
+        v-bind="activatorProps"
+        v-else-if="props.objectType === ObjectType.DELETION_PROFILE">
+        <v-list-item-title>
+          <span class="text-subtitle-2">Change Deletion</span>
+        </v-list-item-title>
+      </v-list-item>
     </template>
     <v-card style="max-height: 90vh; overflow-y: auto">
       <v-card-title v-if="props.objectType === ObjectType.WAREHOUSE">
