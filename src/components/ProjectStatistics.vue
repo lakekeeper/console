@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-text>
+    <v-card-text class="mt-6">
       <v-row>
         <v-btn
           size="small"
@@ -174,7 +174,14 @@ onMounted(() => {
     // Aggregate data for `data_aggr_all`
     const aggregatedAll = formattedTableData.reduce(
       (acc, entry) => {
-        const dateHour = new Date(entry.timestamp).toISOString().slice(0, 13) + ':00';
+        const dateHour = new Intl.DateTimeFormat('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        }).format(new Date(entry.timestamp));
         if (!acc[dateHour]) acc[dateHour] = 0;
         acc[dateHour] += entry.count;
         return acc;
@@ -195,7 +202,14 @@ onMounted(() => {
     // Aggregate data for `data_aggr_by_code`
     const aggregatedByCode = formattedTableData.reduce(
       (acc, entry) => {
-        const dateHour = new Date(entry.timestamp).toISOString().slice(0, 13) + ':00';
+        const dateHour = new Intl.DateTimeFormat('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        }).format(new Date(entry.timestamp));
         const statusCategory = getStatusCategory(entry.statusCode);
         if (!acc[dateHour]) acc[dateHour] = { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0, Other: 0 };
         acc[dateHour][statusCategory] += entry.count;
