@@ -1,64 +1,85 @@
 <template>
-  <v-switch
-    v-model="statisticsVisualTableSwitch"
-    :color="statisticsVisualTableSwitch ? 'primary' : 'success'"
-    :label="statisticsVisualTableSwitch ? 'Table' : 'Chart'"></v-switch>
   <v-card>
-    <v-data-table-virtual
-      v-if="statisticsVisualTableSwitch"
-      fixed-header
-      height="50vh"
-      :headers="headersStatistics"
-      hover
-      :items="tableStatisticsFormatted">
-      <template #top>
-        <v-toolbar color="transparent" density="compact" flat>
-          <v-spacer></v-spacer>
-          <span class="icon-text">
-            <v-btn
-              size="small"
-              prepend-icon="mdi-file-download"
-              variant="outlined"
-              color="primary"
-              @click="downloadStatsAsCSV">
-              Download
-            </v-btn>
-          </span>
-        </v-toolbar>
-      </template>
-      <template v-slot:item.timestamp="{ item }">
-        {{ formatDate(item.timestamp) }}
-      </template>
-      <template #no-data>
-        <div>No statistics available</div>
-      </template>
-    </v-data-table-virtual>
-
-    <v-row v-else>
-      <v-col cols="6">
-        <v-btn color="primary" variant="outlined" @click="drillDownSwitch = !drillDownSwitch">
+    <v-card-text>
+      <v-row>
+        <v-btn
+          class="mr-2"
+          :color="statisticsVisualTableSwitch ? 'primary' : 'success'"
+          variant="outlined"
+          @click="statisticsVisualTableSwitch = !statisticsVisualTableSwitch">
+          <v-icon left>
+            {{ statisticsVisualTableSwitch ? 'mdi-chart-line' : 'mdi-table' }}
+          </v-icon>
+          {{ statisticsVisualTableSwitch ? 'Show Chart' : 'Show Table' }}
+        </v-btn>
+        <v-btn
+          v-if="!statisticsVisualTableSwitch"
+          color="primary"
+          variant="outlined"
+          @click="drillDownSwitch = !drillDownSwitch">
           <v-icon left>
             {{ drillDownSwitch ? 'mdi-arrow-down-bold-box-outline' : 'mdi-sigma' }}
           </v-icon>
           {{ drillDownSwitch ? 'Drill down ' : 'Aggregate' }}
         </v-btn>
-        <Line v-if="drillDownSwitch" :data="data_aggr_all" :options="options" />
-        <span v-else>
-          <Line v-if="filtered" :data="data_aggr_by_code" :options="options" style="height: 40vh" />
-          <span v-else></span>
-        </span>
-      </v-col>
-      <v-col>
-        <v-select
-          v-if="!drillDownSwitch"
-          v-model="selectedCodes"
-          :items="availableCodes"
-          attach
-          chips
-          label="Chips"
-          multiple></v-select>
-      </v-col>
-    </v-row>
+      </v-row>
+      <v-row v-if="statisticsVisualTableSwitch">
+        <v-col>
+          <v-data-table-virtual
+            fixed-header
+            height="60vh"
+            :headers="headersStatistics"
+            hover
+            :items="tableStatisticsFormatted">
+            <template #top>
+              <v-toolbar color="transparent" density="compact" flat>
+                <v-spacer></v-spacer>
+                <span class="icon-text">
+                  <v-btn
+                    size="small"
+                    prepend-icon="mdi-file-download"
+                    variant="outlined"
+                    color="primary"
+                    @click="downloadStatsAsCSV">
+                    Download
+                  </v-btn>
+                </span>
+              </v-toolbar>
+            </template>
+            <template v-slot:item.timestamp="{ item }">
+              {{ formatDate(item.timestamp) }}
+            </template>
+            <template #no-data>
+              <div>No statistics available</div>
+            </template>
+          </v-data-table-virtual>
+        </v-col>
+      </v-row>
+
+      <v-row v-else>
+        <v-col cols="6">
+          <Line v-if="drillDownSwitch" :data="data_aggr_all" :options="options" />
+          <span v-else>
+            <Line
+              v-if="filtered"
+              :data="data_aggr_by_code"
+              :options="options"
+              style="height: 40vh" />
+            <span v-else></span>
+          </span>
+        </v-col>
+        <v-col>
+          <v-select
+            v-if="!drillDownSwitch"
+            v-model="selectedCodes"
+            :items="availableCodes"
+            attach
+            chips
+            label="Chips"
+            multiple></v-select>
+        </v-col>
+      </v-row>
+    </v-card-text>
   </v-card>
 </template>
 <script setup lang="ts">
