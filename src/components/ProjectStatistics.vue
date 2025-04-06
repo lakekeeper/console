@@ -3,6 +3,7 @@
     <v-card-text>
       <v-row>
         <v-btn
+          size="small"
           class="mr-2"
           :color="statisticsVisualTableSwitch ? 'primary' : 'success'"
           variant="outlined"
@@ -13,6 +14,7 @@
           {{ statisticsVisualTableSwitch ? 'Show Chart' : 'Show Table' }}
         </v-btn>
         <v-btn
+          size="small"
           v-if="!statisticsVisualTableSwitch"
           color="primary"
           variant="outlined"
@@ -172,7 +174,7 @@ onMounted(() => {
     // Aggregate data for `data_aggr_all`
     const aggregatedAll = formattedTableData.reduce(
       (acc, entry) => {
-        const dateHour = new Date(entry.timestamp).toISOString().slice(0, 13) + ':00:00Z';
+        const dateHour = new Date(entry.timestamp).toISOString().slice(0, 13) + ':00';
         if (!acc[dateHour]) acc[dateHour] = 0;
         acc[dateHour] += entry.count;
         return acc;
@@ -193,7 +195,7 @@ onMounted(() => {
     // Aggregate data for `data_aggr_by_code`
     const aggregatedByCode = formattedTableData.reduce(
       (acc, entry) => {
-        const dateHour = new Date(entry.timestamp).toISOString().slice(0, 13) + ':00:00Z';
+        const dateHour = new Date(entry.timestamp).toISOString().slice(0, 13) + ':00';
         const statusCategory = getStatusCategory(entry.statusCode);
         if (!acc[dateHour]) acc[dateHour] = { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0, Other: 0 };
         acc[dateHour][statusCategory] += entry.count;
