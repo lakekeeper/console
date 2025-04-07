@@ -12,6 +12,9 @@ import type {
   RenameDefaultProjectData,
   RenameDefaultProjectError,
   RenameDefaultProjectResponse,
+  GetEndpointStatisticsData,
+  GetEndpointStatisticsError,
+  GetEndpointStatisticsResponse,
   GetServerInfoError,
   GetServerInfoResponse,
   CheckData,
@@ -178,6 +181,9 @@ import type {
   UndropTabularsData,
   UndropTabularsError,
   UndropTabularsResponse,
+  UndropTabularsDeprecatedData,
+  UndropTabularsDeprecatedError,
+  UndropTabularsDeprecatedResponse,
   RenameWarehouseData,
   RenameWarehouseError,
   RenameWarehouseResponse,
@@ -255,6 +261,62 @@ export const renameDefaultProject = <ThrowOnError extends boolean = false>(
   >({
     ...options,
     url: '/management/v1/default-project/rename',
+  });
+};
+
+/**
+ * Retrieve API Usage Statistics
+ * Returns detailed endpoint call statistics for your project, allowing you to monitor API usage patterns,
+ * track frequency of operations, and analyze response codes.
+ *
+ * ## Data Collection
+ *
+ * The statistics include:
+ * - Endpoint paths and HTTP methods
+ * - Response status codes
+ * - Call counts per endpoint
+ * - Warehouse context (when applicable)
+ * - Timestamps of activity
+ *
+ * ## Time Aggregation
+ *
+ * Statistics are aggregated hourly. Within each hour window:
+ * - An initial entry is created on the first API call
+ * - Subsequent calls update the existing hourly entry
+ * - Each hour boundary creates a new aggregation bucket
+ * - Hours with no API activity have no entries (gaps in data)
+ *
+ * ## Response Format
+ *
+ * The response includes timestamp buckets (in UTC) and corresponding endpoint metrics,
+ * allowing for time-series analysis of API usage patterns.
+ *
+ * Example:
+ * - 00:00:00-00:16:32: no activity
+ * - timestamps: []
+ * - 00:16:32: warehouse created:
+ * - timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null}]]
+ * - 00:30:00: table created:
+ * - timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null},
+ * {"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": null}]]
+ * - 00:45:00: table created:
+ * - timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null},
+ * {"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": "00:45:00"}]]
+ * - 01:00:36: table deleted:
+ * - timestamps: ["01:00:00","02:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null},
+ * {"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": "00:45:00"}],
+ * [{"count": 1, "http_route": "DELETE /catalog/v1/{prefix}/namespaces/{namespace}/tables/{table}", "status_code": 200, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "01:00:36", "updated_at": "null"}]]
+ */
+export const getEndpointStatistics = <ThrowOnError extends boolean = false>(
+  options: Options<GetEndpointStatisticsData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).post<
+    GetEndpointStatisticsResponse,
+    GetEndpointStatisticsError,
+    ThrowOnError
+  >({
+    ...options,
+    url: '/management/v1/endpoint-statistics',
   });
 };
 
@@ -771,7 +833,7 @@ export const getProjectById = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Delete the default project
+ * Delete a project by ID
  */
 export const deleteProjectById = <ThrowOnError extends boolean = false>(
   options: Options<DeleteProjectByIdData, ThrowOnError>,
@@ -1088,6 +1150,22 @@ export const undropTabulars = <ThrowOnError extends boolean = false>(
   return (options?.client ?? client).post<
     UndropTabularsResponse,
     UndropTabularsError,
+    ThrowOnError
+  >({
+    ...options,
+    url: '/management/v1/warehouse/{warehouse_id}/deleted-tabulars/undrop',
+  });
+};
+
+/**
+ * @deprecated
+ */
+export const undropTabularsDeprecated = <ThrowOnError extends boolean = false>(
+  options: Options<UndropTabularsDeprecatedData, ThrowOnError>,
+) => {
+  return (options?.client ?? client).post<
+    UndropTabularsDeprecatedResponse,
+    UndropTabularsDeprecatedError,
     ThrowOnError
   >({
     ...options,

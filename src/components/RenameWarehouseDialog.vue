@@ -1,7 +1,9 @@
 <template>
-  <v-dialog v-model="isDialogActive" max-width="500">
+  <v-dialog max-width="500" v-model="isDialogActive">
     <template #activator="{ props: activatorProps }">
-      <span class="text-subtitle-2" v-bind="activatorProps">Rename Warehouse</span>
+      <v-list-item prepend-icon="mdi-rename-outline" v-bind="activatorProps">
+        <v-list-item-title>Rename Warehouse</v-list-item-title>
+      </v-list-item>
     </template>
     <v-card :title="state.title">
       <v-card-text>

@@ -153,9 +153,9 @@ export type CreateRoleRequest = {
   name: string;
   /**
    * Project ID in which the role is created.
-   * Only required if the project ID cannot be inferred and no default project is set.
+   * Deprecated: Please use the `x-project-id` header instead.
    */
-  'project-id'?: string;
+  'project-id'?: string | null;
 };
 
 export type CreateUserRequest = {
@@ -192,7 +192,7 @@ export type CreateWarehouseRequest = {
   'delete-profile'?: TabularDeleteProfile;
   /**
    * Project ID in which to create the warehouse.
-   * If no default project is set for this server, this field is required.
+   * Deprecated: Please use the `x-project-id` header instead.
    */
   'project-id'?: string | null;
   'storage-credential'?: null | StorageCredential;
@@ -218,15 +218,15 @@ export type DeletedTabularResponse = {
   /**
    * Date when the tabular was created
    */
-  created_at: string;
+  'created-at': string;
   /**
    * Date when the tabular was deleted
    */
-  deleted_at: string;
+  'deleted-at': string;
   /**
    * Date when the tabular will not be recoverable anymore
    */
-  expiration_date: string;
+  'expiration-date': string;
   /**
    * Unique identifier of the tabular
    */
@@ -246,7 +246,87 @@ export type DeletedTabularResponse = {
   /**
    * Warehouse ID where the tabular is stored
    */
-  warehouse_id: string;
+  'warehouse-id': string;
+};
+
+export type EndpointStatistic = {
+  /**
+   * Number of requests to this endpoint for the current time-slice.
+   */
+  count: number;
+  /**
+   * Timestamp at which the datapoint was created in the database.
+   *
+   * This is the exact time at which the current endpoint-status-warehouse combination was called
+   * for the first time in the current time-slice.
+   */
+  'created-at': string;
+  /**
+   * The route of the endpoint.
+   *
+   * Format: `METHOD /path/to/endpoint`
+   */
+  'http-route': string;
+  /**
+   * The status code of the response.
+   */
+  'status-code': number;
+  /**
+   * Timestamp at which the datapoint was last updated.
+   *
+   * This is the exact time at which the current datapoint was last updated.
+   */
+  'updated-at'?: string | null;
+  /**
+   * The ID of the warehouse that handled the request.
+   *
+   * Only present for requests that could be associated with a warehouse. Some management
+   * endpoints cannot be associated with a warehouse, e.g. warehouse creation or user management
+   * will not have a `warehouse-id`.
+   */
+  'warehouse-id'?: string | null;
+  /**
+   * The name of the warehouse that handled the request.
+   *
+   * Only present for requests that could be associated with a warehouse. Some management
+   * endpoints cannot be associated with a warehouse, e.g. warehouse creation or user management
+   * will not have a `warehouse-id`
+   */
+  'warehouse-name'?: string | null;
+};
+
+export type EndpointStatisticsResponse = {
+  /**
+   * Array of arrays of statistics detailing each called endpoint for each `timestamp`.
+   *
+   * See docs of `timestamps` for more details.
+   */
+  'called-endpoints': Array<Array<EndpointStatistic>>;
+  /**
+   * Token to get the next page of results.
+   *
+   * Inverse of `previous-page-token`, see its documentation above.
+   */
+  'next-page-token': string;
+  /**
+   * Token to get the previous page of results.
+   *
+   * Endpoint statistics are not paginated through page-limits, we paginate them by stepping
+   * through time. By default, the list-statistics endpoint will return all statistics for
+   * `now()` - 1 day to `now()`. In the request, you can specify a `range_specifier` to set the end
+   * date and step interval. The `previous-page-token` will then move to the neighboring window.
+   * E.g. in the default case of `now()` and 1 day, it'd be `now()` - 2 days to `now()` - 1 day.
+   */
+  'previous-page-token': string;
+  /**
+   * Array of timestamps indicating the time at which each entry in the `called_endpoints` array
+   * is valid.
+   *
+   * We lazily create a new statistics entry every hour, in between hours, the existing entry
+   * is being updated. If any endpoint is called in the following hour, there'll be an entry in
+   * `timestamps` for the following hour. If not, then there'll be no entry.
+   */
+  timestamps: Array<string>;
 };
 
 /**
@@ -320,6 +400,23 @@ export type GcsServiceKey = {
   token_uri: string;
   type: string;
   universe_domain: string;
+};
+
+export type GetEndpointStatisticsRequest = {
+  'range-specifier'?: null | TimeWindowSelector;
+  /**
+   * Status code filter
+   *
+   * Optional filter to only return statistics for requests with specific status codes.
+   */
+  'status-codes'?: Array<number> | null;
+  /**
+   * Warehouse filter
+   *
+   * Can return statistics for a specific warehouse, all warehouses or requests that could not be
+   * associated to any warehouse.
+   */
+  warehouse: WarehouseFilter;
 };
 
 export type GetNamespaceAccessResponse = {
@@ -413,7 +510,7 @@ export type GetWarehouseResponse = {
    */
   name: string;
   /**
-   * Project ID in which the warehouse is created.
+   * Project ID in which the warehouse was created.
    */
   'project-id': string;
   /**
@@ -437,7 +534,7 @@ export type ListDeletedTabularsResponse = {
   /**
    * Token to fetch the next page
    */
-  next_page_token?: string | null;
+  'next-page-token'?: string | null;
   /**
    * List of tabulars
    */
@@ -452,12 +549,12 @@ export type ListProjectsResponse = {
 };
 
 export type ListRolesResponse = {
-  next_page_token?: string | null;
+  'next-page-token'?: string | null;
   roles: Array<Role>;
 };
 
 export type ListUsersResponse = {
-  next_page_token?: string | null;
+  'next-page-token'?: string | null;
   users: Array<User>;
 };
 
@@ -590,11 +687,6 @@ export type RenameProjectRequest = {
    * New name for the project.
    */
   'new-name': string;
-  /**
-   * Optional project ID.
-   * Only required if the project ID cannot be inferred and no default project is set.
-   */
-  'project-id'?: string | null;
 };
 
 export type RenameWarehouseRequest = {
@@ -652,11 +744,17 @@ export type type3 = 'assignee';
 
 export type RoleRelation = 'assignee' | 'ownership';
 
-export type S3Credential = {
-  'aws-access-key-id': string;
-  'aws-secret-access-key': string;
-  'credential-type': 'access-key';
-};
+export type S3Credential =
+  | {
+      'aws-access-key-id': string;
+      'aws-secret-access-key': string;
+      'credential-type': 'access-key';
+      'external-id'?: string | null;
+    }
+  | {
+      'credential-type': 'aws-system-identity';
+      'external-id'?: string | null;
+    };
 
 export type credential_type3 = 'access-key';
 
@@ -671,7 +769,7 @@ export type S3Profile = {
    */
   'allow-alternative-protocols'?: boolean | null;
   /**
-   * Optional ARN to assume when accessing the bucket
+   * Optional ARN to assume when accessing the bucket from Lakekeeper.
    */
   'assume-role-arn'?: string | null;
   /**
@@ -704,19 +802,40 @@ export type S3Profile = {
    * Region to use for S3 requests.
    */
   region: string;
+  /**
+   * S3 URL style detection mode for remote signing.
+   * One of `auto`, `path-style`, `virtual-host`.
+   * Default: `auto`. When set to `auto`, Lakekeeper will first try to parse the URL as
+   * `virtual-host` and then attempt `path-style`.
+   * `path` assumes the bucket name is the first path segment in the URL. `virtual-host`
+   * assumes the bucket name is the first subdomain if it is preceding `.s3` or `.s3-`.
+   *
+   * Examples
+   *
+   * Virtual host:
+   * - <https://bucket.s3.endpoint.com/bar/a/key>
+   * - <https://bucket.s3-eu-central-1.amazonaws.com/file>
+   *
+   * Path style:
+   * - <https://s3.endpoint.com/bucket/bar/a/key>
+   * - <https://s3.us-east-1.amazonaws.com/bucket/file>
+   */
+  'remote-signing-url-style'?: S3UrlStyleDetectionMode;
   'sts-enabled': boolean;
   /**
-   * Optional role ARN to assume for sts vended-credentials
+   * Optional role ARN to assume for sts vended-credentials.
+   * If not provided, `assume_role_arn` is used.
+   * Either `assume_role_arn` or `sts_role_arn` must be provided if `sts_enabled` is true.
    */
   'sts-role-arn'?: string | null;
 };
 
+export type S3UrlStyleDetectionMode = 'path' | 'virtual_host' | 'auto';
+
 export type SearchRoleRequest = {
   /**
-   * Deprecated: Please use the x-project-id header instead.
+   * Deprecated: Please use the `x-project-id` header instead.
    * Project ID in which the role is created.
-   * Only required if the project ID cannot be inferred from the
-   * users token and no default project is set.
    */
   'project-id'?: string | null;
   /**
@@ -796,13 +915,17 @@ export type ServerInfo = {
    */
   'authz-backend': AuthZBackend;
   /**
+   * If using AWS system identities for S3 storage profiles are enabled.
+   */
+  'aws-system-identities-enabled': boolean;
+  /**
    * Whether the catalog has been bootstrapped.
    */
   bootstrapped: boolean;
   /**
    * Default Project ID. Null if not set
    */
-  'default-project-id': string;
+  'default-project-id'?: string | null;
   /**
    * ID of the server.
    */
@@ -938,6 +1061,34 @@ export type type8 = 'table';
  */
 export type TabularType = 'table' | 'view';
 
+export type TimeWindowSelector =
+  | {
+      /**
+       * End timestamp of the time window
+       * Specify
+       */
+      end: string;
+      /**
+       * Duration/span of the time window
+       *
+       * The returned statistics will be for the time window from `end` - `interval` to `end`.
+       * Specify a ISO8601 duration string, e.g. `PT1H` for 1 hour, `P1D` for 1 day.
+       */
+      interval: string;
+      type: 'window';
+    }
+  | {
+      /**
+       * Opaque Token from previous response for paginating through time windows
+       *
+       * Use the `next_page_token` or `previous_page_token` from a previous response
+       */
+      token: string;
+      type: 'page-token';
+    };
+
+export type type9 = 'window';
+
 export type UndropTabularsRequest = {
   /**
    * Tabulars to undrop
@@ -984,7 +1135,7 @@ export type UpdateTableAssignmentsRequest = {
 export type UpdateUserRequest = {
   email?: string | null;
   name: string;
-  user_type: UserType;
+  'user-type': UserType;
 };
 
 export type UpdateViewAssignmentsRequest = {
@@ -1153,6 +1304,20 @@ export type WarehouseAssignment =
       type: 'modify';
     });
 
+export type WarehouseFilter =
+  | {
+      id: string;
+      type: 'warehouse-id';
+    }
+  | {
+      type: 'unmapped';
+    }
+  | {
+      type: 'all';
+    };
+
+export type type10 = 'warehouse-id';
+
 export type WarehouseRelation =
   | 'ownership'
   | 'pass_grants'
@@ -1166,11 +1331,11 @@ export type WarehouseStatistics = {
   /**
    * Number of tables in the warehouse.
    */
-  number_of_tables: number;
+  'number-of-tables': number;
   /**
    * Number of views in the warehouse.
    */
-  number_of_views: number;
+  'number-of-views': number;
   /**
    * Timestamp of when these statistics are valid until
    *
@@ -1182,7 +1347,7 @@ export type WarehouseStatistics = {
   /**
    * Timestamp of when these statistics were last updated
    */
-  updated_at: string;
+  'updated-at': string;
 };
 
 export type WarehouseStatisticsResponse = {
@@ -1228,6 +1393,14 @@ export type RenameDefaultProjectData = {
 export type RenameDefaultProjectResponse = unknown;
 
 export type RenameDefaultProjectError = IcebergErrorResponse;
+
+export type GetEndpointStatisticsData = {
+  body: GetEndpointStatisticsRequest;
+};
+
+export type GetEndpointStatisticsResponse = EndpointStatisticsResponse;
+
+export type GetEndpointStatisticsError = IcebergErrorResponse;
 
 export type GetServerInfoResponse = ServerInfo;
 
@@ -1736,10 +1909,9 @@ export type ListRolesData = {
     pageToken?: string | null;
     /**
      * Project ID from which roles should be listed
-     * Only required if the project ID cannot be inferred from the
-     * users token and no default project is set.
+     * Deprecated: Please use the `x-project-id` header instead.
      */
-    projectId?: string;
+    projectId?: string | null;
   };
 };
 
@@ -1867,7 +2039,7 @@ export type ListWarehousesData = {
   query?: {
     /**
      * The project ID to list warehouses for.
-     * Setting a warehouse is required.
+     * Deprecated: Please use the `x-project-id` header instead.
      */
     projectId?: string | null;
     /**
@@ -1977,6 +2149,17 @@ export type UndropTabularsData = {
 export type UndropTabularsResponse = void;
 
 export type UndropTabularsError = IcebergErrorResponse;
+
+export type UndropTabularsDeprecatedData = {
+  body: UndropTabularsRequest;
+  path: {
+    warehouse_id: string;
+  };
+};
+
+export type UndropTabularsDeprecatedResponse = void;
+
+export type UndropTabularsDeprecatedError = IcebergErrorResponse;
 
 export type RenameWarehouseData = {
   body: RenameWarehouseRequest;

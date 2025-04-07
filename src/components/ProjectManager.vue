@@ -253,7 +253,7 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
 //   }
 // }
 
-async function renameProject(renamedProject: RenameProjectRequest) {
+async function renameProject(renamedProject: RenameProjectRequest & { 'project-id': string }) {
   try {
     await functions.renameProjectById(renamedProject, renamedProject['project-id'] as string);
     await loadProjects();
