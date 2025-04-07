@@ -27,6 +27,12 @@
           value="permissions">
           Permissions
         </v-tab>
+        <v-tab
+          v-if="canReadAssignments && enabledAuthentication && enabledPermissions"
+          value="statistics"
+          @click="getEndpointStatistcs">
+          Statistics
+        </v-tab>
       </v-tabs>
       <v-tabs-window v-model="tab">
         <v-tabs-window-item value="overview">
@@ -81,6 +87,10 @@
             :relation-type="permissionType"
             @permissions="assign" />
         </v-tabs-window-item>
+
+        <v-tabs-window-item v-if="canReadAssignments" value="statistics">
+          <ProjectStatistics v-if="loadedStatistics" :stats="statistics" />
+        </v-tabs-window-item>
       </v-tabs-window>
     </v-card>
   </v-dialog>
@@ -93,6 +103,7 @@ import { enabledAuthentication, enabledPermissions } from '../app.config';
 
 import { useFunctions } from '../plugins/functions';
 import {
+  GetEndpointStatisticsResponse,
   GetProjectResponse,
   ProjectAction,
   ProjectAssignment,
@@ -107,16 +118,23 @@ const visual = useVisualStore();
 const functions = useFunctions();
 
 const permissionType = ref<RelationType>('project');
-
 const myAccess = reactive<ProjectAction[]>([]);
 const canReadAssignments = ref(false);
 const canDeleteProject = ref(false);
 const projectAssignments = reactive<ProjectAssignment[]>([]);
 const existingAssignments = reactive<ProjectAssignment[]>([]);
 const loaded = ref(true);
+const loadedStatistics = ref(true);
 const assignments = reactive<
   { id: string; name: string; email: string; type: string; kind: string }[]
 >([]);
+
+const statistics = reactive<GetEndpointStatisticsResponse>({
+  'called-endpoints': [],
+  'next-page-token': '',
+  'previous-page-token': '',
+  timestamps: [],
+});
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Info', key: 'info', align: 'start' },
@@ -199,6 +217,21 @@ async function init() {
   }
 }
 
+async function getEndpointStatistcs() {
+  try {
+    // Fetch statistics from the backend
+    loadedStatistics.value = false;
+
+    Object.assign(statistics, await functions.getEndpointStatistics({ type: 'all' }));
+    console.log('GetEndpointStatisticsResponse', statistics);
+    loadedStatistics.value = true;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loadedStatistics.value = true;
+  }
+}
+
 async function loadProjects() {
   try {
     availableProjects.splice(0, availableProjects.length);
@@ -225,6 +258,7 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
     const writes = item.writes as ProjectAssignment[]; // Define 'del' variable
 
     await functions.updateProjectAssignments(del, writes);
+
     await init();
     loaded.value = true;
   } catch (error) {
@@ -255,7 +289,7 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
 
 async function renameProject(renamedProject: RenameProjectRequest & { 'project-id': string }) {
   try {
-    await functions.renameProjectById(renamedProject, renamedProject['project-id'] as string);
+    await functions.renameProjectById(renamedProject, renamedProject['project-id']);
     await loadProjects();
   } catch (error) {
     console.error(error);

@@ -15,9 +15,12 @@ import {
   CreateRoleRequest,
   CreateWarehouseRequest,
   CreateWarehouseResponse,
+  GetEndpointStatisticsRequest,
+  GetEndpointStatisticsResponse,
   GetNamespaceAuthPropertiesResponse,
   GetProjectResponse,
   GetWarehouseResponse,
+  GetWarehouseStatisticsResponse,
   ListDeletedTabularsResponse,
   ListRolesResponse,
   ListWarehousesResponse,
@@ -39,12 +42,14 @@ import {
   TableAction,
   TableAssignment,
   TabularDeleteProfile,
+  TimeWindowSelector,
   UpdateRoleRequest,
   User,
   ViewAction,
   ViewAssignment,
   WarehouseAction,
   WarehouseAssignment,
+  WarehouseFilter,
 } from '@/gen/management/types.gen';
 
 import router from '@/router';
@@ -59,6 +64,7 @@ function init() {
 
   mng.client.setConfig({
     baseUrl: icebergCatalogUrl(),
+    // headers: { 'x-project-id': visual.projectSelected['project-id'] }, //ToDo resolve CORS problem
   });
 
   mng.client.interceptors.request.use((request) => {
@@ -294,6 +300,35 @@ async function renameProjectById(body: RenameProjectRequest, projectId: string):
   }
 }
 
+async function getEndpointStatistics(
+  warehouseFilter: WarehouseFilter,
+  range_specifier?: null | TimeWindowSelector,
+  status_codes?: Array<number> | null,
+): Promise<GetEndpointStatisticsResponse> {
+  try {
+    init();
+
+    const getEndpointStatisticsRequest: GetEndpointStatisticsRequest = {
+      'range-specifier': range_specifier || null,
+      warehouse: warehouseFilter,
+      'status-codes': status_codes || null,
+    };
+
+    const client = mng.client;
+
+    const { data, error } = await mng.getEndpointStatistics({
+      client,
+      body: getEndpointStatisticsRequest,
+    });
+    if (error) throw error;
+
+    return data as GetEndpointStatisticsResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
 // Warehouse
 async function listWarehouses(): Promise<ListWarehousesResponse> {
   try {
@@ -340,6 +375,35 @@ async function createWarehouse(wh: CreateWarehouseRequest): Promise<CreateWareho
     if (error) throw error;
 
     return data as CreateWarehouseResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getWarehouseStatistics(
+  whId: string,
+  page_size?: number,
+  page_token?: string,
+): Promise<GetWarehouseStatisticsResponse> {
+  try {
+    init();
+
+    const client = mng.client;
+
+    const { data, error } = await mng.getWarehouseStatistics({
+      client,
+      path: {
+        warehouse_id: whId,
+      },
+      query: {
+        page_size: page_size,
+        page_token: page_token,
+      },
+    });
+    if (error) throw error;
+
+    return data as GetWarehouseStatisticsResponse;
   } catch (error) {
     handleError(error, new Error());
     throw error;
@@ -1364,7 +1428,6 @@ async function searchRole(search: string): Promise<Role[]> {
 async function listRoles(pageSize?: number, pageToken?: string): Promise<Role[]> {
   try {
     init();
-    const visual = useVisualStore();
 
     const client = mng.client;
 
@@ -1373,7 +1436,6 @@ async function listRoles(pageSize?: number, pageToken?: string): Promise<Role[]>
       query: {
         pageSize,
         pageToken,
-        projectId: visual.projectSelected['project-id'],
       },
     });
 
@@ -1776,6 +1838,8 @@ export function useFunctions() {
     getProjectById,
     updateUserById,
     undropTabular,
+    getWarehouseStatistics,
+    getEndpointStatistics,
   };
 }
 

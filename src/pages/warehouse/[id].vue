@@ -15,10 +15,20 @@
       <v-col>
         <BreadcrumbsFromUrl v-if="!renaming" />
 
-        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
+        <v-toolbar color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
               {{ selectedWarehouse.name }}
+
+              <v-chip size="small" color="secondary" label class="ma-2">
+                <v-icon icon="mdi-table" start></v-icon>
+                number of tables: {{ stats[0]['number-of-tables'] }}
+              </v-chip>
+              <v-chip size="small" color="primary" label class="ma-2">
+                <v-icon icon="mdi-view-grid-outline" start></v-icon>
+                number of views: {{ stats[0]['number-of-views'] }}
+              </v-chip>
+              <StatisticsDialog :stats="stats"></StatisticsDialog>
             </span>
           </v-toolbar-title>
           <template #prepend>
@@ -40,6 +50,7 @@
             :status-intent="createNamespaceStatus"
             @add-namespace="addNamespace" />
         </v-toolbar>
+
         <v-tabs v-model="tab" density="compact">
           <v-tab density="compact" value="namespaces" @click="loadTabData">namespaces</v-tab>
           <v-tab
@@ -326,12 +337,14 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import router from '../../router';
 import {
   GetWarehouseResponse,
+  GetWarehouseStatisticsResponse,
   NamespaceAction,
   StorageCredential,
   StorageProfile,
   TabularDeleteProfile,
   WarehouseAction,
   WarehouseAssignment,
+  WarehouseStatistics,
 } from '@/gen/management/types.gen';
 
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -345,6 +358,7 @@ const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
+
 const loaded = ref(true);
 
 const storageProfile = reactive<StorageProfile>({
@@ -382,6 +396,14 @@ const canReadPermissions = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
+const stats = reactive<WarehouseStatistics[]>([
+  {
+    'number-of-tables': 3,
+    'number-of-views': 0,
+    timestamp: '1900-01-01T00:00:00Z',
+    'updated-at': '1900-01-01T00:00:00.000000Z',
+  },
+]);
 
 const permissionObject = reactive<any>({
   id: '',
@@ -414,6 +436,7 @@ async function loadTabData() {
 async function init() {
   try {
     loaded.value = false;
+
     myAccess.splice(0, myAccess.length);
     namespaceId.value = '';
     relationId.value = params.value.id;
@@ -429,7 +452,7 @@ async function init() {
       canReadPermissions.value ? await functions.getWarehouseAssignmentsById(params.value.id) : [],
     );
     loaded.value = true;
-    await Promise.all([loadWarehouse(), listNamespaces()]);
+    await Promise.all([loadWarehouse(), listNamespaces(), getWarehouseStatistics()]);
     loading.value = false;
   } catch (error) {
     console.error(error);
@@ -517,6 +540,20 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     console.error(error);
 
     await init();
+  }
+}
+
+async function getWarehouseStatistics() {
+  try {
+    const stat: GetWarehouseStatisticsResponse = await functions.getWarehouseStatistics(
+      params.value.id,
+    );
+
+    // stats.splice(0, stats.length);
+    Object.assign(stats, stat.stats);
+    console.log(stat);
+  } catch (error: any) {
+    console.error(`Failed to get warehouse-statistics  - `, error);
   }
 }
 
