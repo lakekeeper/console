@@ -31,10 +31,7 @@
       @click:append-inner="showPassword = !showPassword"></v-text-field>
 
     <!-- AWS System Identity Fields -->
-    <v-text-field
-      v-model="warehouseObjectData['storage-credential']['external-id']"
-      label="External ID (optional)"
-      placeholder="arn:aws:iam::123456789012..."></v-text-field>
+
     <v-btn
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
       color="success"
@@ -103,6 +100,18 @@
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key Prefix"
         placeholder="path/to/warehouse (optional)"></v-text-field>
+
+      <v-text-field
+        v-model="warehouseObjectData['storage-profile']['assume-role-arn']"
+        label="Assume Role ARN"
+        placeholder="arn:partition:service:region:account-id:resource-id"></v-text-field>
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential']['external-id']"
+        label="External ID (optional)"
+        placeholder="arn:aws:iam::123456789012..."
+        :append-inner-icon="showPasswordExternalId ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
+        :type="showPasswordExternalId ? 'text' : 'password'"
+        @click:append-inner="showPasswordExternalId = !showPasswordExternalId"></v-text-field>
 
       <v-row>
         <v-col cols="8">
@@ -213,7 +222,7 @@ const credentialOptions = [
   { text: 'Access Key ', value: 'access-key' },
   { text: 'AWS System Identity', value: 'aws-system-identity' },
 ];
-
+const showPasswordExternalId = ref(false);
 const props = defineProps<{
   credentialsOnly: boolean;
   intent: Intent;
