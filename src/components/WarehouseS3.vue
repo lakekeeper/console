@@ -170,7 +170,12 @@
             !warehouseObjectData['storage-profile'].region) ||
           (warehouseObjectData['storage-profile']['sts-enabled'] &&
             warehouseObjectData['storage-profile'].flavor !== 's3-compat' &&
-            !warehouseObjectData['storage-profile']['sts-role-arn'])
+            !warehouseObjectData['storage-profile']['sts-role-arn'] &&
+            !(
+              warehouseObjectData['storage-profile'].flavor === 'aws' &&
+              warehouseObjectData['storage-profile']['assume-role-arn'] &&
+              warehouseObjectData['storage-profile']['sts-enabled']
+            ))
         "
         type="submit">
         Submit
@@ -189,7 +194,12 @@
             !warehouseObjectData['storage-profile'].region) ||
           (warehouseObjectData['storage-profile']['sts-enabled'] &&
             warehouseObjectData['storage-profile'].flavor !== 's3-compat' &&
-            !warehouseObjectData['storage-profile']['sts-role-arn'])
+            !warehouseObjectData['storage-profile']['sts-role-arn'] &&
+            !(
+              warehouseObjectData['storage-profile'].flavor === 'aws' &&
+              warehouseObjectData['storage-profile']['assume-role-arn'] &&
+              warehouseObjectData['storage-profile']['sts-enabled']
+            ))
         "
         @click="emitNewProfile">
         Update Profile
