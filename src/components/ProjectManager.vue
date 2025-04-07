@@ -298,16 +298,4 @@ async function renameProject(renamedProject: RenameProjectRequest & { 'project-i
 onMounted(async () => {
   await init();
 });
-
-function formatDate(dateString: string) {
-  const options = {
-    year: 'numeric' as const,
-    month: '2-digit' as const,
-    day: '2-digit' as const,
-    hour: '2-digit' as const,
-    minute: '2-digit' as const,
-    second: '2-digit' as const,
-  };
-  return new Date(dateString).toLocaleDateString('en-US', options).replace(',', '');
-}
 </script>

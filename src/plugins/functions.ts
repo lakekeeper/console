@@ -61,7 +61,6 @@ import { App } from 'vue';
 function init() {
   const userStore = useUserStore();
   const accessToken = userStore.user.access_token;
-  const visual = useVisualStore();
 
   mng.client.setConfig({
     baseUrl: icebergCatalogUrl(),
@@ -1429,7 +1428,6 @@ async function searchRole(search: string): Promise<Role[]> {
 async function listRoles(pageSize?: number, pageToken?: string): Promise<Role[]> {
   try {
     init();
-    const visual = useVisualStore();
 
     const client = mng.client;
 
