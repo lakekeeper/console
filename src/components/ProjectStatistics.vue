@@ -85,7 +85,7 @@
   </v-card>
 </template>
 <script setup lang="ts">
-import { defineProps, ref, reactive, onMounted } from 'vue';
+import { defineProps, ref, reactive, onMounted, watch } from 'vue';
 import {
   Chart as ChartJS,
   CategoryScale,

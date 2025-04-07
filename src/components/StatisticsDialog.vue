@@ -66,7 +66,7 @@
 <script lang="ts" setup>
 import { Header } from '@/common/interfaces';
 import { WarehouseStatistics } from '@/gen/management/types.gen';
-import { defineProps, ref } from 'vue';
+import { defineProps, ref, onMounted, reactive } from 'vue';
 import {
   Chart as ChartJS,
   CategoryScale,
