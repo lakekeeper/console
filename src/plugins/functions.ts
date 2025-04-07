@@ -308,7 +308,7 @@ async function getEndpointStatistics(
   try {
     init();
 
-    const GetEndpointStatisticsRequest: GetEndpointStatisticsRequest = {
+    const getEndpointStatisticsRequest: GetEndpointStatisticsRequest = {
       'range-specifier': range_specifier || null,
       warehouse: warehouseFilter,
       'status-codes': status_codes || null,
@@ -318,7 +318,7 @@ async function getEndpointStatistics(
 
     const { data, error } = await mng.getEndpointStatistics({
       client,
-      body: GetEndpointStatisticsRequest,
+      body: getEndpointStatisticsRequest,
     });
     if (error) throw error;
 
