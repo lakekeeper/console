@@ -149,26 +149,28 @@
                     </span>
                   </td>
                 </template>
-                <template #item.deleted_at="{ item }">
+                <template #item.deleted-at="{ item }">
                   <v-tooltip location="top">
                     <template #activator="{ props }">
                       <span v-bind="props">
-                        {{ formatDistanceToNow(parseISO(item.deleted_at), { addSuffix: true }) }}
+                        {{ formatDistanceToNow(parseISO(item['deleted-at']), { addSuffix: true }) }}
                       </span>
                     </template>
-                    {{ parseISO(item.deleted_at) }}
+                    {{ parseISO(item['deleted-at']) }}
                   </v-tooltip>
                 </template>
-                <template #item.expiration_date="{ item }">
+                <template #item.expiration-date="{ item }">
                   <v-tooltip location="top">
                     <template #activator="{ props }">
                       <span v-bind="props">
                         {{
-                          formatDistanceToNow(parseISO(item.expiration_date), { addSuffix: true })
+                          formatDistanceToNow(parseISO(item['expiration-date']), {
+                            addSuffix: true,
+                          })
                         }}
                       </span>
                     </template>
-                    {{ parseISO(item.expiration_date) }}
+                    {{ parseISO(item['expiration-date']) }}
                   </v-tooltip>
                 </template>
                 <template #item.actions="{ item }">
@@ -233,15 +235,16 @@ const headersDeleted: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
   {
     title: 'Deleted',
-    key: 'deleted_at',
+    key: 'deleted-at',
     align: 'start',
-    value: (item: any) => formatDistanceToNow(parseISO(item.deleted_at), { addSuffix: true }),
+    value: (item: any) => formatDistanceToNow(parseISO(item['deleted-at']), { addSuffix: true }),
   },
   {
     title: 'Expires',
-    key: 'expiration_date',
+    key: 'expiration-date',
     align: 'start',
-    value: (item: any) => formatDistanceToNow(parseISO(item.expiration_date), { addSuffix: true }),
+    value: (item: any) =>
+      formatDistanceToNow(parseISO(item['expiration-date']), { addSuffix: true }),
   },
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
