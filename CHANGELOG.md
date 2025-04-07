@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.6.0](https://github.com/lakekeeper/console/compare/v0.5.0...v0.6.0) (2025-04-07)
+
+
+### Features
+
+* AppBar help button ([#100](https://github.com/lakekeeper/console/issues/100)) ([e0fb0f4](https://github.com/lakekeeper/console/commit/e0fb0f43195657f1271e38613e96b597c42e438a))
+* **az:** add shared key auth for azure ([#94](https://github.com/lakekeeper/console/issues/94)) ([0e2a548](https://github.com/lakekeeper/console/commit/0e2a5482b3a21c7b148cf013d1f497ec0cacd453))
+* expand and collapse raw iceberg table representation ([#98](https://github.com/lakekeeper/console/issues/98)) ([c32b19f](https://github.com/lakekeeper/console/commit/c32b19fafd52b7b7692f37046cdf09cc2862c657))
+* Update OpenAPI, Add assume-role-arn, Add S3 System Identities  ([#106](https://github.com/lakekeeper/console/issues/106)) ([4a0e707](https://github.com/lakekeeper/console/commit/4a0e7077dbad236e2ef3c7cdbc37c097a3d7474b))
+* warehouse and project statistics ([#109](https://github.com/lakekeeper/console/issues/109)) ([4a32d6e](https://github.com/lakekeeper/console/commit/4a32d6e2fca4a80e1fb7bd91a3ff83cc92216dcf))
+
+
+### Bug Fixes
+
+* spelling ([#99](https://github.com/lakekeeper/console/issues/99)) ([277e6f0](https://github.com/lakekeeper/console/commit/277e6f0884e8dbcf3e17071368ca8f4e6d1c378d))
+* Storage Profile required fields for S3-compat storage ([#105](https://github.com/lakekeeper/console/issues/105)) ([036dddd](https://github.com/lakekeeper/console/commit/036dddd01dec7c34ca4bf05852fae034a57a6f74))
+* text and PyIceberg connect option ([#97](https://github.com/lakekeeper/console/issues/97)) ([e8426f0](https://github.com/lakekeeper/console/commit/e8426f02c3c924d24079eb8a2085f852eadd6a3c))
+* update profile and update credentials UI ([#96](https://github.com/lakekeeper/console/issues/96)) ([ffc8b30](https://github.com/lakekeeper/console/commit/ffc8b3093f93128b068d631ca88f16e985e6d80e))
+
 ## [0.5.0](https://github.com/lakekeeper/console/compare/v0.4.0...v0.5.0) (2025-02-27)
 
 
