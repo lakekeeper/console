@@ -133,7 +133,6 @@ async function switchManagedAccess() {
     if (props.relationType === 'namespace') {
       await functions.setNamespaceManagedAccess(props.assignableObj.id, !isManagedAccess.value);
     }
-    console.log('Managed access changed', isManagedAccess.value);
   } catch (error) {
     console.error(error);
   } finally {

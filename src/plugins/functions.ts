@@ -757,10 +757,11 @@ async function loadTableCustomized(warehouseId: string, namespacePath: string, t
       }
       return value;
     });
-    console.log('data', data); // Log the fetched data
+
     return data;
-  } catch (err) {
-    console.log(err); // Handle any error during the fetch
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
   }
 }
 
