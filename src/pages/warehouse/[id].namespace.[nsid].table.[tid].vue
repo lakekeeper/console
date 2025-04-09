@@ -280,10 +280,6 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
 
 async function loadTabData() {
   await init();
-  try {
-  } catch (error) {
-    console.error(error);
-  }
 }
 </script>
 
