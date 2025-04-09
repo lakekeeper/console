@@ -92,11 +92,17 @@ const permissionRows = reactive<
 // false, false -> "Managed access disabled"-->
 
 const managedAccess = computed(() => {
-  return isManagedAccess.value && isManagedAccessInherited.value
-    ? 'Managed access enabled'
-    : !isManagedAccess.value && isManagedAccessInherited.value
-      ? 'Managed access enabled by parent'
-      : 'Managed access disabled';
+  if (props.relationType === 'namespace') {
+    return isManagedAccess.value && isManagedAccessInherited.value
+      ? 'Managed access enabled'
+      : !isManagedAccess.value && isManagedAccessInherited.value
+        ? 'Managed access enabled by parent'
+        : 'Managed access disabled';
+  } else if (props.relationType === 'warehouse') {
+    return isManagedAccess.value ? 'Managed access enabled' : 'Managed access disabled';
+  } else {
+    return 'Managed access not applicable';
+  }
 });
 
 const props = defineProps<{
@@ -127,6 +133,7 @@ async function switchManagedAccess() {
     if (props.relationType === 'namespace') {
       await functions.setNamespaceManagedAccess(props.assignableObj.id, !isManagedAccess.value);
     }
+    console.log('Managed access changed', isManagedAccess.value);
   } catch (error) {
     console.error(error);
   } finally {
