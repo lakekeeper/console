@@ -730,6 +730,40 @@ async function loadTable(
   }
 }
 
+async function loadTableCustomized(warehouseId: string, namespacePath: string, tableName: string) {
+  try {
+    const userStore = useUserStore();
+    const accessToken = userStore.user.access_token;
+
+    const response = await fetch(
+      `${icebergCatalogUrlSuffixed()}v1/${warehouseId}/namespaces/${namespacePath}/tables/${tableName}`,
+      {
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error fetching table data: ${response.statusText}`);
+    }
+    const textData = await response.text();
+    const data = JSON.parse(textData, (key, value) => {
+      // If the value is a large number (potentially snapshot-id), convert it to BigInt
+      if (typeof value === 'number' && value > Number.MAX_SAFE_INTEGER) {
+        return String(BigInt(value)); // Convert to BigInt to preserve precision
+      }
+      return value;
+    });
+    console.log('data', data); // Log the fetched data
+    return data;
+  } catch (err) {
+    console.log(err); // Handle any error during the fetch
+  }
+}
+
 async function dropTable(
   warehouseId: string,
   namespacePath: string,
@@ -1811,6 +1845,7 @@ export function useFunctions() {
     listDeletedTabulars,
     getTableAccessById,
     loadTable,
+    loadTableCustomized,
     loadView,
     getViewAccessById,
     updateTableAssignmentsById,

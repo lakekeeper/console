@@ -165,7 +165,7 @@ async function init() {
   loaded.value = false;
 
   namespacePath.value = `${namespaceId}${String.fromCharCode(0x1f)}${tableName}`;
-  Object.assign(table, await functions.loadTable(warehouseId, namespaceId, tableName));
+  Object.assign(table, await functions.loadTableCustomized(warehouseId, namespaceId, tableName));
 
   tableId.value = table.metadata['table-uuid'];
   currentSchema.value = table.metadata['current-schema-id'] || 0;
@@ -280,6 +280,10 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
 
 async function loadTabData() {
   await init();
+  try {
+  } catch (error) {
+    console.error(error);
+  }
 }
 </script>
 
