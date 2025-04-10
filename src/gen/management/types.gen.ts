@@ -42,8 +42,6 @@ export type AzCredential =
       key: string;
     };
 
-export type credential_type = 'client-credentials';
-
 export type BootstrapRequest = {
   /**
    * Set to true if you accept LAKEKEEPER terms of use.
@@ -349,32 +347,14 @@ export type ErrorModel = {
 };
 
 /**
- * GCS Credentials
+ * Service Account Key
  *
- * Currently only supports Service Account Key
- * Example of a key:
- * ```json
- * {
- * "type": "service_account",
- * "project_id": "example-project-1234",
- * "private_key_id": "....",
- * "private_key": "-----BEGIN PRIVATE KEY-----\n.....\n-----END PRIVATE KEY-----\n",
- * "client_email": "abc@example-project-1234.iam.gserviceaccount.com",
- * "client_id": "123456789012345678901",
- * "auth_uri": "https://accounts.google.com/o/oauth2/auth",
- * "token_uri": "https://oauth2.googleapis.com/token",
- * "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
- * "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abc%example-project-1234.iam.gserviceaccount.com",
- * "universe_domain": "googleapis.com"
- * }
- * ```
+ * The key is the JSON object obtained when creating a service account key in the GCP console.
  */
 export type GcsCredential = {
   'credential-type': 'service-account-key';
   key: GcsServiceKey;
 };
-
-export type credential_type2 = 'service-account-key';
 
 export type GcsProfile = {
   /**
@@ -607,8 +587,6 @@ export type NamespaceAssignment =
       type: 'modify';
     });
 
-export type type = 'ownership';
-
 /**
  * Identifier for a namespace, either a UUID or its name and warehouse ID
  */
@@ -673,8 +651,6 @@ export type ProjectAssignment =
   | (UserOrRole & {
       type: 'modify';
     });
-
-export type type2 = 'project_admin';
 
 export type ProjectRelation =
   | 'project_admin'
@@ -755,8 +731,6 @@ export type RoleAssignment =
       type: 'ownership';
     });
 
-export type type3 = 'assignee';
-
 export type RoleRelation = 'assignee' | 'ownership';
 
 export type S3Credential =
@@ -770,8 +744,6 @@ export type S3Credential =
       'credential-type': 'aws-system-identity';
       'external-id'?: string | null;
     };
-
-export type credential_type3 = 'access-key';
 
 export type S3Flavor = 'aws' | 's3-compat';
 
@@ -922,8 +894,6 @@ export type ServerAssignment =
       type: 'operator';
     });
 
-export type type4 = 'admin';
-
 export type ServerInfo = {
   /**
    * `AuthZ` backend in use.
@@ -978,8 +948,6 @@ export type StorageCredential =
       type: 'gcs';
     });
 
-export type type5 = 's3';
-
 /**
  * Storage profile for a warehouse.
  */
@@ -993,8 +961,6 @@ export type StorageProfile =
   | (GcsProfile & {
       type: 'gcs';
     });
-
-export type type6 = 'adls';
 
 export type TableAction =
   | 'drop'
@@ -1048,8 +1014,6 @@ export type TabularDeleteProfile =
       type: 'soft';
     };
 
-export type type7 = 'hard';
-
 /**
  * Identifier for a table or view, either a UUID or its name and namespace
  */
@@ -1075,8 +1039,6 @@ export type TabularIdentUuid =
       id: string;
       type: 'view';
     };
-
-export type type8 = 'table';
 
 /**
  * Type of tabular
@@ -1108,8 +1070,6 @@ export type TimeWindowSelector =
       token: string;
       type: 'page-token';
     };
-
-export type type9 = 'window';
 
 export type UndropTabularsRequest = {
   /**
@@ -1338,8 +1298,6 @@ export type WarehouseFilter =
       type: 'all';
     };
 
-export type type10 = 'warehouse-id';
-
 export type WarehouseRelation =
   | 'ownership'
   | 'pass_grants'
@@ -1394,62 +1352,181 @@ export type WarehouseStatus = 'active' | 'inactive';
 
 export type BootstrapData = {
   body: BootstrapRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/bootstrap';
 };
 
-export type BootstrapResponse = void;
+export type BootstrapErrors = {
+  /**
+   * InternalError
+   */
+  500: IcebergErrorResponse;
+  '4XX': IcebergErrorResponse;
+};
 
-export type BootstrapError = IcebergErrorResponse;
+export type BootstrapError = BootstrapErrors[keyof BootstrapErrors];
 
-export type GetDefaultProjectResponse = GetProjectResponse;
+export type BootstrapResponses = {
+  /**
+   * Server bootstrapped successfully
+   */
+  204: void;
+};
 
-export type GetDefaultProjectError = IcebergErrorResponse;
+export type BootstrapResponse = BootstrapResponses[keyof BootstrapResponses];
 
-export type DeleteDefaultProjectResponse = void;
+export type DeleteDefaultProjectData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/management/v1/default-project';
+};
 
-export type DeleteDefaultProjectError = IcebergErrorResponse;
+export type DeleteDefaultProjectErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type DeleteDefaultProjectError =
+  DeleteDefaultProjectErrors[keyof DeleteDefaultProjectErrors];
+
+export type DeleteDefaultProjectResponses = {
+  /**
+   * Project deleted successfully
+   */
+  204: void;
+};
+
+export type DeleteDefaultProjectResponse =
+  DeleteDefaultProjectResponses[keyof DeleteDefaultProjectResponses];
+
+export type GetDefaultProjectData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/management/v1/default-project';
+};
+
+export type GetDefaultProjectErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetDefaultProjectError = GetDefaultProjectErrors[keyof GetDefaultProjectErrors];
+
+export type GetDefaultProjectResponses = {
+  /**
+   * Project details
+   */
+  200: GetProjectResponse;
+};
+
+export type GetDefaultProjectResponse =
+  GetDefaultProjectResponses[keyof GetDefaultProjectResponses];
 
 export type RenameDefaultProjectData = {
   body: RenameProjectRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/default-project/rename';
 };
 
-export type RenameDefaultProjectResponse = unknown;
+export type RenameDefaultProjectErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type RenameDefaultProjectError = IcebergErrorResponse;
+export type RenameDefaultProjectError =
+  RenameDefaultProjectErrors[keyof RenameDefaultProjectErrors];
+
+export type RenameDefaultProjectResponses = {
+  /**
+   * Project renamed successfully
+   */
+  200: unknown;
+};
 
 export type GetEndpointStatisticsData = {
   body: GetEndpointStatisticsRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/endpoint-statistics';
 };
 
-export type GetEndpointStatisticsResponse = EndpointStatisticsResponse;
+export type GetEndpointStatisticsErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type GetEndpointStatisticsError = IcebergErrorResponse;
+export type GetEndpointStatisticsError =
+  GetEndpointStatisticsErrors[keyof GetEndpointStatisticsErrors];
 
-export type GetServerInfoResponse = ServerInfo;
+export type GetEndpointStatisticsResponses = {
+  /**
+   * Endpoint statistics
+   */
+  200: EndpointStatisticsResponse;
+};
 
-export type GetServerInfoError = IcebergErrorResponse;
+export type GetEndpointStatisticsResponse =
+  GetEndpointStatisticsResponses[keyof GetEndpointStatisticsResponses];
+
+export type GetServerInfoData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/management/v1/info';
+};
+
+export type GetServerInfoErrors = {
+  /**
+   * Unauthorized
+   */
+  500: IcebergErrorResponse;
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetServerInfoError = GetServerInfoErrors[keyof GetServerInfoErrors];
+
+export type GetServerInfoResponses = {
+  /**
+   * Server info
+   */
+  200: ServerInfo;
+};
+
+export type GetServerInfoResponse = GetServerInfoResponses[keyof GetServerInfoResponses];
 
 export type CheckData = {
   body: CheckRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/permissions/check';
 };
 
-export type CheckResponse2 = CheckResponse;
+export type CheckResponses = {
+  200: CheckResponse;
+};
 
-export type CheckError = unknown;
+export type CheckResponse2 = CheckResponses[keyof CheckResponses];
 
 export type GetNamespaceByIdData = {
+  body?: never;
   path: {
     /**
      * Namespace ID
      */
     namespace_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/namespace/{namespace_id}';
 };
 
-export type GetNamespaceByIdResponse = GetNamespaceAuthPropertiesResponse;
+export type GetNamespaceByIdResponses = {
+  200: GetNamespaceAuthPropertiesResponse;
+};
 
-export type GetNamespaceByIdError = unknown;
+export type GetNamespaceByIdResponse = GetNamespaceByIdResponses[keyof GetNamespaceByIdResponses];
 
 export type GetNamespaceAccessByIdData = {
+  body?: never;
   path: {
     /**
      * Namespace ID
@@ -1463,13 +1540,21 @@ export type GetNamespaceAccessByIdData = {
      */
     principal?: UserOrRole;
   };
+  url: '/management/v1/permissions/namespace/{namespace_id}/access';
 };
 
-export type GetNamespaceAccessByIdResponse = GetNamespaceAccessResponse;
+export type GetNamespaceAccessByIdResponses = {
+  /**
+   * Server Relations
+   */
+  200: GetNamespaceAccessResponse;
+};
 
-export type GetNamespaceAccessByIdError = unknown;
+export type GetNamespaceAccessByIdResponse =
+  GetNamespaceAccessByIdResponses[keyof GetNamespaceAccessByIdResponses];
 
 export type GetNamespaceAssignmentsByIdData = {
+  body?: never;
   path: {
     /**
      * Namespace ID
@@ -1482,11 +1567,15 @@ export type GetNamespaceAssignmentsByIdData = {
      */
     relations?: Array<NamespaceRelation>;
   };
+  url: '/management/v1/permissions/namespace/{namespace_id}/assignments';
 };
 
-export type GetNamespaceAssignmentsByIdResponse = GetNamespaceAssignmentsResponse;
+export type GetNamespaceAssignmentsByIdResponses = {
+  200: GetNamespaceAssignmentsResponse;
+};
 
-export type GetNamespaceAssignmentsByIdError = unknown;
+export type GetNamespaceAssignmentsByIdResponse =
+  GetNamespaceAssignmentsByIdResponses[keyof GetNamespaceAssignmentsByIdResponses];
 
 export type UpdateNamespaceAssignmentsByIdData = {
   body: UpdateNamespaceAssignmentsRequest;
@@ -1496,11 +1585,19 @@ export type UpdateNamespaceAssignmentsByIdData = {
      */
     namespace_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/namespace/{namespace_id}/assignments';
 };
 
-export type UpdateNamespaceAssignmentsByIdResponse = void;
+export type UpdateNamespaceAssignmentsByIdResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
 
-export type UpdateNamespaceAssignmentsByIdError = unknown;
+export type UpdateNamespaceAssignmentsByIdResponse =
+  UpdateNamespaceAssignmentsByIdResponses[keyof UpdateNamespaceAssignmentsByIdResponses];
 
 export type SetNamespaceManagedAccessData = {
   body: SetManagedAccessRequest;
@@ -1510,13 +1607,17 @@ export type SetNamespaceManagedAccessData = {
      */
     namespace_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/namespace/{namespace_id}/managed-access';
 };
 
-export type SetNamespaceManagedAccessResponse = unknown;
-
-export type SetNamespaceManagedAccessError = unknown;
+export type SetNamespaceManagedAccessResponses = {
+  200: unknown;
+};
 
 export type GetProjectAccessData = {
+  body?: never;
+  path?: never;
   query?: {
     /**
      * The user or role to show access for.
@@ -1524,34 +1625,56 @@ export type GetProjectAccessData = {
      */
     principal?: UserOrRole;
   };
+  url: '/management/v1/permissions/project/access';
 };
 
-export type GetProjectAccessResponse2 = GetProjectAccessResponse;
+export type GetProjectAccessResponses = {
+  /**
+   * Server Relations
+   */
+  200: GetProjectAccessResponse;
+};
 
-export type GetProjectAccessError = unknown;
+export type GetProjectAccessResponse2 = GetProjectAccessResponses[keyof GetProjectAccessResponses];
 
 export type GetProjectAssignmentsData = {
+  body?: never;
+  path?: never;
   query?: {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
     relations?: Array<ProjectRelation>;
   };
+  url: '/management/v1/permissions/project/assignments';
 };
 
-export type GetProjectAssignmentsResponse2 = GetProjectAssignmentsResponse;
+export type GetProjectAssignmentsResponses = {
+  200: GetProjectAssignmentsResponse;
+};
 
-export type GetProjectAssignmentsError = unknown;
+export type GetProjectAssignmentsResponse2 =
+  GetProjectAssignmentsResponses[keyof GetProjectAssignmentsResponses];
 
 export type UpdateProjectAssignmentsData = {
   body: UpdateProjectAssignmentsRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/permissions/project/assignments';
 };
 
-export type UpdateProjectAssignmentsResponse = void;
+export type UpdateProjectAssignmentsResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
 
-export type UpdateProjectAssignmentsError = unknown;
+export type UpdateProjectAssignmentsResponse =
+  UpdateProjectAssignmentsResponses[keyof UpdateProjectAssignmentsResponses];
 
 export type GetProjectAccessByIdData = {
+  body?: never;
   path: {
     /**
      * Project ID
@@ -1565,13 +1688,21 @@ export type GetProjectAccessByIdData = {
      */
     principal?: UserOrRole;
   };
+  url: '/management/v1/permissions/project/{project_id}/access';
 };
 
-export type GetProjectAccessByIdResponse = GetProjectAccessResponse;
+export type GetProjectAccessByIdResponses = {
+  /**
+   * Server Relations
+   */
+  200: GetProjectAccessResponse;
+};
 
-export type GetProjectAccessByIdError = unknown;
+export type GetProjectAccessByIdResponse =
+  GetProjectAccessByIdResponses[keyof GetProjectAccessByIdResponses];
 
 export type GetProjectAssignmentsByIdData = {
+  body?: never;
   path: {
     /**
      * Project ID
@@ -1584,11 +1715,15 @@ export type GetProjectAssignmentsByIdData = {
      */
     relations?: Array<ProjectRelation>;
   };
+  url: '/management/v1/permissions/project/{project_id}/assignments';
 };
 
-export type GetProjectAssignmentsByIdResponse = GetProjectAssignmentsResponse;
+export type GetProjectAssignmentsByIdResponses = {
+  200: GetProjectAssignmentsResponse;
+};
 
-export type GetProjectAssignmentsByIdError = unknown;
+export type GetProjectAssignmentsByIdResponse =
+  GetProjectAssignmentsByIdResponses[keyof GetProjectAssignmentsByIdResponses];
 
 export type UpdateProjectAssignmentsByIdData = {
   body: UpdateProjectAssignmentsRequest;
@@ -1598,26 +1733,41 @@ export type UpdateProjectAssignmentsByIdData = {
      */
     project_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/project/{project_id}/assignments';
 };
 
-export type UpdateProjectAssignmentsByIdResponse = void;
+export type UpdateProjectAssignmentsByIdResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
 
-export type UpdateProjectAssignmentsByIdError = unknown;
+export type UpdateProjectAssignmentsByIdResponse =
+  UpdateProjectAssignmentsByIdResponses[keyof UpdateProjectAssignmentsByIdResponses];
 
 export type GetRoleAccessByIdData = {
+  body?: never;
   path: {
     /**
      * Role ID
      */
     role_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/role/{role_id}/access';
 };
 
-export type GetRoleAccessByIdResponse = GetRoleAccessResponse;
+export type GetRoleAccessByIdResponses = {
+  200: GetRoleAccessResponse;
+};
 
-export type GetRoleAccessByIdError = unknown;
+export type GetRoleAccessByIdResponse =
+  GetRoleAccessByIdResponses[keyof GetRoleAccessByIdResponses];
 
 export type GetRoleAssignmentsByIdData = {
+  body?: never;
   path: {
     /**
      * Role ID
@@ -1630,11 +1780,15 @@ export type GetRoleAssignmentsByIdData = {
      */
     relations?: Array<RoleRelation>;
   };
+  url: '/management/v1/permissions/role/{role_id}/assignments';
 };
 
-export type GetRoleAssignmentsByIdResponse = GetRoleAssignmentsResponse;
+export type GetRoleAssignmentsByIdResponses = {
+  200: GetRoleAssignmentsResponse;
+};
 
-export type GetRoleAssignmentsByIdError = unknown;
+export type GetRoleAssignmentsByIdResponse =
+  GetRoleAssignmentsByIdResponses[keyof GetRoleAssignmentsByIdResponses];
 
 export type UpdateRoleAssignmentsByIdData = {
   body: UpdateRoleAssignmentsRequest;
@@ -1644,13 +1798,23 @@ export type UpdateRoleAssignmentsByIdData = {
      */
     role_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/role/{role_id}/assignments';
 };
 
-export type UpdateRoleAssignmentsByIdResponse = void;
+export type UpdateRoleAssignmentsByIdResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
 
-export type UpdateRoleAssignmentsByIdError = unknown;
+export type UpdateRoleAssignmentsByIdResponse =
+  UpdateRoleAssignmentsByIdResponses[keyof UpdateRoleAssignmentsByIdResponses];
 
 export type GetServerAccessData = {
+  body?: never;
+  path?: never;
   query?: {
     /**
      * The user or role to show access for.
@@ -1658,34 +1822,56 @@ export type GetServerAccessData = {
      */
     principal?: UserOrRole;
   };
+  url: '/management/v1/permissions/server/access';
 };
 
-export type GetServerAccessResponse2 = GetServerAccessResponse;
+export type GetServerAccessResponses = {
+  /**
+   * Server Access
+   */
+  200: GetServerAccessResponse;
+};
 
-export type GetServerAccessError = unknown;
+export type GetServerAccessResponse2 = GetServerAccessResponses[keyof GetServerAccessResponses];
 
 export type GetServerAssignmentsData = {
+  body?: never;
+  path?: never;
   query?: {
     /**
      * Relations to be loaded. If not specified, all relations are returned.
      */
     relations?: Array<ServerRelation>;
   };
+  url: '/management/v1/permissions/server/assignments';
 };
 
-export type GetServerAssignmentsResponse2 = GetServerAssignmentsResponse;
+export type GetServerAssignmentsResponses = {
+  200: GetServerAssignmentsResponse;
+};
 
-export type GetServerAssignmentsError = unknown;
+export type GetServerAssignmentsResponse2 =
+  GetServerAssignmentsResponses[keyof GetServerAssignmentsResponses];
 
 export type UpdateServerAssignmentsData = {
   body: UpdateServerAssignmentsRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/permissions/server/assignments';
 };
 
-export type UpdateServerAssignmentsResponse = void;
+export type UpdateServerAssignmentsResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
 
-export type UpdateServerAssignmentsError = unknown;
+export type UpdateServerAssignmentsResponse =
+  UpdateServerAssignmentsResponses[keyof UpdateServerAssignmentsResponses];
 
 export type GetTableAccessByIdData = {
+  body?: never;
   path: {
     /**
      * Table ID
@@ -1699,13 +1885,21 @@ export type GetTableAccessByIdData = {
      */
     principal?: UserOrRole;
   };
+  url: '/management/v1/permissions/table/{table_id}/access';
 };
 
-export type GetTableAccessByIdResponse = GetTableAccessResponse;
+export type GetTableAccessByIdResponses = {
+  /**
+   * Server Relations
+   */
+  200: GetTableAccessResponse;
+};
 
-export type GetTableAccessByIdError = unknown;
+export type GetTableAccessByIdResponse =
+  GetTableAccessByIdResponses[keyof GetTableAccessByIdResponses];
 
 export type GetTableAssignmentsByIdData = {
+  body?: never;
   path: {
     /**
      * Table ID
@@ -1718,11 +1912,15 @@ export type GetTableAssignmentsByIdData = {
      */
     relations?: Array<TableRelation>;
   };
+  url: '/management/v1/permissions/table/{table_id}/assignments';
 };
 
-export type GetTableAssignmentsByIdResponse = GetTableAssignmentsResponse;
+export type GetTableAssignmentsByIdResponses = {
+  200: GetTableAssignmentsResponse;
+};
 
-export type GetTableAssignmentsByIdError = unknown;
+export type GetTableAssignmentsByIdResponse =
+  GetTableAssignmentsByIdResponses[keyof GetTableAssignmentsByIdResponses];
 
 export type UpdateTableAssignmentsByIdData = {
   body: UpdateTableAssignmentsRequest;
@@ -1732,13 +1930,22 @@ export type UpdateTableAssignmentsByIdData = {
      */
     table_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/table/{table_id}/assignments';
 };
 
-export type UpdateTableAssignmentsByIdResponse = void;
+export type UpdateTableAssignmentsByIdResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
 
-export type UpdateTableAssignmentsByIdError = unknown;
+export type UpdateTableAssignmentsByIdResponse =
+  UpdateTableAssignmentsByIdResponses[keyof UpdateTableAssignmentsByIdResponses];
 
 export type GetViewAccessByIdData = {
+  body?: never;
   path: {
     /**
      * View ID
@@ -1752,13 +1959,18 @@ export type GetViewAccessByIdData = {
      */
     principal?: UserOrRole;
   };
+  url: '/management/v1/permissions/view/{view_id}/access';
 };
 
-export type GetViewAccessByIdResponse = GetViewAccessResponse;
+export type GetViewAccessByIdResponses = {
+  200: GetViewAccessResponse;
+};
 
-export type GetViewAccessByIdError = unknown;
+export type GetViewAccessByIdResponse =
+  GetViewAccessByIdResponses[keyof GetViewAccessByIdResponses];
 
 export type GetViewAssignmentsByIdData = {
+  body?: never;
   path: {
     /**
      * View ID
@@ -1771,11 +1983,15 @@ export type GetViewAssignmentsByIdData = {
      */
     relations?: Array<ViewRelation>;
   };
+  url: '/management/v1/permissions/view/{view_id}/assignments';
 };
 
-export type GetViewAssignmentsByIdResponse = GetViewAssignmentsResponse;
+export type GetViewAssignmentsByIdResponses = {
+  200: GetViewAssignmentsResponse;
+};
 
-export type GetViewAssignmentsByIdError = unknown;
+export type GetViewAssignmentsByIdResponse =
+  GetViewAssignmentsByIdResponses[keyof GetViewAssignmentsByIdResponses];
 
 export type UpdateViewAssignmentsByIdData = {
   body: UpdateViewAssignmentsRequest;
@@ -1785,26 +2001,40 @@ export type UpdateViewAssignmentsByIdData = {
      */
     view_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/view/{view_id}/assignments';
 };
 
-export type UpdateViewAssignmentsByIdResponse = void;
+export type UpdateViewAssignmentsByIdResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
 
-export type UpdateViewAssignmentsByIdError = unknown;
+export type UpdateViewAssignmentsByIdResponse =
+  UpdateViewAssignmentsByIdResponses[keyof UpdateViewAssignmentsByIdResponses];
 
 export type GetWarehouseByIdData = {
+  body?: never;
   path: {
     /**
      * Warehouse ID
      */
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/warehouse/{warehouse_id}';
 };
 
-export type GetWarehouseByIdResponse = GetWarehouseAuthPropertiesResponse;
+export type GetWarehouseByIdResponses = {
+  200: GetWarehouseAuthPropertiesResponse;
+};
 
-export type GetWarehouseByIdError = unknown;
+export type GetWarehouseByIdResponse = GetWarehouseByIdResponses[keyof GetWarehouseByIdResponses];
 
 export type GetWarehouseAccessByIdData = {
+  body?: never;
   path: {
     /**
      * Warehouse ID
@@ -1818,13 +2048,18 @@ export type GetWarehouseAccessByIdData = {
      */
     principal?: UserOrRole;
   };
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/access';
 };
 
-export type GetWarehouseAccessByIdResponse = GetWarehouseAccessResponse;
+export type GetWarehouseAccessByIdResponses = {
+  200: GetWarehouseAccessResponse;
+};
 
-export type GetWarehouseAccessByIdError = unknown;
+export type GetWarehouseAccessByIdResponse =
+  GetWarehouseAccessByIdResponses[keyof GetWarehouseAccessByIdResponses];
 
 export type GetWarehouseAssignmentsByIdData = {
+  body?: never;
   path: {
     /**
      * Warehouse ID
@@ -1837,11 +2072,15 @@ export type GetWarehouseAssignmentsByIdData = {
      */
     relations?: Array<WarehouseRelation>;
   };
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/assignments';
 };
 
-export type GetWarehouseAssignmentsByIdResponse = GetWarehouseAssignmentsResponse;
+export type GetWarehouseAssignmentsByIdResponses = {
+  200: GetWarehouseAssignmentsResponse;
+};
 
-export type GetWarehouseAssignmentsByIdError = unknown;
+export type GetWarehouseAssignmentsByIdResponse =
+  GetWarehouseAssignmentsByIdResponses[keyof GetWarehouseAssignmentsByIdResponses];
 
 export type UpdateWarehouseAssignmentsByIdData = {
   body: UpdateWarehouseAssignmentsRequest;
@@ -1851,11 +2090,19 @@ export type UpdateWarehouseAssignmentsByIdData = {
      */
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/assignments';
 };
 
-export type UpdateWarehouseAssignmentsByIdResponse = void;
+export type UpdateWarehouseAssignmentsByIdResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
 
-export type UpdateWarehouseAssignmentsByIdError = unknown;
+export type UpdateWarehouseAssignmentsByIdResponse =
+  UpdateWarehouseAssignmentsByIdResponses[keyof UpdateWarehouseAssignmentsByIdResponses];
 
 export type SetWarehouseManagedAccessData = {
   body: SetManagedAccessRequest;
@@ -1865,278 +2112,613 @@ export type SetWarehouseManagedAccessData = {
      */
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/managed-access';
 };
 
-export type SetWarehouseManagedAccessResponse = unknown;
-
-export type SetWarehouseManagedAccessError = unknown;
+export type SetWarehouseManagedAccessResponses = {
+  200: unknown;
+};
 
 export type CreateProjectData = {
   body: CreateProjectRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/project';
 };
 
-export type CreateProjectResponse2 = CreateProjectResponse;
-
-export type CreateProjectError = IcebergErrorResponse;
-
-export type ListProjectsResponse2 = ListProjectsResponse;
-
-export type ListProjectsError = IcebergErrorResponse;
-
-export type GetProjectByIdData = {
-  path: {
-    project_id: string;
-  };
+export type CreateProjectErrors = {
+  '4XX': IcebergErrorResponse;
 };
 
-export type GetProjectByIdResponse = GetProjectResponse;
+export type CreateProjectError = CreateProjectErrors[keyof CreateProjectErrors];
 
-export type GetProjectByIdError = IcebergErrorResponse;
+export type CreateProjectResponses = {
+  /**
+   * Project created successfully
+   */
+  201: CreateProjectResponse;
+};
+
+export type CreateProjectResponse2 = CreateProjectResponses[keyof CreateProjectResponses];
+
+export type ListProjectsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/management/v1/project-list';
+};
+
+export type ListProjectsErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type ListProjectsError = ListProjectsErrors[keyof ListProjectsErrors];
+
+export type ListProjectsResponses = {
+  /**
+   * List of projects
+   */
+  200: ListProjectsResponse;
+};
+
+export type ListProjectsResponse2 = ListProjectsResponses[keyof ListProjectsResponses];
 
 export type DeleteProjectByIdData = {
+  body?: never;
   path: {
     project_id: string;
   };
+  query?: never;
+  url: '/management/v1/project/{project_id}';
 };
 
-export type DeleteProjectByIdResponse = void;
+export type DeleteProjectByIdErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type DeleteProjectByIdError = IcebergErrorResponse;
+export type DeleteProjectByIdError = DeleteProjectByIdErrors[keyof DeleteProjectByIdErrors];
+
+export type DeleteProjectByIdResponses = {
+  /**
+   * Project deleted successfully
+   */
+  204: void;
+};
+
+export type DeleteProjectByIdResponse =
+  DeleteProjectByIdResponses[keyof DeleteProjectByIdResponses];
+
+export type GetProjectByIdData = {
+  body?: never;
+  path: {
+    project_id: string;
+  };
+  query?: never;
+  url: '/management/v1/project/{project_id}';
+};
+
+export type GetProjectByIdErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetProjectByIdError = GetProjectByIdErrors[keyof GetProjectByIdErrors];
+
+export type GetProjectByIdResponses = {
+  /**
+   * Project details
+   */
+  200: GetProjectResponse;
+};
+
+export type GetProjectByIdResponse = GetProjectByIdResponses[keyof GetProjectByIdResponses];
 
 export type RenameProjectByIdData = {
   body: RenameProjectRequest;
   path: {
     project_id: string;
   };
+  query?: never;
+  url: '/management/v1/project/{project_id}/rename';
 };
 
-export type RenameProjectByIdResponse = unknown;
+export type RenameProjectByIdErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type RenameProjectByIdError = IcebergErrorResponse;
+export type RenameProjectByIdError = RenameProjectByIdErrors[keyof RenameProjectByIdErrors];
+
+export type RenameProjectByIdResponses = {
+  /**
+   * Project renamed successfully
+   */
+  200: unknown;
+};
 
 export type ListRolesData = {
+  body?: never;
+  path?: never;
   query?: {
     /**
      * Search for a specific role name
      */
     name?: string | null;
     /**
+     * Next page token
+     */
+    pageToken?: string | null;
+    /**
      * Signals an upper bound of the number of results that a client will receive.
      * Default: 100
      */
     pageSize?: number;
-    /**
-     * Next page token
-     */
-    pageToken?: string | null;
     /**
      * Project ID from which roles should be listed
      * Deprecated: Please use the `x-project-id` header instead.
      */
     projectId?: string | null;
   };
+  url: '/management/v1/role';
 };
 
-export type ListRolesResponse2 = ListRolesResponse;
+export type ListRolesErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type ListRolesError = IcebergErrorResponse;
+export type ListRolesError = ListRolesErrors[keyof ListRolesErrors];
+
+export type ListRolesResponses = {
+  /**
+   * List of roles
+   */
+  200: ListRolesResponse;
+};
+
+export type ListRolesResponse2 = ListRolesResponses[keyof ListRolesResponses];
 
 export type CreateRoleData = {
   body: CreateRoleRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/role';
 };
 
-export type CreateRoleResponse = Role;
+export type CreateRoleErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type CreateRoleError = IcebergErrorResponse;
+export type CreateRoleError = CreateRoleErrors[keyof CreateRoleErrors];
 
-export type GetRoleData = {
+export type CreateRoleResponses = {
+  /**
+   * Role successfully created
+   */
+  201: Role;
+};
+
+export type CreateRoleResponse = CreateRoleResponses[keyof CreateRoleResponses];
+
+export type DeleteRoleData = {
+  body?: never;
   path: {
     id: string;
   };
+  query?: never;
+  url: '/management/v1/role/{id}';
 };
 
-export type GetRoleResponse = Role;
+export type DeleteRoleErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type GetRoleError = IcebergErrorResponse;
+export type DeleteRoleError = DeleteRoleErrors[keyof DeleteRoleErrors];
+
+export type DeleteRoleResponses = {
+  /**
+   * Role deleted successfully
+   */
+  204: void;
+};
+
+export type DeleteRoleResponse = DeleteRoleResponses[keyof DeleteRoleResponses];
+
+export type GetRoleData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/management/v1/role/{id}';
+};
+
+export type GetRoleErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetRoleError = GetRoleErrors[keyof GetRoleErrors];
+
+export type GetRoleResponses = {
+  /**
+   * Role details
+   */
+  200: Role;
+};
+
+export type GetRoleResponse = GetRoleResponses[keyof GetRoleResponses];
 
 export type UpdateRoleData = {
   body: UpdateRoleRequest;
   path: {
     id: string;
   };
+  query?: never;
+  url: '/management/v1/role/{id}';
 };
 
-export type UpdateRoleResponse = Role;
-
-export type UpdateRoleError = IcebergErrorResponse;
-
-export type DeleteRoleData = {
-  path: {
-    id: string;
-  };
+export type UpdateRoleErrors = {
+  '4XX': IcebergErrorResponse;
 };
 
-export type DeleteRoleResponse = void;
+export type UpdateRoleError = UpdateRoleErrors[keyof UpdateRoleErrors];
 
-export type DeleteRoleError = IcebergErrorResponse;
+export type UpdateRoleResponses = {
+  /**
+   * Role updated successfully
+   */
+  200: Role;
+};
+
+export type UpdateRoleResponse = UpdateRoleResponses[keyof UpdateRoleResponses];
 
 export type SearchRoleData = {
   body: SearchRoleRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/search/role';
 };
 
-export type SearchRoleResponse2 = SearchRoleResponse;
+export type SearchRoleErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type SearchRoleError = IcebergErrorResponse;
+export type SearchRoleError = SearchRoleErrors[keyof SearchRoleErrors];
+
+export type SearchRoleResponses = {
+  /**
+   * List of users
+   */
+  200: SearchRoleResponse;
+};
+
+export type SearchRoleResponse2 = SearchRoleResponses[keyof SearchRoleResponses];
 
 export type SearchUserData = {
   body: SearchUserRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/search/user';
 };
 
-export type SearchUserResponse2 = SearchUserResponse;
+export type SearchUserErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type SearchUserError = IcebergErrorResponse;
+export type SearchUserError = SearchUserErrors[keyof SearchUserErrors];
+
+export type SearchUserResponses = {
+  /**
+   * List of users
+   */
+  200: SearchUserResponse;
+};
+
+export type SearchUserResponse2 = SearchUserResponses[keyof SearchUserResponses];
 
 export type ListUserData = {
+  body?: never;
+  path?: never;
   query?: {
     /**
      * Search for a specific username
      */
     name?: string | null;
     /**
+     * Next page token
+     */
+    pageToken?: string | null;
+    /**
      * Signals an upper bound of the number of results that a client will receive.
      * Default: 100
      */
     pageSize?: number;
-    /**
-     * Next page token
-     */
-    pageToken?: string | null;
   };
+  url: '/management/v1/user';
 };
 
-export type ListUserResponse = ListUsersResponse;
+export type ListUserErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type ListUserError = IcebergErrorResponse;
+export type ListUserError = ListUserErrors[keyof ListUserErrors];
+
+export type ListUserResponses = {
+  /**
+   * List of users
+   */
+  200: ListUsersResponse;
+};
+
+export type ListUserResponse = ListUserResponses[keyof ListUserResponses];
 
 export type CreateUserData = {
   body: CreateUserRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/user';
 };
 
-export type CreateUserResponse = User;
+export type CreateUserErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type CreateUserError = IcebergErrorResponse;
+export type CreateUserError = CreateUserErrors[keyof CreateUserErrors];
 
-export type GetUserData = {
+export type CreateUserResponses = {
+  /**
+   * User updated
+   */
+  200: User;
+  /**
+   * User created
+   */
+  201: User;
+};
+
+export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
+
+export type DeleteUserData = {
+  body?: never;
   path: {
     id: string;
   };
+  query?: never;
+  url: '/management/v1/user/{id}';
 };
 
-export type GetUserResponse = User;
+export type DeleteUserErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type GetUserError = IcebergErrorResponse;
+export type DeleteUserError = DeleteUserErrors[keyof DeleteUserErrors];
+
+export type DeleteUserResponses = {
+  /**
+   * User deleted successfully
+   */
+  204: void;
+};
+
+export type DeleteUserResponse = DeleteUserResponses[keyof DeleteUserResponses];
+
+export type GetUserData = {
+  body?: never;
+  path: {
+    id: string;
+  };
+  query?: never;
+  url: '/management/v1/user/{id}';
+};
+
+export type GetUserErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetUserError = GetUserErrors[keyof GetUserErrors];
+
+export type GetUserResponses = {
+  /**
+   * User details
+   */
+  200: User;
+};
+
+export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
 
 export type UpdateUserData = {
   body: UpdateUserRequest;
   path: {
     id: string;
   };
+  query?: never;
+  url: '/management/v1/user/{id}';
 };
 
-export type UpdateUserResponse = unknown;
-
-export type UpdateUserError = IcebergErrorResponse;
-
-export type DeleteUserData = {
-  path: {
-    id: string;
-  };
+export type UpdateUserErrors = {
+  '4XX': IcebergErrorResponse;
 };
 
-export type DeleteUserResponse = void;
+export type UpdateUserError = UpdateUserErrors[keyof UpdateUserErrors];
 
-export type DeleteUserError = IcebergErrorResponse;
+export type UpdateUserResponses = {
+  /**
+   * User details updated successfully
+   */
+  200: unknown;
+};
 
 export type ListWarehousesData = {
+  body?: never;
+  path?: never;
   query?: {
-    /**
-     * The project ID to list warehouses for.
-     * Deprecated: Please use the `x-project-id` header instead.
-     */
-    projectId?: string | null;
     /**
      * Optional filter to return only warehouses
      * with the specified status.
      * If not provided, only active warehouses are returned.
      */
     warehouseStatus?: Array<WarehouseStatus>;
+    /**
+     * The project ID to list warehouses for.
+     * Deprecated: Please use the `x-project-id` header instead.
+     */
+    projectId?: string | null;
   };
+  url: '/management/v1/warehouse';
 };
 
-export type ListWarehousesResponse2 = ListWarehousesResponse;
+export type ListWarehousesErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type ListWarehousesError = IcebergErrorResponse;
+export type ListWarehousesError = ListWarehousesErrors[keyof ListWarehousesErrors];
+
+export type ListWarehousesResponses = {
+  /**
+   * List of warehouses
+   */
+  200: ListWarehousesResponse;
+};
+
+export type ListWarehousesResponse2 = ListWarehousesResponses[keyof ListWarehousesResponses];
 
 export type CreateWarehouseData = {
   body: CreateWarehouseRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/warehouse';
 };
 
-export type CreateWarehouseResponse2 = CreateWarehouseResponse;
-
-export type CreateWarehouseError = IcebergErrorResponse;
-
-export type GetWarehouseData = {
-  path: {
-    warehouse_id: string;
-  };
+export type CreateWarehouseErrors = {
+  '4XX': IcebergErrorResponse;
 };
 
-export type GetWarehouseResponse2 = GetWarehouseResponse;
+export type CreateWarehouseError = CreateWarehouseErrors[keyof CreateWarehouseErrors];
 
-export type GetWarehouseError = IcebergErrorResponse;
+export type CreateWarehouseResponses = {
+  /**
+   * Warehouse created successfully
+   */
+  201: CreateWarehouseResponse;
+};
+
+export type CreateWarehouseResponse2 = CreateWarehouseResponses[keyof CreateWarehouseResponses];
 
 export type DeleteWarehouseData = {
+  body?: never;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}';
 };
 
-export type DeleteWarehouseResponse = void;
+export type DeleteWarehouseErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type DeleteWarehouseError = IcebergErrorResponse;
+export type DeleteWarehouseError = DeleteWarehouseErrors[keyof DeleteWarehouseErrors];
+
+export type DeleteWarehouseResponses = {
+  /**
+   * Warehouse deleted successfully
+   */
+  204: void;
+};
+
+export type DeleteWarehouseResponse = DeleteWarehouseResponses[keyof DeleteWarehouseResponses];
+
+export type GetWarehouseData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}';
+};
+
+export type GetWarehouseErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetWarehouseError = GetWarehouseErrors[keyof GetWarehouseErrors];
+
+export type GetWarehouseResponses = {
+  /**
+   * Warehouse details
+   */
+  200: GetWarehouseResponse;
+};
+
+export type GetWarehouseResponse2 = GetWarehouseResponses[keyof GetWarehouseResponses];
 
 export type ActivateWarehouseData = {
+  body?: never;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/activate';
 };
 
-export type ActivateWarehouseResponse = unknown;
+export type ActivateWarehouseErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type ActivateWarehouseError = IcebergErrorResponse;
+export type ActivateWarehouseError = ActivateWarehouseErrors[keyof ActivateWarehouseErrors];
+
+export type ActivateWarehouseResponses = {
+  /**
+   * Warehouse activated successfully
+   */
+  200: unknown;
+};
 
 export type DeactivateWarehouseData = {
+  body?: never;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/deactivate';
 };
 
-export type DeactivateWarehouseResponse = unknown;
+export type DeactivateWarehouseErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type DeactivateWarehouseError = IcebergErrorResponse;
+export type DeactivateWarehouseError = DeactivateWarehouseErrors[keyof DeactivateWarehouseErrors];
+
+export type DeactivateWarehouseResponses = {
+  /**
+   * Warehouse deactivated successfully
+   */
+  200: unknown;
+};
 
 export type UpdateWarehouseDeleteProfileData = {
   body: UpdateWarehouseDeleteProfileRequest;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/delete-profile';
 };
 
-export type UpdateWarehouseDeleteProfileResponse = unknown;
+export type UpdateWarehouseDeleteProfileErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type UpdateWarehouseDeleteProfileError = IcebergErrorResponse;
+export type UpdateWarehouseDeleteProfileError =
+  UpdateWarehouseDeleteProfileErrors[keyof UpdateWarehouseDeleteProfileErrors];
+
+export type UpdateWarehouseDeleteProfileResponses = {
+  /**
+   * Deletion Profile updated successfully
+   */
+  200: unknown;
+};
 
 export type ListDeletedTabularsData = {
+  body?: never;
   path: {
     warehouse_id: string;
   };
@@ -2146,143 +2728,314 @@ export type ListDeletedTabularsData = {
      */
     namespaceId?: string;
     /**
+     * Next page token
+     */
+    pageToken?: string | null;
+    /**
      * Signals an upper bound of the number of results that a client will receive.
      * Default: 100
      */
     pageSize?: number;
-    /**
-     * Next page token
-     */
-    pageToken?: string | null;
   };
+  url: '/management/v1/warehouse/{warehouse_id}/deleted-tabulars';
 };
 
-export type ListDeletedTabularsResponse2 = ListDeletedTabularsResponse;
+export type ListDeletedTabularsErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type ListDeletedTabularsError = IcebergErrorResponse;
+export type ListDeletedTabularsError = ListDeletedTabularsErrors[keyof ListDeletedTabularsErrors];
+
+export type ListDeletedTabularsResponses = {
+  /**
+   * List of soft-deleted tabulars
+   */
+  200: ListDeletedTabularsResponse;
+};
+
+export type ListDeletedTabularsResponse2 =
+  ListDeletedTabularsResponses[keyof ListDeletedTabularsResponses];
 
 export type UndropTabularsData = {
   body: UndropTabularsRequest;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/deleted-tabulars/undrop';
 };
 
-export type UndropTabularsResponse = void;
+export type UndropTabularsErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type UndropTabularsError = IcebergErrorResponse;
+export type UndropTabularsError = UndropTabularsErrors[keyof UndropTabularsErrors];
+
+export type UndropTabularsResponses = {
+  /**
+   * Tabular undropped successfully
+   */
+  204: void;
+};
+
+export type UndropTabularsResponse = UndropTabularsResponses[keyof UndropTabularsResponses];
 
 export type UndropTabularsDeprecatedData = {
   body: UndropTabularsRequest;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/deleted_tabulars/undrop';
 };
 
-export type UndropTabularsDeprecatedResponse = void;
+export type UndropTabularsDeprecatedErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type UndropTabularsDeprecatedError = IcebergErrorResponse;
+export type UndropTabularsDeprecatedError =
+  UndropTabularsDeprecatedErrors[keyof UndropTabularsDeprecatedErrors];
+
+export type UndropTabularsDeprecatedResponses = {
+  /**
+   * Tabular undropped successfully
+   */
+  204: void;
+};
+
+export type UndropTabularsDeprecatedResponse =
+  UndropTabularsDeprecatedResponses[keyof UndropTabularsDeprecatedResponses];
 
 export type SetNamespaceProtectionData = {
   body: SetProtectionRequest;
   path: {
-    namespace_id: string;
     warehouse_id: string;
+    namespace_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/namespace/{namespace_id}/protection';
 };
 
-export type SetNamespaceProtectionResponse = ProtectionResponse;
+export type SetNamespaceProtectionErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type SetNamespaceProtectionError = IcebergErrorResponse;
+export type SetNamespaceProtectionError =
+  SetNamespaceProtectionErrors[keyof SetNamespaceProtectionErrors];
+
+export type SetNamespaceProtectionResponses = {
+  /**
+   * Namespace protection set successfully
+   */
+  200: ProtectionResponse;
+};
+
+export type SetNamespaceProtectionResponse =
+  SetNamespaceProtectionResponses[keyof SetNamespaceProtectionResponses];
 
 export type SetWarehouseProtectionData = {
   body: SetProtectionRequest;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/protection';
 };
 
-export type SetWarehouseProtectionResponse = ProtectionResponse;
+export type SetWarehouseProtectionErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type SetWarehouseProtectionError = IcebergErrorResponse;
+export type SetWarehouseProtectionError =
+  SetWarehouseProtectionErrors[keyof SetWarehouseProtectionErrors];
+
+export type SetWarehouseProtectionResponses = {
+  /**
+   * Warehouse protection set successfully
+   */
+  200: ProtectionResponse;
+};
+
+export type SetWarehouseProtectionResponse =
+  SetWarehouseProtectionResponses[keyof SetWarehouseProtectionResponses];
 
 export type RenameWarehouseData = {
   body: RenameWarehouseRequest;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/rename';
 };
 
-export type RenameWarehouseResponse = unknown;
+export type RenameWarehouseErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type RenameWarehouseError = IcebergErrorResponse;
+export type RenameWarehouseError = RenameWarehouseErrors[keyof RenameWarehouseErrors];
+
+export type RenameWarehouseResponses = {
+  /**
+   * Warehouse renamed successfully
+   */
+  200: unknown;
+};
 
 export type GetWarehouseStatisticsData = {
+  body?: never;
   path: {
     warehouse_id: string;
   };
   query?: {
     /**
-     * Signals an upper bound of the number of results that a client will receive.
-     */
-    page_size?: number | null;
-    /**
      * Next page token
      */
     page_token?: string;
+    /**
+     * Signals an upper bound of the number of results that a client will receive.
+     */
+    page_size?: number | null;
   };
+  url: '/management/v1/warehouse/{warehouse_id}/statistics';
 };
 
-export type GetWarehouseStatisticsResponse = WarehouseStatisticsResponse;
+export type GetWarehouseStatisticsErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type GetWarehouseStatisticsError = IcebergErrorResponse;
+export type GetWarehouseStatisticsError =
+  GetWarehouseStatisticsErrors[keyof GetWarehouseStatisticsErrors];
+
+export type GetWarehouseStatisticsResponses = {
+  /**
+   * Warehouse statistics
+   */
+  200: WarehouseStatisticsResponse;
+};
+
+export type GetWarehouseStatisticsResponse =
+  GetWarehouseStatisticsResponses[keyof GetWarehouseStatisticsResponses];
 
 export type UpdateStorageProfileData = {
   body: UpdateWarehouseStorageRequest;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/storage';
 };
 
-export type UpdateStorageProfileResponse = unknown;
+export type UpdateStorageProfileErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type UpdateStorageProfileError = IcebergErrorResponse;
+export type UpdateStorageProfileError =
+  UpdateStorageProfileErrors[keyof UpdateStorageProfileErrors];
+
+export type UpdateStorageProfileResponses = {
+  /**
+   * Storage profile updated successfully
+   */
+  200: unknown;
+};
 
 export type UpdateStorageCredentialData = {
   body: UpdateWarehouseCredentialRequest;
   path: {
     warehouse_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/storage-credential';
 };
 
-export type UpdateStorageCredentialResponse = unknown;
+export type UpdateStorageCredentialErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type UpdateStorageCredentialError = IcebergErrorResponse;
+export type UpdateStorageCredentialError =
+  UpdateStorageCredentialErrors[keyof UpdateStorageCredentialErrors];
+
+export type UpdateStorageCredentialResponses = {
+  /**
+   * Storage credential updated successfully
+   */
+  200: unknown;
+};
 
 export type SetTableProtectionData = {
   body: SetProtectionRequest;
   path: {
-    table_id: string;
     warehouse_id: string;
+    table_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/table/{table_id}/protection';
 };
 
-export type SetTableProtectionResponse = ProtectionResponse;
+export type SetTableProtectionErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type SetTableProtectionError = IcebergErrorResponse;
+export type SetTableProtectionError = SetTableProtectionErrors[keyof SetTableProtectionErrors];
+
+export type SetTableProtectionResponses = {
+  /**
+   * Table protection set successfully
+   */
+  200: ProtectionResponse;
+};
+
+export type SetTableProtectionResponse =
+  SetTableProtectionResponses[keyof SetTableProtectionResponses];
 
 export type SetViewProtectionData = {
   body: SetProtectionRequest;
   path: {
-    view_id: string;
     warehouse_id: string;
+    view_id: string;
   };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/view/{view_id}/protection';
 };
 
-export type SetViewProtectionResponse = ProtectionResponse;
+export type SetViewProtectionErrors = {
+  '4XX': IcebergErrorResponse;
+};
 
-export type SetViewProtectionError = IcebergErrorResponse;
+export type SetViewProtectionError = SetViewProtectionErrors[keyof SetViewProtectionErrors];
 
-export type WhoamiResponse = User;
+export type SetViewProtectionResponses = {
+  /**
+   * View protection set successfully
+   */
+  200: ProtectionResponse;
+};
 
-export type WhoamiError = IcebergErrorResponse;
+export type SetViewProtectionResponse =
+  SetViewProtectionResponses[keyof SetViewProtectionResponses];
+
+export type WhoamiData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/management/v1/whoami';
+};
+
+export type WhoamiErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type WhoamiError = WhoamiErrors[keyof WhoamiErrors];
+
+export type WhoamiResponses = {
+  /**
+   * User details
+   */
+  200: User;
+};
+
+export type WhoamiResponse = WhoamiResponses[keyof WhoamiResponses];
+
+export type ClientOptions = {
+  baseUrl: '{scheme}://{host}/{basePath}' | (string & {});
+};

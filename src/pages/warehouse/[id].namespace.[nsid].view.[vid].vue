@@ -70,7 +70,7 @@ import 'vue-json-pretty/lib/styles.css';
 import { onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
-import { LoadViewResult } from '../../gen/iceberg/types.gen';
+import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 
@@ -96,7 +96,7 @@ const warehouseId = (route.params as { id: string }).id;
 const namespaceId = (route.params as { nsid: string }).nsid;
 const viewName = (route.params as { vid: string }).vid;
 const viewId = ref('');
-const view = reactive<LoadViewResult>({
+const view = reactive<LoadViewResultReadable>({
   'metadata-location': '',
   metadata: {
     'view-uuid': '',

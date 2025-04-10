@@ -1,16 +1,18 @@
 import * as env from '@/app.config';
 import { globals } from '@/common/globals';
 import { NamespaceResponse, Type } from '@/common/interfaces';
-import * as ice from '@/gen/iceberg/services.gen';
+import * as ice from '@/gen/iceberg/sdk.gen';
+import * as iceClient from '@/gen/iceberg/client.gen';
 import {
   GetNamespaceResponse,
   ListTablesResponse,
-  LoadTableResult,
-  LoadViewResult,
+  LoadTableResultReadable,
+  LoadViewResultReadable,
   Namespace,
 } from '@/gen/iceberg/types.gen';
 
-import * as mng from '@/gen/management/services.gen';
+import * as mng from '@/gen/management/sdk.gen';
+import * as mngClient from '@/gen/management/client.gen';
 import {
   CreateRoleRequest,
   CreateWarehouseRequest,
@@ -62,21 +64,21 @@ function init() {
   const userStore = useUserStore();
   const accessToken = userStore.user.access_token;
 
-  mng.client.setConfig({
+  mngClient.client.setConfig({
     baseUrl: icebergCatalogUrl(),
     // headers: { 'x-project-id': visual.projectSelected['project-id'] }, //ToDo resolve CORS problem
   });
 
-  mng.client.interceptors.request.use((request) => {
+  mngClient.client.interceptors.request.use((request) => {
     request.headers.set('Authorization', `Bearer ${accessToken}`);
     return request;
   });
 
-  ice.client.setConfig({
+  iceClient.client.setConfig({
     baseUrl: icebergCatalogUrlSuffixed(),
   });
 
-  ice.client.interceptors.request.use((request) => {
+  iceClient.client.interceptors.request.use((request) => {
     request.headers.set('Authorization', `Bearer ${accessToken}`);
     return request;
   });
@@ -180,7 +182,7 @@ function sendSnackbar(message: string, ttl: number, functionCaused: string, type
 // Server
 async function getServerInfo(): Promise<ServerInfo> {
   try {
-    const client = mng.client;
+    const client = mngClient.client;
 
     const visualStore = useVisualStore();
 
@@ -198,7 +200,7 @@ async function getServerInfo(): Promise<ServerInfo> {
 
 async function bootstrapServer(): Promise<boolean> {
   try {
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.bootstrap({
       client,
@@ -217,7 +219,7 @@ async function bootstrapServer(): Promise<boolean> {
 // Project
 async function loadProjectList(): Promise<GetProjectResponse[]> {
   try {
-    const { data, error } = await mng.listProjects({ client: mng.client });
+    const { data, error } = await mng.listProjects({ client: mngClient.client });
     if (error) throw error;
 
     if (data) {
@@ -239,7 +241,7 @@ async function loadProjectList(): Promise<GetProjectResponse[]> {
 async function getProjectById(projectId: string): Promise<GetProjectResponse> {
   try {
     const { data, error } = await mng.getProjectById({
-      client: mng.client,
+      client: mngClient.client,
       path: { project_id: projectId },
     });
     if (error) throw error;
@@ -258,7 +260,7 @@ async function getProjectById(projectId: string): Promise<GetProjectResponse> {
 async function createProject(name: string): Promise<string> {
   try {
     const { data, error } = await mng.createProject({
-      client: mng.client,
+      client: mngClient.client,
       body: { 'project-name': name },
     });
     if (error) throw error;
@@ -272,7 +274,7 @@ async function createProject(name: string): Promise<string> {
 async function deleteProjectById(projectId: string): Promise<boolean> {
   try {
     const { error } = await mng.deleteProjectById({
-      client: mng.client,
+      client: mngClient.client,
       path: { project_id: projectId },
     });
     if (error) throw error;
@@ -287,7 +289,7 @@ async function deleteProjectById(projectId: string): Promise<boolean> {
 async function renameProjectById(body: RenameProjectRequest, projectId: string): Promise<boolean> {
   try {
     const { error } = await mng.renameProjectById({
-      client: mng.client,
+      client: mngClient.client,
       body,
       path: { project_id: projectId },
     });
@@ -314,7 +316,7 @@ async function getEndpointStatistics(
       'status-codes': status_codes || null,
     };
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getEndpointStatistics({
       client,
@@ -332,7 +334,7 @@ async function getEndpointStatistics(
 // Warehouse
 async function listWarehouses(): Promise<ListWarehousesResponse> {
   try {
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.listWarehouses({ client });
     const wh = data as ListWarehousesResponse;
@@ -347,7 +349,7 @@ async function listWarehouses(): Promise<ListWarehousesResponse> {
 
 async function getWarehouse(id: string): Promise<GetWarehouseResponse> {
   try {
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getWarehouse({
       client,
@@ -366,7 +368,7 @@ async function createWarehouse(wh: CreateWarehouseRequest): Promise<CreateWareho
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.createWarehouse({
       client,
@@ -389,7 +391,7 @@ async function getWarehouseStatistics(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getWarehouseStatistics({
       client,
@@ -414,7 +416,7 @@ async function deleteWarehouse(whId: string) {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.deleteWarehouse({
       client,
@@ -438,7 +440,7 @@ async function listDeletedTabulars(
   pageToken?: string,
 ): Promise<ListDeletedTabularsResponse> {
   try {
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.listDeletedTabulars({
       client,
@@ -462,7 +464,7 @@ async function renameWarehouse(whId: string, name: string): Promise<boolean> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     await mng.renameWarehouse({
       client,
@@ -486,7 +488,7 @@ async function updateStorageCredential(whId: string, storageCredentials: Storage
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.updateStorageCredential({
       client,
@@ -512,7 +514,7 @@ async function updateStorageProfile(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.updateStorageProfile({
       client,
@@ -536,7 +538,7 @@ async function updateWarehouseDeleteProfile(whId: string, deleteProfile: Tabular
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     await mng.updateWarehouseDeleteProfile({
       client,
@@ -559,7 +561,7 @@ async function getWarehouseById(warehouseId: string): Promise<boolean> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getWarehouseById({
       client,
@@ -580,7 +582,7 @@ async function getWarehouseById(warehouseId: string): Promise<boolean> {
 // Namespace
 async function listNamespaces(id: string, parentNS?: string): Promise<NamespaceResponse> {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.listNamespaces({
       client,
       path: {
@@ -609,11 +611,11 @@ async function listNamespaces(id: string, parentNS?: string): Promise<NamespaceR
 
 async function loadNamespaceMetadata(id: string, namespace: string): Promise<GetNamespaceResponse> {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.loadNamespaceMetadata({
       client,
       path: { namespace, prefix: id },
-      query: { returnUuids: true },
+      query: { returnUuid: true },
     });
 
     if (error) throw error;
@@ -627,7 +629,7 @@ async function loadNamespaceMetadata(id: string, namespace: string): Promise<Get
 
 async function createNamespace(id: string, namespace: Namespace) {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.createNamespace({
       client,
       path: {
@@ -646,7 +648,7 @@ async function createNamespace(id: string, namespace: Namespace) {
 
 async function dropNamespace(id: string, ns: string) {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.dropNamespace({
       client,
       path: {
@@ -668,7 +670,7 @@ async function getNamespaceById(namespaceId: string): Promise<GetNamespaceAuthPr
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getNamespaceById({
       client,
@@ -689,7 +691,7 @@ async function getNamespaceById(namespaceId: string): Promise<GetNamespaceAuthPr
 // Table
 async function listTables(id: string, ns?: string): Promise<ListTablesResponse> {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.listTables({
       client,
       path: {
@@ -710,9 +712,9 @@ async function loadTable(
   warehouseId: string,
   namespacePath: string,
   tableName: string,
-): Promise<LoadTableResult> {
+): Promise<LoadTableResultReadable> {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.loadTable({
       client,
       path: {
@@ -723,7 +725,7 @@ async function loadTable(
     });
     if (error) throw error;
 
-    return data as LoadTableResult;
+    return data as LoadTableResultReadable;
   } catch (error: any) {
     handleError(error, new Error());
     return error;
@@ -771,7 +773,7 @@ async function dropTable(
   tableName: string,
 ): Promise<boolean> {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { error } = await ice.dropTable({
       client,
       path: {
@@ -792,7 +794,7 @@ async function dropTable(
 // View
 async function listViews(id: string, ns?: string): Promise<ListTablesResponse> {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.listViews({
       client,
       path: {
@@ -813,9 +815,9 @@ async function loadView(
   warehouseId: string,
   namespacePath: string,
   viewName: string,
-): Promise<LoadViewResult> {
+): Promise<LoadViewResultReadable> {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.loadView({
       client,
       path: {
@@ -826,7 +828,7 @@ async function loadView(
     });
     if (error) throw error;
 
-    return data as LoadViewResult;
+    return data as LoadViewResultReadable;
   } catch (error: any) {
     handleError(error, new Error());
     return error;
@@ -835,7 +837,7 @@ async function loadView(
 
 async function dropView(warehouseId: string, namespacePath: string, viewName: string) {
   try {
-    const client = ice.client;
+    const client = iceClient.client;
     const { data, error } = await ice.dropView({
       client,
       path: {
@@ -857,7 +859,7 @@ async function dropView(warehouseId: string, namespacePath: string, viewName: st
 // Tabular
 async function undropTabular(warehouseId: string, id: string, type: 'table' | 'view') {
   try {
-    const client = mng.client;
+    const client = mngClient.client;
     const { error } = await mng.undropTabulars({
       client,
       body: { targets: [{ id, type }] },
@@ -882,7 +884,7 @@ async function getWarehouseAssignmentsById(warehouseId: string): Promise<Warehou
     if (!env.enabledAuthentication || authOff) return [];
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getWarehouseAssignmentsById({
       client,
@@ -908,7 +910,7 @@ async function updateWarehouseAssignmentsById(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.updateWarehouseAssignmentsById({
       client,
@@ -934,7 +936,7 @@ async function setWarehouseManagedAccess(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.setWarehouseManagedAccess({
       client,
@@ -962,7 +964,7 @@ async function getRoleAssignmentsById(roleId: string): Promise<RoleAssignment[]>
 
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getRoleAssignmentsById({
       client,
@@ -988,7 +990,7 @@ async function updateRoleAssignmentsById(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.updateRoleAssignmentsById({
       client,
@@ -1016,7 +1018,7 @@ async function getServerAssignments(): Promise<ServerAssignment[]> {
 
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
     const { data, error } = await mng.getServerAssignments({
       client,
     });
@@ -1038,7 +1040,7 @@ async function updateServerAssignments(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.updateServerAssignments({
       client,
@@ -1063,7 +1065,7 @@ async function getProjectAssignments(): Promise<ProjectAssignment[]> {
 
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
     const { data, error } = await mng.getProjectAssignments({
       client,
     });
@@ -1085,7 +1087,7 @@ async function updateProjectAssignments(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.updateProjectAssignments({
       client,
@@ -1110,7 +1112,7 @@ async function getNamespaceAssignmentsById(namespaceId: string): Promise<Namespa
 
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
     const { data, error } = await mng.getNamespaceAssignmentsById({
       client,
       path: {
@@ -1136,7 +1138,7 @@ async function updateNamespaceAssignmentsById(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.updateNamespaceAssignmentsById({
       client,
@@ -1162,7 +1164,7 @@ async function setNamespaceManagedAccess(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.setNamespaceManagedAccess({
       client,
@@ -1190,7 +1192,7 @@ async function getTableAssignmentsById(tableId: string): Promise<TableAssignment
 
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
     const { data, error } = await mng.getTableAssignmentsById({
       client,
       path: {
@@ -1216,7 +1218,7 @@ async function updateTableAssignmentsById(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.updateTableAssignmentsById({
       client,
@@ -1244,7 +1246,7 @@ async function getViewAssignmentsById(viewId: string): Promise<ViewAssignment[]>
 
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
     const { data, error } = await mng.getViewAssignmentsById({
       client,
       path: {
@@ -1269,7 +1271,7 @@ async function updateViewAssignmentsById(
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.updateViewAssignmentsById({
       client,
@@ -1293,7 +1295,7 @@ async function createUser() {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.createUser({
       client,
@@ -1312,7 +1314,7 @@ async function whoAmI() {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.whoami({
       client,
@@ -1330,7 +1332,7 @@ async function searchUser(search: string): Promise<User[]> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.searchUser({
       client,
@@ -1350,7 +1352,7 @@ async function getUser(userId: string): Promise<User> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getUser({
       client,
@@ -1372,7 +1374,7 @@ async function deleteUser(userId: string): Promise<boolean> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.deleteUser({
       client,
@@ -1394,7 +1396,7 @@ async function listUser(): Promise<User[]> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.listUser({
       client,
@@ -1413,7 +1415,7 @@ async function updateUserById(name: string, userId: string): Promise<boolean> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { error } = await mng.updateUser({
       client,
@@ -1441,7 +1443,7 @@ async function searchRole(search: string): Promise<Role[]> {
     init();
 
     const visual = useVisualStore();
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.searchRole({
       client,
@@ -1464,7 +1466,7 @@ async function listRoles(pageSize?: number, pageToken?: string): Promise<Role[]>
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.listRoles({
       client,
@@ -1487,7 +1489,7 @@ async function getRole(roleId: string): Promise<Role> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getRole({
       client,
@@ -1507,7 +1509,7 @@ async function createRole(name: string, description?: string): Promise<Role> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
     const visual = useVisualStore();
 
     const body: CreateRoleRequest = {
@@ -1534,7 +1536,7 @@ async function updateRole(roleId: string, name: string, description?: string): P
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const body: UpdateRoleRequest = {
       name,
@@ -1560,7 +1562,7 @@ async function deleteRole(roleId: string): Promise<boolean> {
   try {
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     await mng.deleteRole({
       client,
@@ -1586,7 +1588,7 @@ async function getServerAccess(): Promise<ServerAction[]> {
 
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getServerAccess({
       client,
@@ -1611,7 +1613,7 @@ async function getProjectAccess(): Promise<ProjectAction[]> {
     if (!env.enabledAuthentication || authOff) return globals.projectActions as ProjectAction[];
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getProjectAccess({
       client,
@@ -1636,7 +1638,7 @@ async function getWarehouseAccessById(warehouseId: string): Promise<WarehouseAct
     if (!env.enabledAuthentication || authOff) return globals.warehouseActions as WarehouseAction[];
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getWarehouseAccessById({
       client,
@@ -1663,7 +1665,7 @@ async function getNamespaceAccessById(namespaceId: string): Promise<NamespaceAct
     if (!env.enabledAuthentication || authOff) return globals.namespaceActions as NamespaceAction[];
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getNamespaceAccessById({
       client,
@@ -1692,7 +1694,7 @@ async function getTableAccessById(tableId: string): Promise<TableAction[]> {
 
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getTableAccessById({
       client,
@@ -1720,7 +1722,7 @@ async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
     if (!env.enabledAuthentication || authOff) return globals.viewActions as ViewAction[];
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getViewAccessById({
       client,
@@ -1748,7 +1750,7 @@ async function getRoleAccessById(roleId: string): Promise<RoleAction[]> {
     if (!env.enabledAuthentication || authOff) return globals.roleActions as RoleAction[];
     init();
 
-    const client = mng.client;
+    const client = mngClient.client;
 
     const { data, error } = await mng.getRoleAccessById({
       client,
