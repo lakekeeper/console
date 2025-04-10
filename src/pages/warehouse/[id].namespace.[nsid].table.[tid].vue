@@ -166,7 +166,7 @@ async function init() {
 
   namespacePath.value = `${namespaceId}${String.fromCharCode(0x1f)}${tableName}`;
   Object.assign(table, await functions.loadTableCustomized(warehouseId, namespaceId, tableName));
-  console.log('table', await functions.loadTable(warehouseId, namespaceId, tableName));
+  console.log('table_client', await functions.loadTable(warehouseId, namespaceId, tableName));
 
   tableId.value = table.metadata['table-uuid'];
   currentSchema.value = table.metadata['current-schema-id'] || 0;
