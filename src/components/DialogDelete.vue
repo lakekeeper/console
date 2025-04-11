@@ -33,7 +33,7 @@
             v-model="optionsNamespace.purge"
             class="ml-4"
             color="info"
-            :label="optionsNamespace.purge ? 'Purge activated' : 'Purgedeactivated '"></v-switch>
+            :label="optionsNamespace.purge ? 'Purge activated' : 'Purge deactivated '"></v-switch>
         </span>
         <span v-else-if="props.type === 'table'">
           <v-switch
