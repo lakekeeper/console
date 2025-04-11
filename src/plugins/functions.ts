@@ -39,6 +39,7 @@ import {
   ServerAction,
   ServerAssignment,
   ServerInfo,
+  SetWarehouseProtectionResponse,
   StorageCredential,
   StorageProfile,
   TableAction,
@@ -573,6 +574,34 @@ async function getWarehouseById(warehouseId: string): Promise<boolean> {
     if (error) throw error;
 
     return data?.['managed-access'] ?? false;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setWarehouseProtection(
+  warehouseId: string,
+  protected_state: boolean,
+): Promise<SetWarehouseProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.setWarehouseProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+      },
+      body: {
+        protected: protected_state,
+      },
+    });
+    if (error) throw error;
+
+    return data;
   } catch (error) {
     handleError(error, new Error());
     throw error;
@@ -1878,6 +1907,7 @@ export function useFunctions() {
     undropTabular,
     getWarehouseStatistics,
     getEndpointStatistics,
+    setWarehouseProtection,
   };
 }
 
