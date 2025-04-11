@@ -56,6 +56,16 @@
                 hover
                 :items="loadedNamespaces"
                 :sort-by="[{ key: 'name', order: 'asc' }]">
+                <template #top>
+                  <v-toolbar color="transparent" density="compact" flat>
+                    <v-switch
+                      v-model="recursiveDeleteProtection"
+                      class="ml-4 mt-4"
+                      color="info"
+                      :label="recursiveDeleteProtection ? 'protected' : 'unprotected'"
+                      @click="setProtection"></v-switch>
+                  </v-toolbar>
+                </template>
                 <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToNamespace(item)">
                     <span class="icon-text">
@@ -220,6 +230,7 @@ const functions = useFunctions();
 const loading = ref(true);
 const loaded = ref(false);
 const canReadPermissions = ref(false);
+const recursiveDeleteProtection = ref(false);
 
 const items: Item[] = reactive([]);
 const permissionType = ref<RelationType>('namespace');
@@ -314,7 +325,7 @@ async function init() {
       namespace,
       await functions.loadNamespaceMetadata(whid.value, namespacePath.value),
     );
-
+    await getProtection();
     relationId.value = namespace.properties?.namespace_id || '';
 
     selectedNamespace.value = namespace.namespace[namespace.namespace.length - 1];
@@ -325,6 +336,10 @@ async function init() {
       await functions.getNamespaceAccessById(namespace.properties?.namespace_id || ''),
     );
     canReadPermissions.value = !!myAccess.includes('read_assignments');
+    console.log(
+      'ns id',
+      await functions.getNamespaceById(namespace.properties?.namespace_id || ''),
+    );
 
     Object.assign(
       existingPermissions,
@@ -524,6 +539,28 @@ async function undropTabular(item: DeletedTabularResponseExtended) {
     console.error(`Failed to undrop table-${item.name}  - due to: `, error);
   } finally {
     loading.value = false;
+  }
+}
+async function getProtection() {
+  try {
+    recursiveDeleteProtection.value = (
+      await functions.getNamespaceProtection(whid.value, namespaceId.value || '')
+    ).protected;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function setProtection() {
+  try {
+    await functions.setNamespaceProtection(
+      whid.value,
+      namespaceId.value || '',
+      !recursiveDeleteProtection.value,
+    );
+    await getProtection();
+  } catch (error) {
+    console.error(error);
   }
 }
 </script>

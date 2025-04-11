@@ -37,6 +37,15 @@
         <v-card style="max-height: 75vh; overflow: auto">
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="overview">
+              <v-toolbar color="transparent" density="compact" flat>
+                <v-switch
+                  v-model="recursiveDeleteProtection"
+                  class="ml-4 mt-4"
+                  color="info"
+                  :label="recursiveDeleteProtection ? 'protected' : 'unprotected'"
+                  @click="setProtection"></v-switch>
+              </v-toolbar>
+
               <v-treeview :items="schemaFieldsTransformed" open-on-click>
                 <template #prepend="{ item }">
                   <v-icon v-if="item.datatype == 'string'" size="small">mdi-alphabetical</v-icon>
@@ -115,6 +124,8 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 const depthRawRepresentation = ref(1);
 const depthRawRepresentationMax = ref(1000);
 
+const recursiveDeleteProtection = ref(false);
+
 const functions = useFunctions();
 const route = useRoute();
 const tab = ref('overview');
@@ -166,7 +177,6 @@ async function init() {
 
   namespacePath.value = `${namespaceId}${String.fromCharCode(0x1f)}${tableName}`;
   Object.assign(table, await functions.loadTableCustomized(warehouseId, namespaceId, tableName));
-  console.log('table_client', await functions.loadTable(warehouseId, namespaceId, tableName));
 
   tableId.value = table.metadata['table-uuid'];
   currentSchema.value = table.metadata['current-schema-id'] || 0;
@@ -175,7 +185,7 @@ async function init() {
   permissionObject.name = tableName;
 
   Object.assign(myAccess, await functions.getTableAccessById(tableId.value));
-
+  await getProtection();
   canReadPermissions.value = !!myAccess.includes('read_assignments');
 
   Object.assign(
@@ -281,6 +291,29 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
 
 async function loadTabData() {
   await init();
+}
+
+async function getProtection() {
+  try {
+    recursiveDeleteProtection.value = (
+      await functions.getTableProtection(warehouseId, tableId.value)
+    ).protected;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function setProtection() {
+  try {
+    await functions.setTableProtection(
+      warehouseId,
+      tableId.value,
+      !recursiveDeleteProtection.value,
+    );
+    await getProtection();
+  } catch (error) {
+    console.error(error);
+  }
 }
 </script>
 

@@ -20,7 +20,9 @@ import {
   GetEndpointStatisticsRequest,
   GetEndpointStatisticsResponse,
   GetNamespaceAuthPropertiesResponse,
+  GetNamespaceProtectionResponse,
   GetProjectResponse,
+  GetTableProtectionResponse,
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
   ListDeletedTabularsResponse,
@@ -30,6 +32,7 @@ import {
   NamespaceAssignment,
   ProjectAction,
   ProjectAssignment,
+  ProtectionResponse,
   RenameProjectRequest,
   Role,
   RoleAction,
@@ -39,6 +42,8 @@ import {
   ServerAction,
   ServerAssignment,
   ServerInfo,
+  SetNamespaceProtectionResponse,
+  SetTableProtectionResponse,
   SetWarehouseProtectionResponse,
   StorageCredential,
   StorageProfile,
@@ -59,6 +64,7 @@ import router from '@/router';
 import { useUserStore } from '@/stores/user';
 import { useVisualStore } from '@/stores/visual';
 import { App } from 'vue';
+import { ta } from 'date-fns/locale';
 
 // General
 function init() {
@@ -717,6 +723,62 @@ async function getNamespaceById(namespaceId: string): Promise<GetNamespaceAuthPr
   }
 }
 
+async function getNamespaceProtection(
+  warehouseId: string,
+  namespaceId: string,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getNamespaceProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        namespace_id: namespaceId,
+      },
+    });
+    if (error) throw error;
+
+    return data as GetNamespaceProtectionResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setNamespaceProtection(
+  warehouseId: string,
+  namespaceId: string,
+  protected_state: boolean,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.setNamespaceProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        namespace_id: namespaceId,
+      },
+      body: {
+        protected: protected_state,
+      },
+    });
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
 // Table
 async function listTables(id: string, ns?: string): Promise<ListTablesResponse> {
   try {
@@ -820,6 +882,62 @@ async function dropTable(
   }
 }
 
+async function getTableProtection(
+  warehouseId: string,
+  tableId: string,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getTableProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        table_id: tableId,
+      },
+    });
+    if (error) throw error;
+
+    return data as GetNamespaceProtectionResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setTableProtection(
+  warehouseId: string,
+  tableId: string,
+  protected_state: boolean,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.setTableProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        table_id: tableId,
+      },
+      body: {
+        protected: protected_state,
+      },
+    });
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
 // View
 async function listViews(id: string, ns?: string): Promise<ListTablesResponse> {
   try {
@@ -880,6 +998,59 @@ async function dropView(warehouseId: string, namespacePath: string, viewName: st
 
     return data;
   } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getViewProtection(warehouseId: string, viewId: string): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getViewProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        view_id: viewId,
+      },
+    });
+    if (error) throw error;
+
+    return data as GetNamespaceProtectionResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setViewProtection(
+  warehouseId: string,
+  viewId: string,
+  protected_state: boolean,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.setViewProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        view_id: viewId,
+      },
+      body: {
+        protected: protected_state,
+      },
+    });
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
     handleError(error, new Error());
     throw error;
   }
@@ -1908,6 +2079,12 @@ export function useFunctions() {
     getWarehouseStatistics,
     getEndpointStatistics,
     setWarehouseProtection,
+    setNamespaceProtection,
+    getNamespaceProtection,
+    getTableProtection,
+    setTableProtection,
+    setViewProtection,
+    getViewProtection,
   };
 }
 

@@ -256,8 +256,6 @@ onMounted(() => {
     data_aggr_by_code_clone.labels = JSON.parse(JSON.stringify(data_aggr_by_code.labels));
     data_aggr_by_code_clone.datasets = JSON.parse(JSON.stringify(data_aggr_by_code.datasets));
 
-    console.log('data_aggr_by_code', data_aggr_by_code, data_aggr_by_code_clone);
-
     tableStatisticsFormatted.value.splice(0, tableStatisticsFormatted.value.length);
     tableStatisticsFormatted.value.push(...formattedTableData);
   } catch (error) {

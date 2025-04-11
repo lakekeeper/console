@@ -509,8 +509,6 @@ async function setProtection() {
 
     await loadWarehouse();
   } catch (error) {
-    createNamespaceStatus.value = StatusIntent.FAILURE;
-
     console.error(error);
   }
 }

@@ -93,7 +93,6 @@ onMounted(() => {
   data.labels = sortedStats.map((stat) => formatDate(stat.timestamp));
   data.datasets[0].data = sortedStats.map((stat) => stat['number-of-tables']);
   data.datasets[1].data = sortedStats.map((stat) => stat['number-of-views']);
-  console.log('data', data);
 });
 
 interface ChartData {

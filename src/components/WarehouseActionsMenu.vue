@@ -86,17 +86,17 @@ function updateDeletionProfile(e: TabularDeleteProfile) {
   menuOpen.value = false;
 }
 
-watch(
-  () => processStatus,
-  (newVal) => {
-    if (newVal === 'success') {
-      console.log('closing menu', newVal);
-      // menuOpen.value = false;
-    }
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
+// watch(
+//   () => processStatus,
+//   (newVal) => {
+//     if (newVal === 'success') {
+//
+//       // menuOpen.value = false;
+//     }
+//   },
+//   {
+//     immediate: true,
+//     deep: true,
+//   },
+// );
 </script>

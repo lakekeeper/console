@@ -2597,6 +2597,28 @@ export type UndropTabularsDeprecatedResponses = {
 
 export type UndropTabularsDeprecatedResponse = UndropTabularsDeprecatedResponses[keyof UndropTabularsDeprecatedResponses];
 
+export type GetNamespaceProtectionData = {
+    body?: never;
+    path: {
+        warehouse_id: string;
+        namespace_id: string;
+    };
+    query?: never;
+    url: '/management/v1/warehouse/{warehouse_id}/namespace/{namespace_id}/protection';
+};
+
+export type GetNamespaceProtectionErrors = {
+    '4XX': IcebergErrorResponse;
+};
+
+export type GetNamespaceProtectionError = GetNamespaceProtectionErrors[keyof GetNamespaceProtectionErrors];
+
+export type GetNamespaceProtectionResponses = {
+    200: ProtectionResponse;
+};
+
+export type GetNamespaceProtectionResponse = GetNamespaceProtectionResponses[keyof GetNamespaceProtectionResponses];
+
 export type SetNamespaceProtectionData = {
     body: SetProtectionRequest;
     path: {
@@ -2745,6 +2767,28 @@ export type UpdateStorageCredentialResponses = {
     200: unknown;
 };
 
+export type GetTableProtectionData = {
+    body?: never;
+    path: {
+        warehouse_id: string;
+        table_id: string;
+    };
+    query?: never;
+    url: '/management/v1/warehouse/{warehouse_id}/table/{table_id}/protection';
+};
+
+export type GetTableProtectionErrors = {
+    '4XX': IcebergErrorResponse;
+};
+
+export type GetTableProtectionError = GetTableProtectionErrors[keyof GetTableProtectionErrors];
+
+export type GetTableProtectionResponses = {
+    200: ProtectionResponse;
+};
+
+export type GetTableProtectionResponse = GetTableProtectionResponses[keyof GetTableProtectionResponses];
+
 export type SetTableProtectionData = {
     body: SetProtectionRequest;
     path: {
@@ -2769,6 +2813,28 @@ export type SetTableProtectionResponses = {
 };
 
 export type SetTableProtectionResponse = SetTableProtectionResponses[keyof SetTableProtectionResponses];
+
+export type GetViewProtectionData = {
+    body?: never;
+    path: {
+        warehouse_id: string;
+        view_id: string;
+    };
+    query?: never;
+    url: '/management/v1/warehouse/{warehouse_id}/view/{view_id}/protection';
+};
+
+export type GetViewProtectionErrors = {
+    '4XX': IcebergErrorResponse;
+};
+
+export type GetViewProtectionError = GetViewProtectionErrors[keyof GetViewProtectionErrors];
+
+export type GetViewProtectionResponses = {
+    200: ProtectionResponse;
+};
+
+export type GetViewProtectionResponse = GetViewProtectionResponses[keyof GetViewProtectionResponses];
 
 export type SetViewProtectionData = {
     body: SetProtectionRequest;
