@@ -681,7 +681,7 @@ async function createNamespace(id: string, namespace: Namespace) {
   }
 }
 
-async function dropNamespace(id: string, ns: string) {
+async function dropNamespace(id: string, ns: string, options?: NamespaceAction) {
   try {
     const client = iceClient.client;
     const { data, error } = await ice.dropNamespace({
@@ -690,6 +690,7 @@ async function dropNamespace(id: string, ns: string) {
         prefix: id,
         namespace: ns,
       },
+      query: options as { force?: boolean; recursive?: boolean; purge?: boolean } | undefined,
     });
     if (error) throw error;
 
@@ -862,6 +863,7 @@ async function dropTable(
   warehouseId: string,
   namespacePath: string,
   tableName: string,
+  options?: { purgeRequested?: boolean; force?: boolean } | undefined,
 ): Promise<boolean> {
   try {
     const client = iceClient.client;
@@ -872,6 +874,7 @@ async function dropTable(
         namespace: namespacePath,
         table: tableName,
       },
+      query: options,
     });
     if (error) throw error;
 
@@ -982,7 +985,12 @@ async function loadView(
   }
 }
 
-async function dropView(warehouseId: string, namespacePath: string, viewName: string) {
+async function dropView(
+  warehouseId: string,
+  namespacePath: string,
+  viewName: string,
+  options?: { force?: boolean } | undefined,
+) {
   try {
     const client = iceClient.client;
     const { data, error } = await ice.dropView({
@@ -992,6 +1000,7 @@ async function dropView(warehouseId: string, namespacePath: string, viewName: st
         namespace: namespacePath,
         view: viewName,
       },
+      query: options,
     });
 
     if (error) throw error;

@@ -75,13 +75,11 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                  <v-icon
+                  <DialogDelete
                     v-if="item.type === 'namespace'"
-                    color="error"
-                    :disabled="!myAccess.includes('delete')"
-                    @click="dropNamespace(item)">
-                    mdi-delete-outline
-                  </v-icon>
+                    :type="item.type"
+                    :name="item.name"
+                    @delete-with-options="delteNamespaceWithOptions($event, item)"></DialogDelete>
                 </template>
                 <template #no-data>
                   <addNamespaceDialog
@@ -108,12 +106,13 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                  <v-icon
-                    color="error"
-                    :disabled="!myAccess.includes('delete')"
-                    @click="dropTable(item)">
-                    mdi-delete-outline
-                  </v-icon>
+                  <DialogDelete
+                    v-if="item.type === 'table'"
+                    :type="item.type"
+                    :name="item.name"
+                    @delete-table-with-options="
+                      deleteTableWithOptions($event, item)
+                    "></DialogDelete>
                 </template>
                 <template #no-data>
                   <div>No table in this namespace</div>
@@ -136,7 +135,11 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                  <v-icon color="error" @click="dropView(item)">mdi-delete-outline</v-icon>
+                  <DialogDelete
+                    v-if="item.type === 'view'"
+                    :type="item.type"
+                    :name="item.name"
+                    @delete-view-with-options="deleteViewWithOptions($event, item)"></DialogDelete>
                 </template>
                 <template #no-data>
                   <div>No views in this namespace</div>
@@ -302,6 +305,41 @@ onUnmounted(() => {
   items.splice(0, items.length);
 });
 
+async function deleteTableWithOptions(e: any, item: TableIdentifierExtended) {
+  try {
+    await functions.dropTable(visual.whId, namespacePath.value, item.name, e);
+
+    await listTables();
+  } catch (error: any) {
+    console.error(`Failed to drop table-${item.name}  - `, error);
+  }
+}
+
+async function deleteViewWithOptions(e: any, item: TableIdentifierExtended) {
+  try {
+    await functions.dropView(visual.whId, namespacePath.value, item.name, e);
+
+    await listViews();
+  } catch (error: any) {
+    console.error(`Failed to drop view-${item.name}  - `, error);
+  }
+}
+
+async function delteNamespaceWithOptions(e: any, item: Item) {
+  try {
+    const res = await functions.dropNamespace(
+      whid.value,
+      item.parentPath.join(String.fromCharCode(0x1f)),
+      e,
+    );
+    if (res.error) throw res.error;
+
+    await listNamespaces();
+  } catch (error: any) {
+    console.error(`Failed to drop namespace-${item.name}  - `, error);
+  }
+}
+
 async function loadTabData() {
   if (tab.value === 'namespaces') {
     await listNamespaces();
@@ -443,19 +481,6 @@ async function listDeletedTabulars() {
   }
 }
 
-async function dropNamespace(item: Item) {
-  try {
-    const res = await functions.dropNamespace(
-      whid.value,
-      item.parentPath.join(String.fromCharCode(0x1f)),
-    );
-    if (res.error) throw res.error;
-
-    await listNamespaces();
-  } catch (error: any) {
-    console.error(`Failed to drop namespace-${item.name}  - `, error);
-  }
-}
 async function routeToNamespace(item: Item) {
   if (item.type !== 'namespace') {
     return;
@@ -511,21 +536,6 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     console.error(error);
 
     await init();
-  }
-}
-
-async function dropTable(item: TableIdentifierExtended) {
-  try {
-    loading.value = true;
-
-    await functions.dropTable(visual.whId, namespacePath.value, item.name);
-
-    await listTables();
-    loading.value = true;
-  } catch (error: any) {
-    console.error(`Failed to drop table-${item.name}  - `, error);
-  } finally {
-    loading.value = false;
   }
 }
 
