@@ -45,7 +45,7 @@ import {
   StorageProfile,
   TabularDeleteProfile,
 } from '../gen/management/types.gen';
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Intent, ObjectType } from '../common/enums';
 
 const menuOpen = ref(false);

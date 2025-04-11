@@ -22,7 +22,6 @@ import {
   GetNamespaceAuthPropertiesResponse,
   GetNamespaceProtectionResponse,
   GetProjectResponse,
-  GetTableProtectionResponse,
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
   ListDeletedTabularsResponse,
@@ -42,8 +41,6 @@ import {
   ServerAction,
   ServerAssignment,
   ServerInfo,
-  SetNamespaceProtectionResponse,
-  SetTableProtectionResponse,
   SetWarehouseProtectionResponse,
   StorageCredential,
   StorageProfile,
@@ -64,7 +61,6 @@ import router from '@/router';
 import { useUserStore } from '@/stores/user';
 import { useVisualStore } from '@/stores/visual';
 import { App } from 'vue';
-import { ta } from 'date-fns/locale';
 
 // General
 function init() {

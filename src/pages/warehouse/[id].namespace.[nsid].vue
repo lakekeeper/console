@@ -455,18 +455,6 @@ async function listViews() {
   }
 }
 
-async function dropView(item: TableIdentifierExtended) {
-  try {
-    loading.value = true;
-    await functions.dropView(visual.whId, namespacePath.value, item.name);
-
-    await listViews();
-  } catch (error: any) {
-    console.error(`Failed to drop view-${item.name}  - `, error);
-  } finally {
-    loading.value = false;
-  }
-}
 async function listDeletedTabulars() {
   try {
     deletedTabulars.splice(0, deletedTabulars.length);
