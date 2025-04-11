@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/lakekeeper/console/compare/v0.6.0...v0.6.1) (2025-04-11)
+
+
+### Bug Fixes
+
+* added project statistics if auth is off ([#110](https://github.com/lakekeeper/console/issues/110)) ([c38c0cf](https://github.com/lakekeeper/console/commit/c38c0cf8f2c9851a8e5d104c6eaf6d056ad62d73))
+
 ## [0.6.0](https://github.com/lakekeeper/console/compare/v0.5.0...v0.6.0) (2025-04-07)
 
 
