@@ -4,59 +4,59 @@
  * JSON error payload returned in a response with further details on the error
  */
 export type ErrorModel = {
-    /**
-     * Human-readable error message
-     */
-    message: string;
-    /**
-     * Internal type definition of the error
-     */
-    type: string;
-    /**
-     * HTTP response code
-     */
-    code: number;
-    stack?: Array<string>;
+  /**
+   * Human-readable error message
+   */
+  message: string;
+  /**
+   * Internal type definition of the error
+   */
+  type: string;
+  /**
+   * HTTP response code
+   */
+  code: number;
+  stack?: Array<string>;
 };
 
 /**
  * Server-provided configuration for the catalog.
  */
 export type CatalogConfig = {
-    /**
-     * Properties that should be used to override client configuration; applied after defaults and client configuration.
-     */
-    overrides: {
-        [key: string]: string;
-    };
-    /**
-     * Properties that should be used as default configuration; applied before client configuration.
-     */
-    defaults: {
-        [key: string]: string;
-    };
+  /**
+   * Properties that should be used to override client configuration; applied after defaults and client configuration.
+   */
+  overrides: {
+    [key: string]: string;
+  };
+  /**
+   * Properties that should be used as default configuration; applied before client configuration.
+   */
+  defaults: {
+    [key: string]: string;
+  };
 };
 
 export type CreateNamespaceRequest = {
-    namespace: Namespace;
-    /**
-     * Configured string to string map of properties for the namespace
-     */
-    properties?: {
-        [key: string]: string;
-    };
+  namespace: Namespace;
+  /**
+   * Configured string to string map of properties for the namespace
+   */
+  properties?: {
+    [key: string]: string;
+  };
 };
 
 export type UpdateNamespacePropertiesRequest = {
-    removals?: Array<string>;
-    updates?: {
-        [key: string]: string;
-    };
+  removals?: Array<string>;
+  updates?: {
+    [key: string]: string;
+  };
 };
 
 export type RenameTableRequest = {
-    source: TableIdentifier;
-    destination: TableIdentifier;
+  source: TableIdentifier;
+  destination: TableIdentifier;
 };
 
 /**
@@ -74,89 +74,94 @@ export type Namespace = Array<string>;
 export type PageToken = string | null;
 
 export type TableIdentifier = {
-    namespace: Namespace;
-    name: string;
+  namespace: Namespace;
+  name: string;
 };
 
 export type PrimitiveType = string;
 
 export type StructField = {
-    id: number;
-    name: string;
-    type: Type;
-    required: boolean;
-    doc?: string;
+  id: number;
+  name: string;
+  type: Type;
+  required: boolean;
+  doc?: string;
 };
 
 export type StructType = {
-    type: 'struct';
-    fields: Array<StructField>;
+  type: 'struct';
+  fields: Array<StructField>;
 };
 
 export type ListType = {
-    type: 'list';
-    'element-id': number;
-    element: Type;
-    'element-required': boolean;
+  type: 'list';
+  'element-id': number;
+  element: Type;
+  'element-required': boolean;
 };
 
 export type MapType = {
-    type: 'map';
-    'key-id': number;
-    key: Type;
-    'value-id': number;
-    value: Type;
-    'value-required': boolean;
+  type: 'map';
+  'key-id': number;
+  key: Type;
+  'value-id': number;
+  value: Type;
+  'value-required': boolean;
 };
 
 export type Type = PrimitiveType | StructType | ListType | MapType;
 
 export type SchemaReadable = StructType & {
-    readonly 'schema-id'?: number;
-    'identifier-field-ids'?: Array<number>;
+  readonly 'schema-id'?: number;
+  'identifier-field-ids'?: Array<number>;
 };
 
 export type SchemaWritable = StructType & {
-    'identifier-field-ids'?: Array<number>;
+  'identifier-field-ids'?: Array<number>;
 };
 
-export type Expression = AndOrExpression | NotExpression | SetExpression | LiteralExpression | UnaryExpression;
+export type Expression =
+  | AndOrExpression
+  | NotExpression
+  | SetExpression
+  | LiteralExpression
+  | UnaryExpression;
 
 export type ExpressionType = string;
 
 export type AndOrExpression = {
-    type: ExpressionType;
-    left: Expression;
-    right: Expression;
+  type: ExpressionType;
+  left: Expression;
+  right: Expression;
 };
 
 export type NotExpression = {
-    type: ExpressionType;
-    child: Expression;
+  type: ExpressionType;
+  child: Expression;
 };
 
 export type UnaryExpression = {
-    type: ExpressionType;
-    term: Term;
-    value: {
-        [key: string]: unknown;
-    };
+  type: ExpressionType;
+  term: Term;
+  value: {
+    [key: string]: unknown;
+  };
 };
 
 export type LiteralExpression = {
-    type: ExpressionType;
-    term: Term;
-    value: {
-        [key: string]: unknown;
-    };
+  type: ExpressionType;
+  term: Term;
+  value: {
+    [key: string]: unknown;
+  };
 };
 
 export type SetExpression = {
-    type: ExpressionType;
-    term: Term;
-    values: Array<{
-        [key: string]: unknown;
-    }>;
+  type: ExpressionType;
+  term: Term;
+  values: Array<{
+    [key: string]: unknown;
+  }>;
 };
 
 export type Term = Reference | TransformTerm;
@@ -164,27 +169,27 @@ export type Term = Reference | TransformTerm;
 export type Reference = string;
 
 export type TransformTerm = {
-    type: 'transform';
-    transform: Transform;
-    term: Reference;
+  type: 'transform';
+  transform: Transform;
+  term: Reference;
 };
 
 export type Transform = string;
 
 export type PartitionField = {
-    'field-id'?: number;
-    'source-id': number;
-    name: string;
-    transform: Transform;
+  'field-id'?: number;
+  'source-id': number;
+  name: string;
+  transform: Transform;
 };
 
 export type PartitionSpecReadable = {
-    readonly 'spec-id'?: number;
-    fields: Array<PartitionField>;
+  readonly 'spec-id'?: number;
+  fields: Array<PartitionField>;
 };
 
 export type PartitionSpecWritable = {
-    fields: Array<PartitionField>;
+  fields: Array<PartitionField>;
 };
 
 export type SortDirection = 'asc' | 'desc';
@@ -192,467 +197,517 @@ export type SortDirection = 'asc' | 'desc';
 export type NullOrder = 'nulls-first' | 'nulls-last';
 
 export type SortField = {
-    'source-id': number;
-    transform: Transform;
-    direction: SortDirection;
-    'null-order': NullOrder;
+  'source-id': number;
+  transform: Transform;
+  direction: SortDirection;
+  'null-order': NullOrder;
 };
 
 export type SortOrderReadable = {
-    readonly 'order-id': number;
-    fields: Array<SortField>;
+  readonly 'order-id': number;
+  fields: Array<SortField>;
 };
 
 export type SortOrderWritable = {
-    fields: Array<SortField>;
+  fields: Array<SortField>;
 };
 
 export type Snapshot = {
-    'snapshot-id': number;
-    'parent-snapshot-id'?: number;
-    'sequence-number'?: number;
-    'timestamp-ms': number;
-    /**
-     * Location of the snapshot's manifest list file
-     */
-    'manifest-list': string;
-    summary: {
-        operation: 'append' | 'replace' | 'overwrite' | 'delete';
-        [key: string]: string | ('append' | 'replace' | 'overwrite' | 'delete');
-    };
-    'schema-id'?: number;
+  'snapshot-id': number;
+  'parent-snapshot-id'?: number;
+  'sequence-number'?: number;
+  'timestamp-ms': number;
+  /**
+   * Location of the snapshot's manifest list file
+   */
+  'manifest-list': string;
+  summary: {
+    operation: 'append' | 'replace' | 'overwrite' | 'delete';
+    [key: string]: string | ('append' | 'replace' | 'overwrite' | 'delete');
+  };
+  'schema-id'?: number;
 };
 
 export type SnapshotReference = {
-    type: 'tag' | 'branch';
-    'snapshot-id': number;
-    'max-ref-age-ms'?: number;
-    'max-snapshot-age-ms'?: number;
-    'min-snapshots-to-keep'?: number;
+  type: 'tag' | 'branch';
+  'snapshot-id': number;
+  'max-ref-age-ms'?: number;
+  'max-snapshot-age-ms'?: number;
+  'min-snapshots-to-keep'?: number;
 };
 
 export type SnapshotReferences = {
-    [key: string]: SnapshotReference;
+  [key: string]: SnapshotReference;
 };
 
 export type SnapshotLog = Array<{
-    'snapshot-id': number;
-    'timestamp-ms': number;
+  'snapshot-id': number;
+  'timestamp-ms': number;
 }>;
 
 export type MetadataLog = Array<{
-    'metadata-file': string;
-    'timestamp-ms': number;
+  'metadata-file': string;
+  'timestamp-ms': number;
 }>;
 
 export type TableMetadataReadable = {
-    'format-version': number;
-    'table-uuid': string;
-    location?: string;
-    'last-updated-ms'?: number;
-    properties?: {
-        [key: string]: string;
-    };
-    schemas?: Array<SchemaReadable>;
-    'current-schema-id'?: number;
-    'last-column-id'?: number;
-    'partition-specs'?: Array<PartitionSpecReadable>;
-    'default-spec-id'?: number;
-    'last-partition-id'?: number;
-    'sort-orders'?: Array<SortOrderReadable>;
-    'default-sort-order-id'?: number;
-    snapshots?: Array<Snapshot>;
-    refs?: SnapshotReferences;
-    'current-snapshot-id'?: number;
-    'last-sequence-number'?: number;
-    'snapshot-log'?: SnapshotLog;
-    'metadata-log'?: MetadataLog;
-    'statistics-files'?: Array<StatisticsFile>;
-    'partition-statistics-files'?: Array<PartitionStatisticsFile>;
+  'format-version': number;
+  'table-uuid': string;
+  location?: string;
+  'last-updated-ms'?: number;
+  properties?: {
+    [key: string]: string;
+  };
+  schemas?: Array<SchemaReadable>;
+  'current-schema-id'?: number;
+  'last-column-id'?: number;
+  'partition-specs'?: Array<PartitionSpecReadable>;
+  'default-spec-id'?: number;
+  'last-partition-id'?: number;
+  'sort-orders'?: Array<SortOrderReadable>;
+  'default-sort-order-id'?: number;
+  snapshots?: Array<Snapshot>;
+  refs?: SnapshotReferences;
+  'current-snapshot-id'?: number;
+  'last-sequence-number'?: number;
+  'snapshot-log'?: SnapshotLog;
+  'metadata-log'?: MetadataLog;
+  'statistics-files'?: Array<StatisticsFile>;
+  'partition-statistics-files'?: Array<PartitionStatisticsFile>;
 };
 
 export type TableMetadataWritable = {
-    'format-version': number;
-    'table-uuid': string;
-    location?: string;
-    'last-updated-ms'?: number;
-    properties?: {
-        [key: string]: string;
-    };
-    schemas?: Array<SchemaWritable>;
-    'current-schema-id'?: number;
-    'last-column-id'?: number;
-    'partition-specs'?: Array<PartitionSpecWritable>;
-    'default-spec-id'?: number;
-    'last-partition-id'?: number;
-    'sort-orders'?: Array<SortOrderWritable>;
-    'default-sort-order-id'?: number;
-    snapshots?: Array<Snapshot>;
-    refs?: SnapshotReferences;
-    'current-snapshot-id'?: number;
-    'last-sequence-number'?: number;
-    'snapshot-log'?: SnapshotLog;
-    'metadata-log'?: MetadataLog;
-    'statistics-files'?: Array<StatisticsFile>;
-    'partition-statistics-files'?: Array<PartitionStatisticsFile>;
+  'format-version': number;
+  'table-uuid': string;
+  location?: string;
+  'last-updated-ms'?: number;
+  properties?: {
+    [key: string]: string;
+  };
+  schemas?: Array<SchemaWritable>;
+  'current-schema-id'?: number;
+  'last-column-id'?: number;
+  'partition-specs'?: Array<PartitionSpecWritable>;
+  'default-spec-id'?: number;
+  'last-partition-id'?: number;
+  'sort-orders'?: Array<SortOrderWritable>;
+  'default-sort-order-id'?: number;
+  snapshots?: Array<Snapshot>;
+  refs?: SnapshotReferences;
+  'current-snapshot-id'?: number;
+  'last-sequence-number'?: number;
+  'snapshot-log'?: SnapshotLog;
+  'metadata-log'?: MetadataLog;
+  'statistics-files'?: Array<StatisticsFile>;
+  'partition-statistics-files'?: Array<PartitionStatisticsFile>;
 };
 
 export type SqlViewRepresentation = {
-    type: string;
-    sql: string;
-    dialect: string;
+  type: string;
+  sql: string;
+  dialect: string;
 };
 
 export type ViewRepresentation = SqlViewRepresentation;
 
 export type ViewHistoryEntry = {
-    'version-id': number;
-    'timestamp-ms': number;
+  'version-id': number;
+  'timestamp-ms': number;
 };
 
 export type ViewVersion = {
-    'version-id': number;
-    'timestamp-ms': number;
-    /**
-     * Schema ID to set as current, or -1 to set last added schema
-     */
-    'schema-id': number;
-    summary: {
-        [key: string]: string;
-    };
-    representations: Array<ViewRepresentation>;
-    'default-catalog'?: string;
-    'default-namespace': Namespace;
+  'version-id': number;
+  'timestamp-ms': number;
+  /**
+   * Schema ID to set as current, or -1 to set last added schema
+   */
+  'schema-id': number;
+  summary: {
+    [key: string]: string;
+  };
+  representations: Array<ViewRepresentation>;
+  'default-catalog'?: string;
+  'default-namespace': Namespace;
 };
 
 export type ViewMetadataReadable = {
-    'view-uuid': string;
-    'format-version': number;
-    location: string;
-    'current-version-id': number;
-    versions: Array<ViewVersion>;
-    'version-log': Array<ViewHistoryEntry>;
-    schemas: Array<SchemaReadable>;
-    properties?: {
-        [key: string]: string;
-    };
+  'view-uuid': string;
+  'format-version': number;
+  location: string;
+  'current-version-id': number;
+  versions: Array<ViewVersion>;
+  'version-log': Array<ViewHistoryEntry>;
+  schemas: Array<SchemaReadable>;
+  properties?: {
+    [key: string]: string;
+  };
 };
 
 export type ViewMetadataWritable = {
-    'view-uuid': string;
-    'format-version': number;
-    location: string;
-    'current-version-id': number;
-    versions: Array<ViewVersion>;
-    'version-log': Array<ViewHistoryEntry>;
-    schemas: Array<SchemaWritable>;
-    properties?: {
-        [key: string]: string;
-    };
+  'view-uuid': string;
+  'format-version': number;
+  location: string;
+  'current-version-id': number;
+  versions: Array<ViewVersion>;
+  'version-log': Array<ViewHistoryEntry>;
+  schemas: Array<SchemaWritable>;
+  properties?: {
+    [key: string]: string;
+  };
 };
 
 export type BaseUpdate = {
-    action: string;
+  action: string;
 };
 
 /**
  * Assigning a UUID to a table/view should only be done when creating the table/view. It is not safe to re-assign the UUID if a table/view already has a UUID assigned
  */
 export type AssignUuidUpdate = BaseUpdate & {
-    action: 'assign-uuid';
+  action: 'assign-uuid';
 } & {
-    action: 'assign-uuid';
-    uuid: string;
+  action: 'assign-uuid';
+  uuid: string;
 };
 
 export type UpgradeFormatVersionUpdate = BaseUpdate & {
-    action: 'upgrade-format-version';
+  action: 'upgrade-format-version';
 } & {
-    action: 'upgrade-format-version';
-    'format-version': number;
+  action: 'upgrade-format-version';
+  'format-version': number;
 };
 
 export type AddSchemaUpdateReadable = BaseUpdate & {
-    action: 'add-schema';
+  action: 'add-schema';
 } & {
-    action: 'add-schema';
-    schema: SchemaReadable;
-    /**
-     * The highest assigned column ID for the table. This is used to ensure columns are always assigned an unused ID when evolving schemas. When omitted, it will be computed on the server side.
-     */
-    'last-column-id'?: number;
+  action: 'add-schema';
+  schema: SchemaReadable;
+  /**
+   * The highest assigned column ID for the table. This is used to ensure columns are always assigned an unused ID when evolving schemas. When omitted, it will be computed on the server side.
+   */
+  'last-column-id'?: number;
 };
 
 export type AddSchemaUpdateWritable = BaseUpdate & {
-    action: 'add-schema';
+  action: 'add-schema';
 } & {
-    action: 'add-schema';
-    schema: SchemaWritable;
-    /**
-     * The highest assigned column ID for the table. This is used to ensure columns are always assigned an unused ID when evolving schemas. When omitted, it will be computed on the server side.
-     */
-    'last-column-id'?: number;
+  action: 'add-schema';
+  schema: SchemaWritable;
+  /**
+   * The highest assigned column ID for the table. This is used to ensure columns are always assigned an unused ID when evolving schemas. When omitted, it will be computed on the server side.
+   */
+  'last-column-id'?: number;
 };
 
 export type SetCurrentSchemaUpdate = BaseUpdate & {
-    action: 'set-current-schema';
+  action: 'set-current-schema';
 } & {
-    action: 'set-current-schema';
-    /**
-     * Schema ID to set as current, or -1 to set last added schema
-     */
-    'schema-id': number;
+  action: 'set-current-schema';
+  /**
+   * Schema ID to set as current, or -1 to set last added schema
+   */
+  'schema-id': number;
 };
 
 export type AddPartitionSpecUpdateReadable = BaseUpdate & {
-    action: 'add-spec';
+  action: 'add-spec';
 } & {
-    action: 'add-spec';
-    spec: PartitionSpecReadable;
+  action: 'add-spec';
+  spec: PartitionSpecReadable;
 };
 
 export type AddPartitionSpecUpdateWritable = BaseUpdate & {
-    action: 'add-spec';
+  action: 'add-spec';
 } & {
-    action: 'add-spec';
-    spec: PartitionSpecWritable;
+  action: 'add-spec';
+  spec: PartitionSpecWritable;
 };
 
 export type SetDefaultSpecUpdate = BaseUpdate & {
-    action: 'set-default-spec';
+  action: 'set-default-spec';
 } & {
-    action: 'set-default-spec';
-    /**
-     * Partition spec ID to set as the default, or -1 to set last added spec
-     */
-    'spec-id': number;
+  action: 'set-default-spec';
+  /**
+   * Partition spec ID to set as the default, or -1 to set last added spec
+   */
+  'spec-id': number;
 };
 
 export type AddSortOrderUpdateReadable = BaseUpdate & {
-    action: 'add-sort-order';
+  action: 'add-sort-order';
 } & {
-    action: 'add-sort-order';
-    'sort-order': SortOrderReadable;
+  action: 'add-sort-order';
+  'sort-order': SortOrderReadable;
 };
 
 export type AddSortOrderUpdateWritable = BaseUpdate & {
-    action: 'add-sort-order';
+  action: 'add-sort-order';
 } & {
-    action: 'add-sort-order';
-    'sort-order': SortOrderWritable;
+  action: 'add-sort-order';
+  'sort-order': SortOrderWritable;
 };
 
 export type SetDefaultSortOrderUpdate = BaseUpdate & {
-    action: 'set-default-sort-order';
+  action: 'set-default-sort-order';
 } & {
-    action: 'set-default-sort-order';
-    /**
-     * Sort order ID to set as the default, or -1 to set last added sort order
-     */
-    'sort-order-id': number;
+  action: 'set-default-sort-order';
+  /**
+   * Sort order ID to set as the default, or -1 to set last added sort order
+   */
+  'sort-order-id': number;
 };
 
 export type AddSnapshotUpdate = BaseUpdate & {
-    action: 'add-snapshot';
+  action: 'add-snapshot';
 } & {
-    action: 'add-snapshot';
-    snapshot: Snapshot;
+  action: 'add-snapshot';
+  snapshot: Snapshot;
 };
 
 export type SetSnapshotRefUpdate = BaseUpdate & {
-    action: 'set-snapshot-ref';
+  action: 'set-snapshot-ref';
 } & SnapshotReference & {
     action: 'set-snapshot-ref';
     'ref-name': string;
-};
+  };
 
 export type RemoveSnapshotsUpdate = BaseUpdate & {
-    action: 'remove-snapshots';
+  action: 'remove-snapshots';
 } & {
-    action: 'remove-snapshots';
-    'snapshot-ids': Array<number>;
+  action: 'remove-snapshots';
+  'snapshot-ids': Array<number>;
 };
 
 export type RemoveSnapshotRefUpdate = BaseUpdate & {
-    action: 'remove-snapshot-ref';
+  action: 'remove-snapshot-ref';
 } & {
-    action: 'remove-snapshot-ref';
-    'ref-name': string;
+  action: 'remove-snapshot-ref';
+  'ref-name': string;
 };
 
 export type SetLocationUpdate = BaseUpdate & {
-    action: 'set-location';
+  action: 'set-location';
 } & {
-    action: 'set-location';
-    location: string;
+  action: 'set-location';
+  location: string;
 };
 
 export type SetPropertiesUpdate = BaseUpdate & {
-    action: 'set-properties';
+  action: 'set-properties';
 } & {
-    action: 'set-properties';
-    updates: {
-        [key: string]: string;
-    };
+  action: 'set-properties';
+  updates: {
+    [key: string]: string;
+  };
 };
 
 export type RemovePropertiesUpdate = BaseUpdate & {
-    action: 'remove-properties';
+  action: 'remove-properties';
 } & {
-    action: 'remove-properties';
-    removals: Array<string>;
+  action: 'remove-properties';
+  removals: Array<string>;
 };
 
 export type AddViewVersionUpdate = BaseUpdate & {
-    action: 'add-view-version';
+  action: 'add-view-version';
 } & {
-    action: 'add-view-version';
-    'view-version': ViewVersion;
+  action: 'add-view-version';
+  'view-version': ViewVersion;
 };
 
 export type SetCurrentViewVersionUpdate = BaseUpdate & {
-    action: 'set-current-view-version';
+  action: 'set-current-view-version';
 } & {
-    action: 'set-current-view-version';
-    /**
-     * The view version id to set as current, or -1 to set last added view version id
-     */
-    'view-version-id': number;
+  action: 'set-current-view-version';
+  /**
+   * The view version id to set as current, or -1 to set last added view version id
+   */
+  'view-version-id': number;
 };
 
 export type SetStatisticsUpdate = BaseUpdate & {
-    action: 'set-statistics';
+  action: 'set-statistics';
 } & {
-    action: 'set-statistics';
-    'snapshot-id': number;
-    statistics: StatisticsFile;
+  action: 'set-statistics';
+  'snapshot-id': number;
+  statistics: StatisticsFile;
 };
 
 export type RemoveStatisticsUpdate = BaseUpdate & {
-    action: 'remove-statistics';
+  action: 'remove-statistics';
 } & {
-    action: 'remove-statistics';
-    'snapshot-id': number;
+  action: 'remove-statistics';
+  'snapshot-id': number;
 };
 
 export type SetPartitionStatisticsUpdate = BaseUpdate & {
-    action: 'set-partition-statistics';
+  action: 'set-partition-statistics';
 } & {
-    action: 'set-partition-statistics';
-    'partition-statistics': PartitionStatisticsFile;
+  action: 'set-partition-statistics';
+  'partition-statistics': PartitionStatisticsFile;
 };
 
 export type RemovePartitionStatisticsUpdate = BaseUpdate & {
-    action: 'remove-partition-statistics';
+  action: 'remove-partition-statistics';
 } & {
-    action: 'remove-partition-statistics';
-    'snapshot-id': number;
+  action: 'remove-partition-statistics';
+  'snapshot-id': number;
 };
 
-export type TableUpdateReadable = AssignUuidUpdate | UpgradeFormatVersionUpdate | AddSchemaUpdateReadable | SetCurrentSchemaUpdate | AddPartitionSpecUpdateReadable | SetDefaultSpecUpdate | AddSortOrderUpdateReadable | SetDefaultSortOrderUpdate | AddSnapshotUpdate | SetSnapshotRefUpdate | RemoveSnapshotsUpdate | RemoveSnapshotRefUpdate | SetLocationUpdate | SetPropertiesUpdate | RemovePropertiesUpdate | SetStatisticsUpdate | RemoveStatisticsUpdate;
+export type TableUpdateReadable =
+  | AssignUuidUpdate
+  | UpgradeFormatVersionUpdate
+  | AddSchemaUpdateReadable
+  | SetCurrentSchemaUpdate
+  | AddPartitionSpecUpdateReadable
+  | SetDefaultSpecUpdate
+  | AddSortOrderUpdateReadable
+  | SetDefaultSortOrderUpdate
+  | AddSnapshotUpdate
+  | SetSnapshotRefUpdate
+  | RemoveSnapshotsUpdate
+  | RemoveSnapshotRefUpdate
+  | SetLocationUpdate
+  | SetPropertiesUpdate
+  | RemovePropertiesUpdate
+  | SetStatisticsUpdate
+  | RemoveStatisticsUpdate;
 
-export type TableUpdateWritable = AssignUuidUpdate | UpgradeFormatVersionUpdate | AddSchemaUpdateWritable | SetCurrentSchemaUpdate | AddPartitionSpecUpdateWritable | SetDefaultSpecUpdate | AddSortOrderUpdateWritable | SetDefaultSortOrderUpdate | AddSnapshotUpdate | SetSnapshotRefUpdate | RemoveSnapshotsUpdate | RemoveSnapshotRefUpdate | SetLocationUpdate | SetPropertiesUpdate | RemovePropertiesUpdate | SetStatisticsUpdate | RemoveStatisticsUpdate;
+export type TableUpdateWritable =
+  | AssignUuidUpdate
+  | UpgradeFormatVersionUpdate
+  | AddSchemaUpdateWritable
+  | SetCurrentSchemaUpdate
+  | AddPartitionSpecUpdateWritable
+  | SetDefaultSpecUpdate
+  | AddSortOrderUpdateWritable
+  | SetDefaultSortOrderUpdate
+  | AddSnapshotUpdate
+  | SetSnapshotRefUpdate
+  | RemoveSnapshotsUpdate
+  | RemoveSnapshotRefUpdate
+  | SetLocationUpdate
+  | SetPropertiesUpdate
+  | RemovePropertiesUpdate
+  | SetStatisticsUpdate
+  | RemoveStatisticsUpdate;
 
-export type ViewUpdateReadable = AssignUuidUpdate | UpgradeFormatVersionUpdate | AddSchemaUpdateReadable | SetLocationUpdate | SetPropertiesUpdate | RemovePropertiesUpdate | AddViewVersionUpdate | SetCurrentViewVersionUpdate;
+export type ViewUpdateReadable =
+  | AssignUuidUpdate
+  | UpgradeFormatVersionUpdate
+  | AddSchemaUpdateReadable
+  | SetLocationUpdate
+  | SetPropertiesUpdate
+  | RemovePropertiesUpdate
+  | AddViewVersionUpdate
+  | SetCurrentViewVersionUpdate;
 
-export type ViewUpdateWritable = AssignUuidUpdate | UpgradeFormatVersionUpdate | AddSchemaUpdateWritable | SetLocationUpdate | SetPropertiesUpdate | RemovePropertiesUpdate | AddViewVersionUpdate | SetCurrentViewVersionUpdate;
+export type ViewUpdateWritable =
+  | AssignUuidUpdate
+  | UpgradeFormatVersionUpdate
+  | AddSchemaUpdateWritable
+  | SetLocationUpdate
+  | SetPropertiesUpdate
+  | RemovePropertiesUpdate
+  | AddViewVersionUpdate
+  | SetCurrentViewVersionUpdate;
 
 export type TableRequirement = {
-    type: string;
+  type: string;
 };
 
 /**
  * The table must not already exist; used for create transactions
  */
 export type AssertCreate = TableRequirement & {
-    type: 'assert-create';
+  type: 'assert-create';
 } & {
-    type: 'assert-create';
+  type: 'assert-create';
 };
 
 /**
  * The table UUID must match the requirement's `uuid`
  */
 export type AssertTableUuid = TableRequirement & {
-    type: 'assert-table-uuid';
+  type: 'assert-table-uuid';
 } & {
-    type: 'assert-table-uuid';
-    uuid: string;
+  type: 'assert-table-uuid';
+  uuid: string;
 };
 
 /**
  * The table branch or tag identified by the requirement's `ref` must reference the requirement's `snapshot-id`; if `snapshot-id` is `null` or missing, the ref must not already exist
  */
 export type AssertRefSnapshotId = TableRequirement & {
-    type: 'assert-ref-snapshot-id';
+  type: 'assert-ref-snapshot-id';
 } & {
-    type: 'assert-ref-snapshot-id';
-    ref: string;
-    'snapshot-id': number;
+  type: 'assert-ref-snapshot-id';
+  ref: string;
+  'snapshot-id': number;
 };
 
 /**
  * The table's last assigned column id must match the requirement's `last-assigned-field-id`
  */
 export type AssertLastAssignedFieldId = TableRequirement & {
-    type: 'assert-last-assigned-field-id';
+  type: 'assert-last-assigned-field-id';
 } & {
-    type: 'assert-last-assigned-field-id';
-    'last-assigned-field-id': number;
+  type: 'assert-last-assigned-field-id';
+  'last-assigned-field-id': number;
 };
 
 /**
  * The table's current schema id must match the requirement's `current-schema-id`
  */
 export type AssertCurrentSchemaId = TableRequirement & {
-    type: 'assert-current-schema-id';
+  type: 'assert-current-schema-id';
 } & {
-    type: 'assert-current-schema-id';
-    'current-schema-id': number;
+  type: 'assert-current-schema-id';
+  'current-schema-id': number;
 };
 
 /**
  * The table's last assigned partition id must match the requirement's `last-assigned-partition-id`
  */
 export type AssertLastAssignedPartitionId = TableRequirement & {
-    type: 'assert-last-assigned-partition-id';
+  type: 'assert-last-assigned-partition-id';
 } & {
-    type: 'assert-last-assigned-partition-id';
-    'last-assigned-partition-id': number;
+  type: 'assert-last-assigned-partition-id';
+  'last-assigned-partition-id': number;
 };
 
 /**
  * The table's default spec id must match the requirement's `default-spec-id`
  */
 export type AssertDefaultSpecId = TableRequirement & {
-    type: 'assert-default-spec-id';
+  type: 'assert-default-spec-id';
 } & {
-    type: 'assert-default-spec-id';
-    'default-spec-id': number;
+  type: 'assert-default-spec-id';
+  'default-spec-id': number;
 };
 
 /**
  * The table's default sort order id must match the requirement's `default-sort-order-id`
  */
 export type AssertDefaultSortOrderId = TableRequirement & {
-    type: 'assert-default-sort-order-id';
+  type: 'assert-default-sort-order-id';
 } & {
-    type: 'assert-default-sort-order-id';
-    'default-sort-order-id': number;
+  type: 'assert-default-sort-order-id';
+  'default-sort-order-id': number;
 };
 
 export type ViewRequirement = {
-    type: string;
+  type: string;
 };
 
 /**
  * The view UUID must match the requirement's `uuid`
  */
 export type AssertViewUuid = ViewRequirement & {
-    type: 'assert-view-uuid';
+  type: 'assert-view-uuid';
 } & {
-    type: 'assert-view-uuid';
-    uuid: string;
+  type: 'assert-view-uuid';
+  uuid: string;
 };
 
 /**
@@ -683,14 +738,14 @@ export type AssertViewUuid = ViewRequirement & {
  *
  */
 export type LoadTableResultReadable = {
-    /**
-     * May be null if the table is staged as part of a transaction
-     */
-    'metadata-location'?: string;
-    metadata: TableMetadataReadable;
-    config?: {
-        [key: string]: string;
-    };
+  /**
+   * May be null if the table is staged as part of a transaction
+   */
+  'metadata-location'?: string;
+  metadata: TableMetadataReadable;
+  config?: {
+    [key: string]: string;
+  };
 };
 
 /**
@@ -721,95 +776,95 @@ export type LoadTableResultReadable = {
  *
  */
 export type LoadTableResultWritable = {
-    /**
-     * May be null if the table is staged as part of a transaction
-     */
-    'metadata-location'?: string;
-    metadata: TableMetadataWritable;
-    config?: {
-        [key: string]: string;
-    };
+  /**
+   * May be null if the table is staged as part of a transaction
+   */
+  'metadata-location'?: string;
+  metadata: TableMetadataWritable;
+  config?: {
+    [key: string]: string;
+  };
 };
 
 export type CommitTableRequestReadable = {
-    identifier?: TableIdentifier;
-    requirements: Array<TableRequirement>;
-    updates: Array<TableUpdateReadable>;
+  identifier?: TableIdentifier;
+  requirements: Array<TableRequirement>;
+  updates: Array<TableUpdateReadable>;
 };
 
 export type CommitTableRequestWritable = {
-    identifier?: TableIdentifier;
-    requirements: Array<TableRequirement>;
-    updates: Array<TableUpdateWritable>;
+  identifier?: TableIdentifier;
+  requirements: Array<TableRequirement>;
+  updates: Array<TableUpdateWritable>;
 };
 
 export type CommitViewRequestReadable = {
-    identifier?: TableIdentifier;
-    requirements?: Array<ViewRequirement>;
-    updates: Array<ViewUpdateReadable>;
+  identifier?: TableIdentifier;
+  requirements?: Array<ViewRequirement>;
+  updates: Array<ViewUpdateReadable>;
 };
 
 export type CommitViewRequestWritable = {
-    identifier?: TableIdentifier;
-    requirements?: Array<ViewRequirement>;
-    updates: Array<ViewUpdateWritable>;
+  identifier?: TableIdentifier;
+  requirements?: Array<ViewRequirement>;
+  updates: Array<ViewUpdateWritable>;
 };
 
 export type CommitTransactionRequestReadable = {
-    'table-changes': Array<CommitTableRequestReadable>;
+  'table-changes': Array<CommitTableRequestReadable>;
 };
 
 export type CommitTransactionRequestWritable = {
-    'table-changes': Array<CommitTableRequestWritable>;
+  'table-changes': Array<CommitTableRequestWritable>;
 };
 
 export type CreateTableRequestReadable = {
-    name: string;
-    location?: string;
-    schema: SchemaReadable;
-    'partition-spec'?: PartitionSpecReadable;
-    'write-order'?: SortOrderReadable;
-    'stage-create'?: boolean;
-    properties?: {
-        [key: string]: string;
-    };
+  name: string;
+  location?: string;
+  schema: SchemaReadable;
+  'partition-spec'?: PartitionSpecReadable;
+  'write-order'?: SortOrderReadable;
+  'stage-create'?: boolean;
+  properties?: {
+    [key: string]: string;
+  };
 };
 
 export type CreateTableRequestWritable = {
-    name: string;
-    location?: string;
-    schema: SchemaWritable;
-    'partition-spec'?: PartitionSpecWritable;
-    'write-order'?: SortOrderWritable;
-    'stage-create'?: boolean;
-    properties?: {
-        [key: string]: string;
-    };
+  name: string;
+  location?: string;
+  schema: SchemaWritable;
+  'partition-spec'?: PartitionSpecWritable;
+  'write-order'?: SortOrderWritable;
+  'stage-create'?: boolean;
+  properties?: {
+    [key: string]: string;
+  };
 };
 
 export type RegisterTableRequest = {
-    name: string;
-    'metadata-location': string;
+  name: string;
+  'metadata-location': string;
 };
 
 export type CreateViewRequestReadable = {
-    name: string;
-    location?: string;
-    schema: SchemaReadable;
-    'view-version': ViewVersion;
-    properties: {
-        [key: string]: string;
-    };
+  name: string;
+  location?: string;
+  schema: SchemaReadable;
+  'view-version': ViewVersion;
+  properties: {
+    [key: string]: string;
+  };
 };
 
 export type CreateViewRequestWritable = {
-    name: string;
-    location?: string;
-    schema: SchemaWritable;
-    'view-version': ViewVersion;
-    properties: {
-        [key: string]: string;
-    };
+  name: string;
+  location?: string;
+  schema: SchemaWritable;
+  'view-version': ViewVersion;
+  properties: {
+    [key: string]: string;
+  };
 };
 
 /**
@@ -829,11 +884,11 @@ export type CreateViewRequestWritable = {
  *
  */
 export type LoadViewResultReadable = {
-    'metadata-location': string;
-    metadata: ViewMetadataReadable;
-    config?: {
-        [key: string]: string;
-    };
+  'metadata-location': string;
+  metadata: ViewMetadataReadable;
+  config?: {
+    [key: string]: string;
+  };
 };
 
 /**
@@ -853,11 +908,11 @@ export type LoadViewResultReadable = {
  *
  */
 export type LoadViewResultWritable = {
-    'metadata-location': string;
-    metadata: ViewMetadataWritable;
-    config?: {
-        [key: string]: string;
-    };
+  'metadata-location': string;
+  metadata: ViewMetadataWritable;
+  config?: {
+    [key: string]: string;
+  };
 };
 
 /**
@@ -865,7 +920,13 @@ export type LoadViewResultWritable = {
  *
  * See https://datatracker.ietf.org/doc/html/rfc8693#section-3
  */
-export type TokenType = 'urn:ietf:params:oauth:token-type:access_token' | 'urn:ietf:params:oauth:token-type:refresh_token' | 'urn:ietf:params:oauth:token-type:id_token' | 'urn:ietf:params:oauth:token-type:saml1' | 'urn:ietf:params:oauth:token-type:saml2' | 'urn:ietf:params:oauth:token-type:jwt';
+export type TokenType =
+  | 'urn:ietf:params:oauth:token-type:access_token'
+  | 'urn:ietf:params:oauth:token-type:refresh_token'
+  | 'urn:ietf:params:oauth:token-type:id_token'
+  | 'urn:ietf:params:oauth:token-type:saml1'
+  | 'urn:ietf:params:oauth:token-type:saml2'
+  | 'urn:ietf:params:oauth:token-type:jwt';
 
 /**
  * OAuth2 client credentials request
@@ -873,20 +934,20 @@ export type TokenType = 'urn:ietf:params:oauth:token-type:access_token' | 'urn:i
  * See https://datatracker.ietf.org/doc/html/rfc6749#section-4.4
  */
 export type OAuthClientCredentialsRequest = {
-    grant_type: 'client_credentials';
-    scope?: string;
-    /**
-     * Client ID
-     *
-     * This can be sent in the request body, but OAuth2 recommends sending it in a Basic Authorization header.
-     */
-    client_id: string;
-    /**
-     * Client secret
-     *
-     * This can be sent in the request body, but OAuth2 recommends sending it in a Basic Authorization header.
-     */
-    client_secret: string;
+  grant_type: 'client_credentials';
+  scope?: string;
+  /**
+   * Client ID
+   *
+   * This can be sent in the request body, but OAuth2 recommends sending it in a Basic Authorization header.
+   */
+  client_id: string;
+  /**
+   * Client secret
+   *
+   * This can be sent in the request body, but OAuth2 recommends sending it in a Basic Authorization header.
+   */
+  client_secret: string;
 };
 
 /**
@@ -895,187 +956,193 @@ export type OAuthClientCredentialsRequest = {
  * See https://datatracker.ietf.org/doc/html/rfc8693
  */
 export type OAuthTokenExchangeRequest = {
-    grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange';
-    scope?: string;
-    requested_token_type?: TokenType;
-    /**
-     * Subject token for token exchange request
-     */
-    subject_token: string;
-    subject_token_type: TokenType;
-    /**
-     * Actor token for token exchange request
-     */
-    actor_token?: string;
-    actor_token_type?: TokenType;
+  grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange';
+  scope?: string;
+  requested_token_type?: TokenType;
+  /**
+   * Subject token for token exchange request
+   */
+  subject_token: string;
+  subject_token_type: TokenType;
+  /**
+   * Actor token for token exchange request
+   */
+  actor_token?: string;
+  actor_token_type?: TokenType;
 };
 
 export type OAuthTokenRequest = OAuthClientCredentialsRequest | OAuthTokenExchangeRequest;
 
 export type CounterResult = {
-    unit: string;
-    value: number;
+  unit: string;
+  value: number;
 };
 
 export type TimerResult = {
-    'time-unit': string;
-    count: number;
-    'total-duration': number;
+  'time-unit': string;
+  count: number;
+  'total-duration': number;
 };
 
 export type MetricResult = CounterResult | TimerResult;
 
 export type Metrics = {
-    [key: string]: MetricResult;
+  [key: string]: MetricResult;
 };
 
 export type ReportMetricsRequest = (ScanReport | CommitReport) & {
-    'report-type': string;
+  'report-type': string;
 };
 
 export type ScanReport = {
-    'table-name': string;
-    'snapshot-id': number;
-    filter: Expression;
-    'schema-id': number;
-    'projected-field-ids': Array<number>;
-    'projected-field-names': Array<string>;
-    metrics: Metrics;
-    metadata?: {
-        [key: string]: string;
-    };
+  'table-name': string;
+  'snapshot-id': number;
+  filter: Expression;
+  'schema-id': number;
+  'projected-field-ids': Array<number>;
+  'projected-field-names': Array<string>;
+  metrics: Metrics;
+  metadata?: {
+    [key: string]: string;
+  };
 };
 
 export type CommitReport = {
-    'table-name': string;
-    'snapshot-id': number;
-    'sequence-number': number;
-    operation: string;
-    metrics: Metrics;
-    metadata?: {
-        [key: string]: string;
-    };
+  'table-name': string;
+  'snapshot-id': number;
+  'sequence-number': number;
+  operation: string;
+  metrics: Metrics;
+  metadata?: {
+    [key: string]: string;
+  };
 };
 
 export type OAuthError = {
-    error: 'invalid_request' | 'invalid_client' | 'invalid_grant' | 'unauthorized_client' | 'unsupported_grant_type' | 'invalid_scope';
-    error_description?: string;
-    error_uri?: string;
+  error:
+    | 'invalid_request'
+    | 'invalid_client'
+    | 'invalid_grant'
+    | 'unauthorized_client'
+    | 'unsupported_grant_type'
+    | 'invalid_scope';
+  error_description?: string;
+  error_uri?: string;
 };
 
 export type OAuthTokenResponse = {
-    /**
-     * The access token, for client credentials or token exchange
-     */
-    access_token: string;
-    /**
-     * Access token type for client credentials or token exchange
-     *
-     * See https://datatracker.ietf.org/doc/html/rfc6749#section-7.1
-     */
-    token_type: 'bearer' | 'mac' | 'N_A';
-    /**
-     * Lifetime of the access token in seconds for client credentials or token exchange
-     */
-    expires_in?: number;
-    issued_token_type?: TokenType;
-    /**
-     * Refresh token for client credentials or token exchange
-     */
-    refresh_token?: string;
-    /**
-     * Authorization scope for client credentials or token exchange
-     */
-    scope?: string;
+  /**
+   * The access token, for client credentials or token exchange
+   */
+  access_token: string;
+  /**
+   * Access token type for client credentials or token exchange
+   *
+   * See https://datatracker.ietf.org/doc/html/rfc6749#section-7.1
+   */
+  token_type: 'bearer' | 'mac' | 'N_A';
+  /**
+   * Lifetime of the access token in seconds for client credentials or token exchange
+   */
+  expires_in?: number;
+  issued_token_type?: TokenType;
+  /**
+   * Refresh token for client credentials or token exchange
+   */
+  refresh_token?: string;
+  /**
+   * Authorization scope for client credentials or token exchange
+   */
+  scope?: string;
 };
 
 /**
  * JSON wrapper for all error responses (non-2xx)
  */
 export type IcebergErrorResponse = {
-    error: ErrorModel;
+  error: ErrorModel;
 };
 
 export type CreateNamespaceResponse = {
-    namespace: Namespace;
-    /**
-     * Properties stored on the namespace, if supported by the server.
-     */
-    properties?: {
-        [key: string]: string;
-    };
+  namespace: Namespace;
+  /**
+   * Properties stored on the namespace, if supported by the server.
+   */
+  properties?: {
+    [key: string]: string;
+  };
 };
 
 export type GetNamespaceResponse = {
-    namespace: Namespace;
-    /**
-     * Properties stored on the namespace, if supported by the server. If the server does not support namespace properties, it should return null for this field. If namespace properties are supported, but none are set, it should return an empty object.
-     */
-    properties?: {
-        [key: string]: string;
-    } | null;
-    'namespace-uuid'?: string | null;
+  namespace: Namespace;
+  /**
+   * Properties stored on the namespace, if supported by the server. If the server does not support namespace properties, it should return null for this field. If namespace properties are supported, but none are set, it should return an empty object.
+   */
+  properties?: {
+    [key: string]: string;
+  } | null;
+  'namespace-uuid'?: string | null;
 };
 
 export type ListTablesResponse = {
-    'next-page-token'?: PageToken;
-    identifiers?: Array<TableIdentifier>;
-    'table-uuids'?: Array<string> | null;
+  'next-page-token'?: PageToken;
+  identifiers?: Array<TableIdentifier>;
+  'table-uuids'?: Array<string> | null;
 };
 
 export type ListNamespacesResponse = {
-    'next-page-token'?: PageToken;
-    namespaces?: Array<Namespace>;
-    'namespace-uuids'?: Array<string> | null;
+  'next-page-token'?: PageToken;
+  namespaces?: Array<Namespace>;
+  'namespace-uuids'?: Array<string> | null;
 };
 
 export type UpdateNamespacePropertiesResponse = {
-    /**
-     * List of property keys that were added or updated
-     */
-    updated: Array<string>;
-    /**
-     * List of properties that were removed
-     */
-    removed: Array<string>;
-    /**
-     * List of properties requested for removal that were not found in the namespace's properties. Represents a partial success response. Server's do not need to implement this.
-     */
-    missing?: Array<string> | null;
+  /**
+   * List of property keys that were added or updated
+   */
+  updated: Array<string>;
+  /**
+   * List of properties that were removed
+   */
+  removed: Array<string>;
+  /**
+   * List of properties requested for removal that were not found in the namespace's properties. Represents a partial success response. Server's do not need to implement this.
+   */
+  missing?: Array<string> | null;
 };
 
 export type CommitTableResponseReadable = {
-    'metadata-location': string;
-    metadata: TableMetadataReadable;
+  'metadata-location': string;
+  metadata: TableMetadataReadable;
 };
 
 export type CommitTableResponseWritable = {
-    'metadata-location': string;
-    metadata: TableMetadataWritable;
+  'metadata-location': string;
+  metadata: TableMetadataWritable;
 };
 
 export type StatisticsFile = {
-    'snapshot-id': number;
-    'statistics-path': string;
-    'file-size-in-bytes': number;
-    'file-footer-size-in-bytes': number;
-    'blob-metadata': Array<BlobMetadata>;
+  'snapshot-id': number;
+  'statistics-path': string;
+  'file-size-in-bytes': number;
+  'file-footer-size-in-bytes': number;
+  'blob-metadata': Array<BlobMetadata>;
 };
 
 export type BlobMetadata = {
-    type: string;
-    'snapshot-id': number;
-    'sequence-number': number;
-    fields: Array<number>;
-    properties?: {
-        [key: string]: unknown;
-    };
+  type: string;
+  'snapshot-id': number;
+  'sequence-number': number;
+  fields: Array<number>;
+  properties?: {
+    [key: string]: unknown;
+  };
 };
 
 export type PartitionStatisticsFile = {
-    'snapshot-id': number;
-    'statistics-path': string;
-    'file-size-in-bytes': number;
+  'snapshot-id': number;
+  'statistics-path': string;
+  'file-size-in-bytes': number;
 };
 
 export type BooleanTypeValue = boolean;
@@ -1141,103 +1208,119 @@ export type FixedTypeValue = string;
 export type BinaryTypeValue = string;
 
 export type CountMap = {
-    /**
-     * List of integer column ids for each corresponding value
-     */
-    keys?: Array<IntegerTypeValue>;
-    /**
-     * List of Long values, matched to 'keys' by index
-     */
-    values?: Array<LongTypeValue>;
+  /**
+   * List of integer column ids for each corresponding value
+   */
+  keys?: Array<IntegerTypeValue>;
+  /**
+   * List of Long values, matched to 'keys' by index
+   */
+  values?: Array<LongTypeValue>;
 };
 
 export type ValueMap = {
-    /**
-     * List of integer column ids for each corresponding value
-     */
-    keys?: Array<IntegerTypeValue>;
-    /**
-     * List of primitive type values, matched to 'keys' by index
-     */
-    values?: Array<PrimitiveTypeValue>;
+  /**
+   * List of integer column ids for each corresponding value
+   */
+  keys?: Array<IntegerTypeValue>;
+  /**
+   * List of primitive type values, matched to 'keys' by index
+   */
+  values?: Array<PrimitiveTypeValue>;
 };
 
-export type PrimitiveTypeValue = BooleanTypeValue | IntegerTypeValue | LongTypeValue | FloatTypeValue | DoubleTypeValue | DecimalTypeValue | StringTypeValue | UuidTypeValue | DateTypeValue | TimeTypeValue | TimestampTypeValue | TimestampTzTypeValue | TimestampNanoTypeValue | TimestampTzNanoTypeValue | FixedTypeValue | BinaryTypeValue;
+export type PrimitiveTypeValue =
+  | BooleanTypeValue
+  | IntegerTypeValue
+  | LongTypeValue
+  | FloatTypeValue
+  | DoubleTypeValue
+  | DecimalTypeValue
+  | StringTypeValue
+  | UuidTypeValue
+  | DateTypeValue
+  | TimeTypeValue
+  | TimestampTypeValue
+  | TimestampTzTypeValue
+  | TimestampNanoTypeValue
+  | TimestampTzNanoTypeValue
+  | FixedTypeValue
+  | BinaryTypeValue;
 
 export type FileFormat = 'avro' | 'orc' | 'parquet';
 
 export type ContentFile = {
-    content: string;
-    'file-path': string;
-    'file-format': FileFormat;
-    'spec-id': number;
-    /**
-     * A list of partition field values ordered based on the fields of the partition spec specified by the `spec-id`
-     */
-    partition?: Array<PrimitiveTypeValue>;
-    /**
-     * Total file size in bytes
-     */
-    'file-size-in-bytes': number;
-    /**
-     * Number of records in the file
-     */
-    'record-count': number;
-    /**
-     * Encryption key metadata blob
-     */
-    'key-metadata'?: BinaryTypeValue;
-    /**
-     * List of splittable offsets
-     */
-    'split-offsets'?: Array<number>;
-    'sort-order-id'?: number;
+  content: string;
+  'file-path': string;
+  'file-format': FileFormat;
+  'spec-id': number;
+  /**
+   * A list of partition field values ordered based on the fields of the partition spec specified by the `spec-id`
+   */
+  partition?: Array<PrimitiveTypeValue>;
+  /**
+   * Total file size in bytes
+   */
+  'file-size-in-bytes': number;
+  /**
+   * Number of records in the file
+   */
+  'record-count': number;
+  /**
+   * Encryption key metadata blob
+   */
+  'key-metadata'?: BinaryTypeValue;
+  /**
+   * List of splittable offsets
+   */
+  'split-offsets'?: Array<number>;
+  'sort-order-id'?: number;
 };
 
 export type DataFile = ContentFile & {
-    content: 'data';
+  content: 'data';
 } & {
-    content: 'data';
-    /**
-     * Map of column id to total count, including null and NaN
-     */
-    'column-sizes'?: CountMap;
-    /**
-     * Map of column id to null value count
-     */
-    'value-counts'?: CountMap;
-    /**
-     * Map of column id to null value count
-     */
-    'null-value-counts'?: CountMap;
-    /**
-     * Map of column id to number of NaN values in the column
-     */
-    'nan-value-counts'?: CountMap;
-    /**
-     * Map of column id to lower bound primitive type values
-     */
-    'lower-bounds'?: ValueMap;
-    /**
-     * Map of column id to upper bound primitive type values
-     */
-    'upper-bounds'?: ValueMap;
+  content: 'data';
+  /**
+   * Map of column id to total count, including null and NaN
+   */
+  'column-sizes'?: CountMap;
+  /**
+   * Map of column id to null value count
+   */
+  'value-counts'?: CountMap;
+  /**
+   * Map of column id to null value count
+   */
+  'null-value-counts'?: CountMap;
+  /**
+   * Map of column id to number of NaN values in the column
+   */
+  'nan-value-counts'?: CountMap;
+  /**
+   * Map of column id to lower bound primitive type values
+   */
+  'lower-bounds'?: ValueMap;
+  /**
+   * Map of column id to upper bound primitive type values
+   */
+  'upper-bounds'?: ValueMap;
 };
 
 export type PositionDeleteFile = ContentFile & {
-    content: 'position-deletes';
+  content: 'position-deletes';
 } & {
-    content: 'position-deletes';
+  content: 'position-deletes';
 };
 
 export type EqualityDeleteFile = ContentFile & {
-    content: 'equality-deletes';
+  content: 'equality-deletes';
 } & {
-    content: 'equality-deletes';
-    /**
-     * List of equality field IDs
-     */
-    'equality-ids'?: Array<number>;
+  content: 'equality-deletes';
+  /**
+   * List of equality field IDs
+   */
+  'equality-ids'?: Array<number>;
 };
 
 /**
@@ -1278,1641 +1361,1644 @@ export type PageToken2 = PageToken;
 export type PageSize = number;
 
 export type GetConfigData = {
-    body?: never;
-    path?: never;
-    query?: {
-        /**
-         * Warehouse location or identifier to request from the service
-         */
-        warehouse?: string;
-    };
-    url: '/v1/config';
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Warehouse location or identifier to request from the service
+     */
+    warehouse?: string;
+  };
+  url: '/v1/config';
 };
 
 export type GetConfigErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type GetConfigError = GetConfigErrors[keyof GetConfigErrors];
 
 export type GetConfigResponses = {
-    /**
-     * Server specified configuration values.
-     */
-    200: CatalogConfig;
+  /**
+   * Server specified configuration values.
+   */
+  200: CatalogConfig;
 };
 
 export type GetConfigResponse = GetConfigResponses[keyof GetConfigResponses];
 
 export type GetTokenData = {
-    body?: OAuthTokenRequest;
-    path?: never;
-    query?: never;
-    url: '/v1/oauth/tokens';
+  body?: OAuthTokenRequest;
+  path?: never;
+  query?: never;
+  url: '/v1/oauth/tokens';
 };
 
 export type GetTokenErrors = {
-    /**
-     * OAuth2 error response
-     */
-    400: OAuthError;
-    /**
-     * OAuth2 error response
-     */
-    401: OAuthError;
-    /**
-     * OAuth2 error response
-     */
-    500: OAuthError;
+  /**
+   * OAuth2 error response
+   */
+  400: OAuthError;
+  /**
+   * OAuth2 error response
+   */
+  401: OAuthError;
+  /**
+   * OAuth2 error response
+   */
+  500: OAuthError;
 };
 
 export type GetTokenError = GetTokenErrors[keyof GetTokenErrors];
 
 export type GetTokenResponses = {
-    /**
-     * OAuth2 token response for client credentials or token exchange
-     */
-    200: OAuthTokenResponse;
+  /**
+   * OAuth2 token response for client credentials or token exchange
+   */
+  200: OAuthTokenResponse;
 };
 
 export type GetTokenResponse = GetTokenResponses[keyof GetTokenResponses];
 
 export type ListNamespacesData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-    };
-    query?: {
-        pageToken?: PageToken;
-        /**
-         * For servers that support pagination, this signals an upper bound of the number of results that a client will receive. For servers that do not support pagination, clients may receive results larger than the indicated `pageSize`.
-         */
-        pageSize?: number;
-        /**
-         * An optional namespace, underneath which to list namespaces. If not provided or empty, all top-level namespaces should be listed. If parent is a multipart namespace, the parts must be separated by the unit separator (`0x1F`) byte.
-         */
-        parent?: string;
-        /**
-         * If true, include the `namespace-uuids` field in the response
-         */
-        returnUuids?: boolean;
-    };
-    url: '/v1/{prefix}/namespaces';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+  };
+  query?: {
+    pageToken?: PageToken;
+    /**
+     * For servers that support pagination, this signals an upper bound of the number of results that a client will receive. For servers that do not support pagination, clients may receive results larger than the indicated `pageSize`.
+     */
+    pageSize?: number;
+    /**
+     * An optional namespace, underneath which to list namespaces. If not provided or empty, all top-level namespaces should be listed. If parent is a multipart namespace, the parts must be separated by the unit separator (`0x1F`) byte.
+     */
+    parent?: string;
+    /**
+     * If true, include the `namespace-uuids` field in the response
+     */
+    returnUuids?: boolean;
+  };
+  url: '/v1/{prefix}/namespaces';
 };
 
 export type ListNamespacesErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - Namespace provided in the `parent` query parameter is not found.
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - Namespace provided in the `parent` query parameter is not found.
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type ListNamespacesError = ListNamespacesErrors[keyof ListNamespacesErrors];
 
 export type ListNamespacesResponses = {
-    /**
-     * A list of namespaces
-     */
-    200: ListNamespacesResponse;
+  /**
+   * A list of namespaces
+   */
+  200: ListNamespacesResponse;
 };
 
 export type ListNamespacesResponse2 = ListNamespacesResponses[keyof ListNamespacesResponses];
 
 export type CreateNamespaceData = {
-    body?: CreateNamespaceRequest;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces';
+  body?: CreateNamespaceRequest;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces';
 };
 
 export type CreateNamespaceErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Acceptable / Unsupported Operation. The server does not support this operation.
-     */
-    406: ErrorModel;
-    /**
-     * Conflict - The namespace already exists
-     */
-    409: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Acceptable / Unsupported Operation. The server does not support this operation.
+   */
+  406: ErrorModel;
+  /**
+   * Conflict - The namespace already exists
+   */
+  409: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type CreateNamespaceError = CreateNamespaceErrors[keyof CreateNamespaceErrors];
 
 export type CreateNamespaceResponses = {
-    /**
-     * Represents a successful call to create a namespace. Returns the namespace created, as well as any properties that were stored for the namespace, including those the server might have added. Implementations are not required to support namespace properties.
-     */
-    200: CreateNamespaceResponse;
+  /**
+   * Represents a successful call to create a namespace. Returns the namespace created, as well as any properties that were stored for the namespace, including those the server might have added. Implementations are not required to support namespace properties.
+   */
+  200: CreateNamespaceResponse;
 };
 
 export type CreateNamespaceResponse2 = CreateNamespaceResponses[keyof CreateNamespaceResponses];
 
 export type DropNamespaceData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}';
 };
 
 export type DropNamespaceErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - Namespace to delete does not exist.
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - Namespace to delete does not exist.
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type DropNamespaceError = DropNamespaceErrors[keyof DropNamespaceErrors];
 
 export type DropNamespaceResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
 export type DropNamespaceResponse = DropNamespaceResponses[keyof DropNamespaceResponses];
 
 export type LoadNamespaceMetadataData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: {
-        /**
-         * If true, include the `namespace-uuid` field in the response
-         */
-        returnUuid?: boolean;
-    };
-    url: '/v1/{prefix}/namespaces/{namespace}';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: {
+    /**
+     * If true, include the `namespace-uuid` field in the response
+     */
+    returnUuid?: boolean;
+  };
+  url: '/v1/{prefix}/namespaces/{namespace}';
 };
 
 export type LoadNamespaceMetadataErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - Namespace not found
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - Namespace not found
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
-export type LoadNamespaceMetadataError = LoadNamespaceMetadataErrors[keyof LoadNamespaceMetadataErrors];
+export type LoadNamespaceMetadataError =
+  LoadNamespaceMetadataErrors[keyof LoadNamespaceMetadataErrors];
 
 export type LoadNamespaceMetadataResponses = {
-    /**
-     * Returns a namespace, as well as any properties stored on the namespace if namespace properties are supported by the server.
-     */
-    200: GetNamespaceResponse;
+  /**
+   * Returns a namespace, as well as any properties stored on the namespace if namespace properties are supported by the server.
+   */
+  200: GetNamespaceResponse;
 };
 
-export type LoadNamespaceMetadataResponse = LoadNamespaceMetadataResponses[keyof LoadNamespaceMetadataResponses];
+export type LoadNamespaceMetadataResponse =
+  LoadNamespaceMetadataResponses[keyof LoadNamespaceMetadataResponses];
 
 export type NamespaceExistsData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}';
 };
 
 export type NamespaceExistsErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - Namespace not found
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - Namespace not found
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type NamespaceExistsError = NamespaceExistsErrors[keyof NamespaceExistsErrors];
 
 export type NamespaceExistsResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
 export type NamespaceExistsResponse = NamespaceExistsResponses[keyof NamespaceExistsResponses];
 
 export type UpdatePropertiesData = {
-    body?: UpdateNamespacePropertiesRequest;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/properties';
+  body?: UpdateNamespacePropertiesRequest;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/properties';
 };
 
 export type UpdatePropertiesErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - Namespace not found
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Not Acceptable / Unsupported Operation. The server does not support this operation.
-     */
-    406: ErrorModel;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * Unprocessable Entity - A property key was included in both `removals` and `updates`
-     */
-    422: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - Namespace not found
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Not Acceptable / Unsupported Operation. The server does not support this operation.
+   */
+  406: ErrorModel;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * Unprocessable Entity - A property key was included in both `removals` and `updates`
+   */
+  422: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type UpdatePropertiesError = UpdatePropertiesErrors[keyof UpdatePropertiesErrors];
 
 export type UpdatePropertiesResponses = {
-    /**
-     * JSON data response for a synchronous update properties request.
-     */
-    200: UpdateNamespacePropertiesResponse;
+  /**
+   * JSON data response for a synchronous update properties request.
+   */
+  200: UpdateNamespacePropertiesResponse;
 };
 
 export type UpdatePropertiesResponse = UpdatePropertiesResponses[keyof UpdatePropertiesResponses];
 
 export type ListTablesData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: {
-        pageToken?: PageToken;
-        /**
-         * For servers that support pagination, this signals an upper bound of the number of results that a client will receive. For servers that do not support pagination, clients may receive results larger than the indicated `pageSize`.
-         */
-        pageSize?: number;
-        /**
-         * If true, include the `table-uuids` field in the response
-         */
-        returnUuids?: boolean;
-    };
-    url: '/v1/{prefix}/namespaces/{namespace}/tables';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: {
+    pageToken?: PageToken;
+    /**
+     * For servers that support pagination, this signals an upper bound of the number of results that a client will receive. For servers that do not support pagination, clients may receive results larger than the indicated `pageSize`.
+     */
+    pageSize?: number;
+    /**
+     * If true, include the `table-uuids` field in the response
+     */
+    returnUuids?: boolean;
+  };
+  url: '/v1/{prefix}/namespaces/{namespace}/tables';
 };
 
 export type ListTablesErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - The namespace specified does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - The namespace specified does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type ListTablesError = ListTablesErrors[keyof ListTablesErrors];
 
 export type ListTablesResponses = {
-    /**
-     * A list of table identifiers
-     */
-    200: ListTablesResponse;
+  /**
+   * A list of table identifiers
+   */
+  200: ListTablesResponse;
 };
 
 export type ListTablesResponse2 = ListTablesResponses[keyof ListTablesResponses];
 
 export type CreateTableData = {
-    body?: CreateTableRequestWritable;
-    headers?: {
-        /**
-         * Optional signal to the server that the client supports delegated access via a comma-separated list of access mechanisms.  The server may choose to supply access via any or none of the requested mechanisms.
-         *
-         * Specific properties and handling for `vended-credentials` is documented in the `LoadTableResult` schema section of this spec document.
-         *
-         * The protocol and specification for `remote-signing` is documented in  the `s3-signer-open-api.yaml` OpenApi spec in the `aws` module.
-         *
-         */
-        'X-Iceberg-Access-Delegation'?: 'vended-credentials' | 'remote-signing';
-    };
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/tables';
+  body?: CreateTableRequestWritable;
+  headers?: {
+    /**
+     * Optional signal to the server that the client supports delegated access via a comma-separated list of access mechanisms.  The server may choose to supply access via any or none of the requested mechanisms.
+     *
+     * Specific properties and handling for `vended-credentials` is documented in the `LoadTableResult` schema section of this spec document.
+     *
+     * The protocol and specification for `remote-signing` is documented in  the `s3-signer-open-api.yaml` OpenApi spec in the `aws` module.
+     *
+     */
+    'X-Iceberg-Access-Delegation'?: 'vended-credentials' | 'remote-signing';
+  };
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables';
 };
 
 export type CreateTableErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - The namespace specified does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Conflict - The table already exists
-     */
-    409: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - The namespace specified does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Conflict - The table already exists
+   */
+  409: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type CreateTableError = CreateTableErrors[keyof CreateTableErrors];
 
 export type CreateTableResponses = {
-    /**
-     * Table metadata result after creating a table
-     */
-    200: LoadTableResultReadable;
+  /**
+   * Table metadata result after creating a table
+   */
+  200: LoadTableResultReadable;
 };
 
 export type CreateTableResponse = CreateTableResponses[keyof CreateTableResponses];
 
 export type RegisterTableData = {
-    body?: RegisterTableRequest;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/register';
+  body?: RegisterTableRequest;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/register';
 };
 
 export type RegisterTableErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - The namespace specified does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Conflict - The table already exists
-     */
-    409: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - The namespace specified does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Conflict - The table already exists
+   */
+  409: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type RegisterTableError = RegisterTableErrors[keyof RegisterTableErrors];
 
 export type RegisterTableResponses = {
-    /**
-     * Table metadata result when loading a table
-     */
-    200: LoadTableResultReadable;
+  /**
+   * Table metadata result when loading a table
+   */
+  200: LoadTableResultReadable;
 };
 
 export type RegisterTableResponse = RegisterTableResponses[keyof RegisterTableResponses];
 
 export type DropTableData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A table name
-         */
-        table: string;
-    };
-    query?: {
-        /**
-         * Whether the user requested to purge the underlying table's data and metadata
-         */
-        purgeRequested?: boolean;
-    };
-    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+  };
+  query?: {
+    /**
+     * Whether the user requested to purge the underlying table's data and metadata
+     */
+    purgeRequested?: boolean;
+  };
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
 };
 
 export type DropTableErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchTableException, Table to drop does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, Table to drop does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type DropTableError = DropTableErrors[keyof DropTableErrors];
 
 export type DropTableResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
 export type DropTableResponse = DropTableResponses[keyof DropTableResponses];
 
 export type LoadTableData = {
-    body?: never;
-    headers?: {
-        /**
-         * Optional signal to the server that the client supports delegated access via a comma-separated list of access mechanisms.  The server may choose to supply access via any or none of the requested mechanisms.
-         *
-         * Specific properties and handling for `vended-credentials` is documented in the `LoadTableResult` schema section of this spec document.
-         *
-         * The protocol and specification for `remote-signing` is documented in  the `s3-signer-open-api.yaml` OpenApi spec in the `aws` module.
-         *
-         */
-        'X-Iceberg-Access-Delegation'?: 'vended-credentials' | 'remote-signing';
-    };
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A table name
-         */
-        table: string;
-    };
-    query?: {
-        /**
-         * The snapshots to return in the body of the metadata. Setting the value to `all` would return the full set of snapshots currently valid for the table. Setting the value to `refs` would load all snapshots referenced by branches or tags.
-         * Default if no param is provided is `all`.
-         */
-        snapshots?: 'all' | 'refs';
-    };
-    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
+  body?: never;
+  headers?: {
+    /**
+     * Optional signal to the server that the client supports delegated access via a comma-separated list of access mechanisms.  The server may choose to supply access via any or none of the requested mechanisms.
+     *
+     * Specific properties and handling for `vended-credentials` is documented in the `LoadTableResult` schema section of this spec document.
+     *
+     * The protocol and specification for `remote-signing` is documented in  the `s3-signer-open-api.yaml` OpenApi spec in the `aws` module.
+     *
+     */
+    'X-Iceberg-Access-Delegation'?: 'vended-credentials' | 'remote-signing';
+  };
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+  };
+  query?: {
+    /**
+     * The snapshots to return in the body of the metadata. Setting the value to `all` would return the full set of snapshots currently valid for the table. Setting the value to `refs` would load all snapshots referenced by branches or tags.
+     * Default if no param is provided is `all`.
+     */
+    snapshots?: 'all' | 'refs';
+  };
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
 };
 
 export type LoadTableErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchTableException, table to load does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, table to load does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type LoadTableError = LoadTableErrors[keyof LoadTableErrors];
 
 export type LoadTableResponses = {
-    /**
-     * Table metadata result when loading a table
-     */
-    200: LoadTableResultReadable;
+  /**
+   * Table metadata result when loading a table
+   */
+  200: LoadTableResultReadable;
 };
 
 export type LoadTableResponse = LoadTableResponses[keyof LoadTableResponses];
 
 export type TableExistsData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A table name
-         */
-        table: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
 };
 
 export type TableExistsErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchTableException, Table not found
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, Table not found
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type TableExistsError = TableExistsErrors[keyof TableExistsErrors];
 
 export type TableExistsResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
 export type TableExistsResponse = TableExistsResponses[keyof TableExistsResponses];
 
 export type UpdateTableData = {
-    body?: CommitTableRequestWritable;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A table name
-         */
-        table: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
+  body?: CommitTableRequestWritable;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
 };
 
 export type UpdateTableErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchTableException, table to load does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Conflict - CommitFailedException, one or more requirements failed. The client may retry.
-     */
-    409: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable on the client.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * A gateway or proxy received an invalid response from the upstream server; the commit state is unknown.
-     */
-    502: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
-    /**
-     * A server-side gateway timeout occurred; the commit state is unknown.
-     */
-    504: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, table to load does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Conflict - CommitFailedException, one or more requirements failed. The client may retry.
+   */
+  409: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable on the client.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * A gateway or proxy received an invalid response from the upstream server; the commit state is unknown.
+   */
+  502: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
+  /**
+   * A server-side gateway timeout occurred; the commit state is unknown.
+   */
+  504: IcebergErrorResponse;
 };
 
 export type UpdateTableError = UpdateTableErrors[keyof UpdateTableErrors];
 
 export type UpdateTableResponses = {
-    /**
-     * Response used when a table is successfully updated.
-     * The table metadata JSON is returned in the metadata field. The corresponding file location of table metadata must be returned in the metadata-location field. Clients can check whether metadata has changed by comparing metadata locations.
-     */
-    200: CommitTableResponseReadable;
+  /**
+   * Response used when a table is successfully updated.
+   * The table metadata JSON is returned in the metadata field. The corresponding file location of table metadata must be returned in the metadata-location field. Clients can check whether metadata has changed by comparing metadata locations.
+   */
+  200: CommitTableResponseReadable;
 };
 
 export type UpdateTableResponse = UpdateTableResponses[keyof UpdateTableResponses];
 
 export type RenameTableData = {
+  /**
+   * Current table identifier to rename and new table identifier to rename to
+   */
+  body: RenameTableRequest;
+  path: {
     /**
-     * Current table identifier to rename and new table identifier to rename to
+     * An optional prefix in the path
      */
-    body: RenameTableRequest;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/tables/rename';
+    prefix: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/tables/rename';
 };
 
 export type RenameTableErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchTableException, Table to rename does not exist - NoSuchNamespaceException, The target namespace of the new table identifier does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Not Acceptable / Unsupported Operation. The server does not support this operation.
-     */
-    406: ErrorModel;
-    /**
-     * Conflict - The target identifier to rename to already exists as a table or view
-     */
-    409: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, Table to rename does not exist - NoSuchNamespaceException, The target namespace of the new table identifier does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Not Acceptable / Unsupported Operation. The server does not support this operation.
+   */
+  406: ErrorModel;
+  /**
+   * Conflict - The target identifier to rename to already exists as a table or view
+   */
+  409: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type RenameTableError = RenameTableErrors[keyof RenameTableErrors];
 
 export type RenameTableResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
 export type RenameTableResponse = RenameTableResponses[keyof RenameTableResponses];
 
 export type ReportMetricsData = {
+  /**
+   * The request containing the metrics report to be sent
+   */
+  body: ReportMetricsRequest;
+  path: {
     /**
-     * The request containing the metrics report to be sent
+     * An optional prefix in the path
      */
-    body: ReportMetricsRequest;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A table name
-         */
-        table: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics';
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics';
 };
 
 export type ReportMetricsErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchTableException, table to load does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, table to load does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type ReportMetricsError = ReportMetricsErrors[keyof ReportMetricsErrors];
 
 export type ReportMetricsResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
 export type ReportMetricsResponse = ReportMetricsResponses[keyof ReportMetricsResponses];
 
 export type CommitTransactionData = {
+  /**
+   * Commit updates to multiple tables in an atomic operation
+   *
+   * A commit for a single table consists of a table identifier with requirements and updates. Requirements are assertions that will be validated before attempting to make and commit changes. For example, `assert-ref-snapshot-id` will check that a named ref's snapshot ID has a certain value.
+   *
+   * Updates are changes to make to table metadata. For example, after asserting that the current main ref is at the expected snapshot, a commit may add a new child snapshot and set the ref to the new snapshot id.
+   */
+  body: CommitTransactionRequestWritable;
+  path: {
     /**
-     * Commit updates to multiple tables in an atomic operation
-     *
-     * A commit for a single table consists of a table identifier with requirements and updates. Requirements are assertions that will be validated before attempting to make and commit changes. For example, `assert-ref-snapshot-id` will check that a named ref's snapshot ID has a certain value.
-     *
-     * Updates are changes to make to table metadata. For example, after asserting that the current main ref is at the expected snapshot, a commit may add a new child snapshot and set the ref to the new snapshot id.
+     * An optional prefix in the path
      */
-    body: CommitTransactionRequestWritable;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/transactions/commit';
+    prefix: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/transactions/commit';
 };
 
 export type CommitTransactionErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchTableException, table to load does not exist
-     */
-    404: IcebergErrorResponse;
-    /**
-     * Conflict - CommitFailedException, one or more requirements failed. The client may retry.
-     */
-    409: IcebergErrorResponse;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * An unknown server-side problem occurred; the commit state is unknown.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * A gateway or proxy received an invalid response from the upstream server; the commit state is unknown.
-     */
-    502: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
-    /**
-     * A server-side gateway timeout occurred; the commit state is unknown.
-     */
-    504: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, table to load does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Conflict - CommitFailedException, one or more requirements failed. The client may retry.
+   */
+  409: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * An unknown server-side problem occurred; the commit state is unknown.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * A gateway or proxy received an invalid response from the upstream server; the commit state is unknown.
+   */
+  502: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
+  /**
+   * A server-side gateway timeout occurred; the commit state is unknown.
+   */
+  504: IcebergErrorResponse;
 };
 
 export type CommitTransactionError = CommitTransactionErrors[keyof CommitTransactionErrors];
 
 export type CommitTransactionResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
-export type CommitTransactionResponse = CommitTransactionResponses[keyof CommitTransactionResponses];
+export type CommitTransactionResponse =
+  CommitTransactionResponses[keyof CommitTransactionResponses];
 
 export type ListViewsData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: {
-        pageToken?: PageToken;
-        /**
-         * For servers that support pagination, this signals an upper bound of the number of results that a client will receive. For servers that do not support pagination, clients may receive results larger than the indicated `pageSize`.
-         */
-        pageSize?: number;
-    };
-    url: '/v1/{prefix}/namespaces/{namespace}/views';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: {
+    pageToken?: PageToken;
+    /**
+     * For servers that support pagination, this signals an upper bound of the number of results that a client will receive. For servers that do not support pagination, clients may receive results larger than the indicated `pageSize`.
+     */
+    pageSize?: number;
+  };
+  url: '/v1/{prefix}/namespaces/{namespace}/views';
 };
 
 export type ListViewsErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - The namespace specified does not exist
-     */
-    404: ErrorModel;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - The namespace specified does not exist
+   */
+  404: ErrorModel;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type ListViewsError = ListViewsErrors[keyof ListViewsErrors];
 
 export type ListViewsResponses = {
-    /**
-     * A list of table identifiers
-     */
-    200: ListTablesResponse;
+  /**
+   * A list of table identifiers
+   */
+  200: ListTablesResponse;
 };
 
 export type ListViewsResponse = ListViewsResponses[keyof ListViewsResponses];
 
 export type CreateViewData = {
-    body?: CreateViewRequestWritable;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/views';
+  body?: CreateViewRequestWritable;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/views';
 };
 
 export type CreateViewErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - The namespace specified does not exist
-     */
-    404: ErrorModel;
-    /**
-     * Conflict - The view already exists
-     */
-    409: ErrorModel;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - The namespace specified does not exist
+   */
+  404: ErrorModel;
+  /**
+   * Conflict - The view already exists
+   */
+  409: ErrorModel;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type CreateViewError = CreateViewErrors[keyof CreateViewErrors];
 
 export type CreateViewResponses = {
-    /**
-     * View metadata result when loading a view
-     */
-    200: LoadViewResultReadable;
+  /**
+   * View metadata result when loading a view
+   */
+  200: LoadViewResultReadable;
 };
 
 export type CreateViewResponse = CreateViewResponses[keyof CreateViewResponses];
 
 export type DropViewData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A view name
-         */
-        view: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A view name
+     */
+    view: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
 };
 
 export type DropViewErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchViewException, view to drop does not exist
-     */
-    404: ErrorModel;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchViewException, view to drop does not exist
+   */
+  404: ErrorModel;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type DropViewError = DropViewErrors[keyof DropViewErrors];
 
 export type DropViewResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
 export type DropViewResponse = DropViewResponses[keyof DropViewResponses];
 
 export type LoadViewData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A view name
-         */
-        view: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A view name
+     */
+    view: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
 };
 
 export type LoadViewErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchViewException, view to load does not exist
-     */
-    404: ErrorModel;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchViewException, view to load does not exist
+   */
+  404: ErrorModel;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type LoadViewError = LoadViewErrors[keyof LoadViewErrors];
 
 export type LoadViewResponses = {
-    /**
-     * View metadata result when loading a view
-     */
-    200: LoadViewResultReadable;
+  /**
+   * View metadata result when loading a view
+   */
+  200: LoadViewResultReadable;
 };
 
 export type LoadViewResponse = LoadViewResponses[keyof LoadViewResponses];
 
 export type ViewExistsData = {
-    body?: never;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A view name
-         */
-        view: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A view name
+     */
+    view: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
 };
 
 export type ViewExistsErrors = {
-    /**
-     * Bad Request
-     */
-    400: unknown;
-    /**
-     * Unauthorized
-     */
-    401: unknown;
-    /**
-     * Not Found
-     */
-    404: unknown;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Bad Request
+   */
+  400: unknown;
+  /**
+   * Unauthorized
+   */
+  401: unknown;
+  /**
+   * Not Found
+   */
+  404: unknown;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type ViewExistsError = ViewExistsErrors[keyof ViewExistsErrors];
 
 export type ViewExistsResponses = {
-    /**
-     * Success, no content
-     */
-    204: void;
+  /**
+   * Success, no content
+   */
+  204: void;
 };
 
 export type ViewExistsResponse = ViewExistsResponses[keyof ViewExistsResponses];
 
 export type ReplaceViewData = {
-    body?: CommitViewRequestWritable;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-        /**
-         * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
-         */
-        namespace: string;
-        /**
-         * A view name
-         */
-        view: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
+  body?: CommitViewRequestWritable;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A view name
+     */
+    view: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
 };
 
 export type ReplaceViewErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchViewException, view to load does not exist
-     */
-    404: ErrorModel;
-    /**
-     * Conflict - CommitFailedException. The client may retry.
-     */
-    409: ErrorModel;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * An unknown server-side problem occurred; the commit state is unknown.
-     */
-    500: ErrorModel;
-    /**
-     * A gateway or proxy received an invalid response from the upstream server; the commit state is unknown.
-     */
-    502: ErrorModel;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
-    /**
-     * A server-side gateway timeout occurred; the commit state is unknown.
-     */
-    504: ErrorModel;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchViewException, view to load does not exist
+   */
+  404: ErrorModel;
+  /**
+   * Conflict - CommitFailedException. The client may retry.
+   */
+  409: ErrorModel;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * An unknown server-side problem occurred; the commit state is unknown.
+   */
+  500: ErrorModel;
+  /**
+   * A gateway or proxy received an invalid response from the upstream server; the commit state is unknown.
+   */
+  502: ErrorModel;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
+  /**
+   * A server-side gateway timeout occurred; the commit state is unknown.
+   */
+  504: ErrorModel;
 };
 
 export type ReplaceViewError = ReplaceViewErrors[keyof ReplaceViewErrors];
 
 export type ReplaceViewResponses = {
-    /**
-     * View metadata result when loading a view
-     */
-    200: LoadViewResultReadable;
+  /**
+   * View metadata result when loading a view
+   */
+  200: LoadViewResultReadable;
 };
 
 export type ReplaceViewResponse = ReplaceViewResponses[keyof ReplaceViewResponses];
 
 export type RenameViewData = {
+  /**
+   * Current view identifier to rename and new view identifier to rename to
+   */
+  body: RenameTableRequest;
+  path: {
     /**
-     * Current view identifier to rename and new view identifier to rename to
+     * An optional prefix in the path
      */
-    body: RenameTableRequest;
-    path: {
-        /**
-         * An optional prefix in the path
-         */
-        prefix: string;
-    };
-    query?: never;
-    url: '/v1/{prefix}/views/rename';
+    prefix: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/views/rename';
 };
 
 export type RenameViewErrors = {
-    /**
-     * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
-     */
-    400: IcebergErrorResponse;
-    /**
-     * Unauthorized. Authentication is required and has failed or has not yet been provided.
-     */
-    401: IcebergErrorResponse;
-    /**
-     * Forbidden. Authenticated user does not have the necessary permissions.
-     */
-    403: IcebergErrorResponse;
-    /**
-     * Not Found - NoSuchViewException, view to rename does not exist - NoSuchNamespaceException, The target namespace of the new identifier does not exist
-     */
-    404: ErrorModel;
-    /**
-     * Not Acceptable / Unsupported Operation. The server does not support this operation.
-     */
-    406: ErrorModel;
-    /**
-     * Conflict - The target identifier to rename to already exists as a table or view
-     */
-    409: ErrorModel;
-    /**
-     * Credentials have timed out. If possible, the client should refresh credentials and retry.
-     */
-    419: IcebergErrorResponse;
-    /**
-     * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-     */
-    500: IcebergErrorResponse;
-    /**
-     * The service is not ready to handle the request. The client should wait and retry.
-     *
-     * The service may additionally send a Retry-After header to indicate when to retry.
-     */
-    503: IcebergErrorResponse;
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchViewException, view to rename does not exist - NoSuchNamespaceException, The target namespace of the new identifier does not exist
+   */
+  404: ErrorModel;
+  /**
+   * Not Acceptable / Unsupported Operation. The server does not support this operation.
+   */
+  406: ErrorModel;
+  /**
+   * Conflict - The target identifier to rename to already exists as a table or view
+   */
+  409: ErrorModel;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  500: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
 };
 
 export type RenameViewError = RenameViewErrors[keyof RenameViewErrors];
 
 export type RenameViewResponses = {
-    /**
-     * OK
-     */
-    200: unknown;
+  /**
+   * OK
+   */
+  200: unknown;
 };
 
 export type ClientOptions = {
-    baseUrl: '{scheme}://{host}/{basePath}' | '{scheme}://{host}:{port}/{basePath}' | (string & {});
+  baseUrl: '{scheme}://{host}/{basePath}' | '{scheme}://{host}:{port}/{basePath}' | (string & {});
 };
