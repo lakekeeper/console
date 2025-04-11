@@ -142,7 +142,8 @@ import { Intent, ObjectType } from '@/common/enums';
 import { WarehousObject } from '@/common/interfaces';
 
 const showPassword = ref(false);
-const credentialType: Ref<'client-credentials' | 'shared-access-key'> = ref('client-credentials');
+const credentialType: Ref<'client-credentials' | 'shared-access-key' | 'azure-system-identity'> =
+  ref('client-credentials');
 
 const props = defineProps<{
   credentialsOnly: boolean;
