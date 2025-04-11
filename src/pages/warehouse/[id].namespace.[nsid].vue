@@ -79,7 +79,7 @@
                     v-if="item.type === 'namespace'"
                     :type="item.type"
                     :name="item.name"
-                    @delete-with-options="delteNamespaceWithOptions($event, item)"></DialogDelete>
+                    @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
                 </template>
                 <template #no-data>
                   <addNamespaceDialog
@@ -325,7 +325,7 @@ async function deleteViewWithOptions(e: any, item: TableIdentifierExtended) {
   }
 }
 
-async function delteNamespaceWithOptions(e: any, item: Item) {
+async function deleteNamespaceWithOptions(e: any, item: Item) {
   try {
     const res = await functions.dropNamespace(
       whid.value,
