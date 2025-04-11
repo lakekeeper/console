@@ -1668,6 +1668,74 @@ paths:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
       deprecated: true
+  /management/v1/warehouse/{warehouse_id}/namespace/{namespace_id}/protection:
+    post:
+      tags:
+        - warehouse
+      operationId: set_namespace_protection
+      parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: namespace_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetProtectionRequest'
+        required: true
+      responses:
+        '200':
+          description: Namespace protection set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtectionResponse'
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
+  /management/v1/warehouse/{warehouse_id}/protection:
+    post:
+      tags:
+        - warehouse
+      operationId: set_warehouse_protection
+      parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetProtectionRequest'
+        required: true
+      responses:
+        '200':
+          description: Warehouse protection set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtectionResponse'
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
   /management/v1/warehouse/{warehouse_id}/rename:
     post:
       tags:
@@ -1806,6 +1874,80 @@ paths:
       responses:
         '200':
           description: Storage credential updated successfully
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
+  /management/v1/warehouse/{warehouse_id}/table/{table_id}/protection:
+    post:
+      tags:
+        - warehouse
+      operationId: set_table_protection
+      parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: table_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetProtectionRequest'
+        required: true
+      responses:
+        '200':
+          description: Table protection set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtectionResponse'
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
+  /management/v1/warehouse/{warehouse_id}/view/{view_id}/protection:
+    post:
+      tags:
+        - warehouse
+      operationId: set_view_protection
+      parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: view_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetProtectionRequest'
+        required: true
+      responses:
+        '200':
+          description: View protection set successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtectionResponse'
         4XX:
           description: ''
           content:
@@ -2631,6 +2773,7 @@ components:
         - storage-profile
         - delete-profile
         - status
+        - protected
       properties:
         delete-profile:
           $ref: '#/components/schemas/TabularDeleteProfile'
@@ -2645,6 +2788,9 @@ components:
         project-id:
           type: string
           description: Project ID in which the warehouse was created.
+        protected:
+          type: boolean
+          description: Whether the warehouse is protected from being deleted.
         status:
           $ref: '#/components/schemas/WarehouseStatus'
           description: Whether the warehouse is active.
@@ -2967,6 +3113,20 @@ components:
         - select
         - create
         - modify
+    ProtectionResponse:
+      type: object
+      required:
+        - protected
+      properties:
+        protected:
+          type: boolean
+          description: Indicates whether the entity is protected
+        updated_at:
+          type:
+            - string
+            - 'null'
+          format: date-time
+          description: Updated at
     RenameProjectRequest:
       type: object
       required:
@@ -3336,6 +3496,14 @@ components:
       properties:
         managed-access:
           type: boolean
+    SetProtectionRequest:
+      type: object
+      required:
+        - protected
+      properties:
+        protected:
+          type: boolean
+          description: Setting this to `true` will prevent the entity from being deleted unless `force` is used.
     StorageCredential:
       oneOf:
         - allOf:

@@ -21,21 +21,21 @@
       </v-toolbar>
 
       <v-tabs v-model="tab">
-        <v-tab value="overview">overview</v-tab>
+        <v-tab value="overview" v-if="userStorage.isAuthenticated">overview</v-tab>
         <v-tab
-          v-if="canReadAssignments && enabledAuthentication && enabledPermissions"
+          v-if="
+            canReadAssignments &&
+            enabledAuthentication &&
+            enabledPermissions &&
+            userStorage.isAuthenticated
+          "
           value="permissions">
           Permissions
         </v-tab>
-        <v-tab
-          v-if="canReadAssignments && enabledAuthentication && enabledPermissions"
-          value="statistics"
-          @click="getEndpointStatistcs">
-          Statistics
-        </v-tab>
+        <v-tab value="statistics" @click="getEndpointStatistcs">Statistics</v-tab>
       </v-tabs>
       <v-tabs-window v-model="tab">
-        <v-tabs-window-item value="overview">
+        <v-tabs-window-item value="overview" v-if="userStorage.isAuthenticated">
           <v-list lines="two" subheader>
             <v-list-subheader>Selected Project</v-list-subheader>
 
@@ -79,7 +79,9 @@
             </template>
           </v-data-table>
         </v-tabs-window-item>
-        <v-tabs-window-item v-if="canReadAssignments" value="permissions">
+        <v-tabs-window-item
+          v-if="canReadAssignments && userStorage.isAuthenticated"
+          value="permissions">
           <PermissionManager
             v-if="loaded && enabledPermissions"
             :assignable-obj="permissionObject"
@@ -88,7 +90,7 @@
             @permissions="assign" />
         </v-tabs-window-item>
 
-        <v-tabs-window-item v-if="canReadAssignments" value="statistics">
+        <v-tabs-window-item value="statistics">
           <ProjectStatistics v-if="loadedStatistics" :stats="statistics" />
         </v-tabs-window-item>
       </v-tabs-window>
@@ -100,6 +102,7 @@
 import { onMounted, ref, reactive, computed } from 'vue';
 import { useVisualStore } from '../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '../app.config';
+import { useUserStore } from '../stores/user';
 
 import { useFunctions } from '../plugins/functions';
 import {
@@ -113,6 +116,7 @@ import { AssignmentCollection, Header, RelationType } from '../common/interfaces
 
 const dialog = ref(false);
 const tab = ref('overview');
+const userStorage = useUserStore();
 
 const visual = useVisualStore();
 const functions = useFunctions();
@@ -296,6 +300,10 @@ async function renameProject(renamedProject: RenameProjectRequest & { 'project-i
   }
 }
 onMounted(async () => {
-  await init();
+  if (userStorage.isAuthenticated) {
+    await init();
+  } else {
+    await getEndpointStatistcs();
+  }
 });
 </script>

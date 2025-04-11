@@ -107,7 +107,7 @@ import 'vue-json-pretty/lib/styles.css';
 import { onMounted, reactive, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
-import { LoadTableResult, StructField } from '../../gen/iceberg/types.gen';
+import { LoadTableResultReadable, StructField } from '../../gen/iceberg/types.gen';
 import { TableAction, TableAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
@@ -126,7 +126,7 @@ const warehouseId = (route.params as { id: string }).id;
 const namespaceId = (route.params as { nsid: string }).nsid;
 const tableName = (route.params as { tid: string }).tid;
 const tableId = ref('');
-const table = reactive<LoadTableResult>({
+const table = reactive<LoadTableResultReadable>({
   metadata: {
     'format-version': 0,
     'table-uuid': '',
@@ -165,7 +165,8 @@ async function init() {
   loaded.value = false;
 
   namespacePath.value = `${namespaceId}${String.fromCharCode(0x1f)}${tableName}`;
-  Object.assign(table, await functions.loadTable(warehouseId, namespaceId, tableName));
+  Object.assign(table, await functions.loadTableCustomized(warehouseId, namespaceId, tableName));
+  console.log('table_client', await functions.loadTable(warehouseId, namespaceId, tableName));
 
   tableId.value = table.metadata['table-uuid'];
   currentSchema.value = table.metadata['current-schema-id'] || 0;

@@ -383,6 +383,7 @@ const selectedWarehouse = reactive<GetWarehouseResponse>({
   'project-id': '',
   status: 'active',
   'storage-profile': storageProfile,
+  protected: false, // Added the missing 'protected' property
 });
 
 const loadedWarehouseItems: Item[] = reactive([]);

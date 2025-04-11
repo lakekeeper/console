@@ -77,7 +77,7 @@
             :items="availableCodes"
             attach
             chips
-            label="Chips"
+            label="HTTP Codes"
             multiple></v-select>
         </v-col>
       </v-row>
