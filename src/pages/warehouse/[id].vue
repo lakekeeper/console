@@ -95,14 +95,14 @@
                 </template>
 
                 <template #item.actions="{ item }">
-                  <v-icon
+                  <DialogDelete
                     v-if="item.type === 'namespace'"
-                    color="error"
                     :disabled="!myAccess.includes('delete')"
-                    @click="dropNamespace(item)">
-                    mdi-delete-outline
-                  </v-icon>
+                    :type="item.type"
+                    :name="item.name"
+                    @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
                 </template>
+
                 <template #no-data>
                   <addNamespaceDialog
                     v-if="myAccess.includes('create_namespace')"
@@ -513,19 +513,20 @@ async function setProtection() {
   }
 }
 
-const dropNamespace = async (item: Item) => {
+async function deleteNamespaceWithOptions(e: any, item: Item) {
   try {
     const res = await functions.dropNamespace(
       params.value.id,
       item.parentPath.join(String.fromCharCode(0x1f)),
+      e,
     );
     if (res.error) throw res.error;
 
-    await init();
+    await listNamespaces();
   } catch (error: any) {
     console.error(`Failed to drop namespace-${item.name}  - `, error);
   }
-};
+}
 
 async function routeToNamespace(item: Item) {
   router.push(`/warehouse/${params.value.id}/namespace/${item.name}`);
