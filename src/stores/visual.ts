@@ -22,6 +22,7 @@ export const useVisualStore = defineStore(
       'authz-backend': `${enabledPermissions ? 'openfga' : 'allow-all'}`,
       'aws-system-identities-enabled': false,
       'azure-system-identities-enabled': false,
+      'gcp-system-identities-enabled': false,
     });
 
     const projectSelected = reactive<Project>({
