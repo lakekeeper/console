@@ -85,7 +85,6 @@
                 :theme="themeText"
                 :showLineNumber="true"
                 :virtual="true" />
-              />
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
