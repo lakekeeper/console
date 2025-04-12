@@ -79,8 +79,8 @@
                       color="info"
                       :label="
                         !selectedWarehouse.protected
-                          ? 'recursive Delete Protection disbaled'
-                          : 'recursive Delete Protection enabled'
+                          ? 'Recursive Delete Protection disbaled'
+                          : 'Recursive Delete Protection enabled'
                       "
                       @click="setProtection"></v-switch>
                   </v-toolbar>

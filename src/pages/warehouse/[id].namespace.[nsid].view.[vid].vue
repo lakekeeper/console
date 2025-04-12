@@ -42,7 +42,11 @@
                   v-model="recursiveDeleteProtection"
                   class="ml-4 mt-4"
                   color="info"
-                  :label="recursiveDeleteProtection ? 'protected' : 'unprotected'"
+                  :label="
+                    recursiveDeleteProtection
+                      ? 'Recursive Delete Protection disbaled'
+                      : 'Recursive Delete Protection enabled'
+                  "
                   @click="setProtection"></v-switch>
               </v-toolbar>
               <v-card-text>
