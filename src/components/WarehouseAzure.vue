@@ -8,6 +8,8 @@
           <v-col>
             <span class="text-grey">Credential Type:</span>
           </v-col>
+        </v-row>
+        <v-row>
           <v-radio value="client-credentials" color="primary">
             <template #label>
               <div>
@@ -21,6 +23,14 @@
               <div>
                 <v-icon color="primary">mdi-key</v-icon>
                 Shared Access Key
+              </div>
+            </template>
+          </v-radio>
+          <v-radio value="azure-system-identity" color="primary">
+            <template #label>
+              <div>
+                <v-icon color="primary">mdi-key</v-icon>
+                Aazure System Identity
               </div>
             </template>
           </v-radio>
@@ -76,6 +86,15 @@
         v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
         color="success"
         :disabled="!warehouseObjectData['storage-credential']['key']"
+        @click="emitNewCredentials">
+        Update Credentials
+      </v-btn>
+    </template>
+
+    <template v-else-if="isAzureSystemIdentityKey(warehouseObjectData['storage-credential'])">
+      <v-btn
+        v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
+        color="success"
         @click="emitNewCredentials">
         Update Credentials
       </v-btn>
@@ -164,6 +183,7 @@ const emit = defineEmits<{
 const warehouseObjectData = reactive<{
   'storage-profile': AdlsProfile & { type: string };
   'storage-credential': AzCredential & { type: string };
+  'azure-system-identity'?: AzCredential & { type: string };
 }>({
   'storage-profile': {
     'account-name': '',
@@ -214,6 +234,13 @@ function isSharedAccessKey(credential: AzCredential): credential is {
   return credential['credential-type'] === 'shared-access-key';
 }
 
+function isAzureSystemIdentityKey(credential: AzCredential): credential is {
+  'credential-type': 'azure-system-identity';
+  key: string;
+} {
+  return credential['credential-type'] === 'azure-system-identity';
+}
+
 const rules = {
   required: (value: any) => !!value || 'Required.',
   noSlash: (value: string) => !value.includes('/') || 'Cannot contain "/"',
@@ -237,6 +264,11 @@ const emitNewCredentials = () => {
       type: 'az',
       'credential-type': warehouseObjectData['storage-credential']['credential-type'],
       key: warehouseObjectData['storage-credential']['key'],
+    });
+  } else if (isAzureSystemIdentityKey(warehouseObjectData['storage-credential'])) {
+    emit('updateCredentials', {
+      type: 'az',
+      'credential-type': warehouseObjectData['storage-credential']['credential-type'],
     });
   } else {
     throw new Error('Invalid credential type');
