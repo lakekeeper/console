@@ -1,30 +1,56 @@
 <template>
   <v-form @submit.prevent="handleSubmit">
+    <v-radio-group v-model="credentialType" row>
+      <v-row>
+        <v-col>
+          <span class="text-grey">Credential Type:</span>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-radio value="service-account-key" color="primary">
+          <template #label>
+            <div>
+              <v-icon color="primary">mdi-account-key</v-icon>
+              Service Account Key
+            </div>
+          </template>
+        </v-radio>
+        <v-radio value="gcp-system-identity" color="primary">
+          <template #label>
+            <div>
+              <v-icon color="primary">mdi-key</v-icon>
+              GCP System Identity
+            </div>
+          </template>
+        </v-radio>
+      </v-row>
+    </v-radio-group>
     <!--Storage Credentials-->
+    <span v-if="credentialType === 'service-account-key'">
+      <v-switch
+        v-model="useFileInput"
+        :label="!useFileInput ? 'Enable File Input' : 'Enable Text Input'"></v-switch>
 
-    <v-switch
-      v-model="useFileInput"
-      :label="!useFileInput ? 'Enable File Input' : 'Enable Text Input'"></v-switch>
-
-    <v-file-input
-      v-if="useFileInput"
-      accept="application/json"
-      label="key.json"
-      :rules="[rules.required]"
-      @change="handleFileInput"></v-file-input>
-    <v-textarea
-      v-else
-      v-model="keyString"
-      label="GCS credentials key json"
-      :rules="[rules.required, rules.validJson]"
-      @update:model-value="verifyKeyJson"></v-textarea>
-    <v-btn
-      v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
-      color="success"
-      :disabled="!keyStringValid"
-      @click="emitNewCredentials">
-      Update Credentials
-    </v-btn>
+      <v-file-input
+        v-if="useFileInput"
+        accept="application/json"
+        label="key.json"
+        :rules="[rules.required]"
+        @change="handleFileInput"></v-file-input>
+      <v-textarea
+        v-else
+        v-model="keyString"
+        label="GCS credentials key json"
+        :rules="[rules.required, rules.validJson]"
+        @update:model-value="verifyKeyJson"></v-textarea>
+      <v-btn
+        v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
+        color="success"
+        :disabled="!keyStringValid"
+        @click="emitNewCredentials">
+        Update Credentials
+      </v-btn>
+    </span>
 
     <v-divider></v-divider>
 
@@ -48,7 +74,10 @@
       <v-btn
         v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
         color="success"
-        :disabled="!keyStringValid || warehouseObjectData['storage-profile'].bucket == ''"
+        :disabled="
+          (credentialType === 'service-account-key' && !keyStringValid) ||
+          warehouseObjectData['storage-profile'].bucket == ''
+        "
         type="submit">
         Submit
       </v-btn>
@@ -73,7 +102,10 @@ import {
 } from '@/gen/management/types.gen';
 import { Intent, ObjectType } from '@/common/enums';
 import { WarehousObject } from '@/common/interfaces';
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, Ref, watch } from 'vue';
+
+const credentialType: Ref<'service-account-key' | 'gcp-system-identity'> =
+  ref('service-account-key');
 
 const keyString = ref('');
 const keyStringValid = ref(false);
@@ -122,6 +154,22 @@ const warehouseObjectData = reactive<{
   },
 });
 
+watch(credentialType, (newValue) => {
+  warehouseObjectData['storage-credential']['credential-type'] = newValue;
+  if (newValue === 'service-account-key') {
+    warehouseObjectData['storage-credential'] = {
+      'credential-type': 'service-account-key',
+      key,
+      type: 'gcs',
+    };
+  } else if (newValue === 'gcp-system-identity') {
+    warehouseObjectData['storage-credential'] = {
+      'credential-type': 'gcp-system-identity',
+      type: 'gcs',
+    };
+  }
+});
+
 const rules = {
   required: (value: any) => !!value || 'Required.',
   noSlash: (value: string) => !value.includes('/') || 'Cannot contain "/"',
@@ -145,7 +193,10 @@ const emitNewCredentials = () => {
   const credentials = {
     type: 'gcs',
     'credential-type': 'service-account-key',
-    key: warehouseObjectData['storage-credential'].key,
+    key:
+      warehouseObjectData['storage-credential']['credential-type'] === 'service-account-key'
+        ? warehouseObjectData['storage-credential'].key
+        : undefined,
   } as StorageCredential;
 
   emit('updateCredentials', credentials);
@@ -157,7 +208,10 @@ const emitNewProfile = () => {
     credentials: {
       type: 'gcs',
       'credential-type': 'service-account-key',
-      key: warehouseObjectData['storage-credential'].key,
+      key:
+        warehouseObjectData['storage-credential']['credential-type'] === 'service-account-key'
+          ? warehouseObjectData['storage-credential'].key
+          : undefined,
     } as StorageCredential,
   } as { profile: StorageProfile; credentials: StorageCredential };
   emit('updateProfile', newProfile);
@@ -176,7 +230,11 @@ function handleFileInput(event: any) {
         if (e.target && e.target.result) {
           const json = JSON.parse(e.target.result as string);
 
-          warehouseObjectData['storage-credential'].key = json;
+          if (
+            warehouseObjectData['storage-credential']['credential-type'] === 'service-account-key'
+          ) {
+            warehouseObjectData['storage-credential'].key = json;
+          }
           keyStringValid.value = true;
         }
       } catch (error) {
@@ -192,7 +250,9 @@ function verifyKeyJson() {
     if (keyString.value !== '') {
       const keyJson = JSON.parse(keyString.value);
 
-      warehouseObjectData['storage-credential'].key = keyJson;
+      if (warehouseObjectData['storage-credential']['credential-type'] === 'service-account-key') {
+        warehouseObjectData['storage-credential'].key = keyJson;
+      }
       keyStringValid.value = true;
     }
   } catch (error) {

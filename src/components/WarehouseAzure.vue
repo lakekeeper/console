@@ -183,7 +183,6 @@ const emit = defineEmits<{
 const warehouseObjectData = reactive<{
   'storage-profile': AdlsProfile & { type: string };
   'storage-credential': AzCredential & { type: string };
-  'azure-system-identity'?: AzCredential & { type: string };
 }>({
   'storage-profile': {
     'account-name': '',

@@ -350,14 +350,34 @@ export type ErrorModel = {
 };
 
 /**
- * Service Account Key
+ * GCS Credentials
  *
- * The key is the JSON object obtained when creating a service account key in the GCP console.
+ * Currently only supports Service Account Key
+ * Example of a key:
+ * ```json
+ * {
+ * "type": "service_account",
+ * "project_id": "example-project-1234",
+ * "private_key_id": "....",
+ * "private_key": "-----BEGIN PRIVATE KEY-----\n.....\n-----END PRIVATE KEY-----\n",
+ * "client_email": "abc@example-project-1234.iam.gserviceaccount.com",
+ * "client_id": "123456789012345678901",
+ * "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+ * "token_uri": "https://oauth2.googleapis.com/token",
+ * "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+ * "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abc%example-project-1234.iam.gserviceaccount.com",
+ * "universe_domain": "googleapis.com"
+ * }
+ * ```
  */
-export type GcsCredential = {
-  'credential-type': 'service-account-key';
-  key: GcsServiceKey;
-};
+export type GcsCredential =
+  | {
+      'credential-type': 'service-account-key';
+      key: GcsServiceKey;
+    }
+  | {
+      'credential-type': 'gcp-system-identity';
+    };
 
 export type GcsProfile = {
   /**
@@ -918,6 +938,10 @@ export type ServerInfo = {
    * Default Project ID. Null if not set
    */
   'default-project-id'?: string | null;
+  /**
+   * If using GCP system identities for GCS storage profiles are enabled.
+   */
+  'gcp-system-identities-enabled': boolean;
   /**
    * ID of the server.
    */
