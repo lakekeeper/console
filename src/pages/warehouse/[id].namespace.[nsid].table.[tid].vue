@@ -44,8 +44,8 @@
                   color="info"
                   :label="
                     recursiveDeleteProtection
-                      ? 'Recursive Delete Protection disbaled'
-                      : 'Recursive Delete Protection enabled'
+                      ? 'Recursive Delete Protection enabled'
+                      : 'Recursive Delete Protection disbaled'
                   "
                   @click="setProtection"></v-switch>
               </v-toolbar>
