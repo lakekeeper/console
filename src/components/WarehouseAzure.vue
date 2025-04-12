@@ -29,7 +29,7 @@
           <v-radio value="azure-system-identity" color="primary">
             <template #label>
               <div>
-                <v-icon color="primary">mdi-key</v-icon>
+                <v-icon color="primary">mdi-shield-key</v-icon>
                 Aazure System Identity
               </div>
             </template>
