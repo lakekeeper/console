@@ -37,6 +37,18 @@
         <v-card style="max-height: 75vh; overflow: auto; min-height: 55vh">
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="overview">
+              <v-toolbar color="transparent" density="compact" flat>
+                <v-switch
+                  v-model="recursiveDeleteProtection"
+                  class="ml-4 mt-4"
+                  color="info"
+                  :label="
+                    recursiveDeleteProtection
+                      ? 'Recursive Delete Protection enabled'
+                      : 'Recursive Delete Protection disbaled'
+                  "
+                  @click="setProtection"></v-switch>
+              </v-toolbar>
               <v-card-text>
                 <v-row>
                   <v-col>
@@ -48,7 +60,31 @@
               </v-card-text>
             </v-tabs-window-item>
             <v-tabs-window-item value="raw">
-              <vue-json-pretty :data="view" :deep="1" />
+              <div class="mb-4 mt-4">
+                <v-btn
+                  size="small"
+                  variant="outlined"
+                  color="info"
+                  class="mr-8 ml-4"
+                  @click="depthRawRepresentation = 1"
+                  append-icon="mdi-collapse-all">
+                  Collapse
+                </v-btn>
+                <v-btn
+                  size="small"
+                  variant="outlined"
+                  color="success"
+                  @click="depthRawRepresentation = depthRawRepresentationMax"
+                  append-icon="mdi-expand-all">
+                  Expand
+                </v-btn>
+              </div>
+              <vue-json-pretty
+                :data="view"
+                :deep="depthRawRepresentation"
+                :theme="themeText"
+                :showLineNumber="true"
+                :virtual="true" />
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
@@ -67,13 +103,13 @@
 <script lang="ts" setup>
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
-
+import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 const functions = useFunctions();
@@ -81,6 +117,9 @@ const route = useRoute();
 const tab = ref('overview');
 const crumbPath = ref('');
 const loading = ref(true);
+
+const depthRawRepresentation = ref(1);
+const depthRawRepresentationMax = ref(1000);
 
 const myAccess = reactive<TableAction[]>([]);
 
@@ -90,6 +129,15 @@ const permissionObject = reactive<any>({
   id: '',
   description: '',
   name: '',
+});
+
+const visual = useVisualStore();
+const themeLight = computed(() => {
+  return visual.themeLight;
+});
+
+const themeText = computed(() => {
+  return themeLight.value ? 'light' : 'dark';
 });
 
 const warehouseId = (route.params as { id: string }).id;
@@ -111,6 +159,7 @@ const view = reactive<LoadViewResultReadable>({
 const loaded = ref(false);
 const existingPermissions = reactive<ViewAssignment[]>([]);
 const canReadPermissions = ref(false);
+const recursiveDeleteProtection = ref(false);
 
 const currentVersionId = ref(0);
 const sqlStatement = ref('');
@@ -119,6 +168,8 @@ async function loadTabData() {
 }
 
 async function init() {
+  const serverInfo = await functions.getServerInfo();
+
   loaded.value = false;
   existingPermissions.splice(0, existingPermissions.length);
 
@@ -135,15 +186,19 @@ async function init() {
   });
   permissionObject.id = viewId.value;
   permissionObject.name = viewName;
+  if (serverInfo['authz-backend'] != 'allow-all') {
+    Object.assign(myAccess, await functions.getViewAccessById(viewId.value));
+    await getProtection();
 
-  Object.assign(myAccess, await functions.getViewAccessById(viewId.value));
+    canReadPermissions.value = !!myAccess.includes('read_assignments');
 
-  canReadPermissions.value = !!myAccess.includes('read_assignments');
+    Object.assign(
+      existingPermissions,
+      canReadPermissions.value ? await functions.getViewAssignmentsById(viewId.value) : [],
+    );
+  }
 
-  Object.assign(
-    existingPermissions,
-    canReadPermissions.value ? await functions.getViewAssignmentsById(viewId.value) : [],
-  );
+  depthRawRepresentationMax.value = getMaxDepth(view);
   loaded.value = true;
 }
 
@@ -151,6 +206,27 @@ onMounted(async () => {
   await init();
   loading.value = false;
 });
+
+function getMaxDepth(obj: any): number {
+  let maxDepth = 0;
+
+  function findDepth(obj: any, depth: number) {
+    if (typeof obj === 'object' && obj !== null) {
+      depth++;
+      if (depth > maxDepth) {
+        maxDepth = depth;
+      }
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          findDepth(obj[key], depth);
+        }
+      }
+    }
+  }
+
+  findDepth(obj, 0);
+  return maxDepth;
+}
 
 async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
@@ -163,6 +239,25 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     console.error(error);
 
     await init();
+  }
+}
+
+async function getProtection() {
+  try {
+    recursiveDeleteProtection.value = (
+      await functions.getViewProtection(warehouseId, viewId.value)
+    ).protected;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function setProtection() {
+  try {
+    await functions.setViewProtection(warehouseId, viewId.value, !recursiveDeleteProtection.value);
+    await getProtection();
+  } catch (error) {
+    console.error(error);
   }
 }
 </script>

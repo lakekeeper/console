@@ -20,6 +20,7 @@ import {
   GetEndpointStatisticsRequest,
   GetEndpointStatisticsResponse,
   GetNamespaceAuthPropertiesResponse,
+  GetNamespaceProtectionResponse,
   GetProjectResponse,
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
@@ -30,6 +31,7 @@ import {
   NamespaceAssignment,
   ProjectAction,
   ProjectAssignment,
+  ProtectionResponse,
   RenameProjectRequest,
   Role,
   RoleAction,
@@ -39,6 +41,7 @@ import {
   ServerAction,
   ServerAssignment,
   ServerInfo,
+  SetWarehouseProtectionResponse,
   StorageCredential,
   StorageProfile,
   TableAction,
@@ -579,6 +582,34 @@ async function getWarehouseById(warehouseId: string): Promise<boolean> {
   }
 }
 
+async function setWarehouseProtection(
+  warehouseId: string,
+  protected_state: boolean,
+): Promise<SetWarehouseProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.setWarehouseProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+      },
+      body: {
+        protected: protected_state,
+      },
+    });
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
 // Namespace
 async function listNamespaces(id: string, parentNS?: string): Promise<NamespaceResponse> {
   try {
@@ -646,7 +677,7 @@ async function createNamespace(id: string, namespace: Namespace) {
   }
 }
 
-async function dropNamespace(id: string, ns: string) {
+async function dropNamespace(id: string, ns: string, options?: NamespaceAction) {
   try {
     const client = iceClient.client;
     const { data, error } = await ice.dropNamespace({
@@ -655,6 +686,7 @@ async function dropNamespace(id: string, ns: string) {
         prefix: id,
         namespace: ns,
       },
+      query: options as { force?: boolean; recursive?: boolean; purge?: boolean } | undefined,
     });
     if (error) throw error;
 
@@ -682,6 +714,62 @@ async function getNamespaceById(namespaceId: string): Promise<GetNamespaceAuthPr
     if (error) throw error;
 
     return data as GetNamespaceAuthPropertiesResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getNamespaceProtection(
+  warehouseId: string,
+  namespaceId: string,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getNamespaceProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        namespace_id: namespaceId,
+      },
+    });
+    if (error) throw error;
+
+    return data as GetNamespaceProtectionResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setNamespaceProtection(
+  warehouseId: string,
+  namespaceId: string,
+  protected_state: boolean,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.setNamespaceProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        namespace_id: namespaceId,
+      },
+      body: {
+        protected: protected_state,
+      },
+    });
+    if (error) throw error;
+
+    return data;
   } catch (error) {
     handleError(error, new Error());
     throw error;
@@ -771,6 +859,7 @@ async function dropTable(
   warehouseId: string,
   namespacePath: string,
   tableName: string,
+  options?: { purgeRequested?: boolean; force?: boolean } | undefined,
 ): Promise<boolean> {
   try {
     const client = iceClient.client;
@@ -781,11 +870,68 @@ async function dropTable(
         namespace: namespacePath,
         table: tableName,
       },
+      query: options,
     });
     if (error) throw error;
 
     return true;
   } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getTableProtection(
+  warehouseId: string,
+  tableId: string,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getTableProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        table_id: tableId,
+      },
+    });
+    if (error) throw error;
+
+    return data as GetNamespaceProtectionResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setTableProtection(
+  warehouseId: string,
+  tableId: string,
+  protected_state: boolean,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.setTableProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        table_id: tableId,
+      },
+      body: {
+        protected: protected_state,
+      },
+    });
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
     handleError(error, new Error());
     throw error;
   }
@@ -835,7 +981,12 @@ async function loadView(
   }
 }
 
-async function dropView(warehouseId: string, namespacePath: string, viewName: string) {
+async function dropView(
+  warehouseId: string,
+  namespacePath: string,
+  viewName: string,
+  options?: { force?: boolean } | undefined,
+) {
   try {
     const client = iceClient.client;
     const { data, error } = await ice.dropView({
@@ -845,12 +996,66 @@ async function dropView(warehouseId: string, namespacePath: string, viewName: st
         namespace: namespacePath,
         view: viewName,
       },
+      query: options,
     });
 
     if (error) throw error;
 
     return data;
   } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getViewProtection(warehouseId: string, viewId: string): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getViewProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        view_id: viewId,
+      },
+    });
+    if (error) throw error;
+
+    return data as GetNamespaceProtectionResponse;
+  } catch (error) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setViewProtection(
+  warehouseId: string,
+  viewId: string,
+  protected_state: boolean,
+): Promise<ProtectionResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.setViewProtection({
+      client,
+
+      path: {
+        warehouse_id: warehouseId,
+        view_id: viewId,
+      },
+      body: {
+        protected: protected_state,
+      },
+    });
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
     handleError(error, new Error());
     throw error;
   }
@@ -1357,7 +1562,7 @@ async function getUser(userId: string): Promise<User> {
     const { data, error } = await mng.getUser({
       client,
       path: {
-        id: userId,
+        user_id: userId,
       },
     });
 
@@ -1379,7 +1584,7 @@ async function deleteUser(userId: string): Promise<boolean> {
     const { error } = await mng.deleteUser({
       client,
       path: {
-        id: userId,
+        user_id: userId,
       },
     });
 
@@ -1424,7 +1629,7 @@ async function updateUserById(name: string, userId: string): Promise<boolean> {
         'user-type': 'application',
       },
       path: {
-        id: userId,
+        user_id: userId,
       },
     });
 
@@ -1493,7 +1698,7 @@ async function getRole(roleId: string): Promise<Role> {
 
     const { data, error } = await mng.getRole({
       client,
-      path: { id: roleId },
+      path: { role_id: roleId },
     });
 
     if (error) throw error;
@@ -1546,7 +1751,7 @@ async function updateRole(roleId: string, name: string, description?: string): P
     const { data, error } = await mng.updateRole({
       client,
       body,
-      path: { id: roleId },
+      path: { role_id: roleId },
     });
 
     if (error) throw error;
@@ -1566,7 +1771,7 @@ async function deleteRole(roleId: string): Promise<boolean> {
 
     await mng.deleteRole({
       client,
-      path: { id: roleId },
+      path: { role_id: roleId },
     });
 
     return true;
@@ -1878,6 +2083,13 @@ export function useFunctions() {
     undropTabular,
     getWarehouseStatistics,
     getEndpointStatistics,
+    setWarehouseProtection,
+    setNamespaceProtection,
+    getNamespaceProtection,
+    getTableProtection,
+    setTableProtection,
+    setViewProtection,
+    getViewProtection,
   };
 }
 

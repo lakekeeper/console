@@ -35,6 +35,10 @@ export type CatalogConfig = {
   defaults: {
     [key: string]: string;
   };
+  /**
+   * A list of endpoints that the server supports. The format of each endpoint must be "<HTTP verb> <resource path from OpenAPI REST spec>". The HTTP verb and the resource path must be separated by a space character.
+   */
+  endpoints?: Array<string>;
 };
 
 export type CreateNamespaceRequest = {
@@ -121,6 +125,8 @@ export type SchemaWritable = StructType & {
 };
 
 export type Expression =
+  | TrueExpression
+  | FalseExpression
   | AndOrExpression
   | NotExpression
   | SetExpression
@@ -128,6 +134,14 @@ export type Expression =
   | UnaryExpression;
 
 export type ExpressionType = string;
+
+export type TrueExpression = {
+  type: ExpressionType;
+};
+
+export type FalseExpression = {
+  type: ExpressionType;
+};
 
 export type AndOrExpression = {
   type: ExpressionType;
@@ -272,8 +286,8 @@ export type TableMetadataReadable = {
   'last-sequence-number'?: number;
   'snapshot-log'?: SnapshotLog;
   'metadata-log'?: MetadataLog;
-  'statistics-files'?: Array<StatisticsFile>;
-  'partition-statistics-files'?: Array<PartitionStatisticsFile>;
+  statistics?: Array<StatisticsFile>;
+  'partition-statistics'?: Array<PartitionStatisticsFile>;
 };
 
 export type TableMetadataWritable = {
@@ -298,8 +312,8 @@ export type TableMetadataWritable = {
   'last-sequence-number'?: number;
   'snapshot-log'?: SnapshotLog;
   'metadata-log'?: MetadataLog;
-  'statistics-files'?: Array<StatisticsFile>;
-  'partition-statistics-files'?: Array<PartitionStatisticsFile>;
+  statistics?: Array<StatisticsFile>;
+  'partition-statistics'?: Array<PartitionStatisticsFile>;
 };
 
 export type SqlViewRepresentation = {
@@ -383,7 +397,9 @@ export type AddSchemaUpdateReadable = BaseUpdate & {
   action: 'add-schema';
   schema: SchemaReadable;
   /**
+   * This optional field is **DEPRECATED for REMOVAL** since it more safe to handle this internally, and shouldn't be exposed to the clients.
    * The highest assigned column ID for the table. This is used to ensure columns are always assigned an unused ID when evolving schemas. When omitted, it will be computed on the server side.
+   * @deprecated
    */
   'last-column-id'?: number;
 };
@@ -394,7 +410,9 @@ export type AddSchemaUpdateWritable = BaseUpdate & {
   action: 'add-schema';
   schema: SchemaWritable;
   /**
+   * This optional field is **DEPRECATED for REMOVAL** since it more safe to handle this internally, and shouldn't be exposed to the clients.
    * The highest assigned column ID for the table. This is used to ensure columns are always assigned an unused ID when evolving schemas. When omitted, it will be computed on the server side.
+   * @deprecated
    */
   'last-column-id'?: number;
 };
@@ -554,6 +572,13 @@ export type RemovePartitionStatisticsUpdate = BaseUpdate & {
   'snapshot-id': number;
 };
 
+export type RemovePartitionSpecsUpdate = BaseUpdate & {
+  action: 'remove-partition-specs';
+} & {
+  action?: 'remove-partition-specs';
+  'spec-ids': Array<number>;
+};
+
 export type TableUpdateReadable =
   | AssignUuidUpdate
   | UpgradeFormatVersionUpdate
@@ -571,7 +596,8 @@ export type TableUpdateReadable =
   | SetPropertiesUpdate
   | RemovePropertiesUpdate
   | SetStatisticsUpdate
-  | RemoveStatisticsUpdate;
+  | RemoveStatisticsUpdate
+  | RemovePartitionSpecsUpdate;
 
 export type TableUpdateWritable =
   | AssignUuidUpdate
@@ -590,7 +616,8 @@ export type TableUpdateWritable =
   | SetPropertiesUpdate
   | RemovePropertiesUpdate
   | SetStatisticsUpdate
-  | RemoveStatisticsUpdate;
+  | RemoveStatisticsUpdate
+  | RemovePartitionSpecsUpdate;
 
 export type ViewUpdateReadable =
   | AssignUuidUpdate
@@ -612,25 +639,43 @@ export type ViewUpdateWritable =
   | AddViewVersionUpdate
   | SetCurrentViewVersionUpdate;
 
-export type TableRequirement = {
-  type: string;
-};
+export type TableRequirement =
+  | ({
+      type?: 'assert-create';
+    } & AssertCreate)
+  | ({
+      type?: 'assert-table-uuid';
+    } & AssertTableUuid)
+  | ({
+      type?: 'assert-ref-snapshot-id';
+    } & AssertRefSnapshotId)
+  | ({
+      type?: 'assert-last-assigned-field-id';
+    } & AssertLastAssignedFieldId)
+  | ({
+      type?: 'assert-current-schema-id';
+    } & AssertCurrentSchemaId)
+  | ({
+      type?: 'assert-last-assigned-partition-id';
+    } & AssertLastAssignedPartitionId)
+  | ({
+      type?: 'assert-default-spec-id';
+    } & AssertDefaultSpecId)
+  | ({
+      type?: 'assert-default-sort-order-id';
+    } & AssertDefaultSortOrderId);
 
 /**
  * The table must not already exist; used for create transactions
  */
-export type AssertCreate = TableRequirement & {
-  type: 'assert-create';
-} & {
+export type AssertCreate = {
   type: 'assert-create';
 };
 
 /**
  * The table UUID must match the requirement's `uuid`
  */
-export type AssertTableUuid = TableRequirement & {
-  type: 'assert-table-uuid';
-} & {
+export type AssertTableUuid = {
   type: 'assert-table-uuid';
   uuid: string;
 };
@@ -638,9 +683,7 @@ export type AssertTableUuid = TableRequirement & {
 /**
  * The table branch or tag identified by the requirement's `ref` must reference the requirement's `snapshot-id`; if `snapshot-id` is `null` or missing, the ref must not already exist
  */
-export type AssertRefSnapshotId = TableRequirement & {
-  type: 'assert-ref-snapshot-id';
-} & {
+export type AssertRefSnapshotId = {
   type: 'assert-ref-snapshot-id';
   ref: string;
   'snapshot-id': number;
@@ -649,9 +692,7 @@ export type AssertRefSnapshotId = TableRequirement & {
 /**
  * The table's last assigned column id must match the requirement's `last-assigned-field-id`
  */
-export type AssertLastAssignedFieldId = TableRequirement & {
-  type: 'assert-last-assigned-field-id';
-} & {
+export type AssertLastAssignedFieldId = {
   type: 'assert-last-assigned-field-id';
   'last-assigned-field-id': number;
 };
@@ -659,9 +700,7 @@ export type AssertLastAssignedFieldId = TableRequirement & {
 /**
  * The table's current schema id must match the requirement's `current-schema-id`
  */
-export type AssertCurrentSchemaId = TableRequirement & {
-  type: 'assert-current-schema-id';
-} & {
+export type AssertCurrentSchemaId = {
   type: 'assert-current-schema-id';
   'current-schema-id': number;
 };
@@ -669,9 +708,7 @@ export type AssertCurrentSchemaId = TableRequirement & {
 /**
  * The table's last assigned partition id must match the requirement's `last-assigned-partition-id`
  */
-export type AssertLastAssignedPartitionId = TableRequirement & {
-  type: 'assert-last-assigned-partition-id';
-} & {
+export type AssertLastAssignedPartitionId = {
   type: 'assert-last-assigned-partition-id';
   'last-assigned-partition-id': number;
 };
@@ -679,9 +716,7 @@ export type AssertLastAssignedPartitionId = TableRequirement & {
 /**
  * The table's default spec id must match the requirement's `default-spec-id`
  */
-export type AssertDefaultSpecId = TableRequirement & {
-  type: 'assert-default-spec-id';
-} & {
+export type AssertDefaultSpecId = {
   type: 'assert-default-spec-id';
   'default-spec-id': number;
 };
@@ -689,25 +724,35 @@ export type AssertDefaultSpecId = TableRequirement & {
 /**
  * The table's default sort order id must match the requirement's `default-sort-order-id`
  */
-export type AssertDefaultSortOrderId = TableRequirement & {
-  type: 'assert-default-sort-order-id';
-} & {
+export type AssertDefaultSortOrderId = {
   type: 'assert-default-sort-order-id';
   'default-sort-order-id': number;
 };
 
 export type ViewRequirement = {
-  type: string;
-};
+  type?: 'assert-view-uuid';
+} & AssertViewUuid;
 
 /**
  * The view UUID must match the requirement's `uuid`
  */
-export type AssertViewUuid = ViewRequirement & {
-  type: 'assert-view-uuid';
-} & {
+export type AssertViewUuid = {
   type: 'assert-view-uuid';
   uuid: string;
+};
+
+export type StorageCredential = {
+  /**
+   * Indicates a storage location prefix where the credential is relevant. Clients should choose the most specific prefix (by selecting the longest prefix) if several credentials of the same type are available.
+   */
+  prefix: string;
+  config: {
+    [key: string]: string;
+  };
+};
+
+export type LoadCredentialsResponse = {
+  'storage-credentials': Array<StorageCredential>;
 };
 
 /**
@@ -731,10 +776,15 @@ export type AssertViewUuid = ViewRequirement & {
  *
  * The following configurations should be respected when working with tables stored in AWS S3
  * - `client.region`: region to configure client for making requests to AWS
- * - `s3.access-key-id`: id for for credentials that provide access to the data in S3
+ * - `s3.access-key-id`: id for credentials that provide access to the data in S3
  * - `s3.secret-access-key`: secret for credentials that provide access to data in S3
  * - `s3.session-token`: if present, this value should be used for as the session token
  * - `s3.remote-signing-enabled`: if `true` remote signing should be performed as described in the `s3-signer-open-api.yaml` specification
+ *
+ * ## Storage Credentials
+ *
+ * Credentials for ADLS / GCS / S3 / ... are provided through the `storage-credentials` field.
+ * Clients must first check whether the respective credentials exist in the `storage-credentials` field before checking the `config` for credentials.
  *
  */
 export type LoadTableResultReadable = {
@@ -746,6 +796,7 @@ export type LoadTableResultReadable = {
   config?: {
     [key: string]: string;
   };
+  'storage-credentials'?: Array<StorageCredential>;
 };
 
 /**
@@ -769,10 +820,15 @@ export type LoadTableResultReadable = {
  *
  * The following configurations should be respected when working with tables stored in AWS S3
  * - `client.region`: region to configure client for making requests to AWS
- * - `s3.access-key-id`: id for for credentials that provide access to the data in S3
+ * - `s3.access-key-id`: id for credentials that provide access to the data in S3
  * - `s3.secret-access-key`: secret for credentials that provide access to data in S3
  * - `s3.session-token`: if present, this value should be used for as the session token
  * - `s3.remote-signing-enabled`: if `true` remote signing should be performed as described in the `s3-signer-open-api.yaml` specification
+ *
+ * ## Storage Credentials
+ *
+ * Credentials for ADLS / GCS / S3 / ... are provided through the `storage-credentials` field.
+ * Clients must first check whether the respective credentials exist in the `storage-credentials` field before checking the `config` for credentials.
  *
  */
 export type LoadTableResultWritable = {
@@ -784,7 +840,106 @@ export type LoadTableResultWritable = {
   config?: {
     [key: string]: string;
   };
+  'storage-credentials'?: Array<StorageCredential>;
 };
+
+/**
+ * Scan and planning tasks for server-side scan planning
+ *
+ * - `plan-tasks` contains opaque units of planning work
+ * - `file-scan-tasks` contains a partial or complete list of table scan tasks
+ * - `delete-files` contains delete files referenced by file scan tasks
+ *
+ * Each plan task must be passed to the fetchScanTasks endpoint to fetch the file scan tasks for the plan task.
+ *
+ * The list of delete files must contain all delete files referenced by the file scan tasks.
+ *
+ */
+export type ScanTasks = {
+  /**
+   * Delete files referenced by file scan tasks
+   */
+  'delete-files'?: Array<DeleteFile>;
+  'file-scan-tasks'?: Array<FileScanTask>;
+  'plan-tasks'?: Array<PlanTask>;
+};
+
+/**
+ * Completed server-side planning result
+ */
+export type CompletedPlanningResult = ScanTasks & {
+  status: PlanStatus;
+};
+
+export type CompletedPlanningWithIdResult = CompletedPlanningResult & {
+  /**
+   * ID used to track a planning request
+   */
+  'plan-id'?: string;
+};
+
+/**
+ * Failed server-side planning result
+ */
+export type FailedPlanningResult = IcebergErrorResponse & {
+  status: PlanStatus;
+};
+
+export type AsyncPlanningResult = {
+  status: PlanStatus;
+  /**
+   * ID used to track a planning request
+   */
+  'plan-id'?: string;
+};
+
+/**
+ * Empty server-side planning result
+ */
+export type EmptyPlanningResult = {
+  status: PlanStatus;
+};
+
+/**
+ * Status of a server-side planning operation
+ */
+export type PlanStatus = 'completed' | 'submitted' | 'cancelled' | 'failed';
+
+/**
+ * Result of server-side scan planning for fetchPlanningResult
+ */
+export type FetchPlanningResult =
+  | ({
+      status?: 'completed';
+    } & CompletedPlanningResult)
+  | ({
+      status?: 'failed';
+    } & FailedPlanningResult)
+  | ({
+      status?: 'submitted';
+    } & EmptyPlanningResult);
+
+/**
+ * Result of server-side scan planning for planTableScan
+ */
+export type PlanTableScanResult =
+  | ({
+      status?: 'completed';
+    } & CompletedPlanningWithIdResult)
+  | ({
+      status?: 'failed';
+    } & FailedPlanningResult)
+  | ({
+      status?: 'submitted';
+    } & AsyncPlanningResult)
+  | ({
+      status?: 'cancelled';
+    } & EmptyPlanningResult);
+
+/**
+ * Response schema for fetchScanTasks
+ */
+export type FetchScanTasksResult = ScanTasks;
 
 export type CommitTableRequestReadable = {
   identifier?: TableIdentifier;
@@ -929,9 +1084,12 @@ export type TokenType =
   | 'urn:ietf:params:oauth:token-type:jwt';
 
 /**
+ * The `oauth/tokens` endpoint and related schemas are **DEPRECATED for REMOVAL** from this spec, see description of the endpoint.
+ *
  * OAuth2 client credentials request
  *
  * See https://datatracker.ietf.org/doc/html/rfc6749#section-4.4
+ * @deprecated
  */
 export type OAuthClientCredentialsRequest = {
   grant_type: 'client_credentials';
@@ -951,9 +1109,12 @@ export type OAuthClientCredentialsRequest = {
 };
 
 /**
+ * The `oauth/tokens` endpoint and related schemas are **DEPRECATED for REMOVAL** from this spec, see description of the endpoint.
+ *
  * OAuth2 token exchange request
  *
  * See https://datatracker.ietf.org/doc/html/rfc8693
+ * @deprecated
  */
 export type OAuthTokenExchangeRequest = {
   grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange';
@@ -971,6 +1132,10 @@ export type OAuthTokenExchangeRequest = {
   actor_token_type?: TokenType;
 };
 
+/**
+ * The `oauth/tokens` endpoint and related schemas are **DEPRECATED for REMOVAL** from this spec, see description of the endpoint.
+ * @deprecated
+ */
 export type OAuthTokenRequest = OAuthClientCredentialsRequest | OAuthTokenExchangeRequest;
 
 export type CounterResult = {
@@ -1018,6 +1183,10 @@ export type CommitReport = {
   };
 };
 
+/**
+ * The `oauth/tokens` endpoint and related schemas are **DEPRECATED for REMOVAL** from this spec, see description of the endpoint.
+ * @deprecated
+ */
 export type OAuthError = {
   error:
     | 'invalid_request'
@@ -1030,6 +1199,10 @@ export type OAuthError = {
   error_uri?: string;
 };
 
+/**
+ * The `oauth/tokens` endpoint and related schemas are **DEPRECATED for REMOVAL** from this spec, see description of the endpoint.
+ * @deprecated
+ */
 export type OAuthTokenResponse = {
   /**
    * The access token, for client credentials or token exchange
@@ -1088,12 +1261,14 @@ export type ListTablesResponse = {
   'next-page-token'?: PageToken;
   identifiers?: Array<TableIdentifier>;
   'table-uuids'?: Array<string> | null;
+  'protection-status'?: Array<boolean> | null;
 };
 
 export type ListNamespacesResponse = {
   'next-page-token'?: PageToken;
   namespaces?: Array<Namespace>;
   'namespace-uuids'?: Array<string> | null;
+  'protection-status'?: Array<boolean> | null;
 };
 
 export type UpdateNamespacePropertiesResponse = {
@@ -1135,7 +1310,7 @@ export type BlobMetadata = {
   'sequence-number': number;
   fields: Array<number>;
   properties?: {
-    [key: string]: unknown;
+    [key: string]: string;
   };
 };
 
@@ -1247,7 +1422,7 @@ export type PrimitiveTypeValue =
   | FixedTypeValue
   | BinaryTypeValue;
 
-export type FileFormat = 'avro' | 'orc' | 'parquet';
+export type FileFormat = 'avro' | 'orc' | 'parquet' | 'puffin';
 
 export type ContentFile = {
   content: string;
@@ -1257,7 +1432,7 @@ export type ContentFile = {
   /**
    * A list of partition field values ordered based on the fields of the partition spec specified by the `spec-id`
    */
-  partition?: Array<PrimitiveTypeValue>;
+  partition: Array<PrimitiveTypeValue>;
   /**
    * Total file size in bytes
    */
@@ -1307,10 +1482,26 @@ export type DataFile = ContentFile & {
   'upper-bounds'?: ValueMap;
 };
 
+export type DeleteFile =
+  | ({
+      content?: 'position-deletes';
+    } & PositionDeleteFile)
+  | ({
+      content?: 'equality-deletes';
+    } & EqualityDeleteFile);
+
 export type PositionDeleteFile = ContentFile & {
   content: 'position-deletes';
 } & {
   content: 'position-deletes';
+  /**
+   * Offset within the delete file of delete content
+   */
+  'content-offset'?: number;
+  /**
+   * Length, in bytes, of the delete content; required if content-offset is present
+   */
+  'content-size-in-bytes'?: number;
 };
 
 export type EqualityDeleteFile = ContentFile & {
@@ -1321,6 +1512,68 @@ export type EqualityDeleteFile = ContentFile & {
    * List of equality field IDs
    */
   'equality-ids'?: Array<number>;
+};
+
+export type PlanTableScanRequest = {
+  /**
+   * Identifier for the snapshot to scan in a point-in-time scan
+   */
+  'snapshot-id'?: number;
+  /**
+   * List of selected schema fields
+   */
+  select?: Array<FieldName>;
+  filter?: Expression;
+  /**
+   * Enables case sensitive field matching for filter and select
+   */
+  'case-sensitive'?: boolean;
+  /**
+   * Whether to use the schema at the time the snapshot was written.
+   * When time travelling, the snapshot schema should be used (true). When scanning a branch, the table schema should be used (false).
+   */
+  'use-snapshot-schema'?: boolean;
+  /**
+   * Starting snapshot ID for an incremental scan (exclusive)
+   */
+  'start-snapshot-id'?: number;
+  /**
+   * Ending snapshot ID for an incremental scan (inclusive).
+   * Required when start-snapshot-id is specified.
+   */
+  'end-snapshot-id'?: number;
+  /**
+   * List of fields for which the service should send column stats.
+   */
+  'stats-fields'?: Array<FieldName>;
+};
+
+/**
+ * A full field name (including parent field names), such as those passed in APIs like Java `Schema#findField(String name)`.
+ * The nested field name follows these rules - Nested struct fields are named by concatenating field names at each struct level using dot (`.`) delimiter, e.g. employer.contact_info.address.zip_code - Nested fields in a map key are named using the keyword `key`, e.g. employee_address_map.key.first_name - Nested fields in a map value are named using the keyword `value`, e.g. employee_address_map.value.zip_code - Nested fields in a list are named using the keyword `element`, e.g. employees.element.first_name
+ */
+export type FieldName = string;
+
+export type FetchScanTasksRequest = {
+  'plan-task': PlanTask;
+};
+
+/**
+ * An opaque string provided by the REST server that represents a unit of work to produce file scan tasks for scan planning. This allows clients to fetch tasks across multiple requests to accommodate large result sets.
+ */
+export type PlanTask = string;
+
+export type FileScanTask = {
+  'data-file': DataFile;
+  /**
+   * A list of indices in the delete files array (0-based)
+   */
+  'delete-file-references'?: Array<number>;
+  /**
+   * An optional filter to be applied to rows in this file scan task.
+   * If the residual is not present, the client must produce the residual or use the original filter.
+   */
+  'residual-filter'?: Expression;
 };
 
 /**
@@ -1337,6 +1590,11 @@ export type Prefix = string;
  * A table name
  */
 export type Table = string;
+
+/**
+ * ID used to track a planning request
+ */
+export type PlanId = string;
 
 /**
  * A view name
@@ -1390,15 +1648,15 @@ export type GetConfigErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type GetConfigError = GetConfigErrors[keyof GetConfigErrors];
@@ -1413,7 +1671,7 @@ export type GetConfigResponses = {
 export type GetConfigResponse = GetConfigResponses[keyof GetConfigResponses];
 
 export type GetTokenData = {
-  body?: OAuthTokenRequest;
+  body: OAuthTokenRequest;
   path?: never;
   query?: never;
   url: '/v1/oauth/tokens';
@@ -1431,7 +1689,7 @@ export type GetTokenErrors = {
   /**
    * OAuth2 error response
    */
-  500: OAuthError;
+  '5XX': OAuthError;
 };
 
 export type GetTokenError = GetTokenErrors[keyof GetTokenErrors];
@@ -1467,6 +1725,10 @@ export type ListNamespacesData = {
      * If true, include the `namespace-uuids` field in the response
      */
     returnUuids?: boolean;
+    /**
+     * If true, include the `protection-status` field in the response
+     */
+    returnProtectionStatus?: boolean;
   };
   url: '/v1/{prefix}/namespaces';
 };
@@ -1493,15 +1755,15 @@ export type ListNamespacesErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type ListNamespacesError = ListNamespacesErrors[keyof ListNamespacesErrors];
@@ -1516,7 +1778,7 @@ export type ListNamespacesResponses = {
 export type ListNamespacesResponse2 = ListNamespacesResponses[keyof ListNamespacesResponses];
 
 export type CreateNamespaceData = {
-  body?: CreateNamespaceRequest;
+  body: CreateNamespaceRequest;
   path: {
     /**
      * An optional prefix in the path
@@ -1553,15 +1815,15 @@ export type CreateNamespaceErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type CreateNamespaceError = CreateNamespaceErrors[keyof CreateNamespaceErrors];
@@ -1587,7 +1849,20 @@ export type DropNamespaceData = {
      */
     namespace: string;
   };
-  query?: never;
+  query?: {
+    /**
+     * If force and recursive are set to true, immediately delete all contents of the namespace without considering soft-delete policies. Force has no effect without recursive=true.
+     */
+    force?: boolean;
+    /**
+     * Delete a namespace and its contents. This means all tables, views, and namespaces under this namespace will be deleted. The namespace itself will also be deleted. If the warehouse containing the namespace is configured with a soft-deletion profile, the `force` flag has to be provided. The deletion will not be a soft-deletion. Every table, view and namespace will be gone as soon as this call returns. Depending on whether the `purge` flag was set to true, the data will be queued for deletion too. Any pending `tabular_expiration` will be cancelled. If there is a running `tabular_expiration`, this call will fail with a `409 Conflict` error.
+     */
+    recursive?: boolean;
+    /**
+     * If recursive is true, also deletes table and view data. If false, only metadata is dropped from the catalog, table location remains untouched. Defaults to true for all tables managed by Lakekeeper.
+     */
+    purge?: boolean;
+  };
   url: '/v1/{prefix}/namespaces/{namespace}';
 };
 
@@ -1613,15 +1888,15 @@ export type DropNamespaceErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type DropNamespaceError = DropNamespaceErrors[keyof DropNamespaceErrors];
@@ -1678,15 +1953,15 @@ export type LoadNamespaceMetadataErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type LoadNamespaceMetadataError =
@@ -1740,15 +2015,15 @@ export type NamespaceExistsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type NamespaceExistsError = NamespaceExistsErrors[keyof NamespaceExistsErrors];
@@ -1763,7 +2038,7 @@ export type NamespaceExistsResponses = {
 export type NamespaceExistsResponse = NamespaceExistsResponses[keyof NamespaceExistsResponses];
 
 export type UpdatePropertiesData = {
-  body?: UpdateNamespacePropertiesRequest;
+  body: UpdateNamespacePropertiesRequest;
   path: {
     /**
      * An optional prefix in the path
@@ -1808,15 +2083,15 @@ export type UpdatePropertiesErrors = {
    */
   422: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type UpdatePropertiesError = UpdatePropertiesErrors[keyof UpdatePropertiesErrors];
@@ -1852,6 +2127,10 @@ export type ListTablesData = {
      * If true, include the `table-uuids` field in the response
      */
     returnUuids?: boolean;
+    /**
+     * If true, include the `protection-status` field in the response
+     */
+    returnProtectionStatus?: boolean;
   };
   url: '/v1/{prefix}/namespaces/{namespace}/tables';
 };
@@ -1878,15 +2157,15 @@ export type ListTablesErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type ListTablesError = ListTablesErrors[keyof ListTablesErrors];
@@ -1901,7 +2180,7 @@ export type ListTablesResponses = {
 export type ListTablesResponse2 = ListTablesResponses[keyof ListTablesResponses];
 
 export type CreateTableData = {
-  body?: CreateTableRequestWritable;
+  body: CreateTableRequestWritable;
   headers?: {
     /**
      * Optional signal to the server that the client supports delegated access via a comma-separated list of access mechanisms.  The server may choose to supply access via any or none of the requested mechanisms.
@@ -1953,15 +2232,15 @@ export type CreateTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type CreateTableError = CreateTableErrors[keyof CreateTableErrors];
@@ -1975,8 +2254,277 @@ export type CreateTableResponses = {
 
 export type CreateTableResponse = CreateTableResponses[keyof CreateTableResponses];
 
+export type PlanTableScanData = {
+  body?: PlanTableScanRequest;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/plan';
+};
+
+export type PlanTableScanErrors = {
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, the table does not exist - NoSuchNamespaceException, the namespace does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Not Acceptable / Unsupported Operation. The server does not support this operation.
+   */
+  406: ErrorModel;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
+};
+
+export type PlanTableScanError = PlanTableScanErrors[keyof PlanTableScanErrors];
+
+export type PlanTableScanResponses = {
+  /**
+   * Result of submitting a table scan to plan
+   */
+  200: PlanTableScanResult;
+};
+
+export type PlanTableScanResponse = PlanTableScanResponses[keyof PlanTableScanResponses];
+
+export type CancelPlanningData = {
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+    /**
+     * ID used to track a planning request
+     */
+    'plan-id': string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}';
+};
+
+export type CancelPlanningErrors = {
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, the table does not exist - NoSuchNamespaceException, the namespace does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
+};
+
+export type CancelPlanningError = CancelPlanningErrors[keyof CancelPlanningErrors];
+
+export type CancelPlanningResponses = {
+  /**
+   * Success, no content
+   */
+  204: void;
+};
+
+export type CancelPlanningResponse = CancelPlanningResponses[keyof CancelPlanningResponses];
+
+export type FetchPlanningResultData = {
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+    /**
+     * ID used to track a planning request
+     */
+    'plan-id': string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}';
+};
+
+export type FetchPlanningResultErrors = {
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchPlanIdException, the plan-id does not exist - NoSuchTableException, the table does not exist - NoSuchNamespaceException, the namespace does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
+};
+
+export type FetchPlanningResultError = FetchPlanningResultErrors[keyof FetchPlanningResultErrors];
+
+export type FetchPlanningResultResponses = {
+  /**
+   * Result of fetching a submitted scan planning operation
+   */
+  200: FetchPlanningResult;
+};
+
+export type FetchPlanningResultResponse =
+  FetchPlanningResultResponses[keyof FetchPlanningResultResponses];
+
+export type FetchScanTasksData = {
+  body?: FetchScanTasksRequest;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/tasks';
+};
+
+export type FetchScanTasksErrors = {
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchPlanTaskException, the plan-task does not exist - NoSuchTableException, the table does not exist - NoSuchNamespaceException, the namespace does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
+};
+
+export type FetchScanTasksError = FetchScanTasksErrors[keyof FetchScanTasksErrors];
+
+export type FetchScanTasksResponses = {
+  /**
+   * Result of retrieving additional plan tasks and file scan tasks.
+   */
+  200: FetchScanTasksResult;
+};
+
+export type FetchScanTasksResponse = FetchScanTasksResponses[keyof FetchScanTasksResponses];
+
 export type RegisterTableData = {
-  body?: RegisterTableRequest;
+  body: RegisterTableRequest;
   path: {
     /**
      * An optional prefix in the path
@@ -2017,15 +2565,15 @@ export type RegisterTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type RegisterTableError = RegisterTableErrors[keyof RegisterTableErrors];
@@ -2060,6 +2608,10 @@ export type DropTableData = {
      * Whether the user requested to purge the underlying table's data and metadata
      */
     purgeRequested?: boolean;
+    /**
+     * If true, ignore `protection-status` when dropping.
+     */
+    force?: boolean;
   };
   url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}';
 };
@@ -2086,15 +2638,15 @@ export type DropTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type DropTableError = DropTableErrors[keyof DropTableErrors];
@@ -2167,15 +2719,15 @@ export type LoadTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type LoadTableError = LoadTableErrors[keyof LoadTableErrors];
@@ -2231,15 +2783,15 @@ export type TableExistsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type TableExistsError = TableExistsErrors[keyof TableExistsErrors];
@@ -2254,7 +2806,7 @@ export type TableExistsResponses = {
 export type TableExistsResponse = TableExistsResponses[keyof TableExistsResponses];
 
 export type UpdateTableData = {
-  body?: CommitTableRequestWritable;
+  body: CommitTableRequestWritable;
   path: {
     /**
      * An optional prefix in the path
@@ -2299,7 +2851,7 @@ export type UpdateTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable on the client.
+   * An unknown server-side problem occurred; the commit state is unknown.
    */
   500: IcebergErrorResponse;
   /**
@@ -2316,6 +2868,10 @@ export type UpdateTableErrors = {
    * A server-side gateway timeout occurred; the commit state is unknown.
    */
   504: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable on the client.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type UpdateTableError = UpdateTableErrors[keyof UpdateTableErrors];
@@ -2329,6 +2885,70 @@ export type UpdateTableResponses = {
 };
 
 export type UpdateTableResponse = UpdateTableResponses[keyof UpdateTableResponses];
+
+export type LoadCredentialsData = {
+  body?: never;
+  path: {
+    /**
+     * An optional prefix in the path
+     */
+    prefix: string;
+    /**
+     * A namespace identifier as a single string. Multipart namespace parts should be separated by the unit separator (`0x1F`) byte.
+     */
+    namespace: string;
+    /**
+     * A table name
+     */
+    table: string;
+  };
+  query?: never;
+  url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials';
+};
+
+export type LoadCredentialsErrors = {
+  /**
+   * Indicates a bad request error. It could be caused by an unexpected request body format or other forms of request validation failure, such as invalid json. Usually serves application/json content, although in some cases simple text/plain content might be returned by the server's middleware.
+   */
+  400: IcebergErrorResponse;
+  /**
+   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   */
+  401: IcebergErrorResponse;
+  /**
+   * Forbidden. Authenticated user does not have the necessary permissions.
+   */
+  403: IcebergErrorResponse;
+  /**
+   * Not Found - NoSuchTableException, table to load credentials for does not exist
+   */
+  404: IcebergErrorResponse;
+  /**
+   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   */
+  419: IcebergErrorResponse;
+  /**
+   * The service is not ready to handle the request. The client should wait and retry.
+   *
+   * The service may additionally send a Retry-After header to indicate when to retry.
+   */
+  503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
+};
+
+export type LoadCredentialsError = LoadCredentialsErrors[keyof LoadCredentialsErrors];
+
+export type LoadCredentialsResponses = {
+  /**
+   * Table credentials result when loading credentials for a table
+   */
+  200: LoadCredentialsResponse;
+};
+
+export type LoadCredentialsResponse2 = LoadCredentialsResponses[keyof LoadCredentialsResponses];
 
 export type RenameTableData = {
   /**
@@ -2375,15 +2995,15 @@ export type RenameTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type RenameTableError = RenameTableErrors[keyof RenameTableErrors];
@@ -2442,15 +3062,15 @@ export type ReportMetricsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type ReportMetricsError = ReportMetricsErrors[keyof ReportMetricsErrors];
@@ -2468,8 +3088,7 @@ export type CommitTransactionData = {
   /**
    * Commit updates to multiple tables in an atomic operation
    *
-   * A commit for a single table consists of a table identifier with requirements and updates. Requirements are assertions that will be validated before attempting to make and commit changes. For example, `assert-ref-snapshot-id` will check that a named ref's snapshot ID has a certain value.
-   *
+   * A commit for a single table consists of a table identifier with requirements and updates. Requirements are assertions that will be validated before attempting to make and commit changes. For example, `assert-ref-snapshot-id` will check that a named ref's snapshot ID has a certain value. Server implementations are required to fail with a 400 status code if any unknown updates or requirements are received.
    * Updates are changes to make to table metadata. For example, after asserting that the current main ref is at the expected snapshot, a commit may add a new child snapshot and set the ref to the new snapshot id.
    */
   body: CommitTransactionRequestWritable;
@@ -2526,6 +3145,10 @@ export type CommitTransactionErrors = {
    * A server-side gateway timeout occurred; the commit state is unknown.
    */
   504: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable on the client.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type CommitTransactionError = CommitTransactionErrors[keyof CommitTransactionErrors];
@@ -2558,6 +3181,10 @@ export type ListViewsData = {
      * For servers that support pagination, this signals an upper bound of the number of results that a client will receive. For servers that do not support pagination, clients may receive results larger than the indicated `pageSize`.
      */
     pageSize?: number;
+    /**
+     * If true, include the `protection-status` field in the response
+     */
+    returnProtectionStatus?: boolean;
   };
   url: '/v1/{prefix}/namespaces/{namespace}/views';
 };
@@ -2584,15 +3211,15 @@ export type ListViewsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type ListViewsError = ListViewsErrors[keyof ListViewsErrors];
@@ -2607,7 +3234,7 @@ export type ListViewsResponses = {
 export type ListViewsResponse = ListViewsResponses[keyof ListViewsResponses];
 
 export type CreateViewData = {
-  body?: CreateViewRequestWritable;
+  body: CreateViewRequestWritable;
   path: {
     /**
      * An optional prefix in the path
@@ -2648,15 +3275,15 @@ export type CreateViewErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type CreateViewError = CreateViewErrors[keyof CreateViewErrors];
@@ -2686,7 +3313,12 @@ export type DropViewData = {
      */
     view: string;
   };
-  query?: never;
+  query?: {
+    /**
+     * If true, ignore `protection-status` when dropping.
+     */
+    force?: boolean;
+  };
   url: '/v1/{prefix}/namespaces/{namespace}/views/{view}';
 };
 
@@ -2712,15 +3344,15 @@ export type DropViewErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type DropViewError = DropViewErrors[keyof DropViewErrors];
@@ -2776,15 +3408,15 @@ export type LoadViewErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type LoadViewError = LoadViewErrors[keyof LoadViewErrors];
@@ -2836,15 +3468,15 @@ export type ViewExistsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type ViewExistsError = ViewExistsErrors[keyof ViewExistsErrors];
@@ -2859,7 +3491,7 @@ export type ViewExistsResponses = {
 export type ViewExistsResponse = ViewExistsResponses[keyof ViewExistsResponses];
 
 export type ReplaceViewData = {
-  body?: CommitViewRequestWritable;
+  body: CommitViewRequestWritable;
   path: {
     /**
      * An optional prefix in the path
@@ -2921,6 +3553,10 @@ export type ReplaceViewErrors = {
    * A server-side gateway timeout occurred; the commit state is unknown.
    */
   504: ErrorModel;
+  /**
+   * A server-side problem that might not be addressable on the client.
+   */
+  '5XX': ErrorModel;
 };
 
 export type ReplaceViewError = ReplaceViewErrors[keyof ReplaceViewErrors];
@@ -2979,25 +3615,27 @@ export type RenameViewErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
-   */
-  500: IcebergErrorResponse;
-  /**
    * The service is not ready to handle the request. The client should wait and retry.
    *
    * The service may additionally send a Retry-After header to indicate when to retry.
    */
   503: IcebergErrorResponse;
+  /**
+   * A server-side problem that might not be addressable from the client side. Used for server 5xx errors without more specific documentation in individual routes.
+   */
+  '5XX': IcebergErrorResponse;
 };
 
 export type RenameViewError = RenameViewErrors[keyof RenameViewErrors];
 
 export type RenameViewResponses = {
   /**
-   * OK
+   * Success, no content
    */
-  200: unknown;
+  204: void;
 };
+
+export type RenameViewResponse = RenameViewResponses[keyof RenameViewResponses];
 
 export type ClientOptions = {
   baseUrl: '{scheme}://{host}/{basePath}' | '{scheme}://{host}:{port}/{basePath}' | (string & {});

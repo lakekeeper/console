@@ -22,6 +22,27 @@
                 <div>Server Version: {{ projectInfo.version }}</div>
                 <div>Bootstraped: {{ projectInfo.bootstrapped }}</div>
                 <div>Authenticated by: {{ projectInfo['authz-backend'] }}</div>
+                <div v-if="projectInfo['aws-system-identities-enabled']">
+                  AWS system identities:
+                  {{ projectInfo['aws-system-identities-enabled'] ? 'enabled' : 'disabled' }}
+                </div>
+
+                <div v-if="projectInfo['azure-system-identities-enabled']">
+                  Azure system identities:
+                  {{ projectInfo['azure-system-identities-enabled'] ? 'enabled' : 'disabled' }}
+                </div>
+                <div v-if="projectInfo['gcp-system-identities-enabled']">
+                  GCP system identities:
+                  {{ projectInfo['gcp-system-identities-enabled'] ? 'enabled' : 'disabled' }}
+                </div>
+                <div
+                  v-if="
+                    !projectInfo['aws-system-identities-enabled'] &&
+                    !projectInfo['azure-system-identities-enabled'] &&
+                    !projectInfo['gcp-system-identities-enabled']
+                  ">
+                  No system identities are used
+                </div>
               </v-list-item-subtitle>
             </v-list-item>
           </v-card>

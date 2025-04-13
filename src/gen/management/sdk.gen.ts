@@ -5,14 +5,14 @@ import type {
   BootstrapData,
   BootstrapResponse,
   BootstrapError,
-  DeleteDefaultProjectData,
-  DeleteDefaultProjectResponse,
-  DeleteDefaultProjectError,
-  GetDefaultProjectData,
-  GetDefaultProjectResponse,
-  GetDefaultProjectError,
-  RenameDefaultProjectData,
-  RenameDefaultProjectError,
+  DeleteDefaultProjectDeprecatedData,
+  DeleteDefaultProjectDeprecatedResponse,
+  DeleteDefaultProjectDeprecatedError,
+  GetDefaultProjectDeprecatedData,
+  GetDefaultProjectDeprecatedResponse,
+  GetDefaultProjectDeprecatedError,
+  RenameDefaultProjectDeprecatedData,
+  RenameDefaultProjectDeprecatedError,
   GetEndpointStatisticsData,
   GetEndpointStatisticsResponse,
   GetEndpointStatisticsError,
@@ -75,12 +75,20 @@ import type {
   UpdateWarehouseAssignmentsByIdData,
   UpdateWarehouseAssignmentsByIdResponse,
   SetWarehouseManagedAccessData,
+  DeleteDefaultProjectData,
+  DeleteDefaultProjectResponse,
+  DeleteDefaultProjectError,
+  GetDefaultProjectData,
+  GetDefaultProjectResponse,
+  GetDefaultProjectError,
   CreateProjectData,
   CreateProjectResponse2,
   CreateProjectError,
   ListProjectsData,
   ListProjectsResponse2,
   ListProjectsError,
+  RenameDefaultProjectData,
+  RenameDefaultProjectError,
   DeleteProjectByIdData,
   DeleteProjectByIdResponse,
   DeleteProjectByIdError,
@@ -151,6 +159,9 @@ import type {
   UndropTabularsDeprecatedData,
   UndropTabularsDeprecatedResponse,
   UndropTabularsDeprecatedError,
+  GetNamespaceProtectionData,
+  GetNamespaceProtectionResponse,
+  GetNamespaceProtectionError,
   SetNamespaceProtectionData,
   SetNamespaceProtectionResponse,
   SetNamespaceProtectionError,
@@ -166,9 +177,15 @@ import type {
   UpdateStorageProfileError,
   UpdateStorageCredentialData,
   UpdateStorageCredentialError,
+  GetTableProtectionData,
+  GetTableProtectionResponse,
+  GetTableProtectionError,
   SetTableProtectionData,
   SetTableProtectionResponse,
   SetTableProtectionError,
+  GetViewProtectionData,
+  GetViewProtectionResponse,
+  GetViewProtectionError,
   SetViewProtectionData,
   SetViewProtectionResponse,
   SetViewProtectionError,
@@ -220,14 +237,15 @@ export const bootstrap = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * @deprecated
  * Delete the default project
  */
-export const deleteDefaultProject = <ThrowOnError extends boolean = false>(
-  options?: Options<DeleteDefaultProjectData, ThrowOnError>,
+export const deleteDefaultProjectDeprecated = <ThrowOnError extends boolean = false>(
+  options?: Options<DeleteDefaultProjectDeprecatedData, ThrowOnError>,
 ) => {
   return (options?.client ?? _heyApiClient).delete<
-    DeleteDefaultProjectResponse,
-    DeleteDefaultProjectError,
+    DeleteDefaultProjectDeprecatedResponse,
+    DeleteDefaultProjectDeprecatedError,
     ThrowOnError
   >({
     security: [
@@ -242,14 +260,15 @@ export const deleteDefaultProject = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get the default project
+ * @deprecated
+ * Get the default project. This Endpoint is deprecated.
  */
-export const getDefaultProject = <ThrowOnError extends boolean = false>(
-  options?: Options<GetDefaultProjectData, ThrowOnError>,
+export const getDefaultProjectDeprecated = <ThrowOnError extends boolean = false>(
+  options?: Options<GetDefaultProjectDeprecatedData, ThrowOnError>,
 ) => {
   return (options?.client ?? _heyApiClient).get<
-    GetDefaultProjectResponse,
-    GetDefaultProjectError,
+    GetDefaultProjectDeprecatedResponse,
+    GetDefaultProjectDeprecatedError,
     ThrowOnError
   >({
     security: [
@@ -264,12 +283,18 @@ export const getDefaultProject = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Rename the default project
+ * @deprecated
+ * Rename the default project.
+ * This Endpoint is deprecated, use `/v1/projects/default` instead.
  */
-export const renameDefaultProject = <ThrowOnError extends boolean = false>(
-  options: Options<RenameDefaultProjectData, ThrowOnError>,
+export const renameDefaultProjectDeprecated = <ThrowOnError extends boolean = false>(
+  options: Options<RenameDefaultProjectDeprecatedData, ThrowOnError>,
 ) => {
-  return (options.client ?? _heyApiClient).post<unknown, RenameDefaultProjectError, ThrowOnError>({
+  return (options.client ?? _heyApiClient).post<
+    unknown,
+    RenameDefaultProjectDeprecatedError,
+    ThrowOnError
+  >({
     security: [
       {
         scheme: 'bearer',
@@ -1014,6 +1039,50 @@ export const setWarehouseManagedAccess = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * Delete the default project
+ */
+export const deleteDefaultProject = <ThrowOnError extends boolean = false>(
+  options?: Options<DeleteDefaultProjectData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).delete<
+    DeleteDefaultProjectResponse,
+    DeleteDefaultProjectError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/project',
+    ...options,
+  });
+};
+
+/**
+ * Get the default project
+ */
+export const getDefaultProject = <ThrowOnError extends boolean = false>(
+  options?: Options<GetDefaultProjectData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    GetDefaultProjectResponse,
+    GetDefaultProjectError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/project',
+    ...options,
+  });
+};
+
+/**
  * Create a new project
  */
 export const createProject = <ThrowOnError extends boolean = false>(
@@ -1058,6 +1127,28 @@ export const listProjects = <ThrowOnError extends boolean = false>(
     ],
     url: '/management/v1/project-list',
     ...options,
+  });
+};
+
+/**
+ * Rename the default project.
+ */
+export const renameDefaultProject = <ThrowOnError extends boolean = false>(
+  options: Options<RenameDefaultProjectData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<unknown, RenameDefaultProjectError, ThrowOnError>({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/project/rename',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
   });
 };
 
@@ -1185,7 +1276,7 @@ export const deleteRole = <ThrowOnError extends boolean = false>(
         type: 'http',
       },
     ],
-    url: '/management/v1/role/{id}',
+    url: '/management/v1/role/{role_id}',
     ...options,
   });
 };
@@ -1203,7 +1294,7 @@ export const getRole = <ThrowOnError extends boolean = false>(
         type: 'http',
       },
     ],
-    url: '/management/v1/role/{id}',
+    url: '/management/v1/role/{role_id}',
     ...options,
   });
 };
@@ -1221,7 +1312,7 @@ export const updateRole = <ThrowOnError extends boolean = false>(
         type: 'http',
       },
     ],
-    url: '/management/v1/role/{id}',
+    url: '/management/v1/role/{role_id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1339,7 +1430,7 @@ export const deleteUser = <ThrowOnError extends boolean = false>(
         type: 'http',
       },
     ],
-    url: '/management/v1/user/{id}',
+    url: '/management/v1/user/{user_id}',
     ...options,
   });
 };
@@ -1357,7 +1448,7 @@ export const getUser = <ThrowOnError extends boolean = false>(
         type: 'http',
       },
     ],
-    url: '/management/v1/user/{id}',
+    url: '/management/v1/user/{user_id}',
     ...options,
   });
 };
@@ -1376,7 +1467,7 @@ export const updateUser = <ThrowOnError extends boolean = false>(
         type: 'http',
       },
     ],
-    url: '/management/v1/user/{id}',
+    url: '/management/v1/user/{user_id}',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1616,6 +1707,25 @@ export const undropTabularsDeprecated = <ThrowOnError extends boolean = false>(
   });
 };
 
+export const getNamespaceProtection = <ThrowOnError extends boolean = false>(
+  options: Options<GetNamespaceProtectionData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetNamespaceProtectionResponse,
+    GetNamespaceProtectionError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/namespace/{namespace_id}/protection',
+    ...options,
+  });
+};
+
 export const setNamespaceProtection = <ThrowOnError extends boolean = false>(
   options: Options<SetNamespaceProtectionData, ThrowOnError>,
 ) => {
@@ -1771,6 +1881,25 @@ export const updateStorageCredential = <ThrowOnError extends boolean = false>(
   });
 };
 
+export const getTableProtection = <ThrowOnError extends boolean = false>(
+  options: Options<GetTableProtectionData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTableProtectionResponse,
+    GetTableProtectionError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/table/{table_id}/protection',
+    ...options,
+  });
+};
+
 export const setTableProtection = <ThrowOnError extends boolean = false>(
   options: Options<SetTableProtectionData, ThrowOnError>,
 ) => {
@@ -1791,6 +1920,25 @@ export const setTableProtection = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options?.headers,
     },
+  });
+};
+
+export const getViewProtection = <ThrowOnError extends boolean = false>(
+  options: Options<GetViewProtectionData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetViewProtectionResponse,
+    GetViewProtectionError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/view/{view_id}/protection',
+    ...options,
   });
 };
 

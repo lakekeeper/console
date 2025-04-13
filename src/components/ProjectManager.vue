@@ -227,7 +227,7 @@ async function getEndpointStatistcs() {
     loadedStatistics.value = false;
 
     Object.assign(statistics, await functions.getEndpointStatistics({ type: 'all' }));
-    console.log('GetEndpointStatisticsResponse', statistics);
+
     loadedStatistics.value = true;
   } catch (error) {
     console.error(error);

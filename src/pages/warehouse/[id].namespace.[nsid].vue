@@ -32,7 +32,7 @@
           <addNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
             :parent-path="namespacePath"
-            :status-intent="StatusIntent.STARTING"
+            :status-intent="addNamespaceStatus"
             @add-namespace="addNamespace" />
         </v-toolbar>
         <v-tabs v-model="tab">
@@ -56,6 +56,20 @@
                 hover
                 :items="loadedNamespaces"
                 :sort-by="[{ key: 'name', order: 'asc' }]">
+                <template #top>
+                  <v-toolbar color="transparent" density="compact" flat>
+                    <v-switch
+                      v-model="recursiveDeleteProtection"
+                      class="ml-4 mt-4"
+                      color="info"
+                      :label="
+                        recursiveDeleteProtection
+                          ? 'Recursive Delete Protection enabled'
+                          : 'Recursive Delete Protection disbaled'
+                      "
+                      @click="setProtection"></v-switch>
+                  </v-toolbar>
+                </template>
                 <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToNamespace(item)">
                     <span class="icon-text">
@@ -65,13 +79,11 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                  <v-icon
+                  <DialogDelete
                     v-if="item.type === 'namespace'"
-                    color="error"
-                    :disabled="!myAccess.includes('delete')"
-                    @click="dropNamespace(item)">
-                    mdi-delete-outline
-                  </v-icon>
+                    :type="item.type"
+                    :name="item.name"
+                    @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
                 </template>
                 <template #no-data>
                   <addNamespaceDialog
@@ -98,12 +110,13 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                  <v-icon
-                    color="error"
-                    :disabled="!myAccess.includes('delete')"
-                    @click="dropTable(item)">
-                    mdi-delete-outline
-                  </v-icon>
+                  <DialogDelete
+                    v-if="item.type === 'table'"
+                    :type="item.type"
+                    :name="item.name"
+                    @delete-table-with-options="
+                      deleteTableWithOptions($event, item)
+                    "></DialogDelete>
                 </template>
                 <template #no-data>
                   <div>No table in this namespace</div>
@@ -126,7 +139,11 @@
                   </td>
                 </template>
                 <template #item.actions="{ item }">
-                  <v-icon color="error" @click="dropView(item)">mdi-delete-outline</v-icon>
+                  <DialogDelete
+                    v-if="item.type === 'view'"
+                    :type="item.type"
+                    :name="item.name"
+                    @delete-view-with-options="deleteViewWithOptions($event, item)"></DialogDelete>
                 </template>
                 <template #no-data>
                   <div>No views in this namespace</div>
@@ -220,6 +237,8 @@ const functions = useFunctions();
 const loading = ref(true);
 const loaded = ref(false);
 const canReadPermissions = ref(false);
+const recursiveDeleteProtection = ref(false);
+const addNamespaceStatus = ref(StatusIntent.INACTIVE);
 
 const items: Item[] = reactive([]);
 const permissionType = ref<RelationType>('namespace');
@@ -291,6 +310,41 @@ onUnmounted(() => {
   items.splice(0, items.length);
 });
 
+async function deleteTableWithOptions(e: any, item: TableIdentifierExtended) {
+  try {
+    await functions.dropTable(visual.whId, namespacePath.value, item.name, e);
+
+    await listTables();
+  } catch (error: any) {
+    console.error(`Failed to drop table-${item.name}  - `, error);
+  }
+}
+
+async function deleteViewWithOptions(e: any, item: TableIdentifierExtended) {
+  try {
+    await functions.dropView(visual.whId, namespacePath.value, item.name, e);
+
+    await listViews();
+  } catch (error: any) {
+    console.error(`Failed to drop view-${item.name}  - `, error);
+  }
+}
+
+async function deleteNamespaceWithOptions(e: any, item: Item) {
+  try {
+    const res = await functions.dropNamespace(
+      whid.value,
+      item.parentPath.join(String.fromCharCode(0x1f)),
+      e,
+    );
+    if (res.error) throw res.error;
+
+    await listNamespaces();
+  } catch (error: any) {
+    console.error(`Failed to drop namespace-${item.name}  - `, error);
+  }
+}
+
 async function loadTabData() {
   if (tab.value === 'namespaces') {
     await listNamespaces();
@@ -307,6 +361,7 @@ async function loadTabData() {
 
 async function init() {
   try {
+    const serverInfo = await functions.getServerInfo();
     loaded.value = false;
     existingPermissions.splice(0, existingPermissions.length);
 
@@ -314,24 +369,27 @@ async function init() {
       namespace,
       await functions.loadNamespaceMetadata(whid.value, namespacePath.value),
     );
-
+    await getProtection();
     relationId.value = namespace.properties?.namespace_id || '';
 
     selectedNamespace.value = namespace.namespace[namespace.namespace.length - 1];
 
     permissionObject.id = namespace.properties?.namespace_id || '';
-    Object.assign(
-      myAccess,
-      await functions.getNamespaceAccessById(namespace.properties?.namespace_id || ''),
-    );
-    canReadPermissions.value = !!myAccess.includes('read_assignments');
 
-    Object.assign(
-      existingPermissions,
-      canReadPermissions.value
-        ? await functions.getNamespaceAssignmentsById(namespace.properties?.namespace_id || '')
-        : [],
-    );
+    if (serverInfo['authz-backend'] != 'allow-all') {
+      Object.assign(
+        myAccess,
+        await functions.getNamespaceAccessById(namespace.properties?.namespace_id || ''),
+      );
+      canReadPermissions.value = !!myAccess.includes('read_assignments');
+
+      Object.assign(
+        existingPermissions,
+        canReadPermissions.value
+          ? await functions.getNamespaceAssignmentsById(namespace.properties?.namespace_id || '')
+          : [],
+      );
+    }
     loaded.value = true;
     await Promise.all([listNamespaces(), listTables(), listViews(), listDeletedTabulars()]);
   } catch (error) {
@@ -402,18 +460,6 @@ async function listViews() {
   }
 }
 
-async function dropView(item: TableIdentifierExtended) {
-  try {
-    loading.value = true;
-    await functions.dropView(visual.whId, namespacePath.value, item.name);
-
-    await listViews();
-  } catch (error: any) {
-    console.error(`Failed to drop view-${item.name}  - `, error);
-  } finally {
-    loading.value = false;
-  }
-}
 async function listDeletedTabulars() {
   try {
     deletedTabulars.splice(0, deletedTabulars.length);
@@ -428,19 +474,6 @@ async function listDeletedTabulars() {
   }
 }
 
-async function dropNamespace(item: Item) {
-  try {
-    const res = await functions.dropNamespace(
-      whid.value,
-      item.parentPath.join(String.fromCharCode(0x1f)),
-    );
-    if (res.error) throw res.error;
-
-    await listNamespaces();
-  } catch (error: any) {
-    console.error(`Failed to drop namespace-${item.name}  - `, error);
-  }
-}
 async function routeToNamespace(item: Item) {
   if (item.type !== 'namespace') {
     return;
@@ -469,10 +502,19 @@ async function routeToView(item: TableIdentifierExtended) {
 }
 
 async function addNamespace(namespaceIdent: string[]) {
-  const res = await functions.createNamespace(whid.value, namespaceIdent);
-  if (res.error) throw res.error;
+  try {
+    addNamespaceStatus.value = StatusIntent.STARTING;
 
-  await listNamespaces();
+    const res = await functions.createNamespace(whid.value, namespaceIdent);
+    if (res.error) throw res.error;
+
+    await listNamespaces();
+    addNamespaceStatus.value = StatusIntent.SUCCESS;
+    console.log('Namespace added successfully', addNamespaceStatus.value);
+  } catch (error) {
+    addNamespaceStatus.value = StatusIntent.FAILURE;
+    console.error(error);
+  }
 }
 
 watch(
@@ -499,21 +541,6 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
   }
 }
 
-async function dropTable(item: TableIdentifierExtended) {
-  try {
-    loading.value = true;
-
-    await functions.dropTable(visual.whId, namespacePath.value, item.name);
-
-    await listTables();
-    loading.value = true;
-  } catch (error: any) {
-    console.error(`Failed to drop table-${item.name}  - `, error);
-  } finally {
-    loading.value = false;
-  }
-}
-
 async function undropTabular(item: DeletedTabularResponseExtended) {
   try {
     loading.value = true;
@@ -524,6 +551,28 @@ async function undropTabular(item: DeletedTabularResponseExtended) {
     console.error(`Failed to undrop table-${item.name}  - due to: `, error);
   } finally {
     loading.value = false;
+  }
+}
+async function getProtection() {
+  try {
+    recursiveDeleteProtection.value = (
+      await functions.getNamespaceProtection(whid.value, namespaceId.value || '')
+    ).protected;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function setProtection() {
+  try {
+    await functions.setNamespaceProtection(
+      whid.value,
+      namespaceId.value || '',
+      !recursiveDeleteProtection.value,
+    );
+    await getProtection();
+  } catch (error) {
+    console.error(error);
   }
 }
 </script>

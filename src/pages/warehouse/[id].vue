@@ -71,6 +71,20 @@
                 hover
                 :items="loadedWarehouseItems"
                 :sort-by="[{ key: 'name', order: 'asc' }]">
+                <template #top>
+                  <v-toolbar color="transparent" density="compact" flat>
+                    <v-switch
+                      v-model="recursiveDeleteProtection"
+                      class="ml-4 mt-4"
+                      color="info"
+                      :label="
+                        !selectedWarehouse.protected
+                          ? 'Recursive Delete Protection disbaled'
+                          : 'Recursive Delete Protection enabled'
+                      "
+                      @click="setProtection"></v-switch>
+                  </v-toolbar>
+                </template>
                 <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToNamespace(item)">
                     <span class="icon-text">
@@ -81,14 +95,14 @@
                 </template>
 
                 <template #item.actions="{ item }">
-                  <v-icon
+                  <DialogDelete
                     v-if="item.type === 'namespace'"
-                    color="error"
                     :disabled="!myAccess.includes('delete')"
-                    @click="dropNamespace(item)">
-                    mdi-delete-outline
-                  </v-icon>
+                    :type="item.type"
+                    :name="item.name"
+                    @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
                 </template>
+
                 <template #no-data>
                   <addNamespaceDialog
                     v-if="myAccess.includes('create_namespace')"
@@ -114,6 +128,12 @@
                         <v-list-item-subtitle>
                           {{ selectedWarehouse['project-id'] }}
                         </v-list-item-subtitle>
+                      </v-list-item>
+                      <v-list-item>
+                        <v-list-item-title>
+                          Recursive Delete Protection is
+                          {{ selectedWarehouse.protected ? 'ON' : 'OFF' }}
+                        </v-list-item-title>
                       </v-list-item>
                       <v-list-item>
                         <v-list-item-title>Storage Type</v-list-item-title>
@@ -213,6 +233,12 @@
                         </v-list-item-subtitle>
                       </v-list-item>
                       <v-list-item>
+                        <v-list-item-title>Recursive Delete Protection is</v-list-item-title>
+                        <v-list-item-subtitle>
+                          {{ selectedWarehouse.protected ? 'on' : 'off' }}
+                        </v-list-item-subtitle>
+                      </v-list-item>
+                      <v-list-item>
                         <v-list-item-title>Storage Type</v-list-item-title>
                         <v-list-item-subtitle>
                           {{ selectedWarehouse['storage-profile'].type }}
@@ -271,6 +297,7 @@
                           {{ selectedWarehouse['project-id'] }}
                         </v-list-item-subtitle>
                       </v-list-item>
+
                       <v-list-item>
                         <v-list-item-title>Storage Type</v-list-item-title>
                         <v-list-item-subtitle>
@@ -352,6 +379,7 @@ import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 const route = useRoute();
 
+const recursiveDeleteProtection = ref(false);
 const tab = ref('overview');
 const loading = ref(true);
 const headers: readonly Header[] = Object.freeze([
@@ -416,7 +444,7 @@ const params = computed(() => route.params as { id: string });
 const renaming = ref(false);
 async function loadWarehouse() {
   const whResponse = await functions.getWarehouse(params.value.id);
-
+  recursiveDeleteProtection.value = whResponse.protected;
   if (whResponse) {
     permissionObject.id = whResponse.id;
     permissionObject.name = whResponse.name;
@@ -475,19 +503,30 @@ async function addNamespace(namespace: string[]) {
   }
 }
 
-const dropNamespace = async (item: Item) => {
+async function setProtection() {
+  try {
+    await functions.setWarehouseProtection(selectedWarehouse.id, !recursiveDeleteProtection.value);
+
+    await loadWarehouse();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function deleteNamespaceWithOptions(e: any, item: Item) {
   try {
     const res = await functions.dropNamespace(
       params.value.id,
       item.parentPath.join(String.fromCharCode(0x1f)),
+      e,
     );
     if (res.error) throw res.error;
 
-    await init();
+    await listNamespaces();
   } catch (error: any) {
     console.error(`Failed to drop namespace-${item.name}  - `, error);
   }
-};
+}
 
 async function routeToNamespace(item: Item) {
   router.push(`/warehouse/${params.value.id}/namespace/${item.name}`);
@@ -552,7 +591,6 @@ async function getWarehouseStatistics() {
 
     // stats.splice(0, stats.length);
     Object.assign(stats, stat.stats);
-    console.log(stat);
   } catch (error: any) {
     console.error(`Failed to get warehouse-statistics  - `, error);
   }

@@ -2,12 +2,15 @@
   <v-form @submit.prevent="handleSubmit">
     <!--Credential Type Selection-->
     <v-divider />
+
     <v-container fluid>
       <v-radio-group v-model="credentialType" row>
         <v-row>
           <v-col>
             <span class="text-grey">Credential Type:</span>
           </v-col>
+        </v-row>
+        <v-row>
           <v-radio value="client-credentials" color="primary">
             <template #label>
               <div>
@@ -24,10 +27,19 @@
               </div>
             </template>
           </v-radio>
+          <v-radio value="azure-system-identity" color="primary">
+            <template #label>
+              <div>
+                <v-icon color="primary">mdi-shield-key</v-icon>
+                Aazure System Identity
+              </div>
+            </template>
+          </v-radio>
         </v-row>
       </v-radio-group>
     </v-container>
     <!--Storage Credentials-->
+
     <template v-if="isClientCredentials(warehouseObjectData['storage-credential'])">
       <v-text-field
         v-model="warehouseObjectData['storage-credential']['client-id']"
@@ -81,9 +93,18 @@
       </v-btn>
     </template>
 
+    <template v-else-if="isAzureSystemIdentityKey(warehouseObjectData['storage-credential'])">
+      <v-btn
+        v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
+        color="success"
+        @click="emitNewCredentials">
+        Update Credentials
+      </v-btn>
+    </template>
+
     <v-divider />
     <!--    Storage Profile-->
-
+    <div class="mt-6 mb-6">Storage Profile</div>
     <div
       v-if="
         props.objectType === ObjectType.STORAGE_PROFILE ||
@@ -100,9 +121,34 @@
         placeholder="my-filesystem"
         :rules="[rules.required, rules.noSlash]"></v-text-field>
       <v-text-field
+        v-model="warehouseObjectData['storage-profile']['host']"
+        label="host"
+        placeholder="dfs.core.windows.net"></v-text-field>
+      <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key Prefix"
         placeholder="path/to/warehouse"></v-text-field>
+      <v-row>
+        <v-col cols="6">
+          <v-text-field
+            v-model="warehouseObjectData['storage-profile']['sas-token-validity-seconds']"
+            label="SAS Token Validity (seconds)"
+            placeholder="3600"
+            hint="This field is optional."
+            type="number"></v-text-field>
+        </v-col>
+        <v-col class="auto">
+          <v-switch
+            v-model="warehouseObjectData['storage-profile']['allow-alternative-protocols']"
+            color="primary"
+            class="mb-4"
+            :label="
+              warehouseObjectData['storage-profile']['allow-alternative-protocols']
+                ? 'Alternative Protocols enabled'
+                : 'Default Protocol is used'
+            "></v-switch>
+        </v-col>
+      </v-row>
 
       <v-btn
         v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
@@ -142,7 +188,8 @@ import { Intent, ObjectType } from '@/common/enums';
 import { WarehousObject } from '@/common/interfaces';
 
 const showPassword = ref(false);
-const credentialType: Ref<'client-credentials' | 'shared-access-key'> = ref('client-credentials');
+const credentialType: Ref<'client-credentials' | 'shared-access-key' | 'azure-system-identity'> =
+  ref('client-credentials');
 
 const props = defineProps<{
   credentialsOnly: boolean;
@@ -186,6 +233,7 @@ watch(credentialType, (newValue) => {
       'client-secret': '',
       'credential-type': 'client-credentials',
       'tenant-id': '',
+
       type: 'az',
     };
   } else if (newValue === 'shared-access-key') {
@@ -213,6 +261,13 @@ function isSharedAccessKey(credential: AzCredential): credential is {
   return credential['credential-type'] === 'shared-access-key';
 }
 
+function isAzureSystemIdentityKey(credential: AzCredential): credential is {
+  'credential-type': 'azure-system-identity';
+  key: string;
+} {
+  return credential['credential-type'] === 'azure-system-identity';
+}
+
 const rules = {
   required: (value: any) => !!value || 'Required.',
   noSlash: (value: string) => !value.includes('/') || 'Cannot contain "/"',
@@ -236,6 +291,11 @@ const emitNewCredentials = () => {
       type: 'az',
       'credential-type': warehouseObjectData['storage-credential']['credential-type'],
       key: warehouseObjectData['storage-credential']['key'],
+    });
+  } else if (isAzureSystemIdentityKey(warehouseObjectData['storage-credential'])) {
+    emit('updateCredentials', {
+      type: 'az',
+      'credential-type': warehouseObjectData['storage-credential']['credential-type'],
     });
   } else {
     throw new Error('Invalid credential type');

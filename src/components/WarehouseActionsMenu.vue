@@ -45,7 +45,7 @@ import {
   StorageProfile,
   TabularDeleteProfile,
 } from '../gen/management/types.gen';
-import { ref, watch, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Intent, ObjectType } from '../common/enums';
 
 const menuOpen = ref(false);
@@ -86,17 +86,17 @@ function updateDeletionProfile(e: TabularDeleteProfile) {
   menuOpen.value = false;
 }
 
-watch(
-  () => processStatus,
-  (newVal) => {
-    if (newVal === 'success') {
-      console.log('closing menu', newVal);
-      // menuOpen.value = false;
-    }
-  },
-  {
-    immediate: true,
-    deep: true,
-  },
-);
+// watch(
+//   () => processStatus,
+//   (newVal) => {
+//     if (newVal === 'success') {
+//
+//       // menuOpen.value = false;
+//     }
+//   },
+//   {
+//     immediate: true,
+//     deep: true,
+//   },
+// );
 </script>

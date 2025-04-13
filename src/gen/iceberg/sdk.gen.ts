@@ -37,6 +37,18 @@ import type {
   CreateTableData,
   CreateTableResponse,
   CreateTableError,
+  PlanTableScanData,
+  PlanTableScanResponse,
+  PlanTableScanError,
+  CancelPlanningData,
+  CancelPlanningResponse,
+  CancelPlanningError,
+  FetchPlanningResultData,
+  FetchPlanningResultResponse,
+  FetchPlanningResultError,
+  FetchScanTasksData,
+  FetchScanTasksResponse,
+  FetchScanTasksError,
   RegisterTableData,
   RegisterTableResponse,
   RegisterTableError,
@@ -52,6 +64,9 @@ import type {
   UpdateTableData,
   UpdateTableResponse,
   UpdateTableError,
+  LoadCredentialsData,
+  LoadCredentialsResponse2,
+  LoadCredentialsError,
   RenameTableData,
   RenameTableResponse,
   RenameTableError,
@@ -80,6 +95,7 @@ import type {
   ReplaceViewResponse,
   ReplaceViewError,
   RenameViewData,
+  RenameViewResponse,
   RenameViewError,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
@@ -112,6 +128,22 @@ export type Options<
  * For example, a default configuration property might set the size of the client pool, which can be replaced with a client-specific setting. An override might be used to set the warehouse location, which is stored on the server rather than in client configuration.
  *
  * Common catalog configuration settings are documented at https://iceberg.apache.org/docs/latest/configuration/#catalog-properties
+ *
+ * The catalog configuration also holds an optional `endpoints` field that contains information about the endpoints supported by the server. If a server does not send the `endpoints` field, a default set of endpoints is assumed:
+ * - GET /v1/{prefix}/namespaces
+ * - POST /v1/{prefix}/namespaces
+ * - GET /v1/{prefix}/namespaces/{namespace}
+ * - DELETE /v1/{prefix}/namespaces/{namespace}
+ * - POST /v1/{prefix}/namespaces/{namespace}/properties
+ * - GET /v1/{prefix}/namespaces/{namespace}/tables
+ * - POST /v1/{prefix}/namespaces/{namespace}/tables
+ * - GET /v1/{prefix}/namespaces/{namespace}/tables/{table}
+ * - POST /v1/{prefix}/namespaces/{namespace}/tables/{table}
+ * - DELETE /v1/{prefix}/namespaces/{namespace}/tables/{table}
+ * - POST /v1/{prefix}/namespaces/{namespace}/register
+ * - POST /v1/{prefix}/namespaces/{namespace}/tables/{table}/metrics
+ * - POST /v1/{prefix}/tables/rename
+ * - POST /v1/{prefix}/transactions/commit
  */
 export const getConfig = <ThrowOnError extends boolean = false>(
   options?: Options<GetConfigData, ThrowOnError>,
@@ -133,7 +165,13 @@ export const getConfig = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get a token using an OAuth2 flow
+ * @deprecated
+ * Get a token using an OAuth2 flow (DEPRECATED for REMOVAL)
+ * The `oauth/tokens` endpoint is **DEPRECATED for REMOVAL**. It is _not_ recommended to implement this endpoint, unless you are fully aware of the potential security implications.
+ * All clients are encouraged to explicitly set the configuration property `oauth2-server-uri` to the correct OAuth endpoint.
+ * Deprecated since Iceberg (Java) 1.6.0. The endpoint and related types will be removed from this spec in Iceberg (Java) 2.0.
+ * See [Security improvements in the Iceberg REST specification](https://github.com/apache/iceberg/issues/10537)
+ *
  * Exchange credentials for a token using the OAuth2 client credentials flow or token exchange.
  *
  * This endpoint is used for three purposes -
@@ -148,9 +186,9 @@ export const getConfig = <ThrowOnError extends boolean = false>(
  * Clients may also use the token exchange flow to refresh a token that is about to expire by sending a token exchange request (3). The request's "subject" token should be the expiring token. This request should use the subject token in the "Authorization" header.
  */
 export const getToken = <ThrowOnError extends boolean = false>(
-  options?: Options<GetTokenData, ThrowOnError>,
+  options: Options<GetTokenData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).post<GetTokenResponse, GetTokenError, ThrowOnError>({
+  return (options.client ?? _heyApiClient).post<GetTokenResponse, GetTokenError, ThrowOnError>({
     ...urlSearchParamsBodySerializer,
     security: [
       {
@@ -230,7 +268,8 @@ export const createNamespace = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Drop a namespace from the catalog. Namespace must be empty.
+ * Drop a namespace from the catalog.
+ * Drop a namespace from the catalog. By default, the namespace needs to be empty. You can however set `recursive=true` which will delete all tables, views and namespaces under this namespace. The namespace itself will also be deleted. If the warehouse containing the namespace is configured with a soft-deletion profile, the `force` flag has to be provided. The deletion will not be a soft-deletion. Every table, view and namespace will be gone as soon as this call returns. Depending on whether the `purge` flag was set to true, the data will be queued for deletion too. Any pending `tabular_expiration` will be cancelled. If there is a running `tabular_expiration`, this call will fail with a `409 Conflict` error.
  */
 export const dropNamespace = <ThrowOnError extends boolean = false>(
   options: Options<DropNamespaceData, ThrowOnError>,
@@ -401,6 +440,161 @@ export const createTable = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * Submit a scan for planning
+ * Submits a scan for server-side planning.
+ *
+ * Point-in-time scans are planned by passing snapshot-id to identify the table snapshot to scan. Incremental scans are planned by passing both start-snapshot-id and end-snapshot-id. Requests that include both point in time config properties and incremental config properties are invalid. If the request does not include either incremental or point-in-time config properties, scan planning should produce a point-in-time scan of the latest snapshot in the table's main branch.
+ *
+ * Responses must include a valid status listed below. A "cancelled" status is considered invalid for this endpoint.
+ * - When "completed" the planning operation has produced plan tasks and
+ * file scan tasks that must be returned in the response (not fetched
+ * later by calling fetchPlanningResult)
+ *
+ * - When "submitted" the response must include a plan-id used to poll
+ * fetchPlanningResult to fetch the planning result when it is ready
+ *
+ * - When "failed" the response must be a valid error response
+ * The response for a "completed" planning operation includes two types of tasks (file scan tasks and plan tasks) and both may be included in the response. Tasks must not be included for any other response status.
+ *
+ * Responses that include a plan-id indicate that the service is holding state or performing work for the client.
+ *
+ * - Clients should use the plan-id to fetch results from
+ * fetchPlanningResult when the response status is "submitted"
+ *
+ * - Clients should inform the service if planning results are no longer
+ * needed by calling cancelPlanning. Cancellation is not necessary after
+ * fetchScanTasks has been used to fetch scan tasks for each plan task.
+ *
+ */
+export const planTableScan = <ThrowOnError extends boolean = false>(
+  options: Options<PlanTableScanData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    PlanTableScanResponse,
+    PlanTableScanError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/plan',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Cancels scan planning for a plan-id
+ * Cancels scan planning for a plan-id.
+ *
+ * This notifies the service that it can release resources held for the scan. Clients should cancel scans that are no longer needed, either while the plan-id returns a "submitted" status or while there are remaining plan tasks that have not been fetched.
+ *
+ * Cancellation is not necessary when
+ * - Scan tasks for each plan task have been fetched using fetchScanTasks
+ * - A plan-id has produced a "failed" or "cancelled" status from planTableScan or fetchPlanningResult
+ *
+ */
+export const cancelPlanning = <ThrowOnError extends boolean = false>(
+  options: Options<CancelPlanningData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).delete<
+    CancelPlanningResponse,
+    CancelPlanningError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}',
+    ...options,
+  });
+};
+
+/**
+ * Fetches the result of scan planning for a plan-id
+ * Fetches the result of scan planning for a plan-id.
+ *
+ * Responses must include a valid status
+ * - When "completed" the planning operation has produced plan-tasks and file-scan-tasks that must be returned in the response
+ * - When "submitted" the planning operation has not completed; the client should wait to call this endpoint again to fetch a completed response
+ * - When "failed" the response must be a valid error response
+ * - When "cancelled" the plan-id is invalid and should be discarded
+ *
+ * The response for a "completed" planning operation includes two types of tasks (file scan tasks and plan tasks) and both may be included in the response. Tasks must not be included for any other response status.
+ *
+ */
+export const fetchPlanningResult = <ThrowOnError extends boolean = false>(
+  options: Options<FetchPlanningResultData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    FetchPlanningResultResponse,
+    FetchPlanningResultError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/plan/{plan-id}',
+    ...options,
+  });
+};
+
+/**
+ * Fetches result tasks for a plan task
+ * Fetches result tasks for a plan task.
+ */
+export const fetchScanTasks = <ThrowOnError extends boolean = false>(
+  options: Options<FetchScanTasksData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    FetchScanTasksResponse,
+    FetchScanTasksError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/tasks',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
  * Register a table in the given namespace using given metadata file location
  * Register a table using given metadata file location.
  */
@@ -514,7 +708,7 @@ export const tableExists = <ThrowOnError extends boolean = false>(
  * Commit updates to a table
  * Commit updates to a table.
  *
- * Commits have two parts, requirements and updates. Requirements are assertions that will be validated before attempting to make and commit changes. For example, `assert-ref-snapshot-id` will check that a named ref's snapshot ID has a certain value.
+ * Commits have two parts, requirements and updates. Requirements are assertions that will be validated before attempting to make and commit changes. For example, `assert-ref-snapshot-id` will check that a named ref's snapshot ID has a certain value. Server implementations are required to fail with a 400 status code if any unknown updates or requirements are received.
  *
  * Updates are changes to make to table metadata. For example, after asserting that the current main ref is at the expected snapshot, a commit may add a new child snapshot and set the ref to the new snapshot id.
  *
@@ -544,6 +738,33 @@ export const updateTable = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/json',
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Load vended credentials for a table from the catalog
+ * Load vended credentials for a table from the catalog.
+ */
+export const loadCredentials = <ThrowOnError extends boolean = false>(
+  options: Options<LoadCredentialsData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    LoadCredentialsResponse2,
+    LoadCredentialsError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/v1/{prefix}/namespaces/{namespace}/tables/{table}/credentials',
+    ...options,
   });
 };
 
@@ -801,7 +1022,7 @@ export const replaceView = <ThrowOnError extends boolean = false>(
 export const renameView = <ThrowOnError extends boolean = false>(
   options: Options<RenameViewData, ThrowOnError>,
 ) => {
-  return (options.client ?? _heyApiClient).post<unknown, RenameViewError, ThrowOnError>({
+  return (options.client ?? _heyApiClient).post<RenameViewResponse, RenameViewError, ThrowOnError>({
     security: [
       {
         scheme: 'bearer',

@@ -54,8 +54,8 @@ paths:
     get:
       tags:
         - project
-      summary: Get the default project
-      operationId: get_default_project
+      summary: Get the default project. This Endpoint is deprecated.
+      operationId: get_default_project_deprecated
       responses:
         '200':
           description: Project details
@@ -69,11 +69,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
+      deprecated: true
     delete:
       tags:
         - project
       summary: Delete the default project
-      operationId: delete_default_project
+      operationId: delete_default_project_deprecated
       responses:
         '204':
           description: Project deleted successfully
@@ -83,12 +84,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
+      deprecated: true
   /management/v1/default-project/rename:
     post:
       tags:
         - project
-      summary: Rename the default project
-      operationId: rename_default_project
+      summary: |-
+        Rename the default project.
+        This Endpoint is deprecated, use `/v1/projects/default` instead.
+      operationId: rename_default_project_deprecated
       requestBody:
         content:
           application/json:
@@ -104,6 +108,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
+      deprecated: true
   /management/v1/endpoint-statistics:
     post:
       tags:
@@ -891,6 +896,24 @@ paths:
         '200':
           description: ''
   /management/v1/project:
+    get:
+      tags:
+        - project
+      summary: Get the default project
+      operationId: get_default_project
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetProjectResponse'
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
     post:
       tags:
         - project
@@ -915,6 +938,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
+    delete:
+      tags:
+        - project
+      summary: Delete the default project
+      operationId: delete_default_project
+      responses:
+        '204':
+          description: Project deleted successfully
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
   /management/v1/project-list:
     get:
       tags:
@@ -928,6 +965,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListProjectsResponse'
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
+  /management/v1/project/rename:
+    post:
+      tags:
+        - project
+      summary: Rename the default project.
+      operationId: rename_default_project
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameProjectRequest'
+        required: true
+      responses:
+        '200':
+          description: Project renamed successfully
         4XX:
           description: ''
           content:
@@ -1085,14 +1143,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
-  /management/v1/role/{id}:
+  /management/v1/role/{role_id}:
     get:
       tags:
         - role
       summary: Get a role
       operationId: get_role
       parameters:
-        - name: id
+        - name: role_id
           in: path
           required: true
           schema:
@@ -1117,7 +1175,7 @@ paths:
       summary: Update a role
       operationId: update_role
       parameters:
-        - name: id
+        - name: role_id
           in: path
           required: true
           schema:
@@ -1149,7 +1207,7 @@ paths:
       description: All permissions of the role are permanently removed.
       operationId: delete_role
       parameters:
-        - name: id
+        - name: role_id
           in: path
           required: true
           schema:
@@ -1292,19 +1350,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
-  /management/v1/user/{id}:
+  /management/v1/user/{user_id}:
     get:
       tags:
         - user
       summary: Get a user by ID
       operationId: get_user
       parameters:
-        - name: id
+        - name: user_id
           in: path
           required: true
           schema:
             type: string
-            format: uuid
       responses:
         '200':
           description: User details
@@ -1326,12 +1383,11 @@ paths:
         If a field is not provided, it is set to `None`.
       operationId: update_user
       parameters:
-        - name: id
+        - name: user_id
           in: path
           required: true
           schema:
             type: string
-            format: uuid
       requestBody:
         content:
           application/json:
@@ -1356,12 +1412,11 @@ paths:
         if the user is re-registered.
       operationId: delete_user
       parameters:
-        - name: id
+        - name: user_id
           in: path
           required: true
           schema:
             type: string
-            format: uuid
       responses:
         '204':
           description: User deleted successfully
@@ -1570,6 +1625,12 @@ paths:
       description: List all soft-deleted tabulars in the warehouse that are visible to you.
       operationId: list_deleted_tabulars
       parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
         - name: namespaceId
           in: query
           description: Filter by Namespace ID
@@ -1594,12 +1655,6 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: warehouse_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: List of soft-deleted tabulars
@@ -1669,6 +1724,36 @@ paths:
                 $ref: '#/components/schemas/IcebergErrorResponse'
       deprecated: true
   /management/v1/warehouse/{warehouse_id}/namespace/{namespace_id}/protection:
+    get:
+      tags:
+        - warehouse
+      operationId: get_namespace_protection
+      parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: namespace_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtectionResponse'
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
     post:
       tags:
         - warehouse
@@ -1788,6 +1873,12 @@ paths:
             - timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view
       operationId: get_warehouse_statistics
       parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
         - name: page_token
           in: query
           description: Next page token
@@ -1803,12 +1894,6 @@ paths:
               - integer
               - 'null'
             format: int64
-        - name: warehouse_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
       responses:
         '200':
           description: Warehouse statistics
@@ -1881,6 +1966,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
   /management/v1/warehouse/{warehouse_id}/table/{table_id}/protection:
+    get:
+      tags:
+        - warehouse
+      operationId: get_table_protection
+      parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: table_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtectionResponse'
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
     post:
       tags:
         - warehouse
@@ -1918,6 +2033,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/IcebergErrorResponse'
   /management/v1/warehouse/{warehouse_id}/view/{view_id}/protection:
+    get:
+      tags:
+        - warehouse
+      operationId: get_view_protection
+      parameters:
+        - name: warehouse_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: view_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtectionResponse'
+        4XX:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IcebergErrorResponse'
     post:
       tags:
         - warehouse
@@ -1984,6 +2129,12 @@ components:
         account-name:
           type: string
           description: Name of the azure storage account.
+        allow-alternative-protocols:
+          type: boolean
+          description: |-
+            Allow alternative protocols such as `wasbs://` in locations.
+            This is disabled by default. We do not recommend to use this setting
+            except for migration of old tables via the register endpoint.
         authority-host:
           type:
             - string
@@ -2049,6 +2200,15 @@ components:
                 - shared-access-key
             key:
               type: string
+        - type: object
+          title: AzCredentialManagedIdentity
+          required:
+            - credential-type
+          properties:
+            credential-type:
+              type: string
+              enum:
+                - azure-system-identity
     BootstrapRequest:
       type: object
       required:
@@ -2500,6 +2660,20 @@ components:
                 - service-account-key
             key:
               $ref: '#/components/schemas/GcsServiceKey'
+        - type: object
+          title: GcsCredentialSystemIdentity
+          description: |-
+            GCP System Identity
+
+            Use the service account that the application is running as.
+            This can be a Compute Engine default service account or a user-assigned service account.
+          required:
+            - credential-type
+          properties:
+            credential-type:
+              type: string
+              enum:
+                - gcp-system-identity
       description: |-
         GCS Credentials
 
@@ -3462,6 +3636,8 @@ components:
         - server-id
         - authz-backend
         - aws-system-identities-enabled
+        - azure-system-identities-enabled
+        - gcp-system-identities-enabled
       properties:
         authz-backend:
           $ref: '#/components/schemas/AuthZBackend'
@@ -3469,6 +3645,9 @@ components:
         aws-system-identities-enabled:
           type: boolean
           description: If using AWS system identities for S3 storage profiles are enabled.
+        azure-system-identities-enabled:
+          type: boolean
+          description: If using Azure system identities for Azure storage profiles are enabled.
         bootstrapped:
           type: boolean
           description: Whether the catalog has been bootstrapped.
@@ -3477,6 +3656,9 @@ components:
             - string
             - 'null'
           description: Default Project ID. Null if not set
+        gcp-system-identities-enabled:
+          type: boolean
+          description: If using GCP system identities for GCS storage profiles are enabled.
         server-id:
           type: string
           format: uuid

@@ -17,6 +17,7 @@ declare module 'vue' {
     BreadcrumbsFromUrl: typeof import('./components/BreadcrumbsFromUrl.vue')['default']
     ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']
     DeletingDialog: typeof import('./components/deletingDialog.vue')['default']
+    DialogDelete: typeof import('./components/DialogDelete.vue')['default']
     DialogDeleteConfirm: typeof import('./components/dialogDeleteConfirm.vue')['default']
     EULA: typeof import('./components/EULA.vue')['default']
     Home: typeof import('./components/Home.vue')['default']

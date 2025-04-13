@@ -6,6 +6,12 @@ export type AdlsProfile = {
    */
   'account-name': string;
   /**
+   * Allow alternative protocols such as `wasbs://` in locations.
+   * This is disabled by default. We do not recommend to use this setting
+   * except for migration of old tables via the register endpoint.
+   */
+  'allow-alternative-protocols'?: boolean;
+  /**
    * The authority host to use for authentication. Default: `https://login.microsoftonline.com`.
    */
   'authority-host'?: string | null;
@@ -40,6 +46,9 @@ export type AzCredential =
   | {
       'credential-type': 'shared-access-key';
       key: string;
+    }
+  | {
+      'credential-type': 'azure-system-identity';
     };
 
 export type BootstrapRequest = {
@@ -347,14 +356,34 @@ export type ErrorModel = {
 };
 
 /**
- * Service Account Key
+ * GCS Credentials
  *
- * The key is the JSON object obtained when creating a service account key in the GCP console.
+ * Currently only supports Service Account Key
+ * Example of a key:
+ * ```json
+ * {
+ * "type": "service_account",
+ * "project_id": "example-project-1234",
+ * "private_key_id": "....",
+ * "private_key": "-----BEGIN PRIVATE KEY-----\n.....\n-----END PRIVATE KEY-----\n",
+ * "client_email": "abc@example-project-1234.iam.gserviceaccount.com",
+ * "client_id": "123456789012345678901",
+ * "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+ * "token_uri": "https://oauth2.googleapis.com/token",
+ * "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+ * "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abc%example-project-1234.iam.gserviceaccount.com",
+ * "universe_domain": "googleapis.com"
+ * }
+ * ```
  */
-export type GcsCredential = {
-  'credential-type': 'service-account-key';
-  key: GcsServiceKey;
-};
+export type GcsCredential =
+  | {
+      'credential-type': 'service-account-key';
+      key: GcsServiceKey;
+    }
+  | {
+      'credential-type': 'gcp-system-identity';
+    };
 
 export type GcsProfile = {
   /**
@@ -904,6 +933,10 @@ export type ServerInfo = {
    */
   'aws-system-identities-enabled': boolean;
   /**
+   * If using Azure system identities for Azure storage profiles are enabled.
+   */
+  'azure-system-identities-enabled': boolean;
+  /**
    * Whether the catalog has been bootstrapped.
    */
   bootstrapped: boolean;
@@ -911,6 +944,10 @@ export type ServerInfo = {
    * Default Project ID. Null if not set
    */
   'default-project-id'?: string | null;
+  /**
+   * If using GCP system identities for GCS storage profiles are enabled.
+   */
+  'gcp-system-identities-enabled': boolean;
   /**
    * ID of the server.
    */
@@ -1376,68 +1413,69 @@ export type BootstrapResponses = {
 
 export type BootstrapResponse = BootstrapResponses[keyof BootstrapResponses];
 
-export type DeleteDefaultProjectData = {
+export type DeleteDefaultProjectDeprecatedData = {
   body?: never;
   path?: never;
   query?: never;
   url: '/management/v1/default-project';
 };
 
-export type DeleteDefaultProjectErrors = {
+export type DeleteDefaultProjectDeprecatedErrors = {
   '4XX': IcebergErrorResponse;
 };
 
-export type DeleteDefaultProjectError =
-  DeleteDefaultProjectErrors[keyof DeleteDefaultProjectErrors];
+export type DeleteDefaultProjectDeprecatedError =
+  DeleteDefaultProjectDeprecatedErrors[keyof DeleteDefaultProjectDeprecatedErrors];
 
-export type DeleteDefaultProjectResponses = {
+export type DeleteDefaultProjectDeprecatedResponses = {
   /**
    * Project deleted successfully
    */
   204: void;
 };
 
-export type DeleteDefaultProjectResponse =
-  DeleteDefaultProjectResponses[keyof DeleteDefaultProjectResponses];
+export type DeleteDefaultProjectDeprecatedResponse =
+  DeleteDefaultProjectDeprecatedResponses[keyof DeleteDefaultProjectDeprecatedResponses];
 
-export type GetDefaultProjectData = {
+export type GetDefaultProjectDeprecatedData = {
   body?: never;
   path?: never;
   query?: never;
   url: '/management/v1/default-project';
 };
 
-export type GetDefaultProjectErrors = {
+export type GetDefaultProjectDeprecatedErrors = {
   '4XX': IcebergErrorResponse;
 };
 
-export type GetDefaultProjectError = GetDefaultProjectErrors[keyof GetDefaultProjectErrors];
+export type GetDefaultProjectDeprecatedError =
+  GetDefaultProjectDeprecatedErrors[keyof GetDefaultProjectDeprecatedErrors];
 
-export type GetDefaultProjectResponses = {
+export type GetDefaultProjectDeprecatedResponses = {
   /**
    * Project details
    */
   200: GetProjectResponse;
 };
 
-export type GetDefaultProjectResponse =
-  GetDefaultProjectResponses[keyof GetDefaultProjectResponses];
+export type GetDefaultProjectDeprecatedResponse =
+  GetDefaultProjectDeprecatedResponses[keyof GetDefaultProjectDeprecatedResponses];
 
-export type RenameDefaultProjectData = {
+export type RenameDefaultProjectDeprecatedData = {
   body: RenameProjectRequest;
   path?: never;
   query?: never;
   url: '/management/v1/default-project/rename';
 };
 
-export type RenameDefaultProjectErrors = {
+export type RenameDefaultProjectDeprecatedErrors = {
   '4XX': IcebergErrorResponse;
 };
 
-export type RenameDefaultProjectError =
-  RenameDefaultProjectErrors[keyof RenameDefaultProjectErrors];
+export type RenameDefaultProjectDeprecatedError =
+  RenameDefaultProjectDeprecatedErrors[keyof RenameDefaultProjectDeprecatedErrors];
 
-export type RenameDefaultProjectResponses = {
+export type RenameDefaultProjectDeprecatedResponses = {
   /**
    * Project renamed successfully
    */
@@ -2120,6 +2158,53 @@ export type SetWarehouseManagedAccessResponses = {
   200: unknown;
 };
 
+export type DeleteDefaultProjectData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/management/v1/project';
+};
+
+export type DeleteDefaultProjectErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type DeleteDefaultProjectError =
+  DeleteDefaultProjectErrors[keyof DeleteDefaultProjectErrors];
+
+export type DeleteDefaultProjectResponses = {
+  /**
+   * Project deleted successfully
+   */
+  204: void;
+};
+
+export type DeleteDefaultProjectResponse =
+  DeleteDefaultProjectResponses[keyof DeleteDefaultProjectResponses];
+
+export type GetDefaultProjectData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/management/v1/project';
+};
+
+export type GetDefaultProjectErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetDefaultProjectError = GetDefaultProjectErrors[keyof GetDefaultProjectErrors];
+
+export type GetDefaultProjectResponses = {
+  /**
+   * Project details
+   */
+  200: GetProjectResponse;
+};
+
+export type GetDefaultProjectResponse =
+  GetDefaultProjectResponses[keyof GetDefaultProjectResponses];
+
 export type CreateProjectData = {
   body: CreateProjectRequest;
   path?: never;
@@ -2163,6 +2248,27 @@ export type ListProjectsResponses = {
 };
 
 export type ListProjectsResponse2 = ListProjectsResponses[keyof ListProjectsResponses];
+
+export type RenameDefaultProjectData = {
+  body: RenameProjectRequest;
+  path?: never;
+  query?: never;
+  url: '/management/v1/project/rename';
+};
+
+export type RenameDefaultProjectErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type RenameDefaultProjectError =
+  RenameDefaultProjectErrors[keyof RenameDefaultProjectErrors];
+
+export type RenameDefaultProjectResponses = {
+  /**
+   * Project renamed successfully
+   */
+  200: unknown;
+};
 
 export type DeleteProjectByIdData = {
   body?: never;
@@ -2301,10 +2407,10 @@ export type CreateRoleResponse = CreateRoleResponses[keyof CreateRoleResponses];
 export type DeleteRoleData = {
   body?: never;
   path: {
-    id: string;
+    role_id: string;
   };
   query?: never;
-  url: '/management/v1/role/{id}';
+  url: '/management/v1/role/{role_id}';
 };
 
 export type DeleteRoleErrors = {
@@ -2325,10 +2431,10 @@ export type DeleteRoleResponse = DeleteRoleResponses[keyof DeleteRoleResponses];
 export type GetRoleData = {
   body?: never;
   path: {
-    id: string;
+    role_id: string;
   };
   query?: never;
-  url: '/management/v1/role/{id}';
+  url: '/management/v1/role/{role_id}';
 };
 
 export type GetRoleErrors = {
@@ -2349,10 +2455,10 @@ export type GetRoleResponse = GetRoleResponses[keyof GetRoleResponses];
 export type UpdateRoleData = {
   body: UpdateRoleRequest;
   path: {
-    id: string;
+    role_id: string;
   };
   query?: never;
-  url: '/management/v1/role/{id}';
+  url: '/management/v1/role/{role_id}';
 };
 
 export type UpdateRoleErrors = {
@@ -2479,10 +2585,10 @@ export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
 export type DeleteUserData = {
   body?: never;
   path: {
-    id: string;
+    user_id: string;
   };
   query?: never;
-  url: '/management/v1/user/{id}';
+  url: '/management/v1/user/{user_id}';
 };
 
 export type DeleteUserErrors = {
@@ -2503,10 +2609,10 @@ export type DeleteUserResponse = DeleteUserResponses[keyof DeleteUserResponses];
 export type GetUserData = {
   body?: never;
   path: {
-    id: string;
+    user_id: string;
   };
   query?: never;
-  url: '/management/v1/user/{id}';
+  url: '/management/v1/user/{user_id}';
 };
 
 export type GetUserErrors = {
@@ -2527,10 +2633,10 @@ export type GetUserResponse = GetUserResponses[keyof GetUserResponses];
 export type UpdateUserData = {
   body: UpdateUserRequest;
   path: {
-    id: string;
+    user_id: string;
   };
   query?: never;
-  url: '/management/v1/user/{id}';
+  url: '/management/v1/user/{user_id}';
 };
 
 export type UpdateUserErrors = {
@@ -2806,6 +2912,30 @@ export type UndropTabularsDeprecatedResponses = {
 export type UndropTabularsDeprecatedResponse =
   UndropTabularsDeprecatedResponses[keyof UndropTabularsDeprecatedResponses];
 
+export type GetNamespaceProtectionData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    namespace_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/namespace/{namespace_id}/protection';
+};
+
+export type GetNamespaceProtectionErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetNamespaceProtectionError =
+  GetNamespaceProtectionErrors[keyof GetNamespaceProtectionErrors];
+
+export type GetNamespaceProtectionResponses = {
+  200: ProtectionResponse;
+};
+
+export type GetNamespaceProtectionResponse =
+  GetNamespaceProtectionResponses[keyof GetNamespaceProtectionResponses];
+
 export type SetNamespaceProtectionData = {
   body: SetProtectionRequest;
   path: {
@@ -2962,6 +3092,29 @@ export type UpdateStorageCredentialResponses = {
   200: unknown;
 };
 
+export type GetTableProtectionData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    table_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/table/{table_id}/protection';
+};
+
+export type GetTableProtectionErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetTableProtectionError = GetTableProtectionErrors[keyof GetTableProtectionErrors];
+
+export type GetTableProtectionResponses = {
+  200: ProtectionResponse;
+};
+
+export type GetTableProtectionResponse =
+  GetTableProtectionResponses[keyof GetTableProtectionResponses];
+
 export type SetTableProtectionData = {
   body: SetProtectionRequest;
   path: {
@@ -2987,6 +3140,29 @@ export type SetTableProtectionResponses = {
 
 export type SetTableProtectionResponse =
   SetTableProtectionResponses[keyof SetTableProtectionResponses];
+
+export type GetViewProtectionData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    view_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/view/{view_id}/protection';
+};
+
+export type GetViewProtectionErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetViewProtectionError = GetViewProtectionErrors[keyof GetViewProtectionErrors];
+
+export type GetViewProtectionResponses = {
+  200: ProtectionResponse;
+};
+
+export type GetViewProtectionResponse =
+  GetViewProtectionResponses[keyof GetViewProtectionResponses];
 
 export type SetViewProtectionData = {
   body: SetProtectionRequest;
