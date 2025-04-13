@@ -42,7 +42,7 @@ jobs:
       - name: Create Node Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 22.12.0
+          node-version: 22.14.0
 
       - name: Install Packages and Build Application
         run: |
