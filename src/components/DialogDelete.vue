@@ -15,46 +15,105 @@
           maxlength="500"
           :placeholder="$props.name"></v-text-field>
 
-        <div>Delete Options:</div>
+        <v-row class="mt-6 mb-2">
+          <v-col cols="auto">
+            <span>Delete Options:</span>
+            <v-icon class="ml-2" color="info" style="cursor: pointer" @click="expanded = !expanded">
+              mdi-information-box-outline
+            </v-icon>
+          </v-col>
+          <v-col class="text-left">
+            <!-- Ensures text is aligned to the left -->
+            <span v-if="expanded" class="mt-2">
+              More information
+              <a
+                href="https://docs.lakekeeper.io/docs/nightly/concepts/#protection-and-deletion-mechanisms-in-lakekeeper"
+                target="_blank"
+                style="color: inherit">
+                here
+              </a>
+            </span>
+          </v-col>
+        </v-row>
         <span v-if="props.type === 'namespace'">
-          <v-switch
-            v-model="optionsNamespace.force"
-            class="ml-4"
-            color="info"
-            :label="optionsNamespace.force ? 'Force activated' : 'Force deactivated'"></v-switch>
+          <v-switch v-model="optionsNamespace.force" class="ml-4" color="info" density="compact">
+            <template #label>
+              <div>
+                <span>{{ optionsNamespace.force ? 'Force activated' : 'Force deactivated' }}</span>
+                <div v-if="optionsNamespace.force" class="text-caption text-error">
+                  Bypass Protection and Skip Soft-Deletion
+                </div>
+              </div>
+            </template>
+          </v-switch>
           <v-switch
             v-model="optionsNamespace.recursive"
             class="ml-4"
             color="info"
-            :label="
-              optionsNamespace.recursive ? 'Recursive activated' : 'Recursive deactivated'
-            "></v-switch>
-          <v-switch
-            v-model="optionsNamespace.purge"
-            class="ml-4"
-            color="info"
-            :label="optionsNamespace.purge ? 'Purge activated' : 'Purge deactivated '"></v-switch>
+            density="compact">
+            <template #label>
+              <div>
+                <span>
+                  {{ optionsNamespace.recursive ? 'Recursive activated' : 'Recursive deactivated' }}
+                </span>
+                <div v-if="optionsNamespace.recursive" class="text-caption text-error">
+                  Recursive Pdeletion of all objects in the namespace
+                </div>
+              </div>
+            </template>
+          </v-switch>
+          <v-switch v-model="optionsNamespace.purge" class="ml-4" color="info" density="compact">
+            <template #label>
+              <div>
+                <span>
+                  {{ optionsNamespace.purge ? 'Purge activated' : 'Purge deactivated' }}
+                </span>
+                <div v-if="optionsNamespace.purge" class="text-caption text-error">
+                  Purge deletes table and view data
+                </div>
+              </div>
+            </template>
+          </v-switch>
         </span>
         <span v-else-if="props.type === 'table'">
-          <v-switch
-            v-model="optionsTable.force"
-            class="ml-4"
-            color="info"
-            :label="optionsNamespace.force ? 'Force activated' : 'Force deactivated'"></v-switch>
+          <v-switch v-model="optionsTable.force" class="ml-4" color="info" density="compact">
+            <template #label>
+              <div>
+                <span>{{ optionsTable.force ? 'Force activated' : 'Force deactivated' }}</span>
+                <div v-if="optionsTable.force" class="text-caption text-error">
+                  Bypass Protection and Skip Soft-Deletion
+                </div>
+              </div>
+            </template>
+          </v-switch>
           <v-switch
             v-model="optionsTable.purgeRequested"
             class="ml-4"
             color="info"
-            :label="
-              optionsNamespace.recursive ? 'Purge activated' : 'Purge deactivated'
-            "></v-switch>
+            density="compact">
+            <template #label>
+              <div>
+                <span>
+                  {{ optionsTable.purgeRequested ? 'Purge activated' : 'Purge deactivated' }}
+                </span>
+                <div v-if="optionsTable.purgeRequested" class="text-caption text-error">
+                  Purge the underlying table's data and metadata
+                </div>
+              </div>
+            </template>
+          </v-switch>
         </span>
         <span v-else-if="props.type === 'view'">
-          <v-switch
-            v-model="optionsView.force"
-            class="ml-4"
-            color="info"
-            :label="optionsNamespace.force ? 'Force activated' : 'Force deactivated'"></v-switch>
+          <v-switch v-model="optionsView.force" class="ml-4" color="info" density="compact">
+            <template #label>
+              <div>
+                <span>{{ optionsView.force ? 'Force activated' : 'Force deactivated' }}</span>
+                <div v-if="optionsView.force" class="text-caption text-error">
+                  Bypass Protection and Skip Soft-Deletion
+                </div>
+              </div>
+            </template>
+          </v-switch>
         </span>
       </v-card-text>
 
@@ -76,7 +135,7 @@
 import { defineEmits, defineProps, ref, reactive } from 'vue';
 
 const deleteName = ref('');
-
+const expanded = ref(false);
 const optionsNamespace = reactive({
   force: false,
   recursive: false,
