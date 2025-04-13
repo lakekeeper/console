@@ -1562,7 +1562,7 @@ async function getUser(userId: string): Promise<User> {
     const { data, error } = await mng.getUser({
       client,
       path: {
-        id: userId,
+        user_id: userId,
       },
     });
 
@@ -1584,7 +1584,7 @@ async function deleteUser(userId: string): Promise<boolean> {
     const { error } = await mng.deleteUser({
       client,
       path: {
-        id: userId,
+        user_id: userId,
       },
     });
 
@@ -1629,7 +1629,7 @@ async function updateUserById(name: string, userId: string): Promise<boolean> {
         'user-type': 'application',
       },
       path: {
-        id: userId,
+        user_id: userId,
       },
     });
 
@@ -1698,7 +1698,7 @@ async function getRole(roleId: string): Promise<Role> {
 
     const { data, error } = await mng.getRole({
       client,
-      path: { id: roleId },
+      path: { role_id: roleId },
     });
 
     if (error) throw error;
@@ -1751,7 +1751,7 @@ async function updateRole(roleId: string, name: string, description?: string): P
     const { data, error } = await mng.updateRole({
       client,
       body,
-      path: { id: roleId },
+      path: { role_id: roleId },
     });
 
     if (error) throw error;
@@ -1771,7 +1771,7 @@ async function deleteRole(roleId: string): Promise<boolean> {
 
     await mng.deleteRole({
       client,
-      path: { id: roleId },
+      path: { role_id: roleId },
     });
 
     return true;
