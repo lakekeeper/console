@@ -41,7 +41,7 @@
               <div>
                 <span>{{ optionsNamespace.force ? 'Force activated' : 'Force deactivated' }}</span>
                 <div v-if="optionsNamespace.force" class="text-caption text-error">
-                  Bypass Protection and Skip Soft-Deletion
+                  Bypass Protection and skip Soft-Deletion
                 </div>
               </div>
             </template>
@@ -57,7 +57,7 @@
                   {{ optionsNamespace.recursive ? 'Recursive activated' : 'Recursive deactivated' }}
                 </span>
                 <div v-if="optionsNamespace.recursive" class="text-caption text-error">
-                  Recursive Pdeletion of all objects in the namespace
+                  Recursive deletion of all objects in the namespace
                 </div>
               </div>
             </template>
