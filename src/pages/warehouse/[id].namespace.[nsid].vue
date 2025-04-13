@@ -32,7 +32,7 @@
           <addNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
             :parent-path="namespacePath"
-            :status-intent="StatusIntent.STARTING"
+            :status-intent="addNamespaceStatus"
             @add-namespace="addNamespace" />
         </v-toolbar>
         <v-tabs v-model="tab">
@@ -238,6 +238,7 @@ const loading = ref(true);
 const loaded = ref(false);
 const canReadPermissions = ref(false);
 const recursiveDeleteProtection = ref(false);
+const addNamespaceStatus = ref(StatusIntent.INACTIVE);
 
 const items: Item[] = reactive([]);
 const permissionType = ref<RelationType>('namespace');
@@ -501,10 +502,19 @@ async function routeToView(item: TableIdentifierExtended) {
 }
 
 async function addNamespace(namespaceIdent: string[]) {
-  const res = await functions.createNamespace(whid.value, namespaceIdent);
-  if (res.error) throw res.error;
+  try {
+    addNamespaceStatus.value = StatusIntent.STARTING;
 
-  await listNamespaces();
+    const res = await functions.createNamespace(whid.value, namespaceIdent);
+    if (res.error) throw res.error;
+
+    await listNamespaces();
+    addNamespaceStatus.value = StatusIntent.SUCCESS;
+    console.log('Namespace added successfully', addNamespaceStatus.value);
+  } catch (error) {
+    addNamespaceStatus.value = StatusIntent.FAILURE;
+    console.error(error);
+  }
 }
 
 watch(
