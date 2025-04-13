@@ -168,6 +168,8 @@ async function loadTabData() {
 }
 
 async function init() {
+  const serverInfo = await functions.getServerInfo();
+
   loaded.value = false;
   existingPermissions.splice(0, existingPermissions.length);
 
@@ -184,16 +186,18 @@ async function init() {
   });
   permissionObject.id = viewId.value;
   permissionObject.name = viewName;
+  if (serverInfo['authz-backend'] != 'allow-all') {
+    Object.assign(myAccess, await functions.getViewAccessById(viewId.value));
+    await getProtection();
 
-  Object.assign(myAccess, await functions.getViewAccessById(viewId.value));
-  await getProtection();
+    canReadPermissions.value = !!myAccess.includes('read_assignments');
 
-  canReadPermissions.value = !!myAccess.includes('read_assignments');
+    Object.assign(
+      existingPermissions,
+      canReadPermissions.value ? await functions.getViewAssignmentsById(viewId.value) : [],
+    );
+  }
 
-  Object.assign(
-    existingPermissions,
-    canReadPermissions.value ? await functions.getViewAssignmentsById(viewId.value) : [],
-  );
   depthRawRepresentationMax.value = getMaxDepth(view);
   loaded.value = true;
 }

@@ -178,6 +178,7 @@ const loaded = ref(false);
 
 async function init() {
   loaded.value = false;
+  const serverInfo = await functions.getServerInfo();
 
   namespacePath.value = `${namespaceId}${String.fromCharCode(0x1f)}${tableName}`;
   Object.assign(table, await functions.loadTableCustomized(warehouseId, namespaceId, tableName));
@@ -187,15 +188,16 @@ async function init() {
 
   permissionObject.id = tableId.value;
   permissionObject.name = tableName;
+  if (serverInfo['authz-backend'] != 'allow-all') {
+    Object.assign(myAccess, await functions.getTableAccessById(tableId.value));
+    await getProtection();
+    canReadPermissions.value = !!myAccess.includes('read_assignments');
 
-  Object.assign(myAccess, await functions.getTableAccessById(tableId.value));
-  await getProtection();
-  canReadPermissions.value = !!myAccess.includes('read_assignments');
-
-  Object.assign(
-    existingPermissions,
-    canReadPermissions.value ? await functions.getTableAssignmentsById(tableId.value) : [],
-  );
+    Object.assign(
+      existingPermissions,
+      canReadPermissions.value ? await functions.getTableAssignmentsById(tableId.value) : [],
+    );
+  }
   loaded.value = true;
 
   schemaFields.splice(0, schemaFields.length);
