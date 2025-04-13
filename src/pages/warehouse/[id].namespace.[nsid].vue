@@ -361,6 +361,7 @@ async function loadTabData() {
 
 async function init() {
   try {
+    const serverInfo = await functions.getServerInfo();
     loaded.value = false;
     existingPermissions.splice(0, existingPermissions.length);
 
@@ -374,22 +375,21 @@ async function init() {
     selectedNamespace.value = namespace.namespace[namespace.namespace.length - 1];
 
     permissionObject.id = namespace.properties?.namespace_id || '';
-    Object.assign(
-      myAccess,
-      await functions.getNamespaceAccessById(namespace.properties?.namespace_id || ''),
-    );
-    canReadPermissions.value = !!myAccess.includes('read_assignments');
-    console.log(
-      'ns id',
-      await functions.getNamespaceById(namespace.properties?.namespace_id || ''),
-    );
 
-    Object.assign(
-      existingPermissions,
-      canReadPermissions.value
-        ? await functions.getNamespaceAssignmentsById(namespace.properties?.namespace_id || '')
-        : [],
-    );
+    if (serverInfo['authz-backend'] != 'allow-all') {
+      Object.assign(
+        myAccess,
+        await functions.getNamespaceAccessById(namespace.properties?.namespace_id || ''),
+      );
+      canReadPermissions.value = !!myAccess.includes('read_assignments');
+
+      Object.assign(
+        existingPermissions,
+        canReadPermissions.value
+          ? await functions.getNamespaceAssignmentsById(namespace.properties?.namespace_id || '')
+          : [],
+      );
+    }
     loaded.value = true;
     await Promise.all([listNamespaces(), listTables(), listViews(), listDeletedTabulars()]);
   } catch (error) {
