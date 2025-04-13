@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.0](https://github.com/lakekeeper/console/compare/v0.6.0...v0.7.0) (2025-04-13)
+
+
+### Features
+
+* GCP & Azure System Identities, Delete Options ([#114](https://github.com/lakekeeper/console/issues/114)) ([#114](https://github.com/lakekeeper/console/issues/114)) ([5cca272](https://github.com/lakekeeper/console/commit/5cca272ebccd673c5f3ed9a69a77227c78b1019c))
+
+
+### Bug Fixes
+
+* added project statistics if auth is off ([#110](https://github.com/lakekeeper/console/issues/110)) ([c38c0cf](https://github.com/lakekeeper/console/commit/c38c0cf8f2c9851a8e5d104c6eaf6d056ad62d73))
+* **deps:** update dependency @wdns/vue-code-block to v2.3.5 ([#61](https://github.com/lakekeeper/console/issues/61)) ([f75a544](https://github.com/lakekeeper/console/commit/f75a544fb1533defd4b1f07df1cb0a76f162e00d))
+* **deps:** update dependency pinia-plugin-persistedstate-2 to v2.0.30 ([#115](https://github.com/lakekeeper/console/issues/115)) ([84312b8](https://github.com/lakekeeper/console/commit/84312b8ea2e61b3f324f4d18d45630eb37220441))
+
 ## [0.6.0](https://github.com/lakekeeper/console/compare/v0.5.0...v0.6.0) (2025-04-07)
 
 
