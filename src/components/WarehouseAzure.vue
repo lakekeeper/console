@@ -2,6 +2,7 @@
   <v-form @submit.prevent="handleSubmit">
     <!--Credential Type Selection-->
     <v-divider />
+
     <v-container fluid>
       <v-radio-group v-model="credentialType" row>
         <v-row>
@@ -38,6 +39,7 @@
       </v-radio-group>
     </v-container>
     <!--Storage Credentials-->
+
     <template v-if="isClientCredentials(warehouseObjectData['storage-credential'])">
       <v-text-field
         v-model="warehouseObjectData['storage-credential']['client-id']"
@@ -102,7 +104,7 @@
 
     <v-divider />
     <!--    Storage Profile-->
-
+    <div class="mt-6 mb-6">Storage Profile</div>
     <div
       v-if="
         props.objectType === ObjectType.STORAGE_PROFILE ||
@@ -119,9 +121,34 @@
         placeholder="my-filesystem"
         :rules="[rules.required, rules.noSlash]"></v-text-field>
       <v-text-field
+        v-model="warehouseObjectData['storage-profile']['host']"
+        label="host"
+        placeholder="dfs.core.windows.net"></v-text-field>
+      <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key Prefix"
         placeholder="path/to/warehouse"></v-text-field>
+      <v-row>
+        <v-col cols="6">
+          <v-text-field
+            v-model="warehouseObjectData['storage-profile']['sas-token-validity-seconds']"
+            label="SAS Token Validity (seconds)"
+            placeholder="3600"
+            hint="This field is optional."
+            type="number"></v-text-field>
+        </v-col>
+        <v-col class="auto">
+          <v-switch
+            v-model="warehouseObjectData['storage-profile']['allow-alternative-protocols']"
+            color="primary"
+            class="mb-4"
+            :label="
+              warehouseObjectData['storage-profile']['allow-alternative-protocols']
+                ? 'Alternative Protocols enabled'
+                : 'Default Protocol is used'
+            "></v-switch>
+        </v-col>
+      </v-row>
 
       <v-btn
         v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
@@ -206,6 +233,7 @@ watch(credentialType, (newValue) => {
       'client-secret': '',
       'credential-type': 'client-credentials',
       'tenant-id': '',
+
       type: 'az',
     };
   } else if (newValue === 'shared-access-key') {
