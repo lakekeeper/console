@@ -10,6 +10,7 @@ import {
   LoadViewResultReadable,
   Namespace,
 } from '@/gen/iceberg/types.gen';
+import JSONBig from 'json-bigint';
 
 import * as mng from '@/gen/management/sdk.gen';
 import * as mngClient from '@/gen/management/client.gen';
@@ -840,13 +841,16 @@ async function loadTableCustomized(warehouseId: string, namespacePath: string, t
       throw new Error(`Error fetching table data: ${response.statusText}`);
     }
     const textData = await response.text();
-    const data = JSON.parse(textData, (key, value) => {
-      // If the value is a large number (potentially snapshot-id), convert it to BigInt
-      if (typeof value === 'number' && value > Number.MAX_SAFE_INTEGER) {
-        return String(BigInt(value)); // Convert to BigInt to preserve precision
-      }
-      return value;
-    });
+    const JSONBigString = JSONBig({ storeAsString: true });
+    const data = JSONBigString.parse(textData);
+    // const data = JSON.parse(textData, (key, value) => {
+    //   // If the value is a large number (potentially snapshot-id), convert it to BigInt
+    //   if (typeof value === 'number' && value > Number.MAX_SAFE_INTEGER) {
+    //     console.log('value', value);
+    //     return String(BigInt(value)); // Convert to BigInt to preserve precision
+    //   }
+    //   return value;
+    // });
 
     return data;
   } catch (error: any) {
