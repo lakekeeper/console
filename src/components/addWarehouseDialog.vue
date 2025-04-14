@@ -35,8 +35,22 @@
       </v-list-item>
     </template>
     <v-card style="max-height: 90vh; overflow-y: auto">
-      <v-card-title v-if="props.objectType === ObjectType.WAREHOUSE">
-        Add new warehouse
+      <v-card-title v-if="props.objectType === ObjectType.WAREHOUSE" class="mt-8">
+        <v-row>
+          <v-col cols="8" class="ml-2">Add new warehouse</v-col>
+          <v-col>
+            <v-switch v-model="useFileInput">
+              <template #label>
+                <v-icon class="mr-2" color="info">
+                  {{ useFileInput ? 'mdi-keyboard-outline' : 'mdi-code-json' }}
+                </v-icon>
+                <span>
+                  {{ useFileInput ? 'Activate manual input' : 'Activate JSON upload' }}
+                </span>
+              </template>
+            </v-switch>
+          </v-col>
+        </v-row>
       </v-card-title>
       <v-card-title v-else>Updating Warehouse</v-card-title>
       <span v-if="creatingWarehouse || props.processStatus == 'running'">
@@ -72,7 +86,7 @@
       </span>
       <span v-else>
         <v-card-text>
-          <v-form>
+          <v-form v-if="!useFileInput">
             <v-text-field
               v-if="emptyWarehouse"
               v-model="warehouseName"
@@ -127,6 +141,7 @@
                 </v-btn>
               </v-col>
             </v-row>
+
             <span v-if="props.objectType !== ObjectType.DELETION_PROFILE">
               <v-container fluid>
                 <v-radio-group v-model="storageCredentialType" row>
@@ -150,9 +165,7 @@
                               <v-icon v-if="type === 'AZURE'" color="primary" size="x-large">
                                 mdi-microsoft-azure
                               </v-icon>
-                              <v-icon v-if="type === 'JSON'" color="primary" size="x-large">
-                                mdi-code-json
-                              </v-icon>
+
                               {{ type }}
                             </div>
                           </template>
@@ -203,16 +216,18 @@
                   @update-credentials="newCredentials"
                   @update-profile="newProfile"></WarehouseGCS>
               </div>
-              <div v-if="storageCredentialType === 'JSON'">
-                <WarehouseJSON
-                  :credentials-only="emptyWarehouse"
-                  :intent="intent"
-                  :object-type="objectType"
-                  :warehouse-object="warehouseObjectGCS"
-                  @submit="createWarehouse"></WarehouseJSON>
-              </div>
             </span>
           </v-form>
+
+          <WarehouseJSON
+            v-if="useFileInput"
+            :credentials-only="emptyWarehouse"
+            :intent="intent"
+            :object-type="objectType"
+            :warehouse-object="warehouseObjectS3"
+            @submit="createWarehouse"
+            @update-credentials="newCredentials"
+            @update-profile="newProfile"></WarehouseJSON>
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -280,8 +295,9 @@ const props = defineProps<{
 const min = ref(0);
 const max = ref(90);
 const slider = ref(7);
+const useFileInput = ref(false);
 
-const storageCredentialTypes = ref(['S3', 'GCS', 'AZURE', 'JSON']);
+const storageCredentialTypes = ref(['S3', 'GCS', 'AZURE']);
 const storageCredentialType = ref('');
 const warehouseName = ref('');
 const functions = useFunctions();
