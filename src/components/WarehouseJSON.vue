@@ -25,7 +25,10 @@
     <!--Storage Profile-->
 
     <div>
-      <v-btn :disabled="!JSONStringIsValid" type="submit" color="success">Submit</v-btn>
+      <v-btn :disabled="!JSONStringIsValid" type="submit" color="success" class="mr-6">
+        Submit
+      </v-btn>
+      <v-btn :disabled="!JSONStringIsValid" @click="handlePreload" color="info">Preload</v-btn>
     </div>
   </v-form>
 </template>
@@ -47,6 +50,7 @@ const warehouseObjectData = reactive<CreateWarehouseRequest>({
 
 const emit = defineEmits<{
   (e: 'submit', warehouseObjectDataEmit: CreateWarehouseRequest): void;
+  (e: 'preload', warehouseObjectDataEmit: CreateWarehouseRequest): void;
 }>();
 
 const rules = {
@@ -66,6 +70,10 @@ const rules = {
 
 const handleSubmit = () => {
   emit('submit', warehouseObjectData);
+};
+
+const handlePreload = () => {
+  emit('preload', warehouseObjectData);
 };
 
 function handleFileInput(event: any) {

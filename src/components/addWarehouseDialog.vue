@@ -219,7 +219,10 @@
             </span>
           </v-form>
 
-          <WarehouseJSON v-if="useFileInput" @submit="createWarehouseJSON"></WarehouseJSON>
+          <WarehouseJSON
+            v-if="useFileInput"
+            @submit="createWarehouseJSON"
+            @preload="preloadWarehouseJSON"></WarehouseJSON>
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -413,6 +416,36 @@ async function createWarehouseJSON(wh: CreateWarehouseRequest) {
   } catch (error) {
     creatingWarehouse.value = false;
 
+    console.error(error);
+  }
+}
+
+async function preloadWarehouseJSON(wh: CreateWarehouseRequest) {
+  try {
+    warehouseName.value = wh['warehouse-name'];
+    const type = wh['storage-profile'].type;
+    if (type === 'adls') {
+      storageCredentialType.value = 'AZURE';
+    } else {
+      storageCredentialType.value = type.toUpperCase();
+    }
+    if (wh['storage-profile'].type === 'gcs')
+      Object.assign(warehouseObjectGCS, {
+        'storage-profile': wh['storage-profile'],
+        'storage-credential': wh['storage-credential'],
+      });
+    if (wh['storage-profile'].type === 's3')
+      Object.assign(warehouseObjectS3, {
+        'storage-profile': wh['storage-profile'],
+        'storage-credential': wh['storage-credential'],
+      });
+    if (wh['storage-profile'].type === 'adls')
+      Object.assign(warehouseObjectAz, {
+        'storage-profile': wh['storage-profile'],
+        'storage-credential': wh['storage-credential'],
+      });
+    useFileInput.value = false;
+  } catch (error) {
     console.error(error);
   }
 }
