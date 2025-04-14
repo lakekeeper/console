@@ -219,15 +219,7 @@
             </span>
           </v-form>
 
-          <WarehouseJSON
-            v-if="useFileInput"
-            :credentials-only="emptyWarehouse"
-            :intent="intent"
-            :object-type="objectType"
-            :warehouse-object="warehouseObjectS3"
-            @submit="createWarehouse"
-            @update-credentials="newCredentials"
-            @update-profile="newProfile"></WarehouseJSON>
+          <WarehouseJSON v-if="useFileInput" @submit="createWarehouseJSON"></WarehouseJSON>
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -394,6 +386,23 @@ async function createWarehouse(warehouseObject: WarehousObject) {
       'storage-profile': warehouseObject['storage-profile'] as StorageProfile,
     });
 
+    const res: any = await functions.createWarehouse(wh);
+
+    if (res.status === 400) throw new Error(res.message);
+
+    emit('addedWarehouse');
+    creatingWarehouse.value = false;
+    isDialogActive.value = false;
+  } catch (error) {
+    creatingWarehouse.value = false;
+
+    console.error(error);
+  }
+}
+
+async function createWarehouseJSON(wh: CreateWarehouseRequest) {
+  try {
+    creatingWarehouse.value = true;
     const res: any = await functions.createWarehouse(wh);
 
     if (res.status === 400) throw new Error(res.message);

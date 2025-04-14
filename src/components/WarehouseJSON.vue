@@ -25,13 +25,13 @@
     <!--Storage Profile-->
 
     <div>
-      <v-btn :disabled="!JSONStringIsValid" type="submit">Submit</v-btn>
+      <v-btn :disabled="!JSONStringIsValid" type="submit" color="success">Submit</v-btn>
     </div>
   </v-form>
 </template>
 
 <script setup lang="ts">
-import { WarehousObject } from '@/common/interfaces';
+import { CreateWarehouseRequest, StorageProfile } from '@/gen/management';
 import { ref, Ref } from 'vue';
 
 const credentialType: Ref<'service-account-key' | 'gcp-system-identity'> =
@@ -40,9 +40,13 @@ const credentialType: Ref<'service-account-key' | 'gcp-system-identity'> =
 const JSONString = ref('');
 const JSONStringIsValid = ref(false);
 const useFileInput = ref(true);
+const warehouseObjectData = reactive<CreateWarehouseRequest>({
+  'storage-profile': {} as StorageProfile,
+  'warehouse-name': '',
+});
 
 const emit = defineEmits<{
-  (e: 'submit', warehouseObjectDataEmit: WarehousObject): void;
+  (e: 'submit', warehouseObjectDataEmit: CreateWarehouseRequest): void;
 }>();
 
 const rules = {
@@ -71,13 +75,8 @@ function handleFileInput(event: any) {
     reader.onload = (e) => {
       try {
         if (e.target && e.target.result) {
-          const json = JSON.parse(e.target.result as string);
+          Object.assign(warehouseObjectData, JSON.parse(e.target.result as string));
 
-          if (
-            warehouseObjectData['storage-credential']['credential-type'] === 'service-account-key'
-          ) {
-            warehouseObjectData['storage-credential'].key = json;
-          }
           JSONStringIsValid.value = true;
         }
       } catch (error) {
@@ -93,7 +92,7 @@ function verifyKeyJson() {
     if (JSONString.value !== '') {
       const JSONStringParsed = JSON.parse(JSONString.value);
 
-      console.log('Parsed JSON:', JSONStringParsed);
+      Object.assign(warehouseObjectData, JSONStringParsed as CreateWarehouseRequest);
       JSONStringIsValid.value = true;
     }
   } catch (error) {
