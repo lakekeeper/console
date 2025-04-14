@@ -150,6 +150,9 @@
                               <v-icon v-if="type === 'AZURE'" color="primary" size="x-large">
                                 mdi-microsoft-azure
                               </v-icon>
+                              <v-icon v-if="type === 'JSON'" color="primary" size="x-large">
+                                mdi-code-json
+                              </v-icon>
                               {{ type }}
                             </div>
                           </template>
@@ -199,6 +202,14 @@
                   @submit="createWarehouse"
                   @update-credentials="newCredentials"
                   @update-profile="newProfile"></WarehouseGCS>
+              </div>
+              <div v-if="storageCredentialType === 'JSON'">
+                <WarehouseJSON
+                  :credentials-only="emptyWarehouse"
+                  :intent="intent"
+                  :object-type="objectType"
+                  :warehouse-object="warehouseObjectGCS"
+                  @submit="createWarehouse"></WarehouseJSON>
               </div>
             </span>
           </v-form>
@@ -270,7 +281,7 @@ const min = ref(0);
 const max = ref(90);
 const slider = ref(7);
 
-const storageCredentialTypes = ref(['S3', 'GCS', 'AZURE']);
+const storageCredentialTypes = ref(['S3', 'GCS', 'AZURE', 'JSON']);
 const storageCredentialType = ref('');
 const warehouseName = ref('');
 const functions = useFunctions();
