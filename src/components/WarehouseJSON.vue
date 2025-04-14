@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { CreateWarehouseRequest, StorageProfile } from '@/gen/management';
-import { ref, Ref } from 'vue';
+import { ref, Ref, reactive } from 'vue';
 
 const credentialType: Ref<'service-account-key' | 'gcp-system-identity'> =
   ref('service-account-key');
