@@ -86,6 +86,30 @@
       </span>
       <span v-else>
         <v-card-text>
+          <v-row c>
+            <v-col cols="auto">
+              <span>Configuration Parameters:</span>
+              <v-icon
+                class="ml-2"
+                color="info"
+                style="cursor: pointer"
+                @click="expanded = !expanded">
+                mdi-information-box-outline
+              </v-icon>
+            </v-col>
+            <v-col class="text-left">
+              <!-- Ensures text is aligned to the left -->
+              <span v-if="expanded" class="mt-2">
+                More information
+                <a
+                  href="https://docs.lakekeeper.io/docs/nightly/storage/#configuration-parameters"
+                  target="_blank"
+                  style="color: inherit">
+                  here
+                </a>
+              </span>
+            </v-col>
+          </v-row>
           <v-form v-if="!useFileInput">
             <v-text-field
               v-if="emptyWarehouse"
@@ -260,6 +284,7 @@ const visual = useVisualStore();
 const projectId = computed(() => {
   return visual.projectSelected['project-id'];
 });
+const expanded = ref(false);
 
 const creatingWarehouse = ref(false);
 const loadedDeltionSeconds = ref(0);

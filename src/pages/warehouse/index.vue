@@ -55,10 +55,24 @@
                 <v-img
                   v-if="
                     item['storage-profile'].type === 's3' &&
-                    item['storage-profile'].flavor !== 'aws'
+                    item['storage-profile'] &&
+                    item['storage-profile'].flavor !== 'aws' &&
+                    item['storage-profile'].endpoint &&
+                    !item['storage-profile'].endpoint.includes('cloudflarestorage')
                   "
                   class="mb-2 mr-2"
                   src="@/assets/s3.svg"
+                  :width="24"></v-img>
+                <v-img
+                  v-if="
+                    item['storage-profile'].type === 's3' &&
+                    item['storage-profile'] &&
+                    item['storage-profile'].flavor !== 'aws' &&
+                    item['storage-profile'].endpoint &&
+                    item['storage-profile'].endpoint.includes('cloudflarestorage')
+                  "
+                  class="mb-2 mr-2"
+                  src="@/assets/cf.svg"
                   :width="24"></v-img>
                 <v-icon
                   v-if="item['storage-profile'].type === 'adls'"
@@ -120,6 +134,7 @@ import router from '../../router';
 import { useFunctions } from '../../plugins/functions';
 import { useVisualStore } from '../../stores/visual';
 import { Header } from '../../common/interfaces';
+
 const functions = useFunctions();
 const missAccessPermission = ref(true);
 const loading = ref(true);
@@ -132,6 +147,9 @@ const myAccess = reactive<ProjectAction[]>([]);
 
 type GetWarehouseResponseExtended = GetWarehouseResponse & {
   actions: string[];
+  'storage-credentials'?: {
+    'credential-type'?: string;
+  };
 };
 const whResponse = reactive<GetWarehouseResponseExtended[]>([]);
 const visual = useVisualStore();
