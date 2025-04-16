@@ -66,7 +66,6 @@ function addNamespace() {
 watch(
   () => props.statusIntent,
   (newStatusIntent, oldStatusIntent) => {
-    console.log('StatusIntent changed:', oldStatusIntent, newStatusIntent);
     if (newStatusIntent === StatusIntent.SUCCESS) {
       isDialogActive.value = false;
       namespace.value = '';

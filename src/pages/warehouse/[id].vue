@@ -514,7 +514,6 @@ async function init() {
 }
 
 async function paginationCheckNamespace(option: Options) {
-  console.log('option', option);
   if (
     option.page * option.itemsPerPage == loadedWarehouseItems.length &&
     paginationTokenNamespace.value != ''
