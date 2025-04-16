@@ -1,4 +1,4 @@
-import { Namespace } from '@/gen/iceberg/types.gen';
+import { Namespace, PageToken } from '@/gen/iceberg/types.gen';
 import {
   AdlsProfile,
   AzCredential,
@@ -104,6 +104,7 @@ export interface SnackbarMsg {
 export interface NamespaceResponse {
   namespaceMap: Record<string, string>;
   namespaces: Namespace[];
+  'next-page-token': PageToken;
 }
 
 export type RelationType =

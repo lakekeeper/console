@@ -9,6 +9,7 @@ import {
   LoadTableResultReadable,
   LoadViewResultReadable,
   Namespace,
+  PageToken,
 } from '@/gen/iceberg/types.gen';
 import JSONBig from 'json-bigint';
 
@@ -612,7 +613,11 @@ async function setWarehouseProtection(
 }
 
 // Namespace
-async function listNamespaces(id: string, parentNS?: string): Promise<NamespaceResponse> {
+async function listNamespaces(
+  id: string,
+  parentNS?: string,
+  page_token?: PageToken,
+): Promise<NamespaceResponse> {
   try {
     const client = iceClient.client;
     const { data, error } = await ice.listNamespaces({
@@ -620,7 +625,7 @@ async function listNamespaces(id: string, parentNS?: string): Promise<NamespaceR
       path: {
         prefix: id,
       },
-      query: { parent: parentNS, returnUuids: true },
+      query: { parent: parentNS, returnUuids: true, pageToken: page_token || null },
     });
 
     if (error) throw error;
@@ -634,7 +639,7 @@ async function listNamespaces(id: string, parentNS?: string): Promise<NamespaceR
       namespaceMap[namespace] = namespaceUuids[index];
     });
 
-    return { namespaceMap, namespaces };
+    return { namespaceMap, namespaces, 'next-page-token': data['next-page-token'] ?? null };
   } catch (error: any) {
     handleError(error, new Error());
     return error;
@@ -778,7 +783,11 @@ async function setNamespaceProtection(
 }
 
 // Table
-async function listTables(id: string, ns?: string): Promise<ListTablesResponse> {
+async function listTables(
+  id: string,
+  ns?: string,
+  pageToken?: PageToken,
+): Promise<ListTablesResponse> {
   try {
     const client = iceClient.client;
     const { data, error } = await ice.listTables({
@@ -787,6 +796,7 @@ async function listTables(id: string, ns?: string): Promise<ListTablesResponse> 
         prefix: id,
         namespace: ns ?? '',
       },
+      query: { pageToken: pageToken || null },
     });
     if (error) throw error;
 
@@ -942,7 +952,11 @@ async function setTableProtection(
 }
 
 // View
-async function listViews(id: string, ns?: string): Promise<ListTablesResponse> {
+async function listViews(
+  id: string,
+  ns?: string,
+  page_token?: PageToken,
+): Promise<ListTablesResponse> {
   try {
     const client = iceClient.client;
     const { data, error } = await ice.listViews({
@@ -951,6 +965,7 @@ async function listViews(id: string, ns?: string): Promise<ListTablesResponse> {
         prefix: id,
         namespace: ns ?? '',
       },
+      query: { pageToken: page_token || '' },
     });
     if (error) throw error;
 
