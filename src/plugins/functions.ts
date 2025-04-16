@@ -695,6 +695,7 @@ async function dropNamespace(id: string, ns: string, options?: NamespaceAction) 
       query: options as { force?: boolean; recursive?: boolean; purge?: boolean } | undefined,
     });
     if (error) throw error;
+    handleSuccess('dropNamespace', 'Namespace deleted successfully');
 
     return data;
   } catch (error: any) {
@@ -888,6 +889,8 @@ async function dropTable(
     });
     if (error) throw error;
 
+    handleSuccess('Drop Table', 'Table deleted successfully');
+
     return true;
   } catch (error: any) {
     handleError(error, new Error());
@@ -1019,6 +1022,7 @@ async function dropView(
     });
 
     if (error) throw error;
+    handleSuccess('drop View', 'View deleted successfully');
 
     return data;
   } catch (error: any) {
@@ -1993,7 +1997,17 @@ async function getRoleAccessById(roleId: string): Promise<RoleAction[]> {
     return error;
   }
 }
+function handleSuccess(functionName: string, msg: string) {
+  const visual = useVisualStore();
 
+  visual.setSnackbarMsg({
+    function: functionName,
+    text: msg,
+    ttl: 3000,
+    ts: Date.now(),
+    type: Type.SUCCESS,
+  });
+}
 // internal
 function copyToClipboard(text: string) {
   const visual = useVisualStore();
