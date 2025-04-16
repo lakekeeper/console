@@ -161,3 +161,15 @@ export interface WarehousObject {
     | (AzCredential & { type: string })
     | (GcsCredential & { type: string });
 }
+
+export type Options = {
+  page: number;
+  itemsPerPage: number;
+  sortBy: [
+    {
+      key: string;
+      order: string;
+    },
+  ];
+  groupBy: [];
+};

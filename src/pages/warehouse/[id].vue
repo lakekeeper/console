@@ -62,15 +62,23 @@
           </v-tab>
           <v-tab density="compact" value="details" @click="loadTabData">Details</v-tab>
         </v-tabs>
-        <v-card style="max-height: 65vh; overflow: auto">
+        <v-card>
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="namespaces">
               <v-data-table
+                height="60vh"
+                :search="searchNamespace"
                 fixed-header
                 :headers="headers"
                 hover
+                items-per-page="50"
                 :items="loadedWarehouseItems"
-                :sort-by="[{ key: 'name', order: 'asc' }]">
+                :sort-by="[{ key: 'name', order: 'asc' }]"
+                :items-per-page-options="[
+                  { title: '50 items', value: 50 },
+                  { title: '100 items', value: 100 },
+                ]"
+                @update:options="paginationCheckNamespace($event)">
                 <template #top>
                   <v-toolbar color="transparent" density="compact" flat>
                     <v-switch
@@ -83,6 +91,15 @@
                           : 'Recursive Delete Protection enabled'
                       "
                       @click="setProtection"></v-switch>
+                    <v-spacer></v-spacer>
+                    <v-text-field
+                      v-model="searchNamespace"
+                      label="Search"
+                      prepend-inner-icon="mdi-magnify"
+                      variant="underlined"
+                      hide-details
+                      clearable
+                      single-line></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.name="{ item }">
@@ -358,7 +375,14 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
-import { AssignmentCollection, Header, Item, RelationType, Type } from '../../common/interfaces';
+import {
+  AssignmentCollection,
+  Header,
+  Item,
+  Options,
+  RelationType,
+  Type,
+} from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { computed, onMounted, reactive, ref } from 'vue';
 import router from '../../router';
@@ -388,6 +412,7 @@ const headers: readonly Header[] = Object.freeze([
 ]);
 
 const loaded = ref(true);
+const searchNamespace = ref('');
 
 const storageProfile = reactive<StorageProfile>({
   type: 's3',
@@ -433,7 +458,7 @@ const stats = reactive<WarehouseStatistics[]>([
     'updated-at': '1900-01-01T00:00:00.000000Z',
   },
 ]);
-
+const paginationTokenNamespace = ref('');
 const permissionObject = reactive<any>({
   id: '',
   description: '',
@@ -488,6 +513,32 @@ async function init() {
   }
 }
 
+async function paginationCheckNamespace(option: Options) {
+  console.log('option', option);
+  if (
+    option.page * option.itemsPerPage == loadedWarehouseItems.length &&
+    paginationTokenNamespace.value != ''
+  ) {
+    const { namespaces, ['next-page-token']: nextPageToken } = await functions.listNamespaces(
+      visual.whId,
+      undefined,
+      paginationTokenNamespace.value,
+    );
+
+    paginationTokenNamespace.value = nextPageToken || '';
+    if (namespaces) {
+      const mappedItems: Item[] = namespaces.map((nsArray) => ({
+        name: nsArray[nsArray.length - 1],
+        type: 'namespace',
+        parentPath: [...nsArray],
+        actions: ['delete'],
+      }));
+
+      loadedWarehouseItems.push(...mappedItems.flat());
+    }
+  }
+}
+
 async function addNamespace(namespace: string[]) {
   try {
     createNamespaceStatus.value = StatusIntent.STARTING;
@@ -534,22 +585,12 @@ async function routeToNamespace(item: Item) {
 
 async function listNamespaces(item?: Item, parent?: string) {
   try {
-    const { namespaces } = await functions.listNamespaces(params.value.id, parent);
+    const { namespaces, ['next-page-token']: nextPageToken } = await functions.listNamespaces(
+      params.value.id,
+      parent,
+    );
 
-    // remove later not needed
-    // if (namespaceMap) {
-    //   for (const [_, value] of Object.entries(namespaceMap)) {
-    //     namespaceId.value = value as string;
-    //     myAccessParent.splice(0, myAccessParent.length);
-    //     myAccess.splice(0, myAccess.length);
-    //     if (parent) Object.assign(myAccessParent, myAccess);
-
-    //     Object.assign(
-    //       myAccess,
-    //       await functions.getNamespaceAccessById(value as string)
-    //     );
-    //   }
-    // }
+    paginationTokenNamespace.value = nextPageToken || '';
 
     if (namespaces) {
       const mappedItems: Item[] = namespaces.map((nsArray) => ({
