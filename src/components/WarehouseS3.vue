@@ -172,6 +172,12 @@
         label="Assume Role ARN"
         placeholder="arn:partition:service:region:account-id:resource-id"></v-text-field>
       <v-text-field
+        v-model="warehouseObjectData['storage-profile']['aws-kms-key-arn']"
+        :disabled="warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'"
+        label="AWS KMS Key ARN"
+        placeholder="arn:partition:service:region:account-id:resource-id"></v-text-field>
+
+      <v-text-field
         v-if="warehouseObjectData['storage-credential']['credential-type'] !== 'cloudflare-r2'"
         v-model="warehouseObjectData['storage-credential']['external-id']"
         label="External ID (optional)"

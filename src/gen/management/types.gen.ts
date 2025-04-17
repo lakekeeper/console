@@ -816,6 +816,10 @@ export type S3Profile = {
    */
   'assume-role-arn'?: string | null;
   /**
+   * ARN of the KMS key used to encrypt the S3 bucket, if any.
+   */
+  'aws-kms-key-arn'?: string | null;
+  /**
    * Name of the S3 bucket
    */
   bucket: string;
