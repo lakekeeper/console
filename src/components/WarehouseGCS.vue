@@ -218,7 +218,16 @@ const emitNewProfile = () => {
 };
 
 onMounted(() => {
-  if (props.warehouseObject) Object.assign(warehouseObjectData, props.warehouseObject);
+  if (props.warehouseObject) {
+    Object.assign(warehouseObjectData, props.warehouseObject);
+    keyString.value = JSON.stringify(
+      warehouseObjectData['storage-credential']['credential-type'] === 'service-account-key'
+        ? warehouseObjectData['storage-credential'].key
+        : undefined,
+      null,
+      2,
+    );
+  }
 });
 
 function handleFileInput(event: any) {

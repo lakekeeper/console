@@ -47,15 +47,23 @@
           </v-tab>
           <v-tab value="details">Details</v-tab>
         </v-tabs>
-        <v-card style="max-height: 75vh; overflow: auto">
+        <v-card>
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="namespaces">
               <v-data-table
+                height="65vh"
+                items-per-page="50"
+                :search="searchNamespace"
                 fixed-header
                 :headers="headers"
                 hover
                 :items="loadedNamespaces"
-                :sort-by="[{ key: 'name', order: 'asc' }]">
+                :sort-by="[{ key: 'name', order: 'asc' }]"
+                :items-per-page-options="[
+                  { title: '50 items', value: 50 },
+                  { title: '100 items', value: 100 },
+                ]"
+                @update:options="paginationCheckNamespace($event)">
                 <template #top>
                   <v-toolbar color="transparent" density="compact" flat>
                     <v-switch
@@ -68,6 +76,15 @@
                           : 'Recursive Delete Protection disbaled'
                       "
                       @click="setProtection"></v-switch>
+                    <v-spacer></v-spacer>
+                    <v-text-field
+                      v-model="searchNamespace"
+                      label="Search"
+                      prepend-inner-icon="mdi-magnify"
+                      variant="underlined"
+                      hide-details
+                      clearable
+                      single-line></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.name="{ item }">
@@ -96,11 +113,32 @@
             </v-tabs-window-item>
             <v-tabs-window-item value="tables">
               <v-data-table
+                height="65vh"
+                items-per-page="50"
+                :search="searchTbl"
                 fixed-header
+                :items-per-page-options="[
+                  { title: '50 items', value: 50 },
+                  { title: '100 items', value: 100 },
+                ]"
+                @update:options="paginationCheckTables($event)"
                 :headers="headers"
                 hover
                 :items="loadedTables"
                 :sort-by="[{ key: 'name', order: 'asc' }]">
+                <template #top>
+                  <v-toolbar color="transparent" density="compact" flat>
+                    <v-spacer></v-spacer>
+                    <v-text-field
+                      v-model="searchTbl"
+                      label="Search"
+                      prepend-inner-icon="mdi-magnify"
+                      variant="underlined"
+                      hide-details
+                      clearable
+                      single-line></v-text-field>
+                  </v-toolbar>
+                </template>
                 <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToTable(item)">
                     <span class="icon-text">
@@ -119,17 +157,25 @@
                     "></DialogDelete>
                 </template>
                 <template #no-data>
-                  <div>No table in this namespace</div>
+                  <div>No tables in this namespace</div>
                 </template>
               </v-data-table>
             </v-tabs-window-item>
             <v-tabs-window-item value="views">
               <v-data-table
+                items-per-page="50"
+                height="65vh"
+                :search="searchView"
                 fixed-header
                 :headers="headers"
                 hover
                 :items="loadedViews"
-                :sort-by="[{ key: 'name', order: 'asc' }]">
+                :sort-by="[{ key: 'name', order: 'asc' }]"
+                :items-per-page-options="[
+                  { title: '50 items', value: 50 },
+                  { title: '100 items', value: 100 },
+                ]"
+                @update:options="paginationCheckViews($event)">
                 <template #item.name="{ item }">
                   <td class="pointer-cursor" @click="routeToView(item)">
                     <span class="icon-text">
@@ -137,6 +183,19 @@
                       {{ item.name }}
                     </span>
                   </td>
+                </template>
+                <template #top>
+                  <v-toolbar color="transparent" density="compact" flat>
+                    <v-spacer></v-spacer>
+                    <v-text-field
+                      v-model="searchView"
+                      label="Search"
+                      prepend-inner-icon="mdi-magnify"
+                      variant="underlined"
+                      hide-details
+                      clearable
+                      single-line></v-text-field>
+                  </v-toolbar>
                 </template>
                 <template #item.actions="{ item }">
                   <DialogDelete
@@ -152,6 +211,7 @@
             </v-tabs-window-item>
             <v-tabs-window-item value="deleted">
               <v-data-table
+                height="65vh"
                 fixed-header
                 :headers="headersDeleted"
                 hover
@@ -218,7 +278,7 @@ import { useVisualStore } from '../../stores/visual';
 import { useFunctions } from '../../plugins/functions';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import router from '../../router';
-import { AssignmentCollection, Header, Item, RelationType } from '../../common/interfaces';
+import { AssignmentCollection, Header, Item, Options, RelationType } from '../../common/interfaces';
 
 import {
   DeletedTabularResponse,
@@ -239,7 +299,13 @@ const loaded = ref(false);
 const canReadPermissions = ref(false);
 const recursiveDeleteProtection = ref(false);
 const addNamespaceStatus = ref(StatusIntent.INACTIVE);
+const searchNamespace = ref('');
+const searchTbl = ref('');
+const searchView = ref('');
 
+const paginationTokenTbl = ref('');
+const paginationTokenView = ref('');
+const paginationTokenNamespace = ref('');
 const items: Item[] = reactive([]);
 const permissionType = ref<RelationType>('namespace');
 const existingPermissions = reactive<WarehouseAssignment[]>([]);
@@ -397,23 +463,83 @@ async function init() {
   }
 }
 
+async function paginationCheckTables(option: Options) {
+  if (loadedTables.length >= 10000) return;
+
+  if (option.page * option.itemsPerPage == loadedTables.length && paginationTokenTbl.value != '') {
+    const loadedTablesTmp: TableIdentifierExtended[] = [];
+    const data = await functions.listTables(
+      visual.whId,
+      namespacePath.value,
+      paginationTokenTbl.value,
+    );
+    Object.assign(loadedTablesTmp, data.identifiers);
+    paginationTokenTbl.value = data['next-page-token'] || '';
+    loadedTablesTmp.forEach((table) => {
+      table.actions = ['delete'];
+      table.type = 'table';
+    });
+
+    loadedTables.push(...loadedTablesTmp.flat());
+  }
+}
+
+async function paginationCheckViews(option: Options) {
+  if (loadedViews.length >= 10000) return;
+
+  if (option.page * option.itemsPerPage == loadedViews.length && paginationTokenView.value != '') {
+    const loadedViewsTmp: TableIdentifierExtended[] = [];
+    const data = await functions.listViews(
+      visual.whId,
+      namespacePath.value,
+      paginationTokenView.value,
+    );
+    Object.assign(loadedViewsTmp, data.identifiers);
+    paginationTokenTbl.value = data['next-page-token'] || '';
+    loadedViewsTmp.forEach((table) => {
+      table.actions = ['delete'];
+      table.type = 'view';
+    });
+
+    loadedViews.push(...loadedViewsTmp.flat());
+  }
+}
+
+async function paginationCheckNamespace(option: Options) {
+  if (loadedNamespaces.length >= 10000) return;
+
+  if (
+    option.page * option.itemsPerPage == loadedNamespaces.length &&
+    paginationTokenNamespace.value != ''
+  ) {
+    const { namespaces, ['next-page-token']: nextPageToken } = await functions.listNamespaces(
+      visual.whId,
+      namespacePath.value,
+      paginationTokenNamespace.value,
+    );
+
+    paginationTokenNamespace.value = nextPageToken || '';
+    if (namespaces) {
+      const mappedItems: Item[] = namespaces.map((nsArray) => ({
+        name: nsArray[nsArray.length - 1],
+        type: 'namespace',
+        parentPath: [...nsArray],
+        actions: ['delete'],
+      }));
+
+      loadedNamespaces.push(...mappedItems.flat());
+    }
+  }
+}
+
 async function listNamespaces() {
   try {
-    const { namespaces } = await functions.listNamespaces(visual.whId, namespacePath.value);
+    const { namespaces, ['next-page-token']: nextPageToken } = await functions.listNamespaces(
+      visual.whId,
+      namespacePath.value,
+    );
 
-    // remove later not needed
-
-    // if (namespaceMap) {
-    //   for (const [_, value] of Object.entries(namespaceMap)) {
-    //     namespaceId.value = value as string;
-    //     if (parent) Object.assign(myAccessParent, myAccess);
-    //     Object.assign(
-    //       myAccess,
-    //       await functions.getNamespaceAccessById(value as string)
-    //     );
-    //   }
-    // }
-
+    paginationTokenNamespace.value = nextPageToken || '';
     if (namespaces) {
       const mappedItems: Item[] = namespaces.map((nsArray) => ({
         name: nsArray[nsArray.length - 1],
@@ -436,6 +562,10 @@ async function listTables() {
     const data = await functions.listTables(visual.whId, namespacePath.value);
 
     Object.assign(loadedTables, data.identifiers);
+
+    if (data['next-page-token']) {
+      paginationTokenTbl.value = data['next-page-token'];
+    }
     loadedTables.forEach((table) => {
       table.actions = ['delete'];
       table.type = 'table';
@@ -451,6 +581,10 @@ async function listViews() {
     const data = await functions.listViews(visual.whId, namespacePath.value);
 
     Object.assign(loadedViews, data.identifiers);
+
+    if (data['next-page-token']) {
+      paginationTokenView.value = data['next-page-token'];
+    }
     loadedViews.forEach((table) => {
       table.actions = ['delete'];
       table.type = 'view';
@@ -510,7 +644,6 @@ async function addNamespace(namespaceIdent: string[]) {
 
     await listNamespaces();
     addNamespaceStatus.value = StatusIntent.SUCCESS;
-    console.log('Namespace added successfully', addNamespaceStatus.value);
   } catch (error) {
     addNamespaceStatus.value = StatusIntent.FAILURE;
     console.error(error);

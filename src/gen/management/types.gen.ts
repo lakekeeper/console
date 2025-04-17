@@ -25,7 +25,6 @@ export type AdlsProfile = {
   host?: string | null;
   /**
    * Subpath in the filesystem to use.
-   * The same prefix can be used for multiple warehouses.
    */
   'key-prefix'?: string | null;
   /**
@@ -392,7 +391,6 @@ export type GcsProfile = {
   bucket: string;
   /**
    * Subpath in the bucket to use.
-   * The same prefix can be used for multiple warehouses.
    */
   'key-prefix'?: string | null;
 };
@@ -762,17 +760,46 @@ export type RoleAssignment =
 
 export type RoleRelation = 'assignee' | 'ownership';
 
+export type S3AccessKeyCredential = {
+  'aws-access-key-id': string;
+  'aws-secret-access-key': string;
+  'external-id'?: string | null;
+};
+
+export type S3AwsSystemIdentityCredential = {
+  'external-id'?: string | null;
+};
+
+export type S3CloudflareR2Credential = {
+  /**
+   * Access key ID used for IO operations of Lakekeeper
+   */
+  'access-key-id': string;
+  /**
+   * Cloudflare account ID, used to determine the temporary credentials endpoint.
+   */
+  'account-id': string;
+  /**
+   * Secret key associated with the access key ID.
+   */
+  'secret-access-key': string;
+  /**
+   * Token associated with the access key ID.
+   * This is used to fetch downscoped temporary credentials for vended credentials.
+   */
+  token: string;
+};
+
 export type S3Credential =
-  | {
-      'aws-access-key-id': string;
-      'aws-secret-access-key': string;
+  | (S3AccessKeyCredential & {
       'credential-type': 'access-key';
-      'external-id'?: string | null;
-    }
-  | {
+    })
+  | (S3AwsSystemIdentityCredential & {
       'credential-type': 'aws-system-identity';
-      'external-id'?: string | null;
-    };
+    })
+  | (S3CloudflareR2Credential & {
+      'credential-type': 'cloudflare-r2';
+    });
 
 export type S3Flavor = 'aws' | 's3-compat';
 
@@ -788,6 +815,10 @@ export type S3Profile = {
    * Optional ARN to assume when accessing the bucket from Lakekeeper.
    */
   'assume-role-arn'?: string | null;
+  /**
+   * ARN of the KMS key used to encrypt the S3 bucket, if any.
+   */
+  'aws-kms-key-arn'?: string | null;
   /**
    * Name of the S3 bucket
    */
@@ -806,7 +837,6 @@ export type S3Profile = {
   flavor?: S3Flavor;
   /**
    * Subpath in the bucket to use.
-   * The same prefix can be used for multiple warehouses.
    */
   'key-prefix'?: string | null;
   /**
@@ -814,6 +844,24 @@ export type S3Profile = {
    * If the underlying S3 supports both, we recommend to not set `path_style_access`.
    */
   'path-style-access'?: boolean | null;
+  /**
+   * Controls whether the `s3.delete-enabled=false` flag is sent to clients.
+   *
+   * In all Iceberg 1.x versions, when Spark executes `DROP TABLE xxx PURGE`, it directly
+   * deletes files from S3, bypassing the catalog's soft-deletion mechanism.
+   * Other query engines properly delegate this operation to the catalog.
+   * This Spark behavior is expected to change in Iceberg 2.0.
+   *
+   * Setting this to `true` pushes the `s3.delete-enabled=false` flag to clients,
+   * which discourages Spark from directly deleting files during `DROP TABLE xxx PURGE` operations.
+   * Note that clients may override this setting, and it affects other Spark operations
+   * that require file deletion, such as removing snapshots.
+   *
+   * For more details, refer to Lakekeeper's
+   * [Soft-Deletion documentation](https://docs.lakekeeper.io/docs/nightly/concepts/#soft-deletion).
+   * This flag has no effect if Soft-Deletion is disabled for the warehouse.
+   */
+  'push-s3-delete-disabled'?: boolean;
   /**
    * Region to use for S3 requests.
    */
@@ -844,6 +892,10 @@ export type S3Profile = {
    * Either `assume_role_arn` or `sts_role_arn` must be provided if `sts_enabled` is true.
    */
   'sts-role-arn'?: string | null;
+  /**
+   * The validity of the sts tokens in seconds. Default is 3600
+   */
+  'sts-token-validity-seconds'?: number;
 };
 
 export type S3UrlStyleDetectionMode = 'path' | 'virtual_host' | 'auto';

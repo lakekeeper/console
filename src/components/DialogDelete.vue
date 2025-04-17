@@ -172,6 +172,7 @@ function confirm() {
   } else if (props.type === 'view') {
     emit('deleteViewWithOptions', optionsView);
   }
+  isDialogActive.value = false;
 }
 function reject() {
   isDialogActive.value = false;

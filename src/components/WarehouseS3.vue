@@ -30,6 +30,40 @@
       :type="showPassword ? 'text' : 'password'"
       @click:append-inner="showPassword = !showPassword"></v-text-field>
 
+    <div v-if="warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'">
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential']['access-key-id']"
+        autocomplete="username"
+        label="Access Key ID"
+        placeholder="AKIAIOSFODNN7EXAMPLE"
+        :rules="[rules.required]"></v-text-field>
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential']['secret-access-key']"
+        :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
+        autocomplete="current-password"
+        label="Secret Access Key"
+        placeholder="your-secret-access-key"
+        :rules="[rules.required]"
+        :type="showPassword ? 'text' : 'password'"
+        @click:append-inner="showPassword = !showPassword"></v-text-field>
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential'].token"
+        :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
+        autocomplete="current-password"
+        label="Token"
+        placeholder="7Ld5fNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-123456"
+        :rules="[rules.required]"
+        :type="showPassword ? 'text' : 'password'"
+        @click:append-inner="showPassword = !showPassword"></v-text-field>
+
+      <v-text-field
+        v-model="warehouseObjectData['storage-credential']['account-id']"
+        autocomplete="username"
+        label="Account ID"
+        placeholder="123456aaaaa1111"
+        :rules="[rules.required]"></v-text-field>
+    </div>
+
     <!-- AWS System Identity Fields -->
 
     <v-btn
@@ -60,6 +94,9 @@
             v-model="warehouseObjectData['storage-profile'].flavor"
             item-title="name"
             item-value="code"
+            :disabled="
+              warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'
+            "
             :items="s3Flavor"
             label="S3 Flavor"
             placeholder="Select S3 Flavor"
@@ -68,6 +105,34 @@
               <v-list-item v-bind="itemProps" :subtitle="item.raw.code"></v-list-item>
             </template>
           </v-select>
+        </v-col>
+        <v-col>
+          <v-combobox
+            v-model="warehouseObjectData['storage-profile'].region"
+            :items="regions"
+            label="Bucket Region"
+            placeholder="eu-central-1"></v-combobox>
+        </v-col>
+        <v-col>
+          <v-text-field
+            v-model="warehouseObjectData['storage-profile']['sts-token-validity-seconds']"
+            label="STS Token Validity Seconds (default: 3600)"
+            placeholder="3600"
+            type="number"
+            clearable
+            outlined></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-switch
+            v-model="warehouseObjectData['storage-profile']['push-s3-delete-disabled']"
+            color="primary"
+            :label="
+              warehouseObjectData['storage-profile']['path-style-access']
+                ? `Path style access is enabled`
+                : `Enable path style access`
+            "></v-switch>
         </v-col>
         <v-col>
           <v-switch
@@ -103,9 +168,17 @@
 
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['assume-role-arn']"
+        :disabled="warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'"
         label="Assume Role ARN"
         placeholder="arn:partition:service:region:account-id:resource-id"></v-text-field>
       <v-text-field
+        v-model="warehouseObjectData['storage-profile']['aws-kms-key-arn']"
+        :disabled="warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'"
+        label="AWS KMS Key ARN"
+        placeholder="arn:partition:service:region:account-id:resource-id"></v-text-field>
+
+      <v-text-field
+        v-if="warehouseObjectData['storage-credential']['credential-type'] !== 'cloudflare-r2'"
         v-model="warehouseObjectData['storage-credential']['external-id']"
         label="External ID (optional)"
         placeholder="arn:aws:iam::123456789012..."
@@ -131,11 +204,7 @@
             placeholder="optional"></v-select>
         </v-col>
       </v-row>
-      <v-combobox
-        v-model="warehouseObjectData['storage-profile'].region"
-        :items="regions"
-        label="Bucket Region"
-        placeholder="eu-central-1"></v-combobox>
+
       <v-row>
         <v-col cols="3">
           <v-switch
@@ -209,7 +278,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, watch } from 'vue';
 
 import {
   S3Credential,
@@ -231,7 +300,9 @@ const s3UrlDetectionModes = [
 const credentialOptions = [
   { text: 'Access Key ', value: 'access-key' },
   { text: 'AWS System Identity', value: 'aws-system-identity' },
+  { text: 'Cloudflare R2', value: 'cloudflare-r2' },
 ];
+
 const showPasswordExternalId = ref(false);
 const props = defineProps<{
   credentialsOnly: boolean;
@@ -389,4 +460,13 @@ const emitNewProfile = () => {
 onMounted(() => {
   if (props.warehouseObject) Object.assign(warehouseObjectData, props.warehouseObject);
 });
+
+watch(
+  () => warehouseObjectData['storage-credential']['credential-type'],
+  (newValue) => {
+    if (newValue === 'cloudflare-r2') {
+      warehouseObjectData['storage-profile'].flavor = 's3-compat';
+    }
+  },
+);
 </script>

@@ -2153,9 +2153,7 @@ components:
           type:
             - string
             - 'null'
-          description: |-
-            Subpath in the filesystem to use.
-            The same prefix can be used for multiple warehouses.
+          description: Subpath in the filesystem to use.
         sas-token-validity-seconds:
           type:
             - integer
@@ -2706,9 +2704,7 @@ components:
           type:
             - string
             - 'null'
-          description: |-
-            Subpath in the bucket to use.
-            The same prefix can be used for multiple warehouses.
+          description: Subpath in the bucket to use.
     GcsServiceKey:
       type: object
       required:
@@ -3389,44 +3385,92 @@ components:
       enum:
         - assignee
         - ownership
+    S3AccessKeyCredential:
+      type: object
+      title: S3CredentialAccessKey
+      required:
+        - aws-access-key-id
+        - aws-secret-access-key
+      properties:
+        aws-access-key-id:
+          type: string
+        aws-secret-access-key:
+          type: string
+        external-id:
+          type:
+            - string
+            - 'null'
+    S3AwsSystemIdentityCredential:
+      type: object
+      title: S3CredentialSystemIdentity
+      properties:
+        external-id:
+          type:
+            - string
+            - 'null'
+    S3CloudflareR2Credential:
+      type: object
+      title: CloudflareR2Credential
+      required:
+        - access-key-id
+        - secret-access-key
+        - token
+        - account-id
+      properties:
+        access-key-id:
+          type: string
+          description: Access key ID used for IO operations of Lakekeeper
+        account-id:
+          type: string
+          description: Cloudflare account ID, used to determine the temporary credentials endpoint.
+        secret-access-key:
+          type: string
+          description: Secret key associated with the access key ID.
+        token:
+          type: string
+          description: |-
+            Token associated with the access key ID.
+            This is used to fetch downscoped temporary credentials for vended credentials.
     S3Credential:
       oneOf:
-        - type: object
-          title: S3CredentialAccessKey
+        - allOf:
+            - $ref: '#/components/schemas/S3AccessKeyCredential'
+              description: Authenticate to AWS using access-key and secret-key.
+            - type: object
+              required:
+                - credential-type
+              properties:
+                credential-type:
+                  type: string
+                  enum:
+                    - access-key
           description: Authenticate to AWS using access-key and secret-key.
-          required:
-            - aws-access-key-id
-            - aws-secret-access-key
-            - credential-type
-          properties:
-            aws-access-key-id:
-              type: string
-            aws-secret-access-key:
-              type: string
-            credential-type:
-              type: string
-              enum:
-                - access-key
-            external-id:
-              type:
-                - string
-                - 'null'
-        - type: object
-          title: S3CredentialSystemIdentity
+        - allOf:
+            - $ref: '#/components/schemas/S3AwsSystemIdentityCredential'
+              description: |-
+                Authenticate to AWS using the identity configured on the system
+                 that runs lakekeeper. The AWS SDK is used to load the credentials.
+            - type: object
+              required:
+                - credential-type
+              properties:
+                credential-type:
+                  type: string
+                  enum:
+                    - aws-system-identity
           description: |-
             Authenticate to AWS using the identity configured on the system
              that runs lakekeeper. The AWS SDK is used to load the credentials.
-          required:
-            - credential-type
-          properties:
-            credential-type:
-              type: string
-              enum:
-                - aws-system-identity
-            external-id:
-              type:
-                - string
-                - 'null'
+        - allOf:
+            - $ref: '#/components/schemas/S3CloudflareR2Credential'
+            - type: object
+              required:
+                - credential-type
+              properties:
+                credential-type:
+                  type: string
+                  enum:
+                    - cloudflare-r2
     S3Flavor:
       type: string
       enum:
@@ -3453,6 +3497,11 @@ components:
             - string
             - 'null'
           description: Optional ARN to assume when accessing the bucket from Lakekeeper.
+        aws-kms-key-arn:
+          type:
+            - string
+            - 'null'
+          description: ARN of the KMS key used to encrypt the S3 bucket, if any.
         bucket:
           type: string
           description: Name of the S3 bucket
@@ -3475,9 +3524,7 @@ components:
           type:
             - string
             - 'null'
-          description: |-
-            Subpath in the bucket to use.
-            The same prefix can be used for multiple warehouses.
+          description: Subpath in the bucket to use.
         path-style-access:
           type:
             - boolean
@@ -3485,6 +3532,24 @@ components:
           description: |-
             Path style access for S3 requests.
             If the underlying S3 supports both, we recommend to not set `path_style_access`.
+        push-s3-delete-disabled:
+          type: boolean
+          description: |-
+            Controls whether the `s3.delete-enabled=false` flag is sent to clients.
+
+            In all Iceberg 1.x versions, when Spark executes `DROP TABLE xxx PURGE`, it directly
+            deletes files from S3, bypassing the catalog's soft-deletion mechanism.
+            Other query engines properly delegate this operation to the catalog.
+            This Spark behavior is expected to change in Iceberg 2.0.
+
+            Setting this to `true` pushes the `s3.delete-enabled=false` flag to clients,
+            which discourages Spark from directly deleting files during `DROP TABLE xxx PURGE` operations.
+            Note that clients may override this setting, and it affects other Spark operations
+            that require file deletion, such as removing snapshots.
+
+            For more details, refer to Lakekeeper's
+            [Soft-Deletion documentation](https://docs.lakekeeper.io/docs/nightly/concepts/#soft-deletion).
+            This flag has no effect if Soft-Deletion is disabled for the warehouse.
         region:
           type: string
           description: Region to use for S3 requests.
@@ -3517,6 +3582,11 @@ components:
             Optional role ARN to assume for sts vended-credentials.
             If not provided, `assume_role_arn` is used.
             Either `assume_role_arn` or `sts_role_arn` must be provided if `sts_enabled` is true.
+        sts-token-validity-seconds:
+          type: integer
+          format: int64
+          description: The validity of the sts tokens in seconds. Default is 3600
+          minimum: 0
     S3UrlStyleDetectionMode:
       type: string
       enum:

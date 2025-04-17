@@ -35,8 +35,22 @@
       </v-list-item>
     </template>
     <v-card style="max-height: 90vh; overflow-y: auto">
-      <v-card-title v-if="props.objectType === ObjectType.WAREHOUSE">
-        Add new warehouse
+      <v-card-title v-if="props.objectType === ObjectType.WAREHOUSE" class="mt-8">
+        <v-row>
+          <v-col cols="8" class="ml-2">Add new warehouse</v-col>
+          <v-col>
+            <v-switch v-model="useFileInput">
+              <template #label>
+                <v-icon class="mr-2" color="info">
+                  {{ useFileInput ? 'mdi-keyboard-outline' : 'mdi-code-json' }}
+                </v-icon>
+                <span>
+                  {{ useFileInput ? 'Activate manual input' : 'Activate JSON upload' }}
+                </span>
+              </template>
+            </v-switch>
+          </v-col>
+        </v-row>
       </v-card-title>
       <v-card-title v-else>Updating Warehouse</v-card-title>
       <span v-if="creatingWarehouse || props.processStatus == 'running'">
@@ -72,7 +86,31 @@
       </span>
       <span v-else>
         <v-card-text>
-          <v-form>
+          <v-row c>
+            <v-col cols="auto">
+              <span>Configuration Parameters:</span>
+              <v-icon
+                class="ml-2"
+                color="info"
+                style="cursor: pointer"
+                @click="expanded = !expanded">
+                mdi-information-box-outline
+              </v-icon>
+            </v-col>
+            <v-col class="text-left">
+              <!-- Ensures text is aligned to the left -->
+              <span v-if="expanded" class="mt-2">
+                More information
+                <a
+                  href="https://docs.lakekeeper.io/docs/nightly/storage/#configuration-parameters"
+                  target="_blank"
+                  style="color: inherit">
+                  here
+                </a>
+              </span>
+            </v-col>
+          </v-row>
+          <v-form v-if="!useFileInput">
             <v-text-field
               v-if="emptyWarehouse"
               v-model="warehouseName"
@@ -127,6 +165,7 @@
                 </v-btn>
               </v-col>
             </v-row>
+
             <span v-if="props.objectType !== ObjectType.DELETION_PROFILE">
               <v-container fluid>
                 <v-radio-group v-model="storageCredentialType" row>
@@ -150,6 +189,7 @@
                               <v-icon v-if="type === 'AZURE'" color="primary" size="x-large">
                                 mdi-microsoft-azure
                               </v-icon>
+
                               {{ type }}
                             </div>
                           </template>
@@ -202,6 +242,11 @@
               </div>
             </span>
           </v-form>
+
+          <WarehouseJSON
+            v-if="useFileInput"
+            @submit="createWarehouseJSON"
+            @preload="preloadWarehouseJSON"></WarehouseJSON>
         </v-card-text>
         <v-card-actions>
           <v-btn
@@ -239,6 +284,7 @@ const visual = useVisualStore();
 const projectId = computed(() => {
   return visual.projectSelected['project-id'];
 });
+const expanded = ref(false);
 
 const creatingWarehouse = ref(false);
 const loadedDeltionSeconds = ref(0);
@@ -269,6 +315,7 @@ const props = defineProps<{
 const min = ref(0);
 const max = ref(90);
 const slider = ref(7);
+const useFileInput = ref(false);
 
 const storageCredentialTypes = ref(['S3', 'GCS', 'AZURE']);
 const storageCredentialType = ref('');
@@ -377,6 +424,53 @@ async function createWarehouse(warehouseObject: WarehousObject) {
   } catch (error) {
     creatingWarehouse.value = false;
 
+    console.error(error);
+  }
+}
+
+async function createWarehouseJSON(wh: CreateWarehouseRequest) {
+  try {
+    creatingWarehouse.value = true;
+    const res: any = await functions.createWarehouse(wh);
+
+    if (res.status === 400) throw new Error(res.message);
+
+    emit('addedWarehouse');
+    creatingWarehouse.value = false;
+    isDialogActive.value = false;
+  } catch (error) {
+    creatingWarehouse.value = false;
+
+    console.error(error);
+  }
+}
+
+async function preloadWarehouseJSON(wh: CreateWarehouseRequest) {
+  try {
+    warehouseName.value = wh['warehouse-name'];
+    const type = wh['storage-profile'].type;
+    if (type === 'adls') {
+      storageCredentialType.value = 'AZURE';
+    } else {
+      storageCredentialType.value = type.toUpperCase();
+    }
+    if (wh['storage-profile'].type === 'gcs')
+      Object.assign(warehouseObjectGCS, {
+        'storage-profile': wh['storage-profile'],
+        'storage-credential': wh['storage-credential'],
+      });
+    if (wh['storage-profile'].type === 's3')
+      Object.assign(warehouseObjectS3, {
+        'storage-profile': wh['storage-profile'],
+        'storage-credential': wh['storage-credential'],
+      });
+    if (wh['storage-profile'].type === 'adls')
+      Object.assign(warehouseObjectAz, {
+        'storage-profile': wh['storage-profile'],
+        'storage-credential': wh['storage-credential'],
+      });
+    useFileInput.value = false;
+  } catch (error) {
     console.error(error);
   }
 }

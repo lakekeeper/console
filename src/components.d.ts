@@ -16,6 +16,7 @@ declare module 'vue' {
     AuthenticationDisabledWarningBanner: typeof import('./components/AuthenticationDisabledWarningBanner.vue')['default']
     BreadcrumbsFromUrl: typeof import('./components/BreadcrumbsFromUrl.vue')['default']
     ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']
+    copy: typeof import('./components/WarehouseGCS copy.vue')['default']
     DeletingDialog: typeof import('./components/deletingDialog.vue')['default']
     DialogDelete: typeof import('./components/DialogDelete.vue')['default']
     DialogDeleteConfirm: typeof import('./components/dialogDeleteConfirm.vue')['default']
@@ -36,6 +37,7 @@ declare module 'vue' {
     WarehouseActionsMenu: typeof import('./components/WarehouseActionsMenu.vue')['default']
     WarehouseAzure: typeof import('./components/WarehouseAzure.vue')['default']
     WarehouseGCS: typeof import('./components/WarehouseGCS.vue')['default']
+    WarehouseJSON: typeof import('./components/WarehouseJSON.vue')['default']
     WarehouseS3: typeof import('./components/WarehouseS3.vue')['default']
   }
 }
