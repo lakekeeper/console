@@ -514,6 +514,8 @@ async function init() {
 }
 
 async function paginationCheckNamespace(option: Options) {
+  if (loadedWarehouseItems.length <= 10000) return;
+
   if (
     option.page * option.itemsPerPage == loadedWarehouseItems.length &&
     paginationTokenNamespace.value != ''

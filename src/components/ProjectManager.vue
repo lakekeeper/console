@@ -226,7 +226,13 @@ async function getEndpointStatistcs() {
     // Fetch statistics from the backend
     loadedStatistics.value = false;
 
-    Object.assign(statistics, await functions.getEndpointStatistics({ type: 'all' }));
+    if (visual.getServerInfo()['authz-backend'] === 'allow-all') {
+      Object.assign(statistics, await functions.getEndpointStatistics({ type: 'all' }));
+    } else {
+      if (userStorage.getUser().access_token != '') {
+        Object.assign(statistics, await functions.getEndpointStatistics({ type: 'all' }));
+      }
+    }
 
     loadedStatistics.value = true;
   } catch (error) {

@@ -464,6 +464,8 @@ async function init() {
 }
 
 async function paginationCheckTables(option: Options) {
+  if (loadedTables.length <= 10000) return;
+
   if (option.page * option.itemsPerPage == loadedTables.length && paginationTokenTbl.value != '') {
     const loadedTablesTmp: TableIdentifierExtended[] = [];
     const data = await functions.listTables(
@@ -483,6 +485,8 @@ async function paginationCheckTables(option: Options) {
 }
 
 async function paginationCheckViews(option: Options) {
+  if (loadedViews.length <= 10000) return;
+
   if (option.page * option.itemsPerPage == loadedViews.length && paginationTokenView.value != '') {
     const loadedViewsTmp: TableIdentifierExtended[] = [];
     const data = await functions.listViews(
@@ -502,6 +506,8 @@ async function paginationCheckViews(option: Options) {
 }
 
 async function paginationCheckNamespace(option: Options) {
+  if (loadedNamespaces.length <= 10000) return;
+
   if (
     option.page * option.itemsPerPage == loadedNamespaces.length &&
     paginationTokenNamespace.value != ''

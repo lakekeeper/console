@@ -313,6 +313,8 @@ async function getEndpointStatistics(
   status_codes?: Array<number> | null,
 ): Promise<GetEndpointStatisticsResponse> {
   try {
+    console.log('getEndpointStatistics');
+
     init();
 
     const getEndpointStatisticsRequest: GetEndpointStatisticsRequest = {
@@ -625,7 +627,7 @@ async function listNamespaces(
       path: {
         prefix: id,
       },
-      query: { parent: parentNS, returnUuids: true, pageToken: page_token || null },
+      query: { parent: parentNS, returnUuids: true, pageToken: page_token || null, pageSize: 100 },
     });
 
     if (error) throw error;
@@ -797,7 +799,7 @@ async function listTables(
         prefix: id,
         namespace: ns ?? '',
       },
-      query: { pageToken: pageToken || null },
+      query: { pageToken: pageToken || null, pageSize: 1000 },
     });
     if (error) throw error;
 
@@ -968,7 +970,7 @@ async function listViews(
         prefix: id,
         namespace: ns ?? '',
       },
-      query: { pageToken: page_token || '' },
+      query: { pageToken: page_token || '', pageSize: 1000 },
     });
     if (error) throw error;
 
