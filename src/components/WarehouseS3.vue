@@ -140,8 +140,8 @@
             color="primary"
             :label="
               warehouseObjectData['storage-profile']['path-style-access']
-                ? `Path style access is enabled`
-                : `Enable path style access`
+                ? `Push S3 delete is disabled`
+                : `Push S3 delete is enabled`
             "></v-switch>
         </v-col>
         <v-col>
