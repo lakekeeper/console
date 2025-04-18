@@ -130,8 +130,8 @@
             color="primary"
             :label="
               warehouseObjectData['storage-profile']['push-s3-delete-disabled']
-                ? `Push S3 delete is ON`
-                : `Push S3 delete is OFF`
+                ? `Push S3 delete is disabled`
+                : `Push S3 delete is enabled`
             "></v-switch>
         </v-col>
         <v-col>
