@@ -129,9 +129,9 @@
             v-model="warehouseObjectData['storage-profile']['push-s3-delete-disabled']"
             color="primary"
             :label="
-              warehouseObjectData['storage-profile']['path-style-access']
-                ? `Path style access is enabled`
-                : `Enable path style access`
+              warehouseObjectData['storage-profile']['push-s3-delete-disabled']
+                ? `Push S3 delete is ON`
+                : `Push S3 delete is OFF`
             "></v-switch>
         </v-col>
         <v-col>
