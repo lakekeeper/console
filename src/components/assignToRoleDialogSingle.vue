@@ -131,7 +131,7 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps, reactive, ref, onMounted, computed } from 'vue';
+import { defineEmits, defineProps, reactive, ref, onMounted, computed, watch } from 'vue';
 import {
   NamespaceRelation,
   ProjectRelation,

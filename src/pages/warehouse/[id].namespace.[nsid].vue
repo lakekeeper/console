@@ -676,6 +676,7 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     await init();
   } catch (error) {
     assignStatus.value = StatusIntent.FAILURE;
+    console.error(error);
 
     await init();
   }

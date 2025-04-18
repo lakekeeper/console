@@ -152,6 +152,7 @@ async function assign(permissionChanges: {
     await init();
     loaded.value = true;
   } catch (error) {
+    console.error(error);
     assignStatus.value = StatusIntent.FAILURE;
   } finally {
     await init();

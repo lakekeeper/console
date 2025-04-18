@@ -298,6 +298,8 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     loaded.value = true;
     await init();
   } catch (error) {
+    console.error(error);
+
     assignStatus.value = StatusIntent.FAILURE;
 
     await init();
