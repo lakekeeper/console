@@ -146,6 +146,7 @@ import {
 
 import { AssignmentCollection, RelationType } from '@/common/interfaces';
 import { useFunctions } from '@/plugins/functions';
+import { StatusIntent } from '@/common/enums';
 
 const functions = useFunctions();
 const byIdActivated = ref(false);
@@ -239,6 +240,7 @@ const projectRelation: ProjectRelation[] = [
 ];
 
 const props = defineProps<{
+  status: StatusIntent;
   actionType: string;
   relation: RelationType;
   assignee: string;
@@ -417,7 +419,6 @@ function assign() {
       del: newDelAssignments,
       writes: newAddAssignments,
     });
-    cancelRoleAssignment();
   } catch (error) {
     console.error(error);
   }
@@ -459,4 +460,15 @@ async function init() {
 onMounted(async () => {
   await init();
 });
+
+watch(
+  () => props.status,
+  (newValue) => {
+    if (newValue === StatusIntent.SUCCESS) {
+      console.log(newValue);
+      cancelRoleAssignment();
+    }
+  },
+  { immediate: true },
+);
 </script>

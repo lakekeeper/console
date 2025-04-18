@@ -360,6 +360,7 @@
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
+                :status="assignStatus"
                 :assignable-obj="permissionObject"
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
@@ -402,6 +403,8 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 const route = useRoute();
+
+const assignStatus = ref(StatusIntent.INACTIVE);
 
 const recursiveDeleteProtection = ref(false);
 const tab = ref('overview');
@@ -613,12 +616,17 @@ onMounted(init);
 
 async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
+    assignStatus.value = StatusIntent.STARTING;
     const del = permissions.del as WarehouseAssignment[]; // Define 'del' variable
     const writes = permissions.writes as WarehouseAssignment[]; // Define 'del' variable
 
     await functions.updateWarehouseAssignmentsById(relationId.value, del, writes);
+    assignStatus.value = StatusIntent.SUCCESS;
+
     await init();
   } catch (error) {
+    assignStatus.value = StatusIntent.FAILURE;
+
     console.error(error);
 
     await init();

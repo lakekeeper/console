@@ -261,6 +261,7 @@
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
+                :status="assignStatus"
                 :assignable-obj="permissionObject"
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
@@ -348,6 +349,8 @@ type DeletedTabularResponseExtended = DeletedTabularResponse & {
 const loadedTables: TableIdentifierExtended[] = reactive([]);
 const loadedViews: TableIdentifierExtended[] = reactive([]);
 const deletedTabulars: DeletedTabularResponseExtended[] = reactive([]);
+
+const assignStatus = ref(StatusIntent.INACTIVE);
 
 const relationId = ref('');
 const selectedNamespace = ref('');
@@ -662,13 +665,17 @@ watch(
 
 async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
+    loaded.value = false;
+    assignStatus.value = StatusIntent.STARTING;
     const del = permissions.del as NamespaceAssignment[];
     const writes = permissions.writes as NamespaceAssignment[];
 
     await functions.updateNamespaceAssignmentsById(relationId.value, del, writes);
+    assignStatus.value = StatusIntent.SUCCESS;
+    loaded.value = true;
     await init();
   } catch (error) {
-    console.error(error);
+    assignStatus.value = StatusIntent.FAILURE;
 
     await init();
   }

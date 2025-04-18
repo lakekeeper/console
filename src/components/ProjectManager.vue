@@ -84,6 +84,7 @@
           value="permissions">
           <PermissionManager
             v-if="loaded && enabledPermissions"
+            :status="assignStatus"
             :assignable-obj="permissionObject"
             :existing-permissions-from-obj="existingAssignments"
             :relation-type="permissionType"
@@ -113,10 +114,12 @@ import {
   RenameProjectRequest,
 } from '../gen/management/types.gen';
 import { AssignmentCollection, Header, RelationType } from '../common/interfaces';
+import { StatusIntent } from '@/common/enums';
 
 const dialog = ref(false);
 const tab = ref('overview');
 const userStorage = useUserStore();
+const assignStatus = ref(StatusIntent.INACTIVE);
 
 const visual = useVisualStore();
 const functions = useFunctions();
@@ -164,6 +167,7 @@ const permissionObject = reactive<any>({
 
 async function init() {
   try {
+    loaded.value = false;
     permissionObject.id = project.value['project-id'];
     permissionObject.name = project.value['project-name'];
 
@@ -180,7 +184,7 @@ async function init() {
     canDeleteProject.value = !!myAccess.includes('delete');
 
     await loadProjects();
-
+    projectAssignments.splice(0, projectAssignments.length);
     Object.assign(
       projectAssignments,
       canReadAssignments.value ? await functions.getProjectAssignments() : [],
@@ -216,6 +220,7 @@ async function init() {
         }
       }
     }
+    loaded.value = true;
   } catch (error: any) {
     console.error(error);
   }
@@ -263,15 +268,20 @@ async function loadProjects() {
 
 async function assign(item: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
+    assignStatus.value = StatusIntent.STARTING;
+
     loaded.value = false;
     const del = item.del as ProjectAssignment[]; // Define 'del' variable
     const writes = item.writes as ProjectAssignment[]; // Define 'del' variable
 
     await functions.updateProjectAssignments(del, writes);
+    assignStatus.value = StatusIntent.SUCCESS;
 
     await init();
     loaded.value = true;
   } catch (error) {
+    assignStatus.value = StatusIntent.FAILURE;
+
     console.error(error);
   } finally {
     await init();

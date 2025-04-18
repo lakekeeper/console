@@ -44,6 +44,7 @@
       <v-tabs-window-item value="permissions">
         <PermissionManager
           v-if="loaded"
+          :status="assignStatus"
           :assignable-obj="role"
           :existing-permissions-from-obj="existingPermissions"
           :relation-type="type"
@@ -59,6 +60,7 @@ import { RoleAssignment } from '../../gen/management/types.gen';
 import { useFunctions } from '../../plugins/functions';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
+import { StatusIntent } from '@/common/enums';
 
 const functions = useFunctions();
 const route = useRoute();
@@ -66,6 +68,7 @@ const loaded = ref(true);
 const params = computed(() => route.params as { id: string });
 const tab = ref('overview');
 const type = ref<RelationType>('role');
+const assignStatus = ref(StatusIntent.INACTIVE);
 
 const permissions = reactive<
   { id: string; name: string; email: string; type: string[]; kind: string }[]
@@ -140,14 +143,16 @@ async function assign(permissionChanges: {
 }) {
   try {
     loaded.value = false;
+    assignStatus.value = StatusIntent.STARTING;
     const del = permissionChanges.del as RoleAssignment[];
     const writes = permissionChanges.writes as RoleAssignment[];
 
     await functions.updateRoleAssignmentsById(params.value.id, del, writes);
+    assignStatus.value = StatusIntent.SUCCESS;
     await init();
     loaded.value = true;
   } catch (error) {
-    console.error(error);
+    assignStatus.value = StatusIntent.FAILURE;
   } finally {
     await init();
     loaded.value = true;
