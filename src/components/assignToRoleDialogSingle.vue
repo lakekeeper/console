@@ -465,7 +465,6 @@ watch(
   () => props.status,
   (newValue) => {
     if (newValue === StatusIntent.SUCCESS) {
-      console.log(newValue);
       cancelRoleAssignment();
     }
   },
