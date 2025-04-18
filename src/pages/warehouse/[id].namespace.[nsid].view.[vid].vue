@@ -89,6 +89,7 @@
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
+                :status="assignStatus"
                 :assignable-obj="permissionObject"
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
@@ -111,12 +112,14 @@ import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
+import { StatusIntent } from '@/common/enums';
 
 const functions = useFunctions();
 const route = useRoute();
 const tab = ref('overview');
 const crumbPath = ref('');
 const loading = ref(true);
+const assignStatus = ref(StatusIntent.INACTIVE);
 
 const depthRawRepresentation = ref(1);
 const depthRawRepresentationMax = ref(1000);
@@ -230,12 +233,17 @@ function getMaxDepth(obj: any): number {
 
 async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
+    loaded.value = false;
+    assignStatus.value = StatusIntent.STARTING;
     const del = permissions.del as ViewAssignment[];
     const writes = permissions.writes as ViewAssignment[];
 
     await functions.updateViewAssignmentsById(viewId.value, del, writes);
+    assignStatus.value = StatusIntent.SUCCESS;
+    loaded.value = true;
     await init();
   } catch (error) {
+    assignStatus.value = StatusIntent.FAILURE;
     console.error(error);
 
     await init();

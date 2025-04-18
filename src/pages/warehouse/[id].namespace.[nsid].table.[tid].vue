@@ -103,6 +103,7 @@
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
+                :status="assignStatus"
                 :assignable-obj="permissionObject"
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
@@ -125,10 +126,13 @@ import { TableAction, TableAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
+import { StatusIntent } from '@/common/enums';
 const depthRawRepresentation = ref(1);
 const depthRawRepresentationMax = ref(1000);
 
 const recursiveDeleteProtection = ref(false);
+
+const assignStatus = ref(StatusIntent.INACTIVE);
 
 const functions = useFunctions();
 const route = useRoute();
@@ -193,6 +197,7 @@ async function init() {
     await getProtection();
     canReadPermissions.value = !!myAccess.includes('read_assignments');
 
+    existingPermissions.splice(0, existingPermissions.length);
     Object.assign(
       existingPermissions,
       canReadPermissions.value ? await functions.getTableAssignmentsById(tableId.value) : [],
@@ -283,13 +288,19 @@ function transformFields(fields: StructField[]): TreeItem[] {
 
 async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
+    loaded.value = false;
+    assignStatus.value = StatusIntent.STARTING;
     const del = permissions.del as TableAssignment[];
     const writes = permissions.writes as TableAssignment[];
 
     await functions.updateTableAssignmentsById(tableId.value, del, writes);
+    assignStatus.value = StatusIntent.SUCCESS;
+    loaded.value = true;
     await init();
   } catch (error) {
     console.error(error);
+
+    assignStatus.value = StatusIntent.FAILURE;
 
     await init();
   }

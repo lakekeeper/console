@@ -18,6 +18,7 @@
         <v-spacer></v-spacer>
         <span class="icon-text">
           <AssignToRoleDialogSingle
+            :status="props.status"
             :action-type="'grant'"
             :assignee="''"
             :assignments="props.existingPermissionsFromObj"
@@ -47,6 +48,7 @@
     </template-->
     <template #item.type="{ item }">
       <AssignToRoleDialogSingle
+        :status="props.status"
         :action-type="'edit'"
         :assignee="item.id"
         :assignments="props.existingPermissionsFromObj"
@@ -57,6 +59,7 @@
     </template>
     <template #no-data>
       <AssignToRoleDialogSingle
+        :status="props.status"
         :action-type="'assign'"
         :assignee="''"
         :assignments="props.existingPermissionsFromObj"
@@ -72,6 +75,7 @@ import { useFunctions } from '@/plugins/functions';
 import { onMounted, reactive, computed, ref } from 'vue';
 
 import { AssignmentCollection, Header, RelationType } from '@/common/interfaces';
+import { StatusIntent } from '@/common/enums';
 
 const functions = useFunctions();
 
@@ -106,6 +110,7 @@ const managedAccess = computed(() => {
 });
 
 const props = defineProps<{
+  status: StatusIntent;
   assignableObj: {
     id: string;
     name: string;

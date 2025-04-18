@@ -16,7 +16,6 @@ declare module 'vue' {
     AuthenticationDisabledWarningBanner: typeof import('./components/AuthenticationDisabledWarningBanner.vue')['default']
     BreadcrumbsFromUrl: typeof import('./components/BreadcrumbsFromUrl.vue')['default']
     ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']
-    copy: typeof import('./components/WarehouseGCS copy.vue')['default']
     DeletingDialog: typeof import('./components/deletingDialog.vue')['default']
     DialogDelete: typeof import('./components/DialogDelete.vue')['default']
     DialogDeleteConfirm: typeof import('./components/dialogDeleteConfirm.vue')['default']

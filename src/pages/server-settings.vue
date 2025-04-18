@@ -53,6 +53,7 @@
           <v-card>
             <PermissionManager
               v-if="loaded && enabledPermissions"
+              :status="assignStatus"
               :assignable-obj="permissionObject"
               :existing-permissions-from-obj="existingAssignments"
               :relation-type="permissionType"
@@ -112,6 +113,7 @@ const canDeleteUsers = ref(false);
 const canGrantAdmin = ref(false);
 const canProvisionUsers = ref(false);
 const canUpdateUsers = ref(false);
+const assignStatus = ref(StatusIntent.INACTIVE);
 
 const users = reactive<User[]>([]);
 const assignments = reactive<
@@ -211,14 +213,18 @@ async function getServerAccess() {
 async function assign(item: { del: AssignmentCollection; writes: AssignmentCollection }) {
   try {
     loaded.value = false;
+    assignStatus.value = StatusIntent.STARTING;
     const del = item.del as ServerAssignment[]; // Define 'del' variable
     const writes = item.writes as ServerAssignment[]; // Define 'del' variable
 
     await functions.updateServerAssignments(del, writes);
+    assignStatus.value = StatusIntent.SUCCESS;
     await init();
     loaded.value = true;
   } catch (error) {
     console.error(error);
+
+    assignStatus.value = StatusIntent.FAILURE;
   } finally {
     await init();
     loaded.value = true;
