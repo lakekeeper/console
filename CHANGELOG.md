@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.8.0](https://github.com/lakekeeper/console/compare/v0.7.0...v0.8.0) (2025-04-18)
+
+
+### Features
+
+* Add new warehouse as json object ([#126](https://github.com/lakekeeper/console/issues/126)) ([5fd4c92](https://github.com/lakekeeper/console/commit/5fd4c922a69e22d1d4be2be70ad4050a04fd3d9a))
+
+
+### Bug Fixes
+
+* assign permissions ([#130](https://github.com/lakekeeper/console/issues/130)) ([e250484](https://github.com/lakekeeper/console/commit/e25048477f1896ce608ba5a3bfeef7268655c30e))
+* big int represented as string([#125](https://github.com/lakekeeper/console/issues/125)) ([ffeb188](https://github.com/lakekeeper/console/commit/ffeb18850ec5fd7fe0db25d1e17858af3a91bf2d))
+* rename switch field push-s3-delete-disabled ([#131](https://github.com/lakekeeper/console/issues/131)) ([9cf6414](https://github.com/lakekeeper/console/commit/9cf64142784f996079e943d91cadee0330031d45))
+* Typo for recursive deletion ([e3b6dc8](https://github.com/lakekeeper/console/commit/e3b6dc81212a60e1354b1b9d5da8374b98828be5))
+
 ## [0.7.0](https://github.com/lakekeeper/console/compare/v0.6.0...v0.7.0) (2025-04-13)
 
 
