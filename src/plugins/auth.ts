@@ -3,6 +3,7 @@ import { UserManager, UserManagerSettings, WebStorageStateStore } from 'oidc-cli
 import { useUserStore } from '@/stores/user';
 import { User } from '@/common/interfaces';
 import * as env from '../app.config';
+import { UserManager as UserManagerImplicitFlow } from 'oidc-client';
 
 // OIDC Configuration
 
@@ -18,8 +19,23 @@ const oidcSettings: UserManagerSettings = {
 };
 // silent_redirect_uri: `${window.location.origin}/silent-callback`,
 
+// OIDC Configuration for Implicit Grant
+const oidcSettingsImplicit = {
+  authority: env.idpAuthority,
+  client_id: env.idpClientId,
+  redirect_uri: `${window.location.origin}/ui${env.idpRedirectPath}`,
+  response_type: 'id_token token', // Changed to 'id_token token' for Implicit Grant
+  scope: env.idpScope,
+  resource: env.idpResource !== '' ? env.idpResource : undefined,
+  post_logout_redirect_uri: `${window.location.origin}/ui${env.idpLogoutRedirectPath}`,
+  userStore: new WebStorageStateStore({ store: window.sessionStorage }),
+  // silent_redirect_uri: `${window.location.origin}/silent-callback.html`, // Optional silent renew
+  // automaticSilentRenew: true, // Enable automatic silent renew (requires silent_redirect_uri)
+};
+
 // Initialize UserManager
 const userManager = new UserManager(oidcSettings);
+const userManagerImplicit = new UserManagerImplicitFlow(oidcSettingsImplicit);
 
 // Define reactive state
 const accessToken = ref('');
@@ -29,7 +45,10 @@ const isAuthenticated = ref(false);
 const initUser = async () => {
   try {
     await signIn(); // Ensure signIn is called as part of initialization
-    const user = await userManager.getUser();
+    console.log(env.idpImplicitFlow ? 'OIDC implcit flow' : 'OIDC authorization code flow');
+    const user = env.idpImplicitFlow
+      ? await userManagerImplicit.getUser()
+      : await userManager.getUser();
     if (user) {
       accessToken.value = user.access_token; // Use non-null assertion if user is expected to exist
       isAuthenticated.value = true;
@@ -41,7 +60,9 @@ const initUser = async () => {
 
 const signIn = async () => {
   try {
-    await userManager.signinRedirect();
+    env.idpImplicitFlow
+      ? await userManagerImplicit.signinRedirect()
+      : await userManager.signinRedirect();
   } catch (error) {
     console.error('OIDC sign-in failed', error);
   }
@@ -49,7 +70,9 @@ const signIn = async () => {
 
 const signOut = async () => {
   try {
-    await userManager.signoutRedirect();
+    env.idpImplicitFlow
+      ? await userManagerImplicit.signoutRedirect()
+      : await userManager.signoutRedirect();
 
     accessToken.value = '';
     isAuthenticated.value = false;
@@ -60,7 +83,9 @@ const signOut = async () => {
 
 async function refreshToken(): Promise<User | undefined> {
   try {
-    const user = await userManager.signinSilent();
+    const user = env.idpImplicitFlow
+      ? await userManagerImplicit.signinSilent()
+      : await userManager.signinSilent();
 
     const newUser: User = {
       access_token: user?.access_token || '',
@@ -113,6 +138,7 @@ setInterval(checkTokenExpiry, 60000);
 export function useAuth() {
   return {
     oidcSettings,
+    oidcSettingsImplicit,
     userManager,
     access_token: accessToken,
     isAuthenticated,
@@ -127,10 +153,12 @@ export function useAuth() {
 // Vue Plugin Installation Function
 export default {
   install: (app: App) => {
-    if (env.enabledAuthentication) {
-      const auth = useAuth();
-      app.provide('auth', auth);
-      app.config.globalProperties.$auth = auth;
+    if (!env.idpImplicitFlow) {
+      if (env.enabledAuthentication) {
+        const auth = useAuth();
+        app.provide('auth', auth);
+        app.config.globalProperties.$auth = auth;
+      }
     }
   },
 };

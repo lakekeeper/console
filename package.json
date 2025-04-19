@@ -21,6 +21,7 @@
     "dotenv": "^16.4.5",
     "es6-promise": "^4.2.8",
     "json-bigint": "^1.0.0",
+    "oidc-client": "^1.11.5",
     "oidc-client-ts": "^3.1.0",
     "pinia-plugin-persistedstate-2": "^2.0.21",
     "roboto-fontface": "*",
