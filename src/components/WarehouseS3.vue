@@ -115,9 +115,8 @@
         </v-col>
         <v-col>
           <v-text-field
-            v-model="warehouseObjectData['storage-profile']['sts-token-validity-seconds']"
+            v-model.number="warehouseObjectData['storage-profile']['sts-token-validity-seconds']"
             label="STS Token Validity Seconds (default: 3600)"
-            placeholder="3600"
             type="number"
             clearable
             outlined></v-text-field>
