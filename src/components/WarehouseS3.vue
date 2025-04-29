@@ -115,9 +115,8 @@
         </v-col>
         <v-col>
           <v-text-field
-            v-model="warehouseObjectData['storage-profile']['sts-token-validity-seconds']"
+            v-model.number="warehouseObjectData['storage-profile']['sts-token-validity-seconds']"
             label="STS Token Validity Seconds (default: 3600)"
-            placeholder="3600"
             type="number"
             clearable
             outlined></v-text-field>
@@ -448,13 +447,13 @@ const emitNewProfile = () => {
       'credential-type': 'aws-system-identity',
       'external-id': warehouseObjectData['storage-credential']['external-id'] || null, // Optional
     } as S3Credential & { type: 's3' };
-
-    const newProfile = {
-      profile: warehouseObjectData['storage-profile'],
-      credentials: credentials,
-    } as { profile: StorageProfile; credentials: StorageCredential };
-    emit('updateProfile', newProfile);
   }
+  const newProfile = {
+    profile: warehouseObjectData['storage-profile'],
+    credentials: credentials,
+  } as { profile: StorageProfile; credentials: StorageCredential };
+
+  emit('updateProfile', newProfile);
 };
 
 onMounted(() => {
