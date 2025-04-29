@@ -453,7 +453,6 @@ const emitNewProfile = () => {
     credentials: credentials,
   } as { profile: StorageProfile; credentials: StorageCredential };
 
-  console.log('newProfile', newProfile);
   emit('updateProfile', newProfile);
 };
 
