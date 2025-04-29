@@ -447,13 +447,14 @@ const emitNewProfile = () => {
       'credential-type': 'aws-system-identity',
       'external-id': warehouseObjectData['storage-credential']['external-id'] || null, // Optional
     } as S3Credential & { type: 's3' };
-
-    const newProfile = {
-      profile: warehouseObjectData['storage-profile'],
-      credentials: credentials,
-    } as { profile: StorageProfile; credentials: StorageCredential };
-    emit('updateProfile', newProfile);
   }
+  const newProfile = {
+    profile: warehouseObjectData['storage-profile'],
+    credentials: credentials,
+  } as { profile: StorageProfile; credentials: StorageCredential };
+
+  console.log('newProfile', newProfile);
+  emit('updateProfile', newProfile);
 };
 
 onMounted(() => {
