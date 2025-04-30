@@ -87,7 +87,7 @@
                       color="info"
                       :label="
                         !selectedWarehouse.protected
-                          ? 'Recursive Delete Protection disbaled'
+                          ? 'Recursive Delete Protection disabled'
                           : 'Recursive Delete Protection enabled'
                       "
                       @click="setProtection"></v-switch>
