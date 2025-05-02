@@ -179,7 +179,7 @@
                           :disabled="!emptyWarehouse"
                           :value="type">
                           <template #label>
-                            <div>
+                            <div class="d-flex align-center">
                               <v-icon v-if="type === 'S3'" color="primary" size="x-large">
                                 mdi-aws
                               </v-icon>
@@ -190,7 +190,15 @@
                                 mdi-microsoft-azure
                               </v-icon>
 
-                              {{ type }}
+                              <v-img
+                                v-if="type === 'HDFS'"
+                                color="primary"
+                                class="mr-2"
+                                src="@/assets/hdfs.svg"
+                                :width="24"
+                                :height="24"></v-img>
+
+                              <span>{{ type }}</span>
                             </div>
                           </template>
                         </v-radio>
@@ -239,6 +247,16 @@
                   @submit="createWarehouse"
                   @update-credentials="newCredentials"
                   @update-profile="newProfile"></WarehouseGCS>
+              </div>
+              <div v-if="storageCredentialType === 'HDFS'">
+                <WarehouseHDFS
+                  :credentials-only="emptyWarehouse"
+                  :intent="intent"
+                  :object-type="objectType"
+                  :warehouse-object="warehouseObjectHDFS"
+                  @submit="createWarehouse"
+                  @update-credentials="newCredentials"
+                  @update-profile="newProfile"></WarehouseHDFS>
               </div>
             </span>
           </v-form>
@@ -317,7 +335,7 @@ const max = ref(90);
 const slider = ref(7);
 const useFileInput = ref(false);
 
-const storageCredentialTypes = ref(['S3', 'GCS', 'AZURE']);
+const storageCredentialTypes = ref(['S3', 'GCS', 'AZURE', 'HDFS']);
 const storageCredentialType = ref('');
 const warehouseName = ref('');
 const functions = useFunctions();
@@ -367,6 +385,17 @@ const warehouseObjectGCS = reactive<WarehousObject>({
   },
 });
 
+const warehouseObjectHDFS = reactive<WarehousObject>({
+  'storage-profile': {
+    type: 'hdfs',
+    url: '',
+    'key-prefix': '',
+  },
+  'storage-credential': {
+    type: 'hdfs',
+  },
+});
+
 const warehouseObjectAz = reactive<WarehousObject>({
   'storage-profile': {
     'account-name': '',
@@ -390,6 +419,8 @@ async function createWarehouse(warehouseObject: WarehousObject) {
       Object.assign(warehouseObjectS3, warehouseObject);
     if (warehouseObject['storage-profile'].type === 'az')
       Object.assign(warehouseObjectAz, warehouseObject);
+    if (warehouseObject['storage-profile'].type === 'hdfs')
+      Object.assign(warehouseObjectHDFS, warehouseObject);
 
     creatingWarehouse.value = true;
 
@@ -464,6 +495,11 @@ async function preloadWarehouseJSON(wh: CreateWarehouseRequest) {
         'storage-profile': wh['storage-profile'],
         'storage-credential': wh['storage-credential'],
       });
+    if (wh['storage-profile'].type === 'hdfs')
+      Object.assign(warehouseObjectHDFS, {
+        'storage-profile': wh['storage-profile'],
+        'storage-credential': wh['storage-credential'],
+      });
     if (wh['storage-profile'].type === 'adls')
       Object.assign(warehouseObjectAz, {
         'storage-profile': wh['storage-profile'],
@@ -516,6 +552,11 @@ onMounted(() => {
     if (props.warehouse['storage-profile'].type === 'gcs') {
       storageCredentialType.value = 'GCS';
       Object.assign(warehouseObjectGCS, props.warehouse);
+    }
+
+    if (props.warehouse['storage-profile'].type === 'hdfs') {
+      storageCredentialType.value = 'HDFS';
+      Object.assign(warehouseObjectHDFS, props.warehouse);
     }
     if (
       props.objectType === ObjectType.DELETION_PROFILE &&

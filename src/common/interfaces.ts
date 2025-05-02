@@ -10,9 +10,11 @@ import {
   S3Credential,
   S3Profile,
   ServerAssignment,
+  HdfsProfile,
   TableAssignment,
   ViewAssignment,
   WarehouseAssignment,
+  HdfsCredential,
 } from '@/gen/management/types.gen';
 
 export interface Project {
@@ -155,10 +157,12 @@ export interface WarehousObject {
   'storage-profile':
     | (S3Profile & { type: string })
     | (AdlsProfile & { type: string })
-    | (GcsProfile & { type: string });
+    | (GcsProfile & { type: string })
+    | (HdfsProfile & { type: string });
   'storage-credential':
     | (S3Credential & { type: string })
     | (AzCredential & { type: string })
+    | (HdfsCredential & { type: string })
     | (GcsCredential & { type: string });
 }
 

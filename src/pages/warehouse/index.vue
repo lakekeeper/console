@@ -74,6 +74,11 @@
                   class="mb-2 mr-2"
                   src="@/assets/cf.svg"
                   :width="24"></v-img>
+                <v-img
+                  v-if="item['storage-profile'].type === 'hdfs'"
+                  class="mb-2 mr-2"
+                  src="@/assets/hdfs.svg"
+                  :width="24"></v-img>
                 <v-icon
                   v-if="item['storage-profile'].type === 'adls'"
                   class="mr-2"
