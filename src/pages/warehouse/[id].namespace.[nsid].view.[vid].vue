@@ -45,7 +45,7 @@
                   :label="
                     recursiveDeleteProtection
                       ? 'Recursive Delete Protection enabled'
-                      : 'Recursive Delete Protection disbaled'
+                      : 'Recursive Delete Protection disabled'
                   "
                   @click="setProtection"></v-switch>
               </v-toolbar>
