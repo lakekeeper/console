@@ -45,7 +45,7 @@
               <v-icon
                 class="mr-1"
                 color="error"
-                :disabled="!myAccess.includes('delete')"
+                :disabled="!item.can_delete"
                 @click="deleteRole(item.id)">
                 mdi-delete-outline
               </v-icon>
@@ -70,7 +70,11 @@ import router from '../../router';
 import { Header } from '../../common/interfaces';
 
 const functions = useFunctions();
-const roles = ref<Role[]>([]);
+interface ExtendedRole extends Role {
+  can_delete?: boolean;
+}
+
+const roles = ref<ExtendedRole[]>([]);
 const loading = ref(true);
 
 const role = reactive({
@@ -104,6 +108,12 @@ async function init() {
   Object.assign(myAccess, await functions.getProjectAccess());
   canListRoles.value = myAccess.includes('list_roles');
   Object.assign(roles.value, await functions.listRoles());
+  if (roles.value.length > 0) {
+    for (const role of roles.value) {
+      const roleAction = await functions.getRoleAccessById(role.id);
+      role.can_delete = roleAction.includes('delete');
+    }
+  }
 }
 
 async function createRole() {
