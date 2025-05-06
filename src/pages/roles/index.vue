@@ -111,7 +111,7 @@ async function init() {
   if (roles.value.length > 0) {
     for (const role of roles.value) {
       const roleAction = await functions.getRoleAccessById(role.id);
-      role.can_delete = roleAction.includes('delete') ? true : false;
+      role.can_delete = roleAction.includes('delete');
     }
   }
 }
