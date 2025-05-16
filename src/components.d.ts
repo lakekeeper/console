@@ -36,6 +36,7 @@ declare module 'vue' {
     WarehouseActionsMenu: typeof import('./components/WarehouseActionsMenu.vue')['default']
     WarehouseAzure: typeof import('./components/WarehouseAzure.vue')['default']
     WarehouseGCS: typeof import('./components/WarehouseGCS.vue')['default']
+    WarehouseHDFS: typeof import('./components/WarehouseHDFS.vue')['default']
     WarehouseJSON: typeof import('./components/WarehouseJSON.vue')['default']
     WarehouseS3: typeof import('./components/WarehouseS3.vue')['default']
   }

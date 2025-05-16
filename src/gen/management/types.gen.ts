@@ -534,6 +534,33 @@ export type GetWarehouseResponse = {
   'storage-profile': StorageProfile;
 };
 
+export type HdfsCredential = {
+  [key: string]: unknown;
+};
+
+/**
+ * HDFS Storage Profile
+ */
+export type HdfsProfile = {
+  /**
+   * Additional configuration options.
+   * Please check the [`rust-native` Documentation](https://github.com/Kimahriman/hdfs-native?tab=readme-ov-file#supported-hdfs-settings)
+   * for possible keys.
+   */
+  config?: {
+    [key: string]: string;
+  };
+  /**
+   * Path in the filesystem which is used for this
+   * profile.
+   */
+  'key-prefix': string;
+  /**
+   * HDFS URL, i.e. `hdfs://ns`
+   */
+  url: string;
+};
+
 /**
  * JSON wrapper for all error responses (non-2xx)
  */
@@ -1035,6 +1062,9 @@ export type StorageCredential =
     })
   | (GcsCredential & {
       type: 'gcs';
+    })
+  | (HdfsCredential & {
+      type: 'hdfs';
     });
 
 /**
@@ -1049,6 +1079,9 @@ export type StorageProfile =
     })
   | (GcsProfile & {
       type: 'gcs';
+    })
+  | (HdfsProfile & {
+      type: 'hdfs';
     });
 
 export type TableAction =
