@@ -12,6 +12,7 @@ import { reactive, watch } from 'vue';
 import { Breadcrumb } from '../common/interfaces';
 import { useVisualStore } from '../stores/visual';
 import { useFunctions } from '@/plugins/functions';
+import * as env from '../app.config';
 
 const functions = useFunctions();
 const breadcrumbs = reactive<Breadcrumb[]>([]);
@@ -23,7 +24,7 @@ async function loadBreadcrumbs(url: string) {
     breadcrumbs.splice(0, breadcrumbs.length);
     const paths = url.split('/').filter(Boolean);
 
-    let currentPath = '/ui';
+    let currentPath = `${env.baseUrlPrefix}/ui`;
 
     for (let index = 0; index < paths.length; index++) {
       const segment = paths[index];

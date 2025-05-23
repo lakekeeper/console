@@ -10,6 +10,8 @@ const enabledAuthentication =
 const enabledPermissions =
   import.meta.env.VITE_ENABLE_PERMISSIONS.toLowerCase() === 'true' || false;
 
+const baseUrlPrefix = import.meta.env.VITE_BASE_URL_PREFIX || '';
+
 export {
   icebergCatalogUrl,
   idpAuthority,
@@ -20,4 +22,5 @@ export {
   idpLogoutRedirectPath,
   enabledAuthentication,
   enabledPermissions,
+  baseUrlPrefix,
 };
