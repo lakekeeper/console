@@ -6,14 +6,17 @@ import Layouts from 'vite-plugin-vue-layouts';
 import Vue from '@vitejs/plugin-vue';
 import VueRouter from 'unplugin-vue-router/vite';
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
-
+import { loadEnv } from 'vite';
 // Utilities
 import { defineConfig } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
 
+// Define the mode variable based on the environment or default to 'development'
+const mode = process.env.NODE_ENV || 'development';
+const env = loadEnv(mode, process.cwd(), '');
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/ui/',
+  base: `${env.VITE_BASE_URL_PREFIX || ''}/ui/`,
   plugins: [
     VueRouter({
       dts: 'src/typed-router.d.ts',

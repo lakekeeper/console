@@ -7,8 +7,10 @@ import * as env from '../app.config';
 
 import NotFound from '@/pages/notfound.vue';
 
+const baseUrlPrefix = `${env.baseUrlPrefix}/ui/`;
+
 const router = createRouter({
-  history: createWebHistory('/ui/'),
+  history: createWebHistory(baseUrlPrefix),
   routes: setupLayouts([
     ...routes,
     {

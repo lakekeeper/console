@@ -9,11 +9,11 @@ import * as env from '../app.config';
 const oidcSettings: UserManagerSettings = {
   authority: env.idpAuthority,
   client_id: env.idpClientId,
-  redirect_uri: `${window.location.origin}/ui${env.idpRedirectPath}`,
+  redirect_uri: `${window.location.origin}${env.baseUrlPrefix}/ui${env.idpRedirectPath}`,
   response_type: 'code',
   scope: env.idpScope,
   resource: env.idpResource !== '' ? env.idpResource : undefined,
-  post_logout_redirect_uri: `${window.location.origin}/ui${env.idpLogoutRedirectPath}`,
+  post_logout_redirect_uri: `${window.location.origin}${env.baseUrlPrefix}/ui${env.idpLogoutRedirectPath}`,
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
 };
 // silent_redirect_uri: `${window.location.origin}/silent-callback`,
