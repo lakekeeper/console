@@ -20,6 +20,7 @@ pub struct LakekeeperConsoleConfig {
     pub enable_authentication: bool,
     pub enable_permissions: bool,
     pub app_iceberg_catalog_url: Option<String>,
+    pub base_url_prefix: Option<String>,
 }
 
 pub fn get_file(
@@ -36,6 +37,7 @@ pub fn get_file(
         enable_authentication,
         enable_permissions,
         app_iceberg_catalog_url,
+        base_url_prefix,
     } = config;
 
     LakekeeperConsole::get(file_path).map(|file| {
@@ -67,6 +69,12 @@ pub fn get_file(
                 )
             } else {
                 data
+            };
+
+            let data = if let Some(base_url_prefix) = base_url_prefix {
+                data.replace("VITE_BASE_URL_PREFIX_PLACEHOLDER", &base_url_prefix)
+            } else {
+                data.replace("VITE_BASE_URL_PREFIX_PLACEHOLDER", "")
             };
 
             file.data = data.into_bytes().into();
@@ -107,6 +115,7 @@ mod tests {
             enable_authentication: true,
             enable_permissions: false,
             app_iceberg_catalog_url: Some("https://catalog.example.com".to_string()),
+            base_url_prefix: Some("/test-prefix".to_string()),
         };
         let files = LakekeeperConsole::iter().collect::<Vec<_>>();
 
