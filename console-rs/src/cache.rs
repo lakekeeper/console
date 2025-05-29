@@ -91,16 +91,12 @@ impl FileCache {
         // Create effective config with forwarded prefix if needed
         let mut effective_config = (*self.config).clone();
 
-        if effective_config.base_url_prefix.is_none()
-            && let Some(prefix) = forwarded_prefix
-        {
-            effective_config.base_url_prefix = Some(prefix.to_string());
+        if effective_config.base_url_prefix.is_none() && forwarded_prefix.is_some() {
+            effective_config.base_url_prefix = forwarded_prefix.map(String::from);
         }
 
-        if effective_config.app_lakekeeper_url.is_none()
-            && let Some(url) = lakekeeper_url
-        {
-            effective_config.app_lakekeeper_url = Some(url.to_string());
+        if effective_config.app_lakekeeper_url.is_none() && lakekeeper_url.is_some() {
+            effective_config.app_lakekeeper_url = lakekeeper_url.map(String::from);
         }
 
         // Get the file content
