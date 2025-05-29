@@ -77,7 +77,7 @@ pub fn get_file(
                 );
 
             let data = if prefix.is_empty() {
-                data.replace("/VITE_BASE_URL_PREFIX_PLACEHOLDER/", "")
+                data.replace("/VITE_BASE_URL_PREFIX_PLACEHOLDER/", "/")
                     .replace("VITE_BASE_URL_PREFIX_PLACEHOLDER", "")
             } else {
                 data.replace("/VITE_BASE_URL_PREFIX_PLACEHOLDER", &format!("/{prefix}"))
