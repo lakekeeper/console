@@ -48,7 +48,7 @@ pub fn get_file(
     LakekeeperConsole::get(file_path).map(|file| {
         if std::path::Path::new(file_path)
             .extension()
-            .is_some_and(|ext| ext.eq_ignore_ascii_case("js"))
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("js") || ext.eq_ignore_ascii_case("html"))
         {
             let mut file = file.clone();
             let data = std::str::from_utf8(&file.data).unwrap();
@@ -149,7 +149,7 @@ mod tests {
 
         for file in &files {
             let templated_file = get_file(file, &config.clone()).unwrap();
-            if file.ends_with(".js") {
+            if file.ends_with(".js") | file.ends_with(".html") {
                 let file_content = std::str::from_utf8(&templated_file.data).unwrap();
                 assert!(
                     !file_content.contains("VITE_"),
