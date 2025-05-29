@@ -92,7 +92,7 @@ function init() {
 const icebergCatalogUrl = (): string => {
   let url = env.icebergCatalogUrl;
 
-  if (url === '' || url === 'VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER' || url === undefined) {
+  if (url === '' || url === undefined) {
     url = `${location.protocol}//${location.hostname}${location.port ? `:${location.port}` : ''}`;
   }
 
