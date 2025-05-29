@@ -23,6 +23,11 @@ pub struct LakekeeperConsoleConfig {
     pub base_url_prefix: Option<String>,
 }
 
+/// Retrieves a file from the Lakekeeper Console embed.
+///
+/// # Panics
+/// If the file ends with `.js` and the data cannot be converted to a UTF-8 string.
+#[must_use]
 pub fn get_file(
     file_path: &str,
     config: &LakekeeperConsoleConfig,
@@ -41,18 +46,26 @@ pub fn get_file(
     } = config;
 
     LakekeeperConsole::get(file_path).map(|file| {
-        if file_path.ends_with(".js") {
+        if std::path::Path::new(file_path)
+            .extension()
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("js"))
+        {
             let mut file = file.clone();
             let data = std::str::from_utf8(&file.data).unwrap();
+            let prefix = base_url_prefix
+                .as_deref()
+                .unwrap_or_default()
+                .trim_matches('/');
+
             let data = data
-                .replace("VITE_IDP_AUTHORITY_PLACEHOLDER", &idp_authority)
-                .replace("VITE_IDP_CLIENT_ID_PLACEHOLDER", &idp_client_id)
-                .replace("VITE_IDP_REDIRECT_PATH_PLACEHOLDER", &idp_redirect_path)
-                .replace("VITE_IDP_SCOPE_PLACEHOLDER", &idp_scope)
-                .replace("VITE_IDP_RESOURCE_PLACEHOLDER", &idp_resource)
+                .replace("VITE_IDP_AUTHORITY_PLACEHOLDER", idp_authority)
+                .replace("VITE_IDP_CLIENT_ID_PLACEHOLDER", idp_client_id)
+                .replace("VITE_IDP_REDIRECT_PATH_PLACEHOLDER", idp_redirect_path)
+                .replace("VITE_IDP_SCOPE_PLACEHOLDER", idp_scope)
+                .replace("VITE_IDP_RESOURCE_PLACEHOLDER", idp_resource)
                 .replace(
                     "VITE_IDP_POST_LOGOUT_REDIRECT_PATH_PLACEHOLDER",
-                    &idp_post_logout_redirect_path,
+                    idp_post_logout_redirect_path,
                 )
                 .replace(
                     "VITE_ENABLE_AUTHENTICATION_PLACEHOLDER",
@@ -62,19 +75,22 @@ pub fn get_file(
                     "VITE_ENABLE_PERMISSIONS_PLACEHOLDER",
                     &enable_permissions.to_string(),
                 );
+
+            let data = if prefix.is_empty() {
+                data.replace("/VITE_BASE_URL_PREFIX_PLACEHOLDER/", "")
+                    .replace("VITE_BASE_URL_PREFIX_PLACEHOLDER", "")
+            } else {
+                data.replace("/VITE_BASE_URL_PREFIX_PLACEHOLDER", &format!("/{prefix}"))
+                    .replace("VITE_BASE_URL_PREFIX_PLACEHOLDER", &format!("/{prefix}"))
+            };
+
             let data = if let Some(app_iceberg_catalog_url) = app_iceberg_catalog_url {
                 data.replace(
                     "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
-                    &app_iceberg_catalog_url,
+                    app_iceberg_catalog_url,
                 )
             } else {
                 data
-            };
-
-            let data = if let Some(base_url_prefix) = base_url_prefix {
-                data.replace("VITE_BASE_URL_PREFIX_PLACEHOLDER", &base_url_prefix)
-            } else {
-                data.replace("VITE_BASE_URL_PREFIX_PLACEHOLDER", "")
             };
 
             file.data = data.into_bytes().into();
@@ -100,7 +116,7 @@ mod tests {
     #[test]
     fn test_index_available() {
         let index: rust_embed::EmbeddedFile = LakekeeperConsole::get("index.html").unwrap();
-        assert!(index.data.len() > 0);
+        assert!(!index.data.is_empty());
     }
 
     #[test]
@@ -119,7 +135,7 @@ mod tests {
         };
         let files = LakekeeperConsole::iter().collect::<Vec<_>>();
 
-        let config_values = vec![
+        let config_values = [
             &config.idp_authority,
             &config.idp_client_id,
             &config.idp_redirect_path,
@@ -146,6 +162,7 @@ mod tests {
                         found_values[i] = true;
                     }
                 }
+                assert!(!file_content.contains("//ui"));
             }
         }
 

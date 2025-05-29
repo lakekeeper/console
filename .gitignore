@@ -64,3 +64,4 @@ rust-project.json
 
 .env.azure
 .env.development
+**/.vscode/*

@@ -8,13 +8,13 @@ fn main() {
     let repo_dir = Path::new(&manifest_dir).parent().unwrap();
     let node_dir = Path::new(&out_dir).join("node");
 
-    println!("Node dir: {:?}", node_dir);
-    println!("Repo dir: {:?}", repo_dir);
+    println!("Node dir: {node_dir:?}");
+    println!("Repo dir: {repo_dir:?}");
     // Copy everything from repo_dir to node_dir, we are not allowed to write anywhere else
     fs::remove_dir_all(&node_dir).ok();
     fs::create_dir_all(&node_dir).unwrap();
     fs_extra::dir::copy(
-        &repo_dir,
+        repo_dir,
         &node_dir,
         &fs_extra::dir::CopyOptions::new().content_only(true),
     )
@@ -31,7 +31,7 @@ fn main() {
         .status()
         .expect("Failed to install Lakekeeper UI dependencies with npm");
     std::process::Command::new("npm")
-        .args(&["run", "build-placeholder"])
+        .args(["run", "build-placeholder"])
         .current_dir(node_dir.clone())
         .status()
         .expect("Failed to build Lakekeeper UI with npm");
