@@ -1,4 +1,16 @@
+#![warn(
+    missing_debug_implementations,
+    rust_2018_idioms,
+    unreachable_pub,
+    clippy::pedantic
+)]
+#![forbid(unsafe_code)]
+
 use rust_embed::Embed;
+
+mod cache;
+
+pub use cache::{CacheItem, FileCache};
 
 #[derive(Embed)]
 #[folder = "$OUT_DIR/node/dist"]
@@ -48,7 +60,11 @@ pub fn get_file(
     LakekeeperConsole::get(file_path).map(|file| {
         if std::path::Path::new(file_path)
             .extension()
-            .is_some_and(|ext| ext.eq_ignore_ascii_case("js") || ext.eq_ignore_ascii_case("html"))
+            .is_some_and(|ext| {
+                ext.eq_ignore_ascii_case("js")
+                    || ext.eq_ignore_ascii_case("html")
+                    || ext.eq_ignore_ascii_case("css")
+            })
         {
             let mut file = file.clone();
             let data = std::str::from_utf8(&file.data).unwrap();
@@ -149,8 +165,7 @@ mod tests {
 
         for file in &files {
             let templated_file = get_file(file, &config.clone()).unwrap();
-            if file.ends_with(".js") | file.ends_with(".html") {
-                let file_content = std::str::from_utf8(&templated_file.data).unwrap();
+            if let Ok(file_content) = std::str::from_utf8(&templated_file.data) {
                 assert!(
                     !file_content.contains("VITE_"),
                     "File {} still contains VITE_ variables",
