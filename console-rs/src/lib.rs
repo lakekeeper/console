@@ -31,7 +31,7 @@ pub struct LakekeeperConsoleConfig {
     pub idp_post_logout_redirect_path: String,
     pub enable_authentication: bool,
     pub enable_permissions: bool,
-    pub app_iceberg_catalog_url: Option<String>,
+    pub app_lakekeeper_url: Option<String>,
     pub base_url_prefix: Option<String>,
 }
 
@@ -53,7 +53,7 @@ pub fn get_file(
         idp_post_logout_redirect_path,
         enable_authentication,
         enable_permissions,
-        app_iceberg_catalog_url,
+        app_lakekeeper_url: app_iceberg_catalog_url,
         base_url_prefix,
     } = config;
 
@@ -146,7 +146,7 @@ mod tests {
             idp_post_logout_redirect_path: "/logout-test".to_string(),
             enable_authentication: true,
             enable_permissions: false,
-            app_iceberg_catalog_url: Some("https://catalog.example.com".to_string()),
+            app_lakekeeper_url: Some("https://catalog.example.com".to_string()),
             base_url_prefix: Some("/test-prefix".to_string()),
         };
         let files = LakekeeperConsole::iter().collect::<Vec<_>>();
@@ -158,7 +158,7 @@ mod tests {
             &config.idp_scope,
             &config.idp_resource,
             &config.idp_post_logout_redirect_path,
-            config.app_iceberg_catalog_url.as_ref().unwrap(),
+            config.app_lakekeeper_url.as_ref().unwrap(),
         ];
 
         let mut found_values = vec![false; config_values.len()];

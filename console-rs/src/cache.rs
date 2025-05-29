@@ -22,7 +22,7 @@ pub enum CacheItem {
 #[derive(Debug, Clone)]
 pub struct FileCache {
     // Cache path and forwarded prefix to content
-    cache: Cache<(String, Option<String>), CacheItem>,
+    cache: Cache<(String, Option<String>, Option<String>), CacheItem>,
     // The configuration used to load files
     config: Arc<LakekeeperConsoleConfig>,
 }
@@ -58,12 +58,21 @@ impl FileCache {
     ///
     /// # Arguments
     /// * `file_path` - The path of the file to get
-    /// * `forwarded_prefix` - Optional URL prefix for proxied deployments. Overrides the base URL prefix in the config.
+    /// * `forwarded_prefix` - Optional URL prefix for proxied deployments. Sets the corresponding config value if the config is `None`
     ///
     /// # Returns
     /// A [`CacheItem`] containing the file content and mime type or `NotFound`
-    pub fn get_file(&self, file_path: &str, forwarded_prefix: Option<&str>) -> CacheItem {
-        let cache_key = (file_path.to_string(), forwarded_prefix.map(String::from));
+    pub fn get_file(
+        &self,
+        file_path: &str,
+        forwarded_prefix: Option<&str>,
+        lakekeeper_url: Option<&str>,
+    ) -> CacheItem {
+        let cache_key = (
+            file_path.to_string(),
+            forwarded_prefix.map(String::from),
+            lakekeeper_url.map(String::from),
+        );
 
         // Try to get from cache first
         if let Some(cache_item) = self.cache.get(&cache_key) {
@@ -78,17 +87,21 @@ impl FileCache {
         };
 
         let file_path_owned = file_path.to_string();
-        let config = self.config.clone();
 
         // Create effective config with forwarded prefix if needed
-        let effective_config = if let Some(prefix) = forwarded_prefix {
-            LakekeeperConsoleConfig {
-                base_url_prefix: Some(prefix.to_string()),
-                ..(*config).clone()
-            }
-        } else {
-            (*config).clone()
-        };
+        let mut effective_config = (*self.config).clone();
+
+        if effective_config.base_url_prefix.is_none()
+            && let Some(prefix) = forwarded_prefix
+        {
+            effective_config.base_url_prefix = Some(prefix.to_string());
+        }
+
+        if effective_config.app_lakekeeper_url.is_none()
+            && let Some(url) = lakekeeper_url
+        {
+            effective_config.app_lakekeeper_url = Some(url.to_string());
+        }
 
         // Get the file content
         let content = crate::get_file(&file_path_owned, &effective_config);
