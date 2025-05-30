@@ -27,7 +27,7 @@ async function init() {
     console.log(user);
 
     const newUser: User = {
-      access_token: env.idpTokenType == 'access_token' ? user.access_token : user.id_token || '',
+      access_token: env.idpTokenType == 'id_token' ? user.id_token || '' : user.access_token,
       id_token: user.id_token || '',
       refresh_token: user.refresh_token || '',
       token_expires_at: user.profile.exp,

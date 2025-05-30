@@ -31,8 +31,7 @@ const initUser = async () => {
     await signIn(); // Ensure signIn is called as part of initialization
     const user = await userManager.getUser();
     if (user) {
-      accessToken.value =
-        env.idpTokenType == 'access_token' ? user.access_token : user.id_token || '';
+      accessToken.value = env.idpTokenType == 'id_token' ? user.id_token || '' : user.access_token;
       isAuthenticated.value = true;
     }
   } catch (error) {
@@ -65,7 +64,7 @@ async function refreshToken(): Promise<User | undefined> {
 
     const newUser: User = {
       access_token:
-        env.idpTokenType == 'access_token' ? user?.access_token || '' : user?.id_token || '',
+        env.idpTokenType == 'id_token' ? user?.id_token || '' : user?.access_token || '',
       id_token: user?.id_token || '',
       refresh_token: user?.refresh_token || '',
       token_expires_at: user?.profile.exp || 0,
