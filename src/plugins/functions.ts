@@ -313,8 +313,6 @@ async function getEndpointStatistics(
   status_codes?: Array<number> | null,
 ): Promise<GetEndpointStatisticsResponse> {
   try {
-    console.log('getEndpointStatistics');
-
     init();
 
     const getEndpointStatisticsRequest: GetEndpointStatisticsRequest = {

@@ -24,7 +24,6 @@ async function init() {
     const firsName =
       user.profile.family_name || user.profile.name?.split(' ').splice(1).join(' ') || '';
     const givenName = user.profile.given_name || user.profile.name?.split(' ')[0] || '';
-    console.log(user);
 
     const newUser: User = {
       access_token: env.idpTokenType == 'id_token' ? user.id_token || '' : user.access_token,
