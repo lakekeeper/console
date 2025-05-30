@@ -32,7 +32,8 @@ const initUser = async () => {
     await signIn(); // Ensure signIn is called as part of initialization
     const user = await userManager.getUser();
     if (user) {
-      accessToken.value = env.idpTokenType == 'id_token' ? user.id_token || '' : user.access_token;
+      accessToken.value =
+        env.idpTokenType == TokenType.ID_TOKEN ? user.id_token || '' : user.access_token;
       isAuthenticated.value = true;
     }
   } catch (error) {
