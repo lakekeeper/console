@@ -9,6 +9,7 @@ import { useAuth } from '../plugins/auth';
 import { useFunctions } from '../plugins/functions';
 import { onMounted, onUnmounted } from 'vue';
 import { useVisualStore } from '../stores/visual';
+import * as env from '../app.config';
 
 const visual = useVisualStore();
 const functions = useFunctions();
@@ -23,9 +24,10 @@ async function init() {
     const firsName =
       user.profile.family_name || user.profile.name?.split(' ').splice(1).join(' ') || '';
     const givenName = user.profile.given_name || user.profile.name?.split(' ')[0] || '';
+    console.log(user);
 
     const newUser: User = {
-      access_token: user.access_token,
+      access_token: env.idpTokenType == 'access_token' ? user.access_token : user.id_token || '',
       id_token: user.id_token || '',
       refresh_token: user.refresh_token || '',
       token_expires_at: user.profile.exp,
