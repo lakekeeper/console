@@ -3,6 +3,7 @@ import { UserManager, UserManagerSettings, WebStorageStateStore } from 'oidc-cli
 import { useUserStore } from '@/stores/user';
 import { User } from '@/common/interfaces';
 import * as env from '../app.config';
+import { TokenType } from '@/common/enums';
 
 // OIDC Configuration
 
@@ -64,7 +65,7 @@ async function refreshToken(): Promise<User | undefined> {
 
     const newUser: User = {
       access_token:
-        env.idpTokenType == 'id_token' ? user?.id_token || '' : user?.access_token || '',
+        env.idpTokenType == TokenType.ID_TOKEN ? user?.id_token || '' : user?.access_token || '',
       id_token: user?.id_token || '',
       refresh_token: user?.refresh_token || '',
       token_expires_at: user?.profile.exp || 0,

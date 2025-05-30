@@ -10,6 +10,7 @@ import { useFunctions } from '../plugins/functions';
 import { onMounted, onUnmounted } from 'vue';
 import { useVisualStore } from '../stores/visual';
 import * as env from '../app.config';
+import { TokenType } from '@/common/enums';
 
 const visual = useVisualStore();
 const functions = useFunctions();
@@ -26,7 +27,8 @@ async function init() {
     const givenName = user.profile.given_name || user.profile.name?.split(' ')[0] || '';
 
     const newUser: User = {
-      access_token: env.idpTokenType == 'id_token' ? user.id_token || '' : user.access_token,
+      access_token:
+        env.idpTokenType == TokenType.ID_TOKEN ? user.id_token || '' : user.access_token,
       id_token: user.id_token || '',
       refresh_token: user.refresh_token || '',
       token_expires_at: user.profile.exp,
