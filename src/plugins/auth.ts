@@ -31,7 +31,8 @@ const initUser = async () => {
     await signIn(); // Ensure signIn is called as part of initialization
     const user = await userManager.getUser();
     if (user) {
-      accessToken.value = user.access_token; // Use non-null assertion if user is expected to exist
+      accessToken.value =
+        env.idpTokenType == 'access_token' ? user.access_token : user.id_token || '';
       isAuthenticated.value = true;
     }
   } catch (error) {

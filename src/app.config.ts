@@ -5,6 +5,7 @@ const idpRedirectPath = import.meta.env.VITE_IDP_REDIRECT_PATH || '';
 const idpScope = import.meta.env.VITE_IDP_SCOPE || '';
 const idpResource = import.meta.env.VITE_IDP_RESOURCE || '';
 const idpLogoutRedirectPath = import.meta.env.VITE_IDP_POST_LOGOUT_REDIRECT_PATH || '';
+const idpTokenType = import.meta.env.VITE_IDP_RESOURCE || 'access_token';
 const enabledAuthentication =
   import.meta.env.VITE_ENABLE_AUTHENTICATION.toLowerCase() === 'true' || false;
 const enabledPermissions =
@@ -19,6 +20,7 @@ export {
   idpRedirectPath,
   idpScope,
   idpResource,
+  idpTokenType,
   idpLogoutRedirectPath,
   enabledAuthentication,
   enabledPermissions,
