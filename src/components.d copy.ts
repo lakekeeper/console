@@ -8,7 +8,6 @@ export {};
 declare module 'vue' {
   export interface GlobalComponents {
     AppBar: typeof import('./components/AppBar.vue')['default']
-    AppFooter: typeof import('./components/AppFooter.vue')['default']
     EULA: typeof import('./components/EULA.vue')['default']
     Home: typeof import('./components/Home.vue')['default']
     NavigationBar: typeof import('./components/NavigationBar.vue')['default']

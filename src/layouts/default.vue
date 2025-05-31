@@ -7,7 +7,11 @@
       <router-view />
     </v-main>
 
-    <AppFooter />
+    <AppFooter>
+      <template #suffix>
+        <span>Core</span>
+      </template>
+    </AppFooter>
   </v-app>
 </template>
 
@@ -17,5 +21,6 @@
 import AuthorizationOffBanner from '@/components/AuthenticationDisabledWarningBanner.vue';
 import { enabledAuthentication } from '@/app.config';
 import { useVisualStore } from '@/stores/visual';
+import { AppFooter } from '@lakekeeper/console-components';
 const visual = useVisualStore();
 </script>
