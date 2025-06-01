@@ -13,7 +13,7 @@
   <span v-else>
     <v-row class="ml-1">
       <v-col>
-        <BreadcrumbsFromUrl v-if="!renaming" />
+        <BreadcrumbsFromUrl v-if="!renaming" :url="route.fullPath" />
 
         <v-toolbar color="transparent" density="compact" flat>
           <v-toolbar-title>
@@ -401,7 +401,11 @@ import {
 
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-import { PermissionManager, AddNamespaceDialog } from '@lakekeeper/console-components';
+import {
+  PermissionManager,
+  AddNamespaceDialog,
+  BreadcrumbsFromUrl,
+} from '@lakekeeper/console-components';
 import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
@@ -507,6 +511,7 @@ const appFunctions: AppFunctions = {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
   ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };
 

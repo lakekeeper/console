@@ -13,7 +13,7 @@
   <span v-else>
     <v-row class="ml-1">
       <v-col>
-        <BreadcrumbsFromUrl />
+        <BreadcrumbsFromUrl :url="route.fullPath" />
         <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
@@ -291,7 +291,11 @@ import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.g
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-import { PermissionManager, AddNamespaceDialog } from '@lakekeeper/console-components';
+import {
+  PermissionManager,
+  AddNamespaceDialog,
+  BreadcrumbsFromUrl,
+} from '@lakekeeper/console-components';
 import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const visual = useVisualStore();
@@ -385,6 +389,7 @@ const appFunctions: AppFunctions = {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
   ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };
 

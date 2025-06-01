@@ -13,7 +13,7 @@
   <span v-else>
     <v-row class="ml-1">
       <v-col>
-        <BreadcrumbsFromUrl />
+        <BreadcrumbsFromUrl :url="route.fullPath" />
         <v-toolbar class="mb-4" color="transparent" density="compact" flat>
           <v-toolbar-title>
             <span class="text-subtitle-1">
@@ -127,7 +127,7 @@ import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-import { PermissionManager } from '@lakekeeper/console-components';
+import { PermissionManager, BreadcrumbsFromUrl } from '@lakekeeper/console-components';
 import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 const depthRawRepresentation = ref(1);
 const depthRawRepresentationMax = ref(1000);
@@ -195,6 +195,7 @@ const appFunctions: AppFunctions = {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
   ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };
 
