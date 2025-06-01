@@ -43,7 +43,7 @@
       </v-tabs-window-item>
       <v-tabs-window-item value="permissions">
         <PermissionManager
-          v-if="loaded"
+          v-if="loaded && enabledPermissions"
           :status="assignStatus"
           :assignable-obj="role"
           :existing-permissions-from-obj="existingPermissions"
@@ -61,6 +61,8 @@ import { useFunctions } from '../../plugins/functions';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
+import { PermissionManager } from '@lakekeeper/console-components';
+import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const route = useRoute();
@@ -86,6 +88,21 @@ onMounted(async () => {
   await init();
 });
 
+const appFunctions: AppFunctions = {
+  getUser: functions.getUser,
+  getRole: functions.getRole,
+  searchUser: functions.searchUser,
+  searchRole: functions.searchRole,
+  ...(functions.setWarehouseManagedAccess && {
+    setWarehouseManagedAccess: functions.setWarehouseManagedAccess,
+  }),
+  ...(functions.setNamespaceManagedAccess && {
+    setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
+  }),
+  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
+};
+provide(FUNCTIONS_INJECTION_KEY, appFunctions);
 const rolePermissions = reactive<RoleAssignment[]>([]);
 async function init() {
   rolePermissions.splice(0, rolePermissions.length);

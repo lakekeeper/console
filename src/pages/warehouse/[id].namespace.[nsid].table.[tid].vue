@@ -127,6 +127,8 @@ import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
+import { PermissionManager } from '@lakekeeper/console-components';
+import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 const depthRawRepresentation = ref(1);
 const depthRawRepresentationMax = ref(1000);
 
@@ -179,6 +181,25 @@ const schemaFieldsTransformed = reactive<TreeItem[]>([]);
 const currentSchema = ref(0);
 const existingPermissions = reactive<TableAssignment[]>([]);
 const loaded = ref(false);
+
+// Create AppFunctions object for injection into child components
+const appFunctions: AppFunctions = {
+  getUser: functions.getUser,
+  getRole: functions.getRole,
+  searchUser: functions.searchUser,
+  searchRole: functions.searchRole,
+  ...(functions.setWarehouseManagedAccess && {
+    setWarehouseManagedAccess: functions.setWarehouseManagedAccess,
+  }),
+  ...(functions.setNamespaceManagedAccess && {
+    setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
+  }),
+  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
+};
+
+// Provide functions to child components
+provide(FUNCTIONS_INJECTION_KEY, appFunctions);
 
 async function init() {
   loaded.value = false;

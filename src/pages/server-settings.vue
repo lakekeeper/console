@@ -57,16 +57,37 @@
 <script lang="ts" setup>
 import { useVisualStore } from '@/stores/visual';
 import { useFunctions } from '@/plugins/functions';
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref, provide } from 'vue';
 import { ServerAction, ServerAssignment, User } from '@/gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '@/common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-import { ServerInformation, UserManager } from '@lakekeeper/console-components';
+import { ServerInformation, UserManager, PermissionManager } from '@lakekeeper/console-components';
+import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const tab = ref('overview');
 const visual = useVisualStore();
 const functions = useFunctions();
+
+// Create AppFunctions object for injection into child components
+const appFunctions: AppFunctions = {
+  getUser: functions.getUser,
+  getRole: functions.getRole,
+  searchUser: functions.searchUser,
+  searchRole: functions.searchRole,
+  ...(functions.setWarehouseManagedAccess && {
+    setWarehouseManagedAccess: functions.setWarehouseManagedAccess,
+  }),
+  ...(functions.setNamespaceManagedAccess && {
+    setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
+  }),
+  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
+};
+
+// Provide functions to child components
+provide(FUNCTIONS_INJECTION_KEY, appFunctions);
+
 const serverAssignments = reactive<ServerAssignment[]>([]);
 const loaded = ref(true);
 const permissionType = ref<RelationType>('server');

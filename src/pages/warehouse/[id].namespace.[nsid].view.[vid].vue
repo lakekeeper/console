@@ -113,6 +113,8 @@ import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
+import { PermissionManager } from '@lakekeeper/console-components';
+import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const route = useRoute();
@@ -170,6 +172,24 @@ async function loadTabData() {
   await init();
 }
 
+// Create AppFunctions object for injection into child components
+const appFunctions: AppFunctions = {
+  getUser: functions.getUser,
+  getRole: functions.getRole,
+  searchUser: functions.searchUser,
+  searchRole: functions.searchRole,
+  ...(functions.setWarehouseManagedAccess && {
+    setWarehouseManagedAccess: functions.setWarehouseManagedAccess,
+  }),
+  ...(functions.setNamespaceManagedAccess && {
+    setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
+  }),
+  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
+};
+
+// Provide functions to child components
+provide(FUNCTIONS_INJECTION_KEY, appFunctions);
 async function init() {
   const serverInfo = await functions.getServerInfo();
 

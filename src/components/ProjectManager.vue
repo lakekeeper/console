@@ -115,6 +115,8 @@ import {
 } from '../gen/management/types.gen';
 import { AssignmentCollection, Header, RelationType } from '../common/interfaces';
 import { StatusIntent } from '@/common/enums';
+import { PermissionManager } from '@lakekeeper/console-components';
+import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const dialog = ref(false);
 const tab = ref('overview');
@@ -165,6 +167,24 @@ const permissionObject = reactive<any>({
   name: 'Project',
 });
 
+// Create AppFunctions object for injection into child components
+const appFunctions: AppFunctions = {
+  getUser: functions.getUser,
+  getRole: functions.getRole,
+  searchUser: functions.searchUser,
+  searchRole: functions.searchRole,
+  ...(functions.setWarehouseManagedAccess && {
+    setWarehouseManagedAccess: functions.setWarehouseManagedAccess,
+  }),
+  ...(functions.setNamespaceManagedAccess && {
+    setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
+  }),
+  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
+};
+
+// Provide functions to child components
+provide(FUNCTIONS_INJECTION_KEY, appFunctions);
 async function init() {
   try {
     loaded.value = false;

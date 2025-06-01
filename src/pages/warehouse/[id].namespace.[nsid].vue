@@ -291,6 +291,8 @@ import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.g
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
+import { PermissionManager } from '@lakekeeper/console-components';
+import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const visual = useVisualStore();
 const route = useRoute();
@@ -369,6 +371,25 @@ const permissionObject = reactive<any>({
   description: '',
   name: '',
 });
+
+// Create AppFunctions object for injection into child components
+const appFunctions: AppFunctions = {
+  getUser: functions.getUser,
+  getRole: functions.getRole,
+  searchUser: functions.searchUser,
+  searchRole: functions.searchRole,
+  ...(functions.setWarehouseManagedAccess && {
+    setWarehouseManagedAccess: functions.setWarehouseManagedAccess,
+  }),
+  ...(functions.setNamespaceManagedAccess && {
+    setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
+  }),
+  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
+};
+
+// Provide functions to child components
+provide(FUNCTIONS_INJECTION_KEY, appFunctions);
 
 onMounted(async () => {
   await init();
