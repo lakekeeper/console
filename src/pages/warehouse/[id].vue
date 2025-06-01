@@ -44,7 +44,7 @@
             @update-delprofile="updateDelProfile"
             @update-profile="updateProfile" />
 
-          <addNamespaceDialog
+          <AddNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
             :parent-path="''"
             :status-intent="createNamespaceStatus"
@@ -121,7 +121,7 @@
                 </template>
 
                 <template #no-data>
-                  <addNamespaceDialog
+                  <AddNamespaceDialog
                     v-if="myAccess.includes('create_namespace')"
                     :parent-path="''"
                     :status-intent="createNamespaceStatus"
@@ -401,7 +401,7 @@ import {
 
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-import { PermissionManager } from '@lakekeeper/console-components';
+import { PermissionManager, AddNamespaceDialog } from '@lakekeeper/console-components';
 import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const functions = useFunctions();

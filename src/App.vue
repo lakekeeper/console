@@ -13,6 +13,8 @@ import { enabledAuthentication } from '@/app.config';
 import router from '@/router';
 import { useVisualStore } from '@/stores/visual';
 import { useFunctions } from '@/plugins/functions';
+import { SnackbarMessage } from '@lakekeeper/console-components';
+
 const functions = useFunctions();
 
 const visual = useVisualStore();

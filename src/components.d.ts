@@ -7,7 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddNamespaceDialog: typeof import('./components/addNamespaceDialog.vue')['default']
+    AddOrEditProjectDialog: typeof import('@lakekeeper/console-components/AddOrEditProjectDialog.vue')['default']
     AddOrEditProjectNameDialog: typeof import('./components/AddOrEditProjectNameDialog.vue')['default']
     AddWarehouseDialog: typeof import('./components/addWarehouseDialog.vue')['default']
     AppBar: typeof import('./components/AppBar.vue')['default']
@@ -26,7 +26,6 @@ declare module 'vue' {
     RoleDialog: typeof import('./components/roleDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SnackbarMessage: typeof import('./components/SnackbarMessage.vue')['default']
     StatisticsDialog: typeof import('./components/StatisticsDialog.vue')['default']
     WarehouseActionsMenu: typeof import('./components/WarehouseActionsMenu.vue')['default']
     WarehouseAzure: typeof import('./components/WarehouseAzure.vue')['default']

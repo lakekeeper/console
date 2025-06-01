@@ -29,7 +29,7 @@
           </template>
           <v-spacer></v-spacer>
 
-          <addNamespaceDialog
+          <AddNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
             :parent-path="namespacePath"
             :status-intent="addNamespaceStatus"
@@ -103,7 +103,7 @@
                     @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
                 </template>
                 <template #no-data>
-                  <addNamespaceDialog
+                  <AddNamespaceDialog
                     v-if="myAccess.includes('create_namespace')"
                     :parent-path="namespacePath"
                     :status-intent="StatusIntent.STARTING"
@@ -291,7 +291,7 @@ import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.g
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-import { PermissionManager } from '@lakekeeper/console-components';
+import { PermissionManager, AddNamespaceDialog } from '@lakekeeper/console-components';
 import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const visual = useVisualStore();
