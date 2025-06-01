@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddWarehouseDialog: typeof import('./components/addWarehouseDialog.vue')['default']
-    AuthenticationDisabledWarningBanner: typeof import('./components/AuthenticationDisabledWarningBanner.vue')['default']
     ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']
     DeletingDialog: typeof import('./components/deletingDialog.vue')['default']
     DialogDelete: typeof import('./components/DialogDelete.vue')['default']

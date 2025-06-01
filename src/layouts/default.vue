@@ -31,7 +31,8 @@
       </template>
     </AppBar>
     <v-main>
-      <AuthorizationOffBanner v-if="!enabledAuthentication"></AuthorizationOffBanner>
+      <AuthenticationDisabledWarningBanner
+        v-if="!enabledAuthentication"></AuthenticationDisabledWarningBanner>
       <NavigationBar v-if="visual.showAppOrNavBar" />
       <router-view />
     </v-main>
@@ -48,7 +49,7 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
-import AuthorizationOffBanner from '@/components/AuthenticationDisabledWarningBanner.vue';
+
 import NavigationBar from '@/components/NavigationBar.vue';
 import ProjectManager from '@/components/ProjectManager.vue';
 import { enabledAuthentication } from '@/app.config';
@@ -56,7 +57,11 @@ import { useVisualStore } from '@/stores/visual';
 import { useUserStore } from '@/stores/user';
 import { useAuth } from '@/plugins/auth';
 import { useFunctions } from '@/plugins/functions';
-import { AppFooter, AppBar } from '@lakekeeper/console-components';
+import {
+  AppFooter,
+  AppBar,
+  AuthenticationDisabledWarningBanner,
+} from '@lakekeeper/console-components';
 
 const router = useRouter();
 const theme = useTheme();
