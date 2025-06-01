@@ -7,8 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddOrEditProjectDialog: typeof import('@lakekeeper/console-components/AddOrEditProjectDialog.vue')['default']
-    AddOrEditProjectNameDialog: typeof import('./components/AddOrEditProjectNameDialog.vue')['default']
     AddWarehouseDialog: typeof import('./components/addWarehouseDialog.vue')['default']
     AuthenticationDisabledWarningBanner: typeof import('./components/AuthenticationDisabledWarningBanner.vue')['default']
     ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']

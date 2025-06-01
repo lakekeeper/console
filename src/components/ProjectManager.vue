@@ -115,8 +115,12 @@ import {
 } from '../gen/management/types.gen';
 import { AssignmentCollection, Header, RelationType } from '../common/interfaces';
 import { StatusIntent } from '@/common/enums';
-import { PermissionManager } from '@lakekeeper/console-components';
-import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
+import {
+  PermissionManager,
+  AddOrEditProjectNameDialog,
+  AppFunctions,
+  FUNCTIONS_INJECTION_KEY,
+} from '@lakekeeper/console-components';
 
 const dialog = ref(false);
 const tab = ref('overview');
