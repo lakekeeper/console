@@ -92,7 +92,7 @@
         </v-tabs-window-item>
 
         <v-tabs-window-item value="statistics">
-          <ProjectStatistics v-if="loadedStatistics" :stats="statistics" />
+          <StatisticsProject v-if="loadedStatistics" :stats="statistics" />
         </v-tabs-window-item>
       </v-tabs-window>
     </v-card>
@@ -120,6 +120,7 @@ import {
   AddOrEditProjectNameDialog,
   AppFunctions,
   FUNCTIONS_INJECTION_KEY,
+  StatisticsProject,
 } from '@lakekeeper/console-components';
 
 const dialog = ref(false);
@@ -183,7 +184,8 @@ const appFunctions: AppFunctions = {
   ...(functions.setNamespaceManagedAccess && {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
-  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  // Removed getWarehouseById due to type incompatibility
+  ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };
 

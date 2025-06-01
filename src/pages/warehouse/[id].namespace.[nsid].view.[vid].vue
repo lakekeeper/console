@@ -188,7 +188,18 @@ const appFunctions: AppFunctions = {
   ...(functions.setNamespaceManagedAccess && {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
-  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  ...(functions.getWarehouseById && {
+    getWarehouseById: async (...args: Parameters<typeof functions.getWarehouseById>) => {
+      const result = await functions.getWarehouseById(...args);
+      // If result is already of type GetWarehouseResponse, just return it.
+      // Otherwise, you need to fetch the actual warehouse data here.
+      // Replace the following line with the correct fetching logic if needed.
+      if (typeof result === 'boolean') {
+        throw new Error('getWarehouseById returned boolean instead of GetWarehouseResponse');
+      }
+      return result;
+    },
+  }),
   ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };

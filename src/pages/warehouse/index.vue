@@ -24,12 +24,13 @@
             <v-icon>mdi-warehouse</v-icon>
           </template>
           <v-spacer></v-spacer>
-          <AddWarehouseDialog
+          <WarehouseAddDialog
             v-if="myAccess.includes('create_warehouse')"
             :intent="Intent.CREATE"
             :object-type="ObjectType.WAREHOUSE"
             :process-status="'starting'"
             :warehouse="undefined"
+            :project-id="visual.projectSelected['project-id']"
             @added-warehouse="listWarehouse" />
         </v-toolbar>
         <v-data-table
@@ -108,8 +109,9 @@
             </span>
           </template>
           <template #no-data>
-            <AddWarehouseDialog
+            <WarehouseAddDialog
               v-if="myAccess.includes('create_warehouse')"
+              :project-id="visual.projectSelected['project-id']"
               :intent="Intent.CREATE"
               :object-type="ObjectType.WAREHOUSE"
               :process-status="'starting'"
@@ -120,7 +122,6 @@
         <div v-else>You don't have permission to list warehouses</div>
       </v-col>
     </v-row>
-    <DeletingDialog :deleting="deleting" />
   </span>
 </template>
 
@@ -134,10 +135,43 @@ import router from '../../router';
 import { useFunctions } from '../../plugins/functions';
 import { useVisualStore } from '../../stores/visual';
 import { Header } from '../../common/interfaces';
+import {
+  WarehouseAddDialog,
+  AppFunctions,
+  FUNCTIONS_INJECTION_KEY,
+} from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const missAccessPermission = ref(true);
 const loading = ref(true);
+
+const appFunctions: AppFunctions = {
+  getUser: functions.getUser,
+  getRole: functions.getRole,
+  searchUser: functions.searchUser,
+  searchRole: functions.searchRole,
+  ...(functions.setWarehouseManagedAccess && {
+    setWarehouseManagedAccess: functions.setWarehouseManagedAccess,
+  }),
+  ...(functions.setNamespaceManagedAccess && {
+    setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
+  }),
+  ...(functions.getWarehouseById && {
+    getWarehouseById: async (...args: Parameters<typeof functions.getWarehouseById>) => {
+      const result = await functions.getWarehouseById(...args);
+      // If result is already of type GetWarehouseResponse, just return it.
+      // Otherwise, you need to fetch the actual warehouse data here.
+      // Replace the following line with the correct fetching logic if needed.
+      if (typeof result === 'boolean') {
+        throw new Error('getWarehouseById returned boolean instead of GetWarehouseResponse');
+      }
+      return result;
+    },
+  }),
+  ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
+  ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
+};
+provide(FUNCTIONS_INJECTION_KEY, appFunctions);
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
@@ -158,6 +192,7 @@ onMounted(async () => {
   try {
     visual.whId = '';
     visual.wahrehouseName = '';
+
     Object.assign(myAccess, await functions.getProjectAccess());
     if (myAccess.includes('list_warehouses')) await listWarehouse();
     loading.value = false;

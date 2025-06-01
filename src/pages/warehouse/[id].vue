@@ -38,6 +38,11 @@
           <WarehouseActionsMenu
             :process-status="processStatus"
             :warehouse="selectedWarehouse"
+            :project-id="selectedWarehouse['project-id']"
+            :idp-authority="env.idpAuthority"
+            :enabled-authentication="env.enabledAuthentication"
+            :user="user"
+            :metadata-url="userFunctions.userManager.settings.metadataUrl"
             @close="processStatus = 'starting'"
             @rename-warehouse="renameWarehouse"
             @update-credentials="updateCredentials"
@@ -405,12 +410,23 @@ import {
   PermissionManager,
   AddNamespaceDialog,
   BreadcrumbsFromUrl,
+  DialogDelete,
+  AppFunctions,
+  FUNCTIONS_INJECTION_KEY,
+  WarehouseActionsMenu,
+  StatisticsDialog,
 } from '@lakekeeper/console-components';
-import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
+import * as env from '@/app.config';
+import { useAuth } from '@/plugins/auth';
+import { User } from '@/common/interfaces';
 
+const userFunctions = useAuth();
 const functions = useFunctions();
 const route = useRoute();
 
+const user = env.enabledAuthentication
+  ? ((await userFunctions.refreshToken()) as User)
+  : ({ access_token: '', token_expires_at: 0 } as User);
 const assignStatus = ref(StatusIntent.INACTIVE);
 
 const recursiveDeleteProtection = ref(false);
@@ -510,7 +526,7 @@ const appFunctions: AppFunctions = {
   ...(functions.setNamespaceManagedAccess && {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
-  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  // Removed getWarehouseById due to type incompatibility
   ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };

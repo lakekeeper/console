@@ -34,7 +34,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="info" size="small" to="/roles" variant="outlined">Back</v-btn>
-          <roleDialog
+          <RoleDialog
             v-if="role.name != ''"
             :action-type="'edit'"
             :role="role"
@@ -61,8 +61,12 @@ import { useFunctions } from '../../plugins/functions';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-import { PermissionManager } from '@lakekeeper/console-components';
-import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
+import {
+  PermissionManager,
+  AppFunctions,
+  FUNCTIONS_INJECTION_KEY,
+  RoleDialog,
+} from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const route = useRoute();
@@ -99,7 +103,8 @@ const appFunctions: AppFunctions = {
   ...(functions.setNamespaceManagedAccess && {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
-  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  // Removed getWarehouseById due to type incompatibility
+  ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };
 provide(FUNCTIONS_INJECTION_KEY, appFunctions);

@@ -23,7 +23,7 @@
             <v-icon>mdi-account-box-multiple-outline</v-icon>
           </template>
           <v-spacer></v-spacer>
-          <roleDialog :action-type="'add'" @role-input="roleInput" />
+          <RoleDialog :action-type="'add'" @role-input="roleInput" />
         </v-toolbar>
         <v-data-table
           v-if="canListRoles"
@@ -52,7 +52,7 @@
             </span>
           </template>
           <template #no-data>
-            <roleDialog
+            <RoleDialog
               v-if="myAccess.includes('create_role')"
               :action-type="'add'"
               @role-input="roleInput" />
@@ -68,7 +68,7 @@ import { useFunctions } from '../../plugins/functions';
 import { ProjectAction, Role } from '../../gen/management/types.gen';
 import router from '../../router';
 import { Header } from '../../common/interfaces';
-
+import { RoleDialog } from '@lakekeeper/console-components';
 const functions = useFunctions();
 interface ExtendedRole extends Role {
   can_delete?: boolean;

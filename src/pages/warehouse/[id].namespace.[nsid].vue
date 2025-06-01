@@ -295,8 +295,10 @@ import {
   PermissionManager,
   AddNamespaceDialog,
   BreadcrumbsFromUrl,
+  DialogDelete,
+  AppFunctions,
+  FUNCTIONS_INJECTION_KEY,
 } from '@lakekeeper/console-components';
-import { AppFunctions, FUNCTIONS_INJECTION_KEY } from '@lakekeeper/console-components';
 
 const visual = useVisualStore();
 const route = useRoute();
@@ -388,7 +390,7 @@ const appFunctions: AppFunctions = {
   ...(functions.setNamespaceManagedAccess && {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
-  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  // ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
   ...(functions.getWarehouse && { getWarehouse: functions.getWarehouse }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };

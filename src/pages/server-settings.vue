@@ -81,7 +81,7 @@ const appFunctions: AppFunctions = {
   ...(functions.setNamespaceManagedAccess && {
     setNamespaceManagedAccess: functions.setNamespaceManagedAccess,
   }),
-  ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
+  // ...(functions.getWarehouseById && { getWarehouseById: functions.getWarehouseById }),
   ...(functions.getNamespaceById && { getNamespaceById: functions.getNamespaceById }),
 };
 
