@@ -13,38 +13,7 @@
       <v-tabs-window v-model="tab">
         <v-tabs-window-item value="overview">
           <v-card class="ml-2">
-            <v-list-item class="mb-12" two-line>
-              <div class="text-overline mb-4">Server Information</div>
-              <v-list-item-title class="text-h7 mb-1">
-                Server ID: {{ projectInfo['server-id'] }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                <div>Server Version: {{ projectInfo.version }}</div>
-                <div>Bootstraped: {{ projectInfo.bootstrapped }}</div>
-                <div>Authenticated by: {{ projectInfo['authz-backend'] }}</div>
-                <div v-if="projectInfo['aws-system-identities-enabled']">
-                  AWS system identities:
-                  {{ projectInfo['aws-system-identities-enabled'] ? 'enabled' : 'disabled' }}
-                </div>
-
-                <div v-if="projectInfo['azure-system-identities-enabled']">
-                  Azure system identities:
-                  {{ projectInfo['azure-system-identities-enabled'] ? 'enabled' : 'disabled' }}
-                </div>
-                <div v-if="projectInfo['gcp-system-identities-enabled']">
-                  GCP system identities:
-                  {{ projectInfo['gcp-system-identities-enabled'] ? 'enabled' : 'disabled' }}
-                </div>
-                <div
-                  v-if="
-                    !projectInfo['aws-system-identities-enabled'] &&
-                    !projectInfo['azure-system-identities-enabled'] &&
-                    !projectInfo['gcp-system-identities-enabled']
-                  ">
-                  No system identities are used
-                </div>
-              </v-list-item-subtitle>
-            </v-list-item>
+            <ServerInformation :project-info="projectInfo" />
           </v-card>
         </v-tabs-window-item>
         <v-tabs-window-item
@@ -93,7 +62,7 @@ import { ServerAction, ServerAssignment, User } from '@/gen/management/types.gen
 import { AssignmentCollection, RelationType } from '@/common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-import { UserManager } from '@lakekeeper/console-components';
+import { ServerInformation, UserManager } from '@lakekeeper/console-components';
 
 const tab = ref('overview');
 const visual = useVisualStore();
@@ -248,7 +217,11 @@ onMounted(async () => {
 });
 
 const projectInfo = computed(() => {
-  return visual.getServerInfo();
+  const info = visual.getServerInfo();
+  return {
+    ...info,
+    queues: (info as any)?.queues ?? [], // Provide an empty array if queues is missing
+  };
 });
 
 async function renameUser(user: { name: string; id: string }) {
