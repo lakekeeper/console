@@ -10,7 +10,6 @@ declare module 'vue' {
     AddOrEditProjectDialog: typeof import('@lakekeeper/console-components/AddOrEditProjectDialog.vue')['default']
     AddOrEditProjectNameDialog: typeof import('./components/AddOrEditProjectNameDialog.vue')['default']
     AddWarehouseDialog: typeof import('./components/addWarehouseDialog.vue')['default']
-    AppBar: typeof import('./components/AppBar.vue')['default']
     AuthenticationDisabledWarningBanner: typeof import('./components/AuthenticationDisabledWarningBanner.vue')['default']
     BreadcrumbsFromUrl: typeof import('./components/BreadcrumbsFromUrl.vue')['default']
     ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']
