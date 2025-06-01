@@ -118,6 +118,7 @@ function handleSupport() {
 
 async function handleGetNewToken() {
   try {
+    console.log('Requesting new token...');
     const user = await auth.refreshToken();
     if (user?.access_token) {
       functions.copyToClipboard(user.access_token);
