@@ -424,9 +424,7 @@ const userFunctions = useAuth();
 const functions = useFunctions();
 const route = useRoute();
 
-const user = env.enabledAuthentication
-  ? ((await userFunctions.refreshToken()) as User)
-  : ({ access_token: '', token_expires_at: 0 } as User);
+const user = ref<User>({ access_token: '', token_expires_at: 0 } as User);
 const assignStatus = ref(StatusIntent.INACTIVE);
 
 const recursiveDeleteProtection = ref(false);
@@ -535,6 +533,11 @@ const appFunctions: AppFunctions = {
 provide(FUNCTIONS_INJECTION_KEY, appFunctions);
 async function init() {
   try {
+    // Initialize user authentication if enabled
+    if (env.enabledAuthentication) {
+      user.value = (await userFunctions.refreshToken()) as User;
+    }
+
     loaded.value = false;
 
     myAccess.splice(0, myAccess.length);
