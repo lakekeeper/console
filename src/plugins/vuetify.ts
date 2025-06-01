@@ -1,22 +1,27 @@
-/**
- * plugins/vuetify.ts
- *
- * Framework documentation: https://vuetifyjs.com`
- */
+// plugins/vuetify.ts
 
 // Styles
-// import 'material-design-icons-iconfont/dist/material-design-icons.css';
-
+// Import Material Design Icons font CSS
 import '@mdi/font/css/materialdesignicons.css';
+// Import Vuetify's core styles
 import 'vuetify/styles';
-import { VTreeview } from 'vuetify/labs/VTreeview';
 
-// Composables
+// Composables (Vuetify's core functions)
 import { createVuetify } from 'vuetify';
+
+// Import ALL standard Vuetify components and directives
+// This is crucial for components like v-footer, v-app, v-card, etc.
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+
+// Import specific Vuetify Lab components if you are using them
+// These are not included in `vuetify/components` and must be imported separately
+import { VTreeview } from 'vuetify/labs/VTreeview';
 import { VStepperVertical, VStepperVerticalItem } from 'vuetify/labs/VStepperVertical';
 
+// Define your custom light theme
 const myCustomLightTheme = {
-  dark: false,
+  dark: false, // This theme is explicitly light
   colors: {
     background: '#FFFFFF',
     surface: '#FFFFFF',
@@ -53,25 +58,31 @@ const myCustomLightTheme = {
   },
 };
 
-// https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
+// Create the Vuetify instance
 export default createVuetify({
+  // Register all components:
+  // - Use the spread operator (`...components`) to include all standard Vuetify components.
+  // - Explicitly add any Vuetify Lab components or custom components.
   components: {
+    ...components, // Includes VApp, VMain, VFooter, VCard, VBtn, etc.
     VTreeview,
     VStepperVertical,
     VStepperVerticalItem,
   },
+  // Register all standard Vuetify directives (e.g., v-ripple, v-tooltip)
+  directives,
+  // Configure themes
   theme: {
-    defaultTheme: 'myCustomLightTheme',
+    defaultTheme: 'myCustomLightTheme', // Set your custom theme as the default
     themes: {
-      myCustomLightTheme,
+      myCustomLightTheme, // Make your custom theme available
     },
   },
+  // If you were using custom icons or other icon sets, you'd configure them here.
+  // Example for Material Design Icons (MDI) as default:
   // icons: {
-  //   defaultSet: "mdi",
-  //   aliases,
-  //   sets: {
-  //     md,
-  //     mdi,
-  //   },
+  //   defaultSet: 'mdi',
+  //   aliases, // Assuming aliases are imported from 'vuetify/iconsets/mdi' or similar
+  //   sets: { mdi }, // Assuming mdi set is imported from 'vuetify/iconsets/mdi' or similar
   // },
 });

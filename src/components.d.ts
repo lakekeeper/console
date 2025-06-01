@@ -30,7 +30,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SnackbarMessage: typeof import('./components/SnackbarMessage.vue')['default']
     StatisticsDialog: typeof import('./components/StatisticsDialog.vue')['default']
-    UserManager: typeof import('./components/UserManager.vue')['default']
     UserRenameDialog: typeof import('./components/UserRenameDialog.vue')['default']
     WarehouseActionsMenu: typeof import('./components/WarehouseActionsMenu.vue')['default']
     WarehouseAzure: typeof import('./components/WarehouseAzure.vue')['default']

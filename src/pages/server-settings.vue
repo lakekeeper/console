@@ -69,13 +69,15 @@
                 indeterminate
                 :size="126"></v-progress-circular>
             </v-row>
+
             <UserManager
               v-else
               :can-delete-users="canDeleteUsers"
               :loaded-users="users"
               :status="status"
-              @deleted-user="listUser"
-              @rename-user-name="renameUser" />
+              @delete-user="deleteUser($event)"
+              @rename-user-name="renameUser"
+              @copy-to-clipboard="functions.copyToClipboard($event)" />
           </v-card>
         </v-tabs-window-item>
       </v-tabs-window>
@@ -91,6 +93,7 @@ import { ServerAction, ServerAssignment, User } from '@/gen/management/types.gen
 import { AssignmentCollection, RelationType } from '@/common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
+import { UserManager } from '@lakekeeper/console-components';
 
 const tab = ref('overview');
 const visual = useVisualStore();
@@ -153,11 +156,20 @@ function checkPermission() {
   canUpdateUsers.value = !!myAccess.includes('update_users');
 }
 
+async function deleteUser(userId: string) {
+  try {
+    functions.deleteUser(userId);
+    await listUser();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function listUser() {
   try {
     if (!canListUsers.value) return;
     users.splice(0, users.length);
-
+    await new Promise((resolve) => setTimeout(resolve, 100));
     Object.assign(users, await functions.listUser());
   } catch (error) {
     console.error(error);
