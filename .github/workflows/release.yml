@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - main-*
   pull_request:
   workflow_dispatch:
 
@@ -15,8 +16,10 @@ jobs:
   # Update release PR
   release_please:
     name: Release Please
-    runs-on: ubuntu-24.04
-    if: github.repository == 'lakekeeper/console'
+    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    container:
+      image: quay.io/vakamo/build-base:ubuntu-24-04
+    if: ${{ vars.RELEASE_PLEASE_ACTIVATED != '' }}
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       tag_name: ${{ steps.release.outputs['tag_name'] }}
@@ -33,7 +36,9 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    container:
+      image: quay.io/vakamo/build-base:ubuntu-24-04
 
     steps:
       - name: Checkout Repo
@@ -42,7 +47,8 @@ jobs:
       - name: Create Node Environment
         uses: actions/setup-node@v4
         with:
-          node-version: 22.14.0
+          node-version: 23
+          cache: 'npm'
 
       - name: Install Packages and Build Application
         run: |
@@ -57,7 +63,9 @@ jobs:
   
   tests:
     name: Test Repo
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    container:
+      image: quay.io/vakamo/build-base:ubuntu-24-04
 
     steps:
       - name: Checkout Repo
@@ -69,7 +77,9 @@ jobs:
   
   test-rs:
     name: Test Rust
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    container:
+      image: quay.io/vakamo/build-base:ubuntu-24-04
 
     steps:
       - name: Checkout Repo
@@ -83,7 +93,9 @@ jobs:
 
   publish-build:
     name: Publish Build
-    runs-on: ubuntu-24.04
+    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    container:
+      image: quay.io/vakamo/build-base:ubuntu-24-04
     needs:
       - build
       - release_please
@@ -93,7 +105,7 @@ jobs:
         uses: actions/download-artifact@v4
 
       - name: Publish Release
-        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=lakekeeper/console
+        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ env.GITHUB_ACTION_REPOSITORY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
