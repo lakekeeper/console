@@ -88,6 +88,12 @@ jobs:
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+          cache: 'npm'
+
       - name: Test Rust
         run: cd console-rs && cargo test --all-features
 
