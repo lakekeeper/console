@@ -12,6 +12,10 @@ permissions:
   contents: write
   pull-requests: write
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   # Update release PR
   release_please:
