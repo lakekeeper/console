@@ -16,6 +16,12 @@ pub use cache::{CacheItem, FileCache};
 #[folder = "$OUT_DIR/node/dist"]
 struct LakekeeperConsole;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum IdpTokenType {
+    AccessToken,
+    IdToken,
+}
+
 #[derive(Debug, Clone, PartialEq, derivative::Derivative)]
 #[derivative(Default)]
 pub struct LakekeeperConsoleConfig {
@@ -29,6 +35,8 @@ pub struct LakekeeperConsoleConfig {
     pub idp_resource: String,
     #[derivative(Default(value = "\"/logout\".to_string()"))]
     pub idp_post_logout_redirect_path: String,
+    #[derivative(Default(value = "IdpTokenType::AccessToken"))]
+    pub idp_token_type: IdpTokenType,
     pub enable_authentication: bool,
     pub enable_permissions: bool,
     pub app_lakekeeper_url: Option<String>,
@@ -51,6 +59,7 @@ pub fn get_file(
         idp_scope,
         idp_resource,
         idp_post_logout_redirect_path,
+        idp_token_type,
         enable_authentication,
         enable_permissions,
         app_lakekeeper_url: app_iceberg_catalog_url,
@@ -73,6 +82,11 @@ pub fn get_file(
                 .unwrap_or_default()
                 .trim_matches('/');
 
+            let token_type_str = match idp_token_type {
+                IdpTokenType::AccessToken => "access_token",
+                IdpTokenType::IdToken => "id_token",
+            };
+
             let data = data
                 .replace("VITE_IDP_AUTHORITY_PLACEHOLDER", idp_authority)
                 .replace("VITE_IDP_CLIENT_ID_PLACEHOLDER", idp_client_id)
@@ -90,7 +104,8 @@ pub fn get_file(
                 .replace(
                     "VITE_ENABLE_PERMISSIONS_PLACEHOLDER",
                     &enable_permissions.to_string(),
-                );
+                )
+                .replace("VITE_IDP_TOKEN_TYPE_PLACEHOLDER", token_type_str);
 
             let data = if prefix.is_empty() {
                 data.replace("/VITE_BASE_URL_PREFIX_PLACEHOLDER/", "/")
@@ -144,6 +159,7 @@ mod tests {
             idp_scope: "openid profile email test".to_string(),
             idp_resource: "foo-bar-test".to_string(),
             idp_post_logout_redirect_path: "/logout-test".to_string(),
+            idp_token_type: IdpTokenType::AccessToken,
             enable_authentication: true,
             enable_permissions: false,
             app_lakekeeper_url: Some("https://catalog.example.com".to_string()),

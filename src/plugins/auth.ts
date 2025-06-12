@@ -3,6 +3,7 @@ import { UserManager, UserManagerSettings, WebStorageStateStore } from 'oidc-cli
 import { useUserStore } from '@/stores/user';
 import { User } from '@/common/interfaces';
 import * as env from '../app.config';
+import { TokenType } from '@/common/enums';
 
 // OIDC Configuration
 
@@ -31,7 +32,8 @@ const initUser = async () => {
     await signIn(); // Ensure signIn is called as part of initialization
     const user = await userManager.getUser();
     if (user) {
-      accessToken.value = user.access_token; // Use non-null assertion if user is expected to exist
+      accessToken.value =
+        env.idpTokenType == TokenType.ID_TOKEN ? user.id_token || '' : user.access_token;
       isAuthenticated.value = true;
     }
   } catch (error) {
@@ -63,7 +65,8 @@ async function refreshToken(): Promise<User | undefined> {
     const user = await userManager.signinSilent();
 
     const newUser: User = {
-      access_token: user?.access_token || '',
+      access_token:
+        env.idpTokenType == TokenType.ID_TOKEN ? user?.id_token || '' : user?.access_token || '',
       id_token: user?.id_token || '',
       refresh_token: user?.refresh_token || '',
       token_expires_at: user?.profile.exp || 0,
