@@ -40,7 +40,7 @@ jobs:
 
   build:
     name: Build
-    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    runs-on: ${{ vars.RUNS_ON__AMD_S }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
 
@@ -81,7 +81,7 @@ jobs:
   
   test-rs:
     name: Test Rust
-    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    runs-on: ${{ vars.RUNS_ON__AMD_S }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
 
