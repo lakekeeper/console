@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.8.0](https://github.com/lakekeeper/console/compare/v0.7.0...v0.8.0) (2025-06-15)
+
+
+### Features
+
+* Add new warehouse as json object ([#126](https://github.com/lakekeeper/console/issues/126)) ([5fd4c92](https://github.com/lakekeeper/console/commit/5fd4c922a69e22d1d4be2be70ad4050a04fd3d9a))
+* Support UI beeing hosted with a prefix in the URL path ([#140](https://github.com/lakekeeper/console/issues/140)) ([bb0cc91](https://github.com/lakekeeper/console/commit/bb0cc913519977436b2e6e85a9ae622936051510))
+* use different token for authentication  ([#141](https://github.com/lakekeeper/console/issues/141)) ([446a341](https://github.com/lakekeeper/console/commit/446a341a8318c4ed309632da559a00b87531148a))
+
+
+### Bug Fixes
+
+* assign permissions ([#130](https://github.com/lakekeeper/console/issues/130)) ([e250484](https://github.com/lakekeeper/console/commit/e25048477f1896ce608ba5a3bfeef7268655c30e))
+* big int represented as string([#125](https://github.com/lakekeeper/console/issues/125)) ([ffeb188](https://github.com/lakekeeper/console/commit/ffeb18850ec5fd7fe0db25d1e17858af3a91bf2d))
+* rename switch field push-s3-delete-disabled ([#131](https://github.com/lakekeeper/console/issues/131)) ([9cf6414](https://github.com/lakekeeper/console/commit/9cf64142784f996079e943d91cadee0330031d45))
+* role owner can delete role ([#139](https://github.com/lakekeeper/console/issues/139)) ([e7d42ce](https://github.com/lakekeeper/console/commit/e7d42cec8ae5f87618ec427ce2a7fabe98c59468))
+* Typo for recursive deletion ([e3b6dc8](https://github.com/lakekeeper/console/commit/e3b6dc81212a60e1354b1b9d5da8374b98828be5))
+* wrong data type of sts-token-validity-seconds and S3 update profile ([#134](https://github.com/lakekeeper/console/issues/134)) ([7d41a48](https://github.com/lakekeeper/console/commit/7d41a4871631b6ca24613d2f874845e7fd91b6e1))
+
 ## [0.7.0](https://github.com/lakekeeper/console/compare/v0.6.0...v0.7.0) (2025-04-13)
 
 
