@@ -115,7 +115,7 @@ jobs:
         uses: actions/download-artifact@v4
 
       - name: Publish Release
-        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ env.GITHUB_ACTION_REPOSITORY }}
+        run: gh release edit ${{ needs.release_please.outputs.tag_name }} --draft=false --repo=${{ github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
