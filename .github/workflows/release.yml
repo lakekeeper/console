@@ -37,6 +37,7 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please/release-please-config.json
           manifest-file: release-please/.release-please-manifest.json
+          target-branch: ${{ vars.RELEASE_PLEASE_TARGET_BRANCH }}
 
   build:
     name: Build
