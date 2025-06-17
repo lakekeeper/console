@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/lakekeeper/console/compare/v0.8.0...v0.8.1) (2025-06-17)
+
+
+### Bug Fixes
+
+* publish build ([6222b60](https://github.com/lakekeeper/console/commit/6222b60c35fd1622d20fb654b93dfdfdfa9f72fe))
+
 ## [0.8.0](https://github.com/lakekeeper/console/compare/v0.7.0...v0.8.0) (2025-06-15)
 
 
