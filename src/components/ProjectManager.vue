@@ -63,7 +63,9 @@
 
             <template #item.info="{ item }">
               <v-chip v-if="item.info === 'selected'" class="mr-2">selected</v-chip>
-              <v-chip v-if="item.info === 'switch'" class="mr-2">switch</v-chip>
+              <v-chip v-if="item.info === 'switch'" class="mr-2" @click="switchProject(item)">
+                switch
+              </v-chip>
             </template>
 
             <template #item.actions="{ item }">
@@ -115,6 +117,7 @@ import {
 } from '../gen/management/types.gen';
 import { AssignmentCollection, Header, RelationType } from '../common/interfaces';
 import { StatusIntent } from '@/common/enums';
+import router from '@/router';
 
 const dialog = ref(false);
 const tab = ref('overview');
@@ -253,9 +256,8 @@ async function loadProjects() {
     Object.assign(availableProjects, await functions.loadProjectList());
     availableProjects.forEach((p) => {
       p.actions = ['rename'];
-
       p.actions.push('delete');
-      if (p['project-id'] === visual.projectSelected['project-id']) {
+      if (p['project-id'] === project.value['project-id']) {
         p.info = 'selected';
       } else {
         p.info = 'switch';
@@ -282,6 +284,20 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
   } catch (error) {
     assignStatus.value = StatusIntent.FAILURE;
 
+    console.error(error);
+  } finally {
+    await init();
+    loaded.value = true;
+  }
+}
+
+async function switchProject(item: { 'project-id': string; 'project-name': string }) {
+  try {
+    loaded.value = false;
+    visual.setProjectSelected(item);
+    loaded.value = true;
+    router.push('/');
+  } catch (error) {
     console.error(error);
   } finally {
     await init();

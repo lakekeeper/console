@@ -192,6 +192,18 @@ import type {
   WhoamiData,
   WhoamiResponse,
   WhoamiError,
+  GetTaskQueueConfigTabularExpirationData,
+  GetTaskQueueConfigTabularExpirationResponse,
+  GetTaskQueueConfigTabularExpirationError,
+  SetTaskQueueConfigTabularExpirationData,
+  SetTaskQueueConfigTabularExpirationResponse,
+  SetTaskQueueConfigTabularExpirationError,
+  GetTaskQueueConfigTabularPurgeData,
+  GetTaskQueueConfigTabularPurgeResponse,
+  GetTaskQueueConfigTabularPurgeError,
+  SetTaskQueueConfigTabularPurgeData,
+  SetTaskQueueConfigTabularPurgeResponse,
+  SetTaskQueueConfigTabularPurgeError,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 
@@ -213,9 +225,9 @@ export type Options<
 };
 
 /**
- * Creates the user in the catalog if it does not exist.
- * If the user exists, it updates the users' metadata from the token.
- * The token sent to this endpoint should have "profile" and "email" scopes.
+ * Bootstrap
+ * Initializes the Lakekeeper server and sets the initial administrator account.
+ * This operation can only be performed once.
  */
 export const bootstrap = <ThrowOnError extends boolean = false>(
   options: Options<BootstrapData, ThrowOnError>,
@@ -238,7 +250,9 @@ export const bootstrap = <ThrowOnError extends boolean = false>(
 
 /**
  * @deprecated
- * Delete the default project
+ * Delete default Project
+ * Removes the user's default project and all its resources.
+ * This endpoint is deprecated and will be removed in a future version.
  */
 export const deleteDefaultProjectDeprecated = <ThrowOnError extends boolean = false>(
   options?: Options<DeleteDefaultProjectDeprecatedData, ThrowOnError>,
@@ -261,7 +275,9 @@ export const deleteDefaultProjectDeprecated = <ThrowOnError extends boolean = fa
 
 /**
  * @deprecated
- * Get the default project. This Endpoint is deprecated.
+ * Get Default Project
+ * Retrieves information about the user's default project.
+ * This endpoint is deprecated and will be removed in a future version.
  */
 export const getDefaultProjectDeprecated = <ThrowOnError extends boolean = false>(
   options?: Options<GetDefaultProjectDeprecatedData, ThrowOnError>,
@@ -285,7 +301,8 @@ export const getDefaultProjectDeprecated = <ThrowOnError extends boolean = false
 /**
  * @deprecated
  * Rename the default project.
- * This Endpoint is deprecated, use `/v1/projects/default` instead.
+ * Updates the name of the user's default project.
+ * This endpoint is deprecated and will be removed in a future version.
  */
 export const renameDefaultProjectDeprecated = <ThrowOnError extends boolean = false>(
   options: Options<RenameDefaultProjectDeprecatedData, ThrowOnError>,
@@ -311,8 +328,8 @@ export const renameDefaultProjectDeprecated = <ThrowOnError extends boolean = fa
 };
 
 /**
- * Retrieve API Usage Statistics
- * Returns detailed endpoint call statistics for your project, allowing you to monitor API usage patterns,
+ * Get API Statistics
+ * Retrieves detailed endpoint call statistics for your project, allowing you to monitor API usage patterns,
  * track frequency of operations, and analyze response codes.
  *
  * ## Data Collection
@@ -377,7 +394,8 @@ export const getEndpointStatistics = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get information about the server
+ * ServerInfo
+ * Returns basic information about the server configuration and status.
  */
 export const getServerInfo = <ThrowOnError extends boolean = false>(
   options?: Options<GetServerInfoData, ThrowOnError>,
@@ -991,7 +1009,7 @@ export const getWarehouseAssignmentsById = <ThrowOnError extends boolean = false
 };
 
 /**
- * Update permissions for a project
+ * Update permissions for a warehouse
  */
 export const updateWarehouseAssignmentsById = <ThrowOnError extends boolean = false>(
   options: Options<UpdateWarehouseAssignmentsByIdData, ThrowOnError>,
@@ -1039,12 +1057,12 @@ export const setWarehouseManagedAccess = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Delete the default project
+ * Delete Project
  */
 export const deleteDefaultProject = <ThrowOnError extends boolean = false>(
-  options?: Options<DeleteDefaultProjectData, ThrowOnError>,
+  options: Options<DeleteDefaultProjectData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).delete<
+  return (options.client ?? _heyApiClient).delete<
     DeleteDefaultProjectResponse,
     DeleteDefaultProjectError,
     ThrowOnError
@@ -1061,12 +1079,13 @@ export const deleteDefaultProject = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get the default project
+ * Get Project
+ * Retrieves information about the user's default project.
  */
 export const getDefaultProject = <ThrowOnError extends boolean = false>(
-  options?: Options<GetDefaultProjectData, ThrowOnError>,
+  options: Options<GetDefaultProjectData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).get<
+  return (options.client ?? _heyApiClient).get<
     GetDefaultProjectResponse,
     GetDefaultProjectError,
     ThrowOnError
@@ -1083,7 +1102,8 @@ export const getDefaultProject = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Create a new project
+ * Create Project
+ * Creates a new project with the specified configuration.
  */
 export const createProject = <ThrowOnError extends boolean = false>(
   options: Options<CreateProjectData, ThrowOnError>,
@@ -1109,7 +1129,8 @@ export const createProject = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * List all projects the requesting user has access to
+ * List Projects
+ * Lists all projects that the requesting user has access to.
  */
 export const listProjects = <ThrowOnError extends boolean = false>(
   options?: Options<ListProjectsData, ThrowOnError>,
@@ -1131,7 +1152,7 @@ export const listProjects = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Rename the default project.
+ * Rename Project
  */
 export const renameDefaultProject = <ThrowOnError extends boolean = false>(
   options: Options<RenameDefaultProjectData, ThrowOnError>,
@@ -1153,7 +1174,8 @@ export const renameDefaultProject = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Delete a project by ID
+ * Delete Project by ID
+ * Permanently removes a specific project and all its associated resources.
  */
 export const deleteProjectById = <ThrowOnError extends boolean = false>(
   options: Options<DeleteProjectByIdData, ThrowOnError>,
@@ -1175,7 +1197,7 @@ export const deleteProjectById = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get a specific project by id
+ * Get Project
  */
 export const getProjectById = <ThrowOnError extends boolean = false>(
   options: Options<GetProjectByIdData, ThrowOnError>,
@@ -1197,7 +1219,8 @@ export const getProjectById = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Rename project by id
+ * Rename Project by ID
+ * Updates the name of a specific project.
  */
 export const renameProjectById = <ThrowOnError extends boolean = false>(
   options: Options<RenameProjectByIdData, ThrowOnError>,
@@ -1219,7 +1242,8 @@ export const renameProjectById = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * List roles in a project
+ * List Roles
+ * Returns all roles in the project that the current user has access to view.
  */
 export const listRoles = <ThrowOnError extends boolean = false>(
   options?: Options<ListRolesData, ThrowOnError>,
@@ -1237,7 +1261,8 @@ export const listRoles = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Create a new role
+ * Create Role
+ * Creates a role with the specified name, description, and permissions.
  */
 export const createRole = <ThrowOnError extends boolean = false>(
   options: Options<CreateRoleData, ThrowOnError>,
@@ -1259,8 +1284,8 @@ export const createRole = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Delete role
- * All permissions of the role are permanently removed.
+ * Delete Role
+ * Permanently removes a role and all its associated permissions.
  */
 export const deleteRole = <ThrowOnError extends boolean = false>(
   options: Options<DeleteRoleData, ThrowOnError>,
@@ -1282,7 +1307,8 @@ export const deleteRole = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get a role
+ * Get Role
+ * Retrieves detailed information about a specific role.
  */
 export const getRole = <ThrowOnError extends boolean = false>(
   options: Options<GetRoleData, ThrowOnError>,
@@ -1300,7 +1326,7 @@ export const getRole = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Update a role
+ * Update Role
  */
 export const updateRole = <ThrowOnError extends boolean = false>(
   options: Options<UpdateRoleData, ThrowOnError>,
@@ -1322,7 +1348,8 @@ export const updateRole = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Search for roles (Fuzzy)
+ * Search Role
+ * Performs a fuzzy search for roles based on the provided criteria.
  */
 export const searchRole = <ThrowOnError extends boolean = false>(
   options: Options<SearchRoleData, ThrowOnError>,
@@ -1346,7 +1373,8 @@ export const searchRole = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Search for users (Fuzzy)
+ * Search User
+ * Performs a fuzzy search for users based on the provided criteria.
  */
 export const searchUser = <ThrowOnError extends boolean = false>(
   options: Options<SearchUserData, ThrowOnError>,
@@ -1370,7 +1398,8 @@ export const searchUser = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * List users
+ * List Users
+ * Returns a paginated list of users based on the provided query parameters.
  */
 export const listUser = <ThrowOnError extends boolean = false>(
   options?: Options<ListUserData, ThrowOnError>,
@@ -1388,9 +1417,9 @@ export const listUser = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Creates the user in the catalog if it does not exist.
- * If the user exists, it updates the users' metadata from the token.
- * The token sent to this endpoint should have "profile" and "email" scopes.
+ * Provision User
+ * Creates a new user or updates an existing user's metadata from the provided token.
+ * The token should include "profile" and "email" scopes for complete user information.
  */
 export const createUser = <ThrowOnError extends boolean = false>(
   options: Options<CreateUserData, ThrowOnError>,
@@ -1412,9 +1441,9 @@ export const createUser = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Delete user
- * All permissions of the user are permanently removed and need to be re-added
- * if the user is re-registered.
+ * Delete User
+ * Permanently removes a user and all their associated permissions.
+ * If the user is re-registered later, their permissions will need to be re-added.
  */
 export const deleteUser = <ThrowOnError extends boolean = false>(
   options: Options<DeleteUserData, ThrowOnError>,
@@ -1436,7 +1465,8 @@ export const deleteUser = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get a user by ID
+ * Get User by ID
+ * Retrieves detailed information about a specific user.
  */
 export const getUser = <ThrowOnError extends boolean = false>(
   options: Options<GetUserData, ThrowOnError>,
@@ -1454,8 +1484,9 @@ export const getUser = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Update details of a user. Replaces the current details with the new details.
- * If a field is not provided, it is set to `None`.
+ * Replace User
+ * Replaces the current user details with the new details provided in the request.
+ * If a field is not provided, it will be set to `None`.
  */
 export const updateUser = <ThrowOnError extends boolean = false>(
   options: Options<UpdateUserData, ThrowOnError>,
@@ -1477,9 +1508,10 @@ export const updateUser = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * List all warehouses in a project
- * By default, this endpoint does not return deactivated warehouses.
- * To include deactivated warehouses, set the `include_deactivated` query parameter to `true`.
+ * List Warehouses
+ * Returns all warehouses in the project that the current user has access to.
+ * By default, deactivated warehouses are not included in the results.
+ * Set the `include_deactivated` query parameter to `true` to include them.
  */
 export const listWarehouses = <ThrowOnError extends boolean = false>(
   options?: Options<ListWarehousesData, ThrowOnError>,
@@ -1501,10 +1533,10 @@ export const listWarehouses = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Create a new warehouse.
- * Create a new warehouse in the given project. The project
- * of a warehouse cannot be changed after creation.
- * The storage configuration is validated by this method.
+ * Create Warehouse
+ * Creates a new warehouse in the specified project with the provided configuration.
+ * The project of a warehouse cannot be changed after creation.
+ * This operation validates the storage configuration.
  */
 export const createWarehouse = <ThrowOnError extends boolean = false>(
   options: Options<CreateWarehouseData, ThrowOnError>,
@@ -1530,7 +1562,9 @@ export const createWarehouse = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Delete a warehouse by ID
+ * Delete Warehouse
+ * Permanently removes a warehouse and all its associated resources.
+ * Use the `force` parameter to delete protected warehouses.
  */
 export const deleteWarehouse = <ThrowOnError extends boolean = false>(
   options: Options<DeleteWarehouseData, ThrowOnError>,
@@ -1552,7 +1586,8 @@ export const deleteWarehouse = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get a warehouse by ID
+ * Get Warehouse
+ * Retrieves detailed information about a specific warehouse.
  */
 export const getWarehouse = <ThrowOnError extends boolean = false>(
   options: Options<GetWarehouseData, ThrowOnError>,
@@ -1574,7 +1609,8 @@ export const getWarehouse = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Activate a warehouse
+ * Activate Warehouse
+ * Re-enables access to a previously deactivated warehouse.
  */
 export const activateWarehouse = <ThrowOnError extends boolean = false>(
   options: Options<ActivateWarehouseData, ThrowOnError>,
@@ -1592,7 +1628,8 @@ export const activateWarehouse = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Deactivate a warehouse
+ * Deactivate Warehouse
+ * Temporarily disables access to a warehouse without deleting its data.
  */
 export const deactivateWarehouse = <ThrowOnError extends boolean = false>(
   options: Options<DeactivateWarehouseData, ThrowOnError>,
@@ -1610,7 +1647,8 @@ export const deactivateWarehouse = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Update the Deletion Profile (soft-delete) of a warehouse.
+ * Update Deletion Profile
+ * Configures the soft-delete behavior for a warehouse.
  */
 export const updateWarehouseDeleteProfile = <ThrowOnError extends boolean = false>(
   options: Options<UpdateWarehouseDeleteProfileData, ThrowOnError>,
@@ -1636,8 +1674,8 @@ export const updateWarehouseDeleteProfile = <ThrowOnError extends boolean = fals
 };
 
 /**
- * List soft-deleted tabulars
- * List all soft-deleted tabulars in the warehouse that are visible to you.
+ * List Soft-Deleted Tabulars
+ * Returns all soft-deleted tables and views in the warehouse that are visible to the current user.
  */
 export const listDeletedTabulars = <ThrowOnError extends boolean = false>(
   options: Options<ListDeletedTabularsData, ThrowOnError>,
@@ -1658,6 +1696,10 @@ export const listDeletedTabulars = <ThrowOnError extends boolean = false>(
   });
 };
 
+/**
+ * Undrop Tabular
+ * Restores previously deleted tables or views to make them accessible again.
+ */
 export const undropTabulars = <ThrowOnError extends boolean = false>(
   options: Options<UndropTabularsData, ThrowOnError>,
 ) => {
@@ -1683,6 +1725,9 @@ export const undropTabulars = <ThrowOnError extends boolean = false>(
 
 /**
  * @deprecated
+ * Undrop Tabular
+ * Restores previously deleted tables or views to make them accessible again.
+ * This endpoint is deprecated and will be removed soon.
  */
 export const undropTabularsDeprecated = <ThrowOnError extends boolean = false>(
   options: Options<UndropTabularsDeprecatedData, ThrowOnError>,
@@ -1707,6 +1752,10 @@ export const undropTabularsDeprecated = <ThrowOnError extends boolean = false>(
   });
 };
 
+/**
+ * Get Namespace Protection
+ * Retrieves whether a namespace is protected from deletion.
+ */
 export const getNamespaceProtection = <ThrowOnError extends boolean = false>(
   options: Options<GetNamespaceProtectionData, ThrowOnError>,
 ) => {
@@ -1726,6 +1775,10 @@ export const getNamespaceProtection = <ThrowOnError extends boolean = false>(
   });
 };
 
+/**
+ * Set Namespace Protection
+ * Configures whether a namespace should be protected from deletion.
+ */
 export const setNamespaceProtection = <ThrowOnError extends boolean = false>(
   options: Options<SetNamespaceProtectionData, ThrowOnError>,
 ) => {
@@ -1749,6 +1802,10 @@ export const setNamespaceProtection = <ThrowOnError extends boolean = false>(
   });
 };
 
+/**
+ * Set Warehouse Protection
+ * Configures whether a warehouse should be protected from deletion.
+ */
 export const setWarehouseProtection = <ThrowOnError extends boolean = false>(
   options: Options<SetWarehouseProtectionData, ThrowOnError>,
 ) => {
@@ -1773,7 +1830,8 @@ export const setWarehouseProtection = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Rename a warehouse
+ * Rename Warehouse
+ * Updates the name of a specific warehouse.
  */
 export const renameWarehouse = <ThrowOnError extends boolean = false>(
   options: Options<RenameWarehouseData, ThrowOnError>,
@@ -1795,8 +1853,9 @@ export const renameWarehouse = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get warehouse statistics
- * Get statistics about the warehouse, currently table and view counts over time.
+ * Get Warehouse Statistics
+ * Retrieves statistical data about a warehouse's usage and resources over time.
+ * Statistics are aggregated hourly when changes occur.
  *
  * We lazily create a new statistics entry every hour, in between hours, the existing entry is
  * being updated. If there's a change at created_at + 1 hour, a new entry is created.
@@ -1833,7 +1892,8 @@ export const getWarehouseStatistics = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Update the storage profile of a warehouse including its storage credential.
+ * Update Storage Profile
+ * Updates both the storage profile and credentials of a warehouse.
  */
 export const updateStorageProfile = <ThrowOnError extends boolean = false>(
   options: Options<UpdateStorageProfileData, ThrowOnError>,
@@ -1855,8 +1915,9 @@ export const updateStorageProfile = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Update the storage credential of a warehouse. The storage profile is not modified.
- * This can be used to update credentials before expiration.
+ * Update Storage Credential
+ * Updates only the storage credential of a warehouse without modifying the storage profile.
+ * Useful for refreshing expiring credentials.
  */
 export const updateStorageCredential = <ThrowOnError extends boolean = false>(
   options: Options<UpdateStorageCredentialData, ThrowOnError>,
@@ -1881,6 +1942,10 @@ export const updateStorageCredential = <ThrowOnError extends boolean = false>(
   });
 };
 
+/**
+ * Get Table Protection
+ * Retrieves whether a table is protected from deletion.
+ */
 export const getTableProtection = <ThrowOnError extends boolean = false>(
   options: Options<GetTableProtectionData, ThrowOnError>,
 ) => {
@@ -1900,6 +1965,10 @@ export const getTableProtection = <ThrowOnError extends boolean = false>(
   });
 };
 
+/**
+ * Set Table Protection
+ * Configures whether a table should be protected from deletion.
+ */
 export const setTableProtection = <ThrowOnError extends boolean = false>(
   options: Options<SetTableProtectionData, ThrowOnError>,
 ) => {
@@ -1923,6 +1992,10 @@ export const setTableProtection = <ThrowOnError extends boolean = false>(
   });
 };
 
+/**
+ * Get View Protection
+ * Retrieves whether a view is protected from deletion.
+ */
 export const getViewProtection = <ThrowOnError extends boolean = false>(
   options: Options<GetViewProtectionData, ThrowOnError>,
 ) => {
@@ -1942,6 +2015,10 @@ export const getViewProtection = <ThrowOnError extends boolean = false>(
   });
 };
 
+/**
+ * Set View Protection
+ * Configures whether a view should be protected from deletion.
+ */
 export const setViewProtection = <ThrowOnError extends boolean = false>(
   options: Options<SetViewProtectionData, ThrowOnError>,
 ) => {
@@ -1966,7 +2043,8 @@ export const setViewProtection = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Get the currently authenticated user
+ * Whoami
+ * Returns information about the user associated with the current authentication token.
  */
 export const whoami = <ThrowOnError extends boolean = false>(
   options?: Options<WhoamiData, ThrowOnError>,
@@ -1980,5 +2058,101 @@ export const whoami = <ThrowOnError extends boolean = false>(
     ],
     url: '/management/v1/whoami',
     ...options,
+  });
+};
+
+/**
+ * Get task-queue config
+ */
+export const getTaskQueueConfigTabularExpiration = <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskQueueConfigTabularExpirationData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTaskQueueConfigTabularExpirationResponse,
+    GetTaskQueueConfigTabularExpirationError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/{warehouse_id}/task-queue/tabular_expiration/config',
+    ...options,
+  });
+};
+
+/**
+ * Set task-queue config
+ */
+export const setTaskQueueConfigTabularExpiration = <ThrowOnError extends boolean = false>(
+  options: Options<SetTaskQueueConfigTabularExpirationData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    SetTaskQueueConfigTabularExpirationResponse,
+    SetTaskQueueConfigTabularExpirationError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/{warehouse_id}/task-queue/tabular_expiration/config',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get task-queue config
+ */
+export const getTaskQueueConfigTabularPurge = <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskQueueConfigTabularPurgeData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTaskQueueConfigTabularPurgeResponse,
+    GetTaskQueueConfigTabularPurgeError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/{warehouse_id}/task-queue/tabular_purge/config',
+    ...options,
+  });
+};
+
+/**
+ * Set task-queue config
+ */
+export const setTaskQueueConfigTabularPurge = <ThrowOnError extends boolean = false>(
+  options: Options<SetTaskQueueConfigTabularPurgeData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    SetTaskQueueConfigTabularPurgeResponse,
+    SetTaskQueueConfigTabularPurgeError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/{warehouse_id}/task-queue/tabular_purge/config',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
   });
 };

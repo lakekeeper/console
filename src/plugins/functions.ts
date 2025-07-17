@@ -67,11 +67,12 @@ import { App } from 'vue';
 // General
 function init() {
   const userStore = useUserStore();
+  const visual = useVisualStore();
   const accessToken = userStore.user.access_token;
 
   mngClient.client.setConfig({
     baseUrl: icebergCatalogUrl(),
-    // headers: { 'x-project-id': visual.projectSelected['project-id'] }, //ToDo resolve CORS problem
+    headers: { 'x-project-id': visual.projectSelected['project-id'] },
   });
 
   mngClient.client.interceptors.request.use((request) => {
@@ -228,11 +229,14 @@ async function loadProjectList(): Promise<GetProjectResponse[]> {
     if (error) throw error;
 
     if (data) {
-      useVisualStore().setProjectList(data.projects || []);
+      const visual = useVisualStore();
+      visual.setProjectList(data.projects || []);
 
-      // auto select project
-      for (const proj of data.projects || []) {
-        Object.assign(useVisualStore().projectSelected, proj);
+      // auto select project if no one is already selected
+      if (visual.projectSelected['project-id'] === '0') {
+        for (const proj of data.projects || []) {
+          Object.assign(useVisualStore().projectSelected, proj);
+        }
       }
     }
 
@@ -341,7 +345,12 @@ async function listWarehouses(): Promise<ListWarehousesResponse> {
   try {
     const client = mngClient.client;
 
-    const { data, error } = await mng.listWarehouses({ client });
+    console.log('loading warehouses');
+
+    const { data, error } = await mng.listWarehouses({
+      client,
+      query: { projectId: useVisualStore().projectSelected['project-id'] },
+    });
     const wh = data as ListWarehousesResponse;
     if (error) throw error;
 

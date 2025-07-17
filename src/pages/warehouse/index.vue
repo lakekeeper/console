@@ -154,6 +154,7 @@ type GetWarehouseResponseExtended = GetWarehouseResponse & {
 const whResponse = reactive<GetWarehouseResponseExtended[]>([]);
 const visual = useVisualStore();
 const deleting = ref(false);
+
 onMounted(async () => {
   try {
     visual.whId = '';

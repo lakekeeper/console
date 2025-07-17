@@ -61,6 +61,10 @@ export const useVisualStore = defineStore(
       return serverInfo;
     }
 
+    function setProjectSelected(p: Project) {
+      Object.assign(projectSelected, p);
+    }
+
     function setProjectList(p: Project[]) {
       Object.assign(projectList, p);
     }
@@ -92,6 +96,7 @@ export const useVisualStore = defineStore(
       getServerInfo,
       setSnackbarMsg,
       getSnackbarMsg,
+      setProjectSelected,
     };
   },
   {

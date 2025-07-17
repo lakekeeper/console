@@ -172,7 +172,9 @@ export type CreateUserRequest = {
   email?: string | null;
   /**
    * Subject id of the user - allows user provisioning.
-   * The id must be identical to the subject in JWT tokens.
+   * The id must be identical to the subject in JWT tokens, prefixed
+   * with `<idp-identifier>~`. For example: `oidc~1234567890` for OIDC users
+   * or `kubernetes~1234567890` for Kubernetes users.
    * To create users in self-service manner, do not set the id.
    * The id is then extracted from the passed JWT token.
    */
@@ -355,6 +357,13 @@ export type ErrorModel = {
 };
 
 /**
+ * Warehouse-specific configuration for the expiration queue.
+ */
+export type ExpirationQueueConfig = {
+  [key: string]: unknown;
+};
+
+/**
  * GCS Credentials
  *
  * Currently only supports Service Account Key
@@ -481,6 +490,11 @@ export type GetTableAccessResponse = {
 
 export type GetTableAssignmentsResponse = {
   assignments: Array<TableAssignment>;
+};
+
+export type GetTaskQueueConfigResponse = {
+  'max-seconds-since-last-heartbeat'?: number | null;
+  'queue-config': QueueConfigResponse;
 };
 
 export type GetViewAccessResponse = {
@@ -698,6 +712,16 @@ export type ProtectionResponse = {
    * Updated at
    */
   updated_at?: string | null;
+};
+
+export type PurgeQueueConfig = {
+  [key: string]: unknown;
+};
+
+export type QueueConfig = unknown;
+
+export type QueueConfigResponse = unknown & {
+  'queue-name': string;
 };
 
 export type RenameProjectRequest = {
@@ -1001,6 +1025,10 @@ export type ServerInfo = {
    */
   'gcp-system-identities-enabled': boolean;
   /**
+   * List of queues that are registered for the server.
+   */
+  queues: Array<string>;
+  /**
    * ID of the server.
    */
   'server-id': string;
@@ -1021,6 +1049,11 @@ export type SetProtectionRequest = {
    * Setting this to `true` will prevent the entity from being deleted unless `force` is used.
    */
   protected: boolean;
+};
+
+export type SetTaskQueueConfigRequest = {
+  'max-seconds-since-last-heartbeat'?: number | null;
+  'queue-config': QueueConfig;
 };
 
 /**
@@ -1628,7 +1661,8 @@ export type GetNamespaceAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole;
+    principalUser?: string;
+    principalRole?: string;
   };
   url: '/management/v1/permissions/namespace/{namespace_id}/access';
 };
@@ -1713,7 +1747,8 @@ export type GetProjectAccessData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole;
+    principalUser?: string;
+    principalRole?: string;
   };
   url: '/management/v1/permissions/project/access';
 };
@@ -1776,7 +1811,8 @@ export type GetProjectAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole;
+    principalUser?: string;
+    principalRole?: string;
   };
   url: '/management/v1/permissions/project/{project_id}/access';
 };
@@ -1910,7 +1946,8 @@ export type GetServerAccessData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole;
+    principalUser?: string;
+    principalRole?: string;
   };
   url: '/management/v1/permissions/server/access';
 };
@@ -1973,7 +2010,8 @@ export type GetTableAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole;
+    principalUser?: string;
+    principalRole?: string;
   };
   url: '/management/v1/permissions/table/{table_id}/access';
 };
@@ -2047,7 +2085,8 @@ export type GetViewAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole;
+    principalUser?: string;
+    principalRole?: string;
   };
   url: '/management/v1/permissions/view/{view_id}/access';
 };
@@ -2136,7 +2175,8 @@ export type GetWarehouseAccessByIdData = {
      * The user or role to show access for.
      * If not specified, shows access for the current user.
      */
-    principal?: UserOrRole;
+    principalUser?: string;
+    principalRole?: string;
   };
   url: '/management/v1/permissions/warehouse/{warehouse_id}/access';
 };
@@ -2212,6 +2252,12 @@ export type SetWarehouseManagedAccessResponses = {
 
 export type DeleteDefaultProjectData = {
   body?: never;
+  headers: {
+    /**
+     * Optional project ID
+     */
+    'x-project-id': string;
+  };
   path?: never;
   query?: never;
   url: '/management/v1/project';
@@ -2236,6 +2282,12 @@ export type DeleteDefaultProjectResponse =
 
 export type GetDefaultProjectData = {
   body?: never;
+  headers: {
+    /**
+     * Optional project ID
+     */
+    'x-project-id': string;
+  };
   path?: never;
   query?: never;
   url: '/management/v1/project';
@@ -2303,6 +2355,12 @@ export type ListProjectsResponse2 = ListProjectsResponses[keyof ListProjectsResp
 
 export type RenameDefaultProjectData = {
   body: RenameProjectRequest;
+  headers: {
+    /**
+     * Optional project ID
+     */
+    'x-project-id': string;
+  };
   path?: never;
   query?: never;
   url: '/management/v1/project/rename';
@@ -3263,6 +3321,106 @@ export type WhoamiResponses = {
 };
 
 export type WhoamiResponse = WhoamiResponses[keyof WhoamiResponses];
+
+export type GetTaskQueueConfigTabularExpirationData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    queue_name: string;
+  };
+  query?: never;
+  url: '/management/v1/{warehouse_id}/task-queue/tabular_expiration/config';
+};
+
+export type GetTaskQueueConfigTabularExpirationErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetTaskQueueConfigTabularExpirationError =
+  GetTaskQueueConfigTabularExpirationErrors[keyof GetTaskQueueConfigTabularExpirationErrors];
+
+export type GetTaskQueueConfigTabularExpirationResponses = {
+  200: ExpirationQueueConfig;
+};
+
+export type GetTaskQueueConfigTabularExpirationResponse =
+  GetTaskQueueConfigTabularExpirationResponses[keyof GetTaskQueueConfigTabularExpirationResponses];
+
+export type SetTaskQueueConfigTabularExpirationData = {
+  body: ExpirationQueueConfig;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/{warehouse_id}/task-queue/tabular_expiration/config';
+};
+
+export type SetTaskQueueConfigTabularExpirationErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type SetTaskQueueConfigTabularExpirationError =
+  SetTaskQueueConfigTabularExpirationErrors[keyof SetTaskQueueConfigTabularExpirationErrors];
+
+export type SetTaskQueueConfigTabularExpirationResponses = {
+  /**
+   * Task queue config set successfully
+   */
+  204: void;
+};
+
+export type SetTaskQueueConfigTabularExpirationResponse =
+  SetTaskQueueConfigTabularExpirationResponses[keyof SetTaskQueueConfigTabularExpirationResponses];
+
+export type GetTaskQueueConfigTabularPurgeData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    queue_name: string;
+  };
+  query?: never;
+  url: '/management/v1/{warehouse_id}/task-queue/tabular_purge/config';
+};
+
+export type GetTaskQueueConfigTabularPurgeErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetTaskQueueConfigTabularPurgeError =
+  GetTaskQueueConfigTabularPurgeErrors[keyof GetTaskQueueConfigTabularPurgeErrors];
+
+export type GetTaskQueueConfigTabularPurgeResponses = {
+  200: PurgeQueueConfig;
+};
+
+export type GetTaskQueueConfigTabularPurgeResponse =
+  GetTaskQueueConfigTabularPurgeResponses[keyof GetTaskQueueConfigTabularPurgeResponses];
+
+export type SetTaskQueueConfigTabularPurgeData = {
+  body: PurgeQueueConfig;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/{warehouse_id}/task-queue/tabular_purge/config';
+};
+
+export type SetTaskQueueConfigTabularPurgeErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type SetTaskQueueConfigTabularPurgeError =
+  SetTaskQueueConfigTabularPurgeErrors[keyof SetTaskQueueConfigTabularPurgeErrors];
+
+export type SetTaskQueueConfigTabularPurgeResponses = {
+  /**
+   * Task queue config set successfully
+   */
+  204: void;
+};
+
+export type SetTaskQueueConfigTabularPurgeResponse =
+  SetTaskQueueConfigTabularPurgeResponses[keyof SetTaskQueueConfigTabularPurgeResponses];
 
 export type ClientOptions = {
   baseUrl: '{scheme}://{host}/{basePath}' | (string & {});

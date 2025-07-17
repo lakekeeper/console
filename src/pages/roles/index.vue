@@ -90,6 +90,7 @@ const headers: readonly Header[] = Object.freeze([
 const isDialogActive = ref(false); // Declare the isDialogActive property
 const myAccess = reactive<ProjectAction[]>([]);
 const canListRoles = ref(false);
+
 onMounted(async () => {
   try {
     await init();

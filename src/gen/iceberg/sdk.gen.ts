@@ -496,12 +496,12 @@ export const planTableScan = <ThrowOnError extends boolean = false>(
 /**
  * Cancels scan planning for a plan-id
  * Cancels scan planning for a plan-id.
- *
  * This notifies the service that it can release resources held for the scan. Clients should cancel scans that are no longer needed, either while the plan-id returns a "submitted" status or while there are remaining plan tasks that have not been fetched.
- *
  * Cancellation is not necessary when
  * - Scan tasks for each plan task have been fetched using fetchScanTasks
- * - A plan-id has produced a "failed" or "cancelled" status from planTableScan or fetchPlanningResult
+ * - A plan-id has produced a "failed" or "cancelled" status from
+ *
+ * planTableScan or fetchPlanningResult
  *
  */
 export const cancelPlanning = <ThrowOnError extends boolean = false>(
@@ -530,13 +530,17 @@ export const cancelPlanning = <ThrowOnError extends boolean = false>(
 /**
  * Fetches the result of scan planning for a plan-id
  * Fetches the result of scan planning for a plan-id.
- *
  * Responses must include a valid status
- * - When "completed" the planning operation has produced plan-tasks and file-scan-tasks that must be returned in the response
- * - When "submitted" the planning operation has not completed; the client should wait to call this endpoint again to fetch a completed response
+ * - When "completed" the planning operation has produced plan-tasks and
+ *
+ * file-scan-tasks that must be returned in the response
+ *
+ * - When "submitted" the planning operation has not completed; the client
+ *
+ * should wait to call this endpoint again to fetch a completed response
+ *
  * - When "failed" the response must be a valid error response
  * - When "cancelled" the plan-id is invalid and should be discarded
- *
  * The response for a "completed" planning operation includes two types of tasks (file scan tasks and plan tasks) and both may be included in the response. Tasks must not be included for any other response status.
  *
  */
