@@ -21,7 +21,7 @@
             <v-icon>mdi-account-box-multiple-outline</v-icon>
           </template>
           <v-spacer></v-spacer>
-          <roleDialog :action-type="'add'" @role-input="roleInput" />
+          <roleDialog v-if="canCreateRole" :action-type="'add'" @role-input="roleInput" />
         </v-toolbar>
         <v-data-table
           v-if="canListRoles"
@@ -46,10 +46,7 @@
               @confirmed="deleteRole(item.id)" />
           </template>
           <template #no-data>
-            <roleDialog
-              v-if="myAccess.includes('create_role')"
-              :action-type="'add'"
-              @role-input="roleInput" />
+            <roleDialog v-if="canCreateRole" :action-type="'add'" @role-input="roleInput" />
           </template>
         </v-data-table>
         <div v-else>You don't have permission to list roles</div>
@@ -87,6 +84,7 @@ const headers: readonly Header[] = Object.freeze([
 const isDialogActive = ref(false); // Declare the isDialogActive property
 const myAccess = reactive<ProjectAction[]>([]);
 const canListRoles = ref(false);
+const canCreateRole = ref(false);
 
 const visual = useVisualStore();
 
@@ -97,6 +95,7 @@ onMounted(async () => {
       await functions.getProjectAccessById(visual.projectSelected['project-id']),
     );
     canListRoles.value = myAccess.includes('list_roles');
+    canCreateRole.value = myAccess.includes('create_role');
     if (canListRoles.value) await listRoles();
     loading.value = false;
   } catch (error) {
