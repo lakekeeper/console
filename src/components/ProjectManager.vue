@@ -174,6 +174,7 @@ async function init() {
     permissionObject.id = project.value['project-id'];
     permissionObject.name = project.value['project-name'];
 
+    await loadProjects();
     myAccess.splice(0, myAccess.length);
 
     if (visual.getServerInfo()['authz-backend'] !== 'allow-all') {
@@ -189,7 +190,6 @@ async function init() {
 
     canDeleteProject.value = !!myAccess.includes('delete');
 
-    await loadProjects();
     projectAssignments.splice(0, projectAssignments.length);
     Object.assign(
       projectAssignments,
