@@ -61,7 +61,7 @@ const roleData = reactive({
 });
 
 const roleRule = (value: string) =>
-  value.length >= 3 || 'Namespace must be at least 3 characters long';
+  (value && value.length >= 3) || 'Role must be at least 3 characters long';
 
 function createRole() {
   emit('roleInput', { name: roleData.name, description: roleData.description });
