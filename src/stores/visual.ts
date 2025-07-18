@@ -23,6 +23,7 @@ export const useVisualStore = defineStore(
       'aws-system-identities-enabled': false,
       'azure-system-identities-enabled': false,
       'gcp-system-identities-enabled': false,
+      queues: [],
     });
 
     const projectSelected = reactive<Project>({

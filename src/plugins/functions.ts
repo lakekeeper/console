@@ -345,12 +345,8 @@ async function listWarehouses(): Promise<ListWarehousesResponse> {
   try {
     const client = mngClient.client;
 
-    console.log('loading warehouses');
+    const { data, error } = await mng.listWarehouses({ client });
 
-    const { data, error } = await mng.listWarehouses({
-      client,
-      query: { projectId: useVisualStore().projectSelected['project-id'] },
-    });
     const wh = data as ListWarehousesResponse;
     if (error) throw error;
 
@@ -634,7 +630,12 @@ async function listNamespaces(
       path: {
         prefix: id,
       },
-      query: { parent: parentNS, returnUuids: true, pageToken: page_token || null, pageSize: 100 },
+      query: {
+        parent: parentNS,
+        returnUuids: true,
+        pageToken: page_token || undefined,
+        pageSize: 100,
+      },
     });
 
     if (error) throw error;
@@ -648,7 +649,7 @@ async function listNamespaces(
       namespaceMap[namespace] = namespaceUuids[index];
     });
 
-    return { namespaceMap, namespaces, 'next-page-token': data['next-page-token'] ?? null };
+    return { namespaceMap, namespaces, 'next-page-token': data['next-page-token'] ?? undefined };
   } catch (error: any) {
     handleError(error, new Error());
     return error;
@@ -806,7 +807,7 @@ async function listTables(
         prefix: id,
         namespace: ns ?? '',
       },
-      query: { pageToken: pageToken || null, pageSize: 1000 },
+      query: { pageToken: pageToken || undefined, pageSize: 1000 },
     });
     if (error) throw error;
 
