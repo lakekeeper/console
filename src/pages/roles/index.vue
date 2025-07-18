@@ -68,6 +68,7 @@ import { useFunctions } from '../../plugins/functions';
 import { ProjectAction, Role } from '../../gen/management/types.gen';
 import router from '../../router';
 import { Header } from '../../common/interfaces';
+import { useVisualStore } from '@/stores/visual';
 
 const functions = useFunctions();
 interface ExtendedRole extends Role {
@@ -91,6 +92,8 @@ const isDialogActive = ref(false); // Declare the isDialogActive property
 const myAccess = reactive<ProjectAction[]>([]);
 const canListRoles = ref(false);
 
+const visual = useVisualStore();
+
 onMounted(async () => {
   try {
     await init();
@@ -106,7 +109,7 @@ function getRole(id: string) {
 
 async function init() {
   roles.value = [];
-  Object.assign(myAccess, await functions.getProjectAccess());
+  Object.assign(myAccess, await functions.getProjectById(visual.projectSelected['project-id']));
   canListRoles.value = myAccess.includes('list_roles');
   Object.assign(roles.value, await functions.listRoles());
   if (roles.value.length > 0) {

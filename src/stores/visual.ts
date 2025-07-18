@@ -27,7 +27,7 @@ export const useVisualStore = defineStore(
     });
 
     const projectSelected = reactive<Project>({
-      'project-id': '0',
+      'project-id': '',
       'project-name': 'none',
     });
 

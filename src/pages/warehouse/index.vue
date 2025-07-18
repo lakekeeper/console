@@ -159,7 +159,10 @@ onMounted(async () => {
   try {
     visual.whId = '';
     visual.wahrehouseName = '';
-    Object.assign(myAccess, await functions.getProjectAccess());
+    Object.assign(
+      myAccess,
+      await functions.getProjectAccessById(visual.projectSelected['project-id']),
+    );
     if (myAccess.includes('list_warehouses')) await listWarehouse();
     loading.value = false;
   } catch (err: any) {

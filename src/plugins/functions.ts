@@ -225,15 +225,15 @@ async function bootstrapServer(): Promise<boolean> {
 // Project
 async function loadProjectList(): Promise<GetProjectResponse[]> {
   try {
+    const visual = useVisualStore();
     const { data, error } = await mng.listProjects({ client: mngClient.client });
     if (error) throw error;
 
     if (data) {
-      const visual = useVisualStore();
       visual.setProjectList(data.projects || []);
 
       // auto select project if no one is already selected
-      if (visual.projectSelected['project-id'] === '0') {
+      if (visual.projectSelected['project-id'] === '') {
         for (const proj of data.projects || []) {
           Object.assign(useVisualStore().projectSelected, proj);
         }
@@ -1853,8 +1853,32 @@ async function getProjectAccess(): Promise<ProjectAction[]> {
 
     const client = mngClient.client;
 
-    const { data, error } = await mng.getProjectAccess({
+    const { data, error } = await mng.getProjectAccess({ client });
+
+    if (error) throw error;
+
+    const actions = (data ?? {})['allowed-actions'] as ProjectAction[];
+
+    return actions;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getProjectAccessById(projectId: string): Promise<ProjectAction[]> {
+  try {
+    const visual = useVisualStore();
+    const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthentication || authOff) return globals.projectActions as ProjectAction[];
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getProjectAccessById({
       client,
+      path: { project_id: projectId },
     });
 
     if (error) throw error;
@@ -2133,6 +2157,7 @@ export function useFunctions() {
     setTableProtection,
     setViewProtection,
     getViewProtection,
+    getProjectAccessById,
   };
 }
 
