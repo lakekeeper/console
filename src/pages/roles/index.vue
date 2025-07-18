@@ -8,8 +8,6 @@
           indeterminate
           :size="126"></v-progress-circular>
       </v-row>
-
-      >
     </v-responsive>
   </v-container>
   <span v-else>
@@ -41,15 +39,11 @@
             </td>
           </template>
           <template #item.actions="{ item }">
-            <span icon-text>
-              <v-icon
-                class="mr-1"
-                color="error"
-                :disabled="!item.can_delete"
-                @click="deleteRole(item.id)">
-                mdi-delete-outline
-              </v-icon>
-            </span>
+            <DialogDeleteConfirm
+              v-if="item.can_delete"
+              type="role"
+              :name="item.name"
+              @confirmed="deleteRole(item.id)" />
           </template>
           <template #no-data>
             <roleDialog
@@ -145,9 +139,6 @@ async function createRole() {
 async function deleteRole(roleId: string) {
   try {
     await functions.deleteRole(roleId);
-
-    isDialogActive.value = false;
-
     await listRoles();
   } catch (error) {
     console.error(error);

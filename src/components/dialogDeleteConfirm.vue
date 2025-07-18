@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="isDialogActive" max-width="500">
     <template #activator="{ props: activatorProps }">
-      <v-btn v-bind="activatorProps" rounded="pill" variant="flat">
+      <v-btn v-bind="activatorProps" :disabled="props.disabled" rounded="pill" variant="flat">
         <v-icon color="error">mdi-delete-outline</v-icon>
       </v-btn>
     </template>
@@ -11,7 +11,7 @@
         <div class="ma-2">Please enter the name "{{ props.name }}" to confirm the deletion</div>
         <v-text-field
           v-model="deleteName"
-          :label="`${props.type} Name`"
+          :label="`${capitalize(props.type)} Name`"
           maxlength="500"
           :placeholder="$props.name"></v-text-field>
       </v-card-text>
@@ -38,6 +38,7 @@ const deleteName = ref('');
 const props = defineProps<{
   type: string;
   name: string;
+  disabled?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -49,8 +50,14 @@ const isDialogActive = ref(false);
 
 function confirm() {
   emit('confirmed');
+  isDialogActive.value = false;
 }
 function reject() {
   isDialogActive.value = false;
+}
+
+function capitalize(str: string): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 </script>
