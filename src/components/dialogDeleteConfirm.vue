@@ -1,9 +1,21 @@
 <template>
   <v-dialog v-model="isDialogActive" max-width="500">
     <template #activator="{ props: activatorProps }">
-      <v-btn v-bind="activatorProps" :disabled="props.disabled" rounded="pill" variant="flat">
+      <v-btn
+        v-if="props.type !== 'project'"
+        v-bind="activatorProps"
+        :disabled="props.disabled"
+        rounded="pill"
+        variant="flat">
         <v-icon color="error">mdi-delete-outline</v-icon>
       </v-btn>
+      <v-btn
+        v-else
+        v-bind="activatorProps"
+        color="error"
+        size="small"
+        :text="'Delete'"
+        :variant="'outlined'"></v-btn>
     </template>
 
     <v-card :title="`Confirm deletion of ${props.type}`">

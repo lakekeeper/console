@@ -52,12 +52,16 @@
             :headers="headers"
             hover
             :items="availableProjects"
-            :sort-by="[{ key: 'name', order: 'asc' }]">
+            :sort-by="[{ key: 'project-name', order: 'asc' }]">
             <template #top>
               <v-toolbar color="transparent" density="compact" flat>
-                <v-spacer></v-spacer>
-
-                <!--AddProjectDialog @add-project="addProject" /-->
+                <v-toolbar-title class="text-subtitle-1">Available Projects</v-toolbar-title>
+                <AddOrEditProjectNameDialog
+                  v-if="canCreateProject"
+                  :id="''"
+                  :action-type="'add'"
+                  :name="''"
+                  @emit-project-create="addProject" />
               </v-toolbar>
             </template>
 
@@ -69,11 +73,19 @@
             </template>
 
             <template #item.actions="{ item }">
-              <AddOrEditProjectNameDialog
-                :id="item['project-id']"
-                :action-type="'edit'"
-                :name="item['project-name']"
-                @emit-project-new-name="renameProject" />
+              <div class="d-inline-flex ga-2 align-center">
+                <AddOrEditProjectNameDialog
+                  :id="item['project-id']"
+                  :action-type="'edit'"
+                  :name="item['project-name']"
+                  @emit-project-new-name="renameProject" />
+
+                <dialogDeleteConfirm
+                  v-if="item.actions?.includes('delete') && item.info !== 'selected'"
+                  :type="'project'"
+                  :name="item['project-name']"
+                  @confirmed="deleteProject(item)"></dialogDeleteConfirm>
+              </div>
             </template>
 
             <template #no-data>
@@ -109,6 +121,7 @@ import { useUserStore } from '../stores/user';
 
 import { useFunctions } from '../plugins/functions';
 import {
+  CreateProjectRequest,
   GetEndpointStatisticsResponse,
   GetProjectResponse,
   ProjectAction,
@@ -131,6 +144,7 @@ const permissionType = ref<RelationType>('project');
 const myAccess = reactive<ProjectAction[]>([]);
 const canReadAssignments = ref(false);
 const canDeleteProject = ref(false);
+const canCreateProject = ref(false);
 const projectAssignments = reactive<ProjectAssignment[]>([]);
 const existingAssignments = reactive<ProjectAssignment[]>([]);
 const loaded = ref(true);
@@ -148,7 +162,6 @@ const statistics = reactive<GetEndpointStatisticsResponse>({
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Info', key: 'info', align: 'start' },
-
   { title: 'Name', key: 'project-name', align: 'start' },
   { title: 'ID', key: 'project-id', align: 'start' },
   { title: 'Actions', key: 'actions', align: 'start', sortable: false },
@@ -192,6 +205,8 @@ async function init() {
     canReadAssignments.value = !!myAccess.includes('read_assignments');
 
     canDeleteProject.value = !!myAccess.includes('delete');
+
+    canCreateProject.value = (await functions.getServerAccess()).includes('create_project');
 
     projectAssignments.splice(0, projectAssignments.length);
     Object.assign(
@@ -261,8 +276,11 @@ async function loadProjects() {
     availableProjects.splice(0, availableProjects.length);
     Object.assign(availableProjects, await functions.loadProjectList());
     availableProjects.forEach((p) => {
-      p.actions = ['rename'];
-      p.actions.push('delete');
+      p.actions = [];
+      functions.getProjectAccessById(p['project-id']).then((access) => {
+        p.actions.push(...access);
+      });
+
       if (p['project-id'] === project.value['project-id']) {
         p.info = 'selected';
       } else {
@@ -311,23 +329,27 @@ async function switchProject(item: { 'project-id': string; 'project-name': strin
   }
 }
 
-// async function deleteProject(project: GetProjectResponse) {
-//   try {
-//     await functions.deleteProjectById(project["project-id"]);
-//     await loadProjects();
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
+async function deleteProject(project: GetProjectResponse & { actions: string[]; info: string }) {
+  try {
+    await functions.deleteProjectById(project['project-id']);
+    await loadProjects();
+    // if we delete the current project, switch to the first project
+    if (project['project-id'] === visual.projectSelected['project-id']) {
+      router.push('/');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 
-// async function addProject(item: string) {
-//   try {
-//     await functions.createProject(item);
-//     await loadProjects();
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
+async function addProject(createProject: CreateProjectRequest & { 'project-name': string }) {
+  try {
+    await functions.createProject(createProject['project-name']);
+    await loadProjects();
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 async function renameProject(renamedProject: RenameProjectRequest & { 'project-id': string }) {
   try {

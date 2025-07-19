@@ -19,11 +19,10 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-
         <v-btn
           color="success"
-          :disabled="project == '' || project == props.name"
-          @click="emitProjectName">
+          :disabled="project == ''"
+          @click="props.actionType == 'add' ? emitProjectCreate() : emitProjectName()">
           Submit
         </v-btn>
         <v-btn color="error" text="Cancel" @click="isDialogActive = false"></v-btn>
@@ -34,7 +33,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import { RenameProjectRequest } from '../gen/management/types.gen';
+import { CreateProjectRequest, RenameProjectRequest } from '../gen/management/types.gen';
 
 const isDialogActive = ref(false);
 
@@ -48,6 +47,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'emitProjectNewName', project: RenameProjectRequest & { 'project-id': string }): void;
+  (e: 'emitProjectCreate', project: CreateProjectRequest): void;
 }>();
 
 function emitProjectName() {
@@ -55,8 +55,21 @@ function emitProjectName() {
     'new-name': project.value,
     'project-id': props.id,
   });
+  isDialogActive.value = false;
 }
+
+function emitProjectCreate() {
+  emit('emitProjectCreate', {
+    'project-name': project.value,
+  });
+  isDialogActive.value = false;
+}
+
 onMounted(() => {
-  project.value = props.name || '';
+  if (props.actionType === 'add') {
+    project.value = '';
+  } else {
+    project.value = props.name || '';
+  }
 });
 </script>
