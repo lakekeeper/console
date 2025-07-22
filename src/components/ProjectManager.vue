@@ -66,10 +66,22 @@
             </template>
 
             <template #item.info="{ item }">
-              <v-chip v-if="item.info === 'selected'" class="mr-2">selected</v-chip>
-              <v-chip v-if="item.info === 'switch'" class="mr-2" @click="switchProject(item)">
-                switch
-              </v-chip>
+              <v-btn
+                v-if="item.info === 'selected'"
+                text="selected"
+                color="blue"
+                size="small"
+                disabled
+                variant="plain">
+                selected
+              </v-btn>
+              <v-btn
+                v-if="item.info === 'switch'"
+                text="switch"
+                color="blue"
+                size="small"
+                variant="flat"
+                @click="switchProject(item)"></v-btn>
             </template>
 
             <template #item.actions="{ item }">
