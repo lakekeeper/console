@@ -5,6 +5,7 @@
         v-bind="activatorProps"
         color="info"
         size="small"
+        class="me-5"
         :text="props.actionType == 'add' ? 'Add Project' : 'Rename'"
         :variant="props.actionType == 'add' ? 'flat' : 'outlined'"></v-btn>
     </template>

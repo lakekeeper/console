@@ -6,6 +6,7 @@
         v-bind="activatorProps"
         color="primary"
         size="small"
+        class="me-5"
         slim
         :text="`${props.actionType}`"
         variant="outlined"></v-btn>

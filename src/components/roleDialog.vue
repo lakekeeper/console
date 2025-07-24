@@ -2,6 +2,7 @@
   <v-dialog v-model="isDialogActive" max-width="500">
     <template #activator="{ props: activatorProps }">
       <v-btn
+        class="me-5"
         v-bind="activatorProps"
         :color="actionType == 'add' ? 'info' : 'warning'"
         size="small"

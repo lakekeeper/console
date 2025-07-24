@@ -344,33 +344,37 @@ async function switchProject(item: { 'project-id': string; 'project-name': strin
 async function deleteProject(project: GetProjectResponse & { actions: string[]; info: string }) {
   try {
     await functions.deleteProjectById(project['project-id']);
-    await loadProjects();
     // if we delete the current project, switch to the first project
     if (project['project-id'] === visual.projectSelected['project-id']) {
       router.push('/');
     }
   } catch (error) {
     console.error(error);
+  } finally {
+    await loadProjects();
   }
 }
 
 async function addProject(createProject: CreateProjectRequest & { 'project-name': string }) {
   try {
     await functions.createProject(createProject['project-name']);
-    await loadProjects();
   } catch (error) {
     console.error(error);
+  } finally {
+    await loadProjects();
   }
 }
 
 async function renameProject(renamedProject: RenameProjectRequest & { 'project-id': string }) {
   try {
     await functions.renameProjectById(renamedProject, renamedProject['project-id']);
-    await loadProjects();
   } catch (error) {
     console.error(error);
+  } finally {
+    await loadProjects();
   }
 }
+
 onMounted(async () => {
   if (userStorage.isAuthenticated) {
     await init();
