@@ -328,10 +328,9 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
 }
 
 async function switchProject(item: { 'project-id': string; 'project-name': string }) {
+  loaded.value = false;
   try {
-    loaded.value = false;
     visual.setProjectSelected(item);
-    loaded.value = true;
     router.push('/');
   } catch (error) {
     console.error(error);

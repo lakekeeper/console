@@ -123,7 +123,7 @@ function handleError(error: any, functionError: Error) {
     }
 
     const functionName =
-      functionError.stack?.split('\n')[1]?.trim()?.split(' ')[1]?.replace('Object.', '') ||
+      functionError.stack?.split('\n')[1]?.trim()?.split(' ')?.[1]?.replace('Object.', '') ||
       'unknown';
 
     setError(error, 3000, functionName, Type.ERROR);
