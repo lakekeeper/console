@@ -172,10 +172,12 @@ async function listWarehouse() {
 
     Object.assign(whResponse, wh.warehouses);
 
-    for (const w of whResponse) {
+    const accessPromises = whResponse.map(async (w) => {
       const warehouseAccess = await functions.getWarehouseAccessById(w.id);
       w.can_delete = warehouseAccess.includes('delete');
-    }
+    });
+
+    await Promise.all(accessPromises);
   } catch (error) {
     console.error(error);
   }
