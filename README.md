@@ -5,6 +5,7 @@
 
 ## Description
 
+
 This project provides a user interface for the Lakekeeper REST catalog, designed to manage Apache Iceberg tables. It offers an intuitive and efficient way to interact with the catalog, simplifying the management of large datasets and supporting various data operations. The interface also facilitates fine-grained authorization, enabling users and roles to access system objects such as projects, warehouses, namespaces, tables, and views.
 
 <img src="src/assets/homepage.png" alt="Lakekeeper UI" width="400px">
