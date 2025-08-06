@@ -233,7 +233,11 @@ async function loadProjectList(): Promise<GetProjectResponse[]> {
       visual.setProjectList(data.projects || []);
 
       // auto select project if no one is already selected
-      if (visual.projectSelected['project-id'] === '') {
+      if (
+        visual.projectSelected['project-id'] === '' ||
+        visual.projectSelected['project-id'] == null ||
+        visual.projectSelected['project-id'] == undefined
+      ) {
         for (const proj of data.projects || []) {
           Object.assign(useVisualStore().projectSelected, proj);
         }
