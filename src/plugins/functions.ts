@@ -123,7 +123,7 @@ function handleError(error: any, functionError: Error) {
     }
 
     const functionName =
-      functionError.stack?.split('\n')[1]?.trim()?.split(' ')?.[1]?.replace('Object.', '') ||
+      functionError.stack?.split('\n')[1]?.trim()?.split(' ')[1]?.replace('Object.', '') ||
       'unknown';
 
     setError(error, 3000, functionName, Type.ERROR);
@@ -233,11 +233,7 @@ async function loadProjectList(): Promise<GetProjectResponse[]> {
       visual.setProjectList(data.projects || []);
 
       // auto select project if no one is already selected
-      if (
-        visual.projectSelected['project-id'] === '' ||
-        visual.projectSelected['project-id'] == null ||
-        visual.projectSelected['project-id'] == undefined
-      ) {
+      if (!visual.projectSelected['project-id']) {
         for (const proj of data.projects || []) {
           Object.assign(useVisualStore().projectSelected, proj);
         }

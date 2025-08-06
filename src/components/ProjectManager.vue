@@ -286,19 +286,23 @@ async function getEndpointStatistcs() {
 async function loadProjects() {
   try {
     availableProjects.splice(0, availableProjects.length);
-    Object.assign(availableProjects, await functions.loadProjectList());
-    availableProjects.forEach((p) => {
-      p.actions = [];
-      functions.getProjectAccessById(p['project-id']).then((access) => {
-        p.actions.push(...access);
-      });
 
+    Object.assign(availableProjects, await functions.loadProjectList());
+
+    const accessPromises = availableProjects.map(async (p) => {
       if (p['project-id'] === project.value['project-id']) {
         p.info = 'selected';
       } else {
         p.info = 'switch';
       }
+
+      p.actions = [];
+
+      const access = await functions.getProjectAccessById(p['project-id']);
+      p.actions.push(...access);
     });
+
+    await Promise.all(accessPromises);
   } catch (error) {
     console.error(error);
   }

@@ -113,7 +113,7 @@ async function listRoles() {
     roles.splice(0, roles.length);
     const r = await functions.listRoles();
 
-    Object.assign(roles, r);
+    roles.push(...r);
 
     for (const role of roles) {
       const roleAction = await functions.getRoleAccessById(role.id);
