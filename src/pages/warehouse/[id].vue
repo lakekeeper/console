@@ -113,8 +113,7 @@
 
                 <template #item.actions="{ item }">
                   <DialogDelete
-                    v-if="item.type === 'namespace'"
-                    :disabled="!myAccess.includes('delete')"
+                    v-if="item.type === 'namespace' && myAccess.includes('delete')"
                     :type="item.type"
                     :name="item.name"
                     @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>

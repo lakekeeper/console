@@ -96,16 +96,11 @@
           </template>
           <!--eslint-disable-next-line-->
           <template #item.actions="{ item }">
-            <span icon-text>
-              <v-icon
-                v-if="item.actions.includes('view')"
-                class="mr-1"
-                color="error"
-                :disabled="!myAccess.includes('delete')"
-                @click="deleteWarehouse(item.id)">
-                mdi-delete-outline
-              </v-icon>
-            </span>
+            <DialogDeleteConfirm
+              v-if="item.can_delete"
+              type="warehouse"
+              :name="item.name"
+              @confirmed="deleteWarehouse(item.id)" />
           </template>
           <template #no-data>
             <AddWarehouseDialog
@@ -120,7 +115,6 @@
         <div v-else>You don't have permission to list warehouses</div>
       </v-col>
     </v-row>
-    <DeletingDialog :deleting="deleting" />
   </span>
 </template>
 
@@ -147,18 +141,22 @@ const myAccess = reactive<ProjectAction[]>([]);
 
 type GetWarehouseResponseExtended = GetWarehouseResponse & {
   actions: string[];
+  can_delete?: boolean;
   'storage-credentials'?: {
     'credential-type'?: string;
   };
 };
 const whResponse = reactive<GetWarehouseResponseExtended[]>([]);
 const visual = useVisualStore();
-const deleting = ref(false);
+
 onMounted(async () => {
   try {
     visual.whId = '';
     visual.wahrehouseName = '';
-    Object.assign(myAccess, await functions.getProjectAccess());
+    Object.assign(
+      myAccess,
+      await functions.getProjectAccessById(visual.projectSelected['project-id']),
+    );
     if (myAccess.includes('list_warehouses')) await listWarehouse();
     loading.value = false;
   } catch (err: any) {
@@ -172,14 +170,14 @@ async function listWarehouse() {
     whResponse.splice(0, whResponse.length);
     const wh = await functions.listWarehouses();
 
-    wh.warehouses.forEach(() => {
-      Object.assign(whResponse, wh.warehouses);
-      whResponse.forEach((w) => {
-        w.actions = [];
+    Object.assign(whResponse, wh.warehouses);
 
-        w.actions.push('view', 'info', 'edit', 'delete');
-      });
+    const accessPromises = whResponse.map(async (w) => {
+      const warehouseAccess = await functions.getWarehouseAccessById(w.id);
+      w.can_delete = warehouseAccess.includes('delete');
     });
+
+    await Promise.all(accessPromises);
   } catch (error) {
     console.error(error);
   }
@@ -193,16 +191,9 @@ function navigateToWarehouse(item: any) {
 
 const deleteWarehouse = async (id: string) => {
   try {
-    deleting.value = true;
-
     await functions.deleteWarehouse(id);
-    whResponse.splice(0, whResponse.length);
-
     await listWarehouse();
-
-    deleting.value = false;
   } catch (error) {
-    deleting.value = false;
     console.error(error);
   }
 };

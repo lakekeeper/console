@@ -9,7 +9,7 @@
     <v-tab v-if="canListUsers && enabledAuthentication" value="users">users</v-tab>
   </v-tabs>
   <v-row>
-    <v-col cols="10">
+    <v-col>
       <v-tabs-window v-model="tab">
         <v-tabs-window-item value="overview">
           <v-card class="ml-2">

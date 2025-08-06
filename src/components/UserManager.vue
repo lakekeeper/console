@@ -6,17 +6,19 @@
     :items="users"
     :sort-by="[{ key: 'name', order: 'asc' }]">
     <template #item.actions="{ item }">
-      <span v-for="(action, i) in item.actions" :key="i">
+      <span v-for="(action, i) in item.actions" :key="i" class="mr-2">
         <user-rename-dialog
           v-if="action == 'rename'"
           :id="item.id"
           :name="item.name"
           :status="props.status"
           @rename-user-name="renameUser"></user-rename-dialog>
-
-        <v-icon v-else color="error" :disabled="!props.canDeleteUsers" @click="deleteUser(item)">
-          mdi-delete-outline
-        </v-icon>
+        <DialogDeleteConfirm
+          v-else-if="action === 'delete'"
+          type="user"
+          :name="item.name"
+          :disabled="!props.canDeleteUsers"
+          @confirmed="deleteUser(item)" />
       </span>
     </template>
 
@@ -52,12 +54,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive } from 'vue';
+import { onMounted, reactive, watch } from 'vue';
 import { User } from '@/gen/management/types.gen';
 
 import { Header } from '@/common/interfaces';
 import { useFunctions } from '@/plugins/functions';
 import { StatusIntent } from '@/common/enums';
+import DialogDeleteConfirm from '@/components/dialogDeleteConfirm.vue';
 const functions = useFunctions();
 
 const headers: readonly Header[] = Object.freeze([
@@ -102,6 +105,13 @@ async function deleteUser(user: User) {
     console.error(error);
   }
 }
+
+watch(
+  () => props.loadedUsers,
+  async () => {
+    await init();
+  },
+);
 
 onMounted(async () => {
   await init();

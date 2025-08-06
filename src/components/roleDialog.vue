@@ -2,6 +2,7 @@
   <v-dialog v-model="isDialogActive" max-width="500">
     <template #activator="{ props: activatorProps }">
       <v-btn
+        class="me-5"
         v-bind="activatorProps"
         :color="actionType == 'add' ? 'info' : 'warning'"
         size="small"
@@ -61,7 +62,7 @@ const roleData = reactive({
 });
 
 const roleRule = (value: string) =>
-  value.length >= 3 || 'Namespace must be at least 3 characters long';
+  (value && value.length >= 3) || 'Role must be at least 3 characters long';
 
 function createRole() {
   emit('roleInput', { name: roleData.name, description: roleData.description });

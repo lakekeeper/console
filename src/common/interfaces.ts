@@ -104,7 +104,7 @@ export interface SnackbarMsg {
 export interface NamespaceResponse {
   namespaceMap: Record<string, string>;
   namespaces: Namespace[];
-  'next-page-token': PageToken;
+  'next-page-token'?: PageToken;
 }
 
 export type RelationType =

@@ -1,6 +1,9 @@
-update-openapi:
-    curl -o openapi/management-open-api.yaml https://raw.githubusercontent.com/lakekeeper/lakekeeper/refs/heads/main/docs/docs/api/management-open-api.yaml
+reviewable: install fix-all build 
 
+generate-clients: update-openapi-management update-openapi-catalog generate-management-client generate-iceberg-client
+
+update-openapi-management:
+    curl -o openapi/management-open-api.yaml https://raw.githubusercontent.com/lakekeeper/lakekeeper/refs/heads/main/docs/docs/api/management-open-api.yaml
 
 update-openapi-catalog:
     curl -o openapi/rest-catalog-open-api.yaml https://raw.githubusercontent.com/lakekeeper/lakekeeper/refs/heads/main/docs/docs/api/rest-catalog-open-api.yaml
@@ -10,6 +13,9 @@ generate-management-client:
 
 generate-iceberg-client:
     npx @hey-api/openapi-ts -i openapi/rest-catalog-open-api.yaml -o src/gen/iceberg -c @hey-api/client-fetch
+
+install:
+    npm install
 
 fix-lint:
     npm run lint

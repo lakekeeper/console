@@ -67,11 +67,12 @@ import { App } from 'vue';
 // General
 function init() {
   const userStore = useUserStore();
+  const visual = useVisualStore();
   const accessToken = userStore.user.access_token;
 
   mngClient.client.setConfig({
     baseUrl: icebergCatalogUrl(),
-    // headers: { 'x-project-id': visual.projectSelected['project-id'] }, //ToDo resolve CORS problem
+    headers: { 'x-project-id': visual.projectSelected['project-id'] },
   });
 
   mngClient.client.interceptors.request.use((request) => {
@@ -122,7 +123,7 @@ function handleError(error: any, functionError: Error) {
     }
 
     const functionName =
-      functionError.stack?.split('\n')[1]?.trim()?.split(' ')[1].replace('Object.', '') ||
+      functionError.stack?.split('\n')[1]?.trim()?.split(' ')[1]?.replace('Object.', '') ||
       'unknown';
 
     setError(error, 3000, functionName, Type.ERROR);
@@ -224,15 +225,18 @@ async function bootstrapServer(): Promise<boolean> {
 // Project
 async function loadProjectList(): Promise<GetProjectResponse[]> {
   try {
+    const visual = useVisualStore();
     const { data, error } = await mng.listProjects({ client: mngClient.client });
     if (error) throw error;
 
     if (data) {
-      useVisualStore().setProjectList(data.projects || []);
+      visual.setProjectList(data.projects || []);
 
-      // auto select project
-      for (const proj of data.projects || []) {
-        Object.assign(useVisualStore().projectSelected, proj);
+      // auto select project if no one is already selected
+      if (!visual.projectSelected['project-id']) {
+        for (const proj of data.projects || []) {
+          Object.assign(useVisualStore().projectSelected, proj);
+        }
       }
     }
 
@@ -342,6 +346,7 @@ async function listWarehouses(): Promise<ListWarehousesResponse> {
     const client = mngClient.client;
 
     const { data, error } = await mng.listWarehouses({ client });
+
     const wh = data as ListWarehousesResponse;
     if (error) throw error;
 
@@ -625,7 +630,12 @@ async function listNamespaces(
       path: {
         prefix: id,
       },
-      query: { parent: parentNS, returnUuids: true, pageToken: page_token || null, pageSize: 100 },
+      query: {
+        parent: parentNS,
+        returnUuids: true,
+        pageToken: page_token || undefined,
+        pageSize: 100,
+      },
     });
 
     if (error) throw error;
@@ -639,7 +649,7 @@ async function listNamespaces(
       namespaceMap[namespace] = namespaceUuids[index];
     });
 
-    return { namespaceMap, namespaces, 'next-page-token': data['next-page-token'] ?? null };
+    return { namespaceMap, namespaces, 'next-page-token': data['next-page-token'] ?? undefined };
   } catch (error: any) {
     handleError(error, new Error());
     return error;
@@ -797,7 +807,7 @@ async function listTables(
         prefix: id,
         namespace: ns ?? '',
       },
-      query: { pageToken: pageToken || null, pageSize: 1000 },
+      query: { pageToken: pageToken || undefined, pageSize: 1000 },
     });
     if (error) throw error;
 
@@ -1843,8 +1853,32 @@ async function getProjectAccess(): Promise<ProjectAction[]> {
 
     const client = mngClient.client;
 
-    const { data, error } = await mng.getProjectAccess({
+    const { data, error } = await mng.getProjectAccess({ client });
+
+    if (error) throw error;
+
+    const actions = (data ?? {})['allowed-actions'] as ProjectAction[];
+
+    return actions;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getProjectAccessById(projectId: string): Promise<ProjectAction[]> {
+  try {
+    const visual = useVisualStore();
+    const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
+
+    if (!env.enabledAuthentication || authOff) return globals.projectActions as ProjectAction[];
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getProjectAccessById({
       client,
+      path: { project_id: projectId },
     });
 
     if (error) throw error;
@@ -2123,6 +2157,7 @@ export function useFunctions() {
     setTableProtection,
     setViewProtection,
     getViewProtection,
+    getProjectAccessById,
   };
 }
 

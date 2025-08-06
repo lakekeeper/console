@@ -23,10 +23,11 @@ export const useVisualStore = defineStore(
       'aws-system-identities-enabled': false,
       'azure-system-identities-enabled': false,
       'gcp-system-identities-enabled': false,
+      queues: [],
     });
 
     const projectSelected = reactive<Project>({
-      'project-id': '0',
+      'project-id': '',
       'project-name': 'none',
     });
 
@@ -61,6 +62,10 @@ export const useVisualStore = defineStore(
       return serverInfo;
     }
 
+    function setProjectSelected(p: Project) {
+      Object.assign(projectSelected, p);
+    }
+
     function setProjectList(p: Project[]) {
       Object.assign(projectList, p);
     }
@@ -92,6 +97,7 @@ export const useVisualStore = defineStore(
       getServerInfo,
       setSnackbarMsg,
       getSnackbarMsg,
+      setProjectSelected,
     };
   },
   {

@@ -75,7 +75,7 @@ export type Namespace = Array<string>;
  * Servers that do not support pagination should ignore the `pageToken` parameter and return all results in a single response. The `next-page-token` must be omitted from the response.
  * Clients must interpret either `null` or missing response value of `next-page-token` as the end of the listing results.
  */
-export type PageToken = string | null;
+export type PageToken = string;
 
 export type TableIdentifier = {
   namespace: Namespace;
@@ -90,6 +90,8 @@ export type StructField = {
   type: Type;
   required: boolean;
   doc?: string;
+  'initial-default'?: PrimitiveTypeValue;
+  'write-default'?: PrimitiveTypeValue;
 };
 
 export type StructType = {
@@ -226,6 +228,15 @@ export type SortOrderWritable = {
   fields: Array<SortField>;
 };
 
+export type EncryptedKey = {
+  'key-id': string;
+  'encrypted-key-metadata': string;
+  'encrypted-by-id'?: string;
+  properties?: {
+    [key: string]: string;
+  };
+};
+
 export type Snapshot = {
   'snapshot-id': number;
   'parent-snapshot-id'?: number;
@@ -280,6 +291,7 @@ export type TableMetadataReadable = {
   'last-partition-id'?: number;
   'sort-orders'?: Array<SortOrderReadable>;
   'default-sort-order-id'?: number;
+  'encryption-keys'?: unknown;
   snapshots?: Array<Snapshot>;
   refs?: SnapshotReferences;
   'current-snapshot-id'?: number;
@@ -306,6 +318,7 @@ export type TableMetadataWritable = {
   'last-partition-id'?: number;
   'sort-orders'?: Array<SortOrderWritable>;
   'default-sort-order-id'?: number;
+  'encryption-keys'?: unknown;
   snapshots?: Array<Snapshot>;
   refs?: SnapshotReferences;
   'current-snapshot-id'?: number;
@@ -380,21 +393,21 @@ export type BaseUpdate = {
 export type AssignUuidUpdate = BaseUpdate & {
   action: 'assign-uuid';
 } & {
-  action: 'assign-uuid';
+  action?: 'assign-uuid';
   uuid: string;
 };
 
 export type UpgradeFormatVersionUpdate = BaseUpdate & {
   action: 'upgrade-format-version';
 } & {
-  action: 'upgrade-format-version';
+  action?: 'upgrade-format-version';
   'format-version': number;
 };
 
 export type AddSchemaUpdateReadable = BaseUpdate & {
   action: 'add-schema';
 } & {
-  action: 'add-schema';
+  action?: 'add-schema';
   schema: SchemaReadable;
   /**
    * This optional field is **DEPRECATED for REMOVAL** since it more safe to handle this internally, and shouldn't be exposed to the clients.
@@ -407,7 +420,7 @@ export type AddSchemaUpdateReadable = BaseUpdate & {
 export type AddSchemaUpdateWritable = BaseUpdate & {
   action: 'add-schema';
 } & {
-  action: 'add-schema';
+  action?: 'add-schema';
   schema: SchemaWritable;
   /**
    * This optional field is **DEPRECATED for REMOVAL** since it more safe to handle this internally, and shouldn't be exposed to the clients.
@@ -420,7 +433,7 @@ export type AddSchemaUpdateWritable = BaseUpdate & {
 export type SetCurrentSchemaUpdate = BaseUpdate & {
   action: 'set-current-schema';
 } & {
-  action: 'set-current-schema';
+  action?: 'set-current-schema';
   /**
    * Schema ID to set as current, or -1 to set last added schema
    */
@@ -430,21 +443,21 @@ export type SetCurrentSchemaUpdate = BaseUpdate & {
 export type AddPartitionSpecUpdateReadable = BaseUpdate & {
   action: 'add-spec';
 } & {
-  action: 'add-spec';
+  action?: 'add-spec';
   spec: PartitionSpecReadable;
 };
 
 export type AddPartitionSpecUpdateWritable = BaseUpdate & {
   action: 'add-spec';
 } & {
-  action: 'add-spec';
+  action?: 'add-spec';
   spec: PartitionSpecWritable;
 };
 
 export type SetDefaultSpecUpdate = BaseUpdate & {
   action: 'set-default-spec';
 } & {
-  action: 'set-default-spec';
+  action?: 'set-default-spec';
   /**
    * Partition spec ID to set as the default, or -1 to set last added spec
    */
@@ -454,21 +467,21 @@ export type SetDefaultSpecUpdate = BaseUpdate & {
 export type AddSortOrderUpdateReadable = BaseUpdate & {
   action: 'add-sort-order';
 } & {
-  action: 'add-sort-order';
+  action?: 'add-sort-order';
   'sort-order': SortOrderReadable;
 };
 
 export type AddSortOrderUpdateWritable = BaseUpdate & {
   action: 'add-sort-order';
 } & {
-  action: 'add-sort-order';
+  action?: 'add-sort-order';
   'sort-order': SortOrderWritable;
 };
 
 export type SetDefaultSortOrderUpdate = BaseUpdate & {
   action: 'set-default-sort-order';
 } & {
-  action: 'set-default-sort-order';
+  action?: 'set-default-sort-order';
   /**
    * Sort order ID to set as the default, or -1 to set last added sort order
    */
@@ -478,42 +491,42 @@ export type SetDefaultSortOrderUpdate = BaseUpdate & {
 export type AddSnapshotUpdate = BaseUpdate & {
   action: 'add-snapshot';
 } & {
-  action: 'add-snapshot';
+  action?: 'add-snapshot';
   snapshot: Snapshot;
 };
 
 export type SetSnapshotRefUpdate = BaseUpdate & {
   action: 'set-snapshot-ref';
 } & SnapshotReference & {
-    action: 'set-snapshot-ref';
+    action?: 'set-snapshot-ref';
     'ref-name': string;
   };
 
 export type RemoveSnapshotsUpdate = BaseUpdate & {
   action: 'remove-snapshots';
 } & {
-  action: 'remove-snapshots';
+  action?: 'remove-snapshots';
   'snapshot-ids': Array<number>;
 };
 
 export type RemoveSnapshotRefUpdate = BaseUpdate & {
   action: 'remove-snapshot-ref';
 } & {
-  action: 'remove-snapshot-ref';
+  action?: 'remove-snapshot-ref';
   'ref-name': string;
 };
 
 export type SetLocationUpdate = BaseUpdate & {
   action: 'set-location';
 } & {
-  action: 'set-location';
+  action?: 'set-location';
   location: string;
 };
 
 export type SetPropertiesUpdate = BaseUpdate & {
   action: 'set-properties';
 } & {
-  action: 'set-properties';
+  action?: 'set-properties';
   updates: {
     [key: string]: string;
   };
@@ -522,21 +535,21 @@ export type SetPropertiesUpdate = BaseUpdate & {
 export type RemovePropertiesUpdate = BaseUpdate & {
   action: 'remove-properties';
 } & {
-  action: 'remove-properties';
+  action?: 'remove-properties';
   removals: Array<string>;
 };
 
 export type AddViewVersionUpdate = BaseUpdate & {
   action: 'add-view-version';
 } & {
-  action: 'add-view-version';
+  action?: 'add-view-version';
   'view-version': ViewVersion;
 };
 
 export type SetCurrentViewVersionUpdate = BaseUpdate & {
   action: 'set-current-view-version';
 } & {
-  action: 'set-current-view-version';
+  action?: 'set-current-view-version';
   /**
    * The view version id to set as current, or -1 to set last added view version id
    */
@@ -546,29 +559,33 @@ export type SetCurrentViewVersionUpdate = BaseUpdate & {
 export type SetStatisticsUpdate = BaseUpdate & {
   action: 'set-statistics';
 } & {
-  action: 'set-statistics';
-  'snapshot-id': number;
+  action?: 'set-statistics';
+  /**
+   * This optional field is **DEPRECATED for REMOVAL** since it contains redundant information. Clients should use the `statistics.snapshot-id` field instead.
+   * @deprecated
+   */
+  'snapshot-id'?: number;
   statistics: StatisticsFile;
 };
 
 export type RemoveStatisticsUpdate = BaseUpdate & {
   action: 'remove-statistics';
 } & {
-  action: 'remove-statistics';
+  action?: 'remove-statistics';
   'snapshot-id': number;
 };
 
 export type SetPartitionStatisticsUpdate = BaseUpdate & {
   action: 'set-partition-statistics';
 } & {
-  action: 'set-partition-statistics';
+  action?: 'set-partition-statistics';
   'partition-statistics': PartitionStatisticsFile;
 };
 
 export type RemovePartitionStatisticsUpdate = BaseUpdate & {
   action: 'remove-partition-statistics';
 } & {
-  action: 'remove-partition-statistics';
+  action?: 'remove-partition-statistics';
   'snapshot-id': number;
 };
 
@@ -577,6 +594,27 @@ export type RemovePartitionSpecsUpdate = BaseUpdate & {
 } & {
   action?: 'remove-partition-specs';
   'spec-ids': Array<number>;
+};
+
+export type RemoveSchemasUpdate = BaseUpdate & {
+  action: 'remove-schemas';
+} & {
+  action?: 'remove-schemas';
+  'schema-ids': Array<number>;
+};
+
+export type AddEncryptionKeyUpdate = BaseUpdate & {
+  action: 'add-encryption-key';
+} & {
+  action?: 'add-encryption-key';
+  'encryption-key': EncryptedKey;
+};
+
+export type RemoveEncryptionKeyUpdate = BaseUpdate & {
+  action: 'remove-encryption-key';
+} & {
+  action?: 'remove-encryption-key';
+  'key-id': string;
 };
 
 export type TableUpdateReadable =
@@ -597,7 +635,10 @@ export type TableUpdateReadable =
   | RemovePropertiesUpdate
   | SetStatisticsUpdate
   | RemoveStatisticsUpdate
-  | RemovePartitionSpecsUpdate;
+  | RemovePartitionSpecsUpdate
+  | RemoveSchemasUpdate
+  | AddEncryptionKeyUpdate
+  | RemoveEncryptionKeyUpdate;
 
 export type TableUpdateWritable =
   | AssignUuidUpdate
@@ -617,7 +658,10 @@ export type TableUpdateWritable =
   | RemovePropertiesUpdate
   | SetStatisticsUpdate
   | RemoveStatisticsUpdate
-  | RemovePartitionSpecsUpdate;
+  | RemovePartitionSpecsUpdate
+  | RemoveSchemasUpdate
+  | AddEncryptionKeyUpdate
+  | RemoveEncryptionKeyUpdate;
 
 export type ViewUpdateReadable =
   | AssignUuidUpdate
@@ -639,43 +683,25 @@ export type ViewUpdateWritable =
   | AddViewVersionUpdate
   | SetCurrentViewVersionUpdate;
 
-export type TableRequirement =
-  | ({
-      type?: 'assert-create';
-    } & AssertCreate)
-  | ({
-      type?: 'assert-table-uuid';
-    } & AssertTableUuid)
-  | ({
-      type?: 'assert-ref-snapshot-id';
-    } & AssertRefSnapshotId)
-  | ({
-      type?: 'assert-last-assigned-field-id';
-    } & AssertLastAssignedFieldId)
-  | ({
-      type?: 'assert-current-schema-id';
-    } & AssertCurrentSchemaId)
-  | ({
-      type?: 'assert-last-assigned-partition-id';
-    } & AssertLastAssignedPartitionId)
-  | ({
-      type?: 'assert-default-spec-id';
-    } & AssertDefaultSpecId)
-  | ({
-      type?: 'assert-default-sort-order-id';
-    } & AssertDefaultSortOrderId);
+export type TableRequirement = {
+  type: string;
+};
 
 /**
  * The table must not already exist; used for create transactions
  */
-export type AssertCreate = {
+export type AssertCreate = TableRequirement & {
+  type: 'assert-create';
+} & {
   type: 'assert-create';
 };
 
 /**
  * The table UUID must match the requirement's `uuid`
  */
-export type AssertTableUuid = {
+export type AssertTableUuid = TableRequirement & {
+  type: 'assert-table-uuid';
+} & {
   type: 'assert-table-uuid';
   uuid: string;
 };
@@ -683,8 +709,10 @@ export type AssertTableUuid = {
 /**
  * The table branch or tag identified by the requirement's `ref` must reference the requirement's `snapshot-id`; if `snapshot-id` is `null` or missing, the ref must not already exist
  */
-export type AssertRefSnapshotId = {
+export type AssertRefSnapshotId = TableRequirement & {
   type: 'assert-ref-snapshot-id';
+} & {
+  type?: 'assert-ref-snapshot-id';
   ref: string;
   'snapshot-id': number;
 };
@@ -692,40 +720,50 @@ export type AssertRefSnapshotId = {
 /**
  * The table's last assigned column id must match the requirement's `last-assigned-field-id`
  */
-export type AssertLastAssignedFieldId = {
+export type AssertLastAssignedFieldId = TableRequirement & {
   type: 'assert-last-assigned-field-id';
+} & {
+  type?: 'assert-last-assigned-field-id';
   'last-assigned-field-id': number;
 };
 
 /**
  * The table's current schema id must match the requirement's `current-schema-id`
  */
-export type AssertCurrentSchemaId = {
+export type AssertCurrentSchemaId = TableRequirement & {
   type: 'assert-current-schema-id';
+} & {
+  type?: 'assert-current-schema-id';
   'current-schema-id': number;
 };
 
 /**
  * The table's last assigned partition id must match the requirement's `last-assigned-partition-id`
  */
-export type AssertLastAssignedPartitionId = {
+export type AssertLastAssignedPartitionId = TableRequirement & {
   type: 'assert-last-assigned-partition-id';
+} & {
+  type?: 'assert-last-assigned-partition-id';
   'last-assigned-partition-id': number;
 };
 
 /**
  * The table's default spec id must match the requirement's `default-spec-id`
  */
-export type AssertDefaultSpecId = {
+export type AssertDefaultSpecId = TableRequirement & {
   type: 'assert-default-spec-id';
+} & {
+  type?: 'assert-default-spec-id';
   'default-spec-id': number;
 };
 
 /**
  * The table's default sort order id must match the requirement's `default-sort-order-id`
  */
-export type AssertDefaultSortOrderId = {
+export type AssertDefaultSortOrderId = TableRequirement & {
   type: 'assert-default-sort-order-id';
+} & {
+  type?: 'assert-default-sort-order-id';
   'default-sort-order-id': number;
 };
 
@@ -780,6 +818,7 @@ export type LoadCredentialsResponse = {
  * - `s3.secret-access-key`: secret for credentials that provide access to data in S3
  * - `s3.session-token`: if present, this value should be used for as the session token
  * - `s3.remote-signing-enabled`: if `true` remote signing should be performed as described in the `s3-signer-open-api.yaml` specification
+ * - `s3.cross-region-access-enabled`: if `true`, S3 Cross-Region bucket access is enabled
  *
  * ## Storage Credentials
  *
@@ -824,6 +863,7 @@ export type LoadTableResultReadable = {
  * - `s3.secret-access-key`: secret for credentials that provide access to data in S3
  * - `s3.session-token`: if present, this value should be used for as the session token
  * - `s3.remote-signing-enabled`: if `true` remote signing should be performed as described in the `s3-signer-open-api.yaml` specification
+ * - `s3.cross-region-access-enabled`: if `true`, S3 Cross-Region bucket access is enabled
  *
  * ## Storage Credentials
  *
@@ -845,13 +885,10 @@ export type LoadTableResultWritable = {
 
 /**
  * Scan and planning tasks for server-side scan planning
- *
  * - `plan-tasks` contains opaque units of planning work
  * - `file-scan-tasks` contains a partial or complete list of table scan tasks
  * - `delete-files` contains delete files referenced by file scan tasks
- *
  * Each plan task must be passed to the fetchScanTasks endpoint to fetch the file scan tasks for the plan task.
- *
  * The list of delete files must contain all delete files referenced by the file scan tasks.
  *
  */
@@ -942,24 +979,36 @@ export type PlanTableScanResult =
 export type FetchScanTasksResult = ScanTasks;
 
 export type CommitTableRequestReadable = {
+  /**
+   * Table identifier to update; must be present for CommitTransactionRequest
+   */
   identifier?: TableIdentifier;
   requirements: Array<TableRequirement>;
   updates: Array<TableUpdateReadable>;
 };
 
 export type CommitTableRequestWritable = {
+  /**
+   * Table identifier to update; must be present for CommitTransactionRequest
+   */
   identifier?: TableIdentifier;
   requirements: Array<TableRequirement>;
   updates: Array<TableUpdateWritable>;
 };
 
 export type CommitViewRequestReadable = {
+  /**
+   * View identifier to update
+   */
   identifier?: TableIdentifier;
   requirements?: Array<ViewRequirement>;
   updates: Array<ViewUpdateReadable>;
 };
 
 export type CommitViewRequestWritable = {
+  /**
+   * View identifier to update
+   */
   identifier?: TableIdentifier;
   requirements?: Array<ViewRequirement>;
   updates: Array<ViewUpdateWritable>;
@@ -1000,12 +1049,19 @@ export type CreateTableRequestWritable = {
 export type RegisterTableRequest = {
   name: string;
   'metadata-location': string;
+  /**
+   * Whether to overwrite table metadata if the table already exists
+   */
+  overwrite?: boolean;
 };
 
 export type CreateViewRequestReadable = {
   name: string;
   location?: string;
   schema: SchemaReadable;
+  /**
+   * The view version to create, will replace the schema-id sent within the view-version with the id assigned to the provided schema
+   */
   'view-version': ViewVersion;
   properties: {
     [key: string]: string;
@@ -1016,6 +1072,9 @@ export type CreateViewRequestWritable = {
   name: string;
   location?: string;
   schema: SchemaWritable;
+  /**
+   * The view version to create, will replace the schema-id sent within the view-version with the id assigned to the provided schema
+   */
   'view-version': ViewVersion;
   properties: {
     [key: string]: string;
@@ -1024,7 +1083,6 @@ export type CreateViewRequestWritable = {
 
 /**
  * Result used when a view is successfully loaded.
- *
  *
  * The view metadata JSON is returned in the `metadata` field. The corresponding file location of view metadata is returned in the `metadata-location` field.
  * Clients can check whether metadata has changed by comparing metadata locations after the view has been created.
@@ -1048,7 +1106,6 @@ export type LoadViewResultReadable = {
 
 /**
  * Result used when a view is successfully loaded.
- *
  *
  * The view metadata JSON is returned in the `metadata` field. The corresponding file location of view metadata is returned in the `metadata-location` field.
  * Clients can check whether metadata has changed by comparing metadata locations after the view has been created.
@@ -1253,22 +1310,22 @@ export type GetNamespaceResponse = {
    */
   properties?: {
     [key: string]: string;
-  } | null;
-  'namespace-uuid'?: string | null;
+  };
+  'namespace-uuid'?: string;
 };
 
 export type ListTablesResponse = {
   'next-page-token'?: PageToken;
   identifiers?: Array<TableIdentifier>;
-  'table-uuids'?: Array<string> | null;
-  'protection-status'?: Array<boolean> | null;
+  'table-uuids'?: Array<string>;
+  'protection-status'?: Array<boolean>;
 };
 
 export type ListNamespacesResponse = {
   'next-page-token'?: PageToken;
   namespaces?: Array<Namespace>;
-  'namespace-uuids'?: Array<string> | null;
-  'protection-status'?: Array<boolean> | null;
+  'namespace-uuids'?: Array<string>;
+  'protection-status'?: Array<boolean>;
 };
 
 export type UpdateNamespacePropertiesResponse = {
@@ -1283,7 +1340,7 @@ export type UpdateNamespacePropertiesResponse = {
   /**
    * List of properties requested for removal that were not found in the namespace's properties. Represents a partial success response. Server's do not need to implement this.
    */
-  missing?: Array<string> | null;
+  missing?: Array<string>;
 };
 
 export type CommitTableResponseReadable = {
@@ -1523,6 +1580,9 @@ export type PlanTableScanRequest = {
    * List of selected schema fields
    */
   select?: Array<FieldName>;
+  /**
+   * Expression used to filter the table data
+   */
   filter?: Expression;
   /**
    * Enables case sensitive field matching for filter and select
@@ -1603,9 +1663,7 @@ export type View = string;
 
 /**
  * Optional signal to the server that the client supports delegated access via a comma-separated list of access mechanisms.  The server may choose to supply access via any or none of the requested mechanisms.
- *
  * Specific properties and handling for `vended-credentials` is documented in the `LoadTableResult` schema section of this spec document.
- *
  * The protocol and specification for `remote-signing` is documented in  the `s3-signer-open-api.yaml` OpenApi spec in the `aws` module.
  *
  */
@@ -1617,6 +1675,11 @@ export type PageToken2 = PageToken;
  * For servers that support pagination, this signals an upper bound of the number of results that a client will receive. For servers that do not support pagination, clients may receive results larger than the indicated `pageSize`.
  */
 export type PageSize = number;
+
+/**
+ * Identifies a unique version of the table metadata.
+ */
+export type Etag = string;
 
 export type GetConfigData = {
   body?: never;
@@ -1636,7 +1699,7 @@ export type GetConfigErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -1644,7 +1707,7 @@ export type GetConfigErrors = {
    */
   403: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -1739,7 +1802,7 @@ export type ListNamespacesErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -1751,7 +1814,7 @@ export type ListNamespacesErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -1795,7 +1858,7 @@ export type CreateNamespaceErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -1811,7 +1874,7 @@ export type CreateNamespaceErrors = {
    */
   409: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -1872,7 +1935,7 @@ export type DropNamespaceErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -1884,7 +1947,11 @@ export type DropNamespaceErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * Not Empty - Namespace to delete is not empty.
+   */
+  409: IcebergErrorResponse;
+  /**
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -1937,7 +2004,7 @@ export type LoadNamespaceMetadataErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -1949,7 +2016,7 @@ export type LoadNamespaceMetadataErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -1999,7 +2066,7 @@ export type NamespaceExistsErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2011,7 +2078,7 @@ export type NamespaceExistsErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2059,7 +2126,7 @@ export type UpdatePropertiesErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2075,7 +2142,7 @@ export type UpdatePropertiesErrors = {
    */
   406: ErrorModel;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2141,7 +2208,7 @@ export type ListTablesErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2153,7 +2220,7 @@ export type ListTablesErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2184,9 +2251,7 @@ export type CreateTableData = {
   headers?: {
     /**
      * Optional signal to the server that the client supports delegated access via a comma-separated list of access mechanisms.  The server may choose to supply access via any or none of the requested mechanisms.
-     *
      * Specific properties and handling for `vended-credentials` is documented in the `LoadTableResult` schema section of this spec document.
-     *
      * The protocol and specification for `remote-signing` is documented in  the `s3-signer-open-api.yaml` OpenApi spec in the `aws` module.
      *
      */
@@ -2212,7 +2277,7 @@ export type CreateTableErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2228,7 +2293,7 @@ export type CreateTableErrors = {
    */
   409: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2280,7 +2345,7 @@ export type PlanTableScanErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2296,7 +2361,7 @@ export type PlanTableScanErrors = {
    */
   406: ErrorModel;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2352,7 +2417,7 @@ export type CancelPlanningErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2364,7 +2429,7 @@ export type CancelPlanningErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2420,7 +2485,7 @@ export type FetchPlanningResultErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2432,7 +2497,7 @@ export type FetchPlanningResultErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2485,7 +2550,7 @@ export type FetchScanTasksErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2497,7 +2562,7 @@ export type FetchScanTasksErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2545,7 +2610,7 @@ export type RegisterTableErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2561,7 +2626,7 @@ export type RegisterTableErrors = {
    */
   409: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2622,7 +2687,7 @@ export type DropTableErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2634,7 +2699,7 @@ export type DropTableErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2665,13 +2730,15 @@ export type LoadTableData = {
   headers?: {
     /**
      * Optional signal to the server that the client supports delegated access via a comma-separated list of access mechanisms.  The server may choose to supply access via any or none of the requested mechanisms.
-     *
      * Specific properties and handling for `vended-credentials` is documented in the `LoadTableResult` schema section of this spec document.
-     *
      * The protocol and specification for `remote-signing` is documented in  the `s3-signer-open-api.yaml` OpenApi spec in the `aws` module.
      *
      */
     'X-Iceberg-Access-Delegation'?: 'vended-credentials' | 'remote-signing';
+    /**
+     * An optional header that allows the server to return 304 (Not Modified) if the metadata is current. The content is the value of the ETag received in a CreateTableResponse or LoadTableResponse.
+     */
+    'If-None-Match'?: string;
   };
   path: {
     /**
@@ -2703,7 +2770,7 @@ export type LoadTableErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2715,7 +2782,7 @@ export type LoadTableErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2767,7 +2834,7 @@ export type TableExistsErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2779,7 +2846,7 @@ export type TableExistsErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2831,7 +2898,7 @@ export type UpdateTableErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2847,7 +2914,7 @@ export type UpdateTableErrors = {
    */
   409: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2912,7 +2979,7 @@ export type LoadCredentialsErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2924,7 +2991,7 @@ export type LoadCredentialsErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -2971,7 +3038,7 @@ export type RenameTableErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -2991,7 +3058,7 @@ export type RenameTableErrors = {
    */
   409: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3046,7 +3113,7 @@ export type ReportMetricsErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -3058,7 +3125,7 @@ export type ReportMetricsErrors = {
    */
   404: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3108,7 +3175,7 @@ export type CommitTransactionErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -3124,7 +3191,7 @@ export type CommitTransactionErrors = {
    */
   409: IcebergErrorResponse;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3182,6 +3249,10 @@ export type ListViewsData = {
      */
     pageSize?: number;
     /**
+     * If true, include the `table-uuids` field in the response
+     */
+    returnUuids?: boolean;
+    /**
      * If true, include the `protection-status` field in the response
      */
     returnProtectionStatus?: boolean;
@@ -3195,7 +3266,7 @@ export type ListViewsErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -3207,7 +3278,7 @@ export type ListViewsErrors = {
    */
   404: ErrorModel;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3255,7 +3326,7 @@ export type CreateViewErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -3271,7 +3342,7 @@ export type CreateViewErrors = {
    */
   409: ErrorModel;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3328,7 +3399,7 @@ export type DropViewErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -3340,7 +3411,7 @@ export type DropViewErrors = {
    */
   404: ErrorModel;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3392,7 +3463,7 @@ export type LoadViewErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -3404,7 +3475,7 @@ export type LoadViewErrors = {
    */
   404: ErrorModel;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3464,7 +3535,7 @@ export type ViewExistsErrors = {
    */
   404: unknown;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3516,7 +3587,7 @@ export type ReplaceViewErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -3532,7 +3603,7 @@ export type ReplaceViewErrors = {
    */
   409: ErrorModel;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**
@@ -3591,7 +3662,7 @@ export type RenameViewErrors = {
    */
   400: IcebergErrorResponse;
   /**
-   * Unauthorized. Authentication is required and has failed or has not yet been provided.
+   * Unauthorized. The REST Catalog SHOULD respond with the 401 UnauthorizedResponse when the access token provided is expired, revoked, malformed, or invalid for other reasons. The client MAY request a new access token and retry the request.
    */
   401: IcebergErrorResponse;
   /**
@@ -3611,7 +3682,7 @@ export type RenameViewErrors = {
    */
   409: ErrorModel;
   /**
-   * Credentials have timed out. If possible, the client should refresh credentials and retry.
+   * This is an optional status response type that the REST Catalog can issue when the token has expired. The client MAY request a new access token and retry the request. 401 UnauthorizedResponse SHOULD be preferred over this response type on token expiry.
    */
   419: IcebergErrorResponse;
   /**

@@ -8,8 +8,6 @@
           indeterminate
           :size="126"></v-progress-circular>
       </v-row>
-
-      >
     </v-responsive>
   </v-container>
   <span v-else>
@@ -23,7 +21,7 @@
             <v-icon>mdi-account-box-multiple-outline</v-icon>
           </template>
           <v-spacer></v-spacer>
-          <roleDialog :action-type="'add'" @role-input="roleInput" />
+          <roleDialog v-if="canCreateRole" :action-type="'add'" @role-input="roleInput" />
         </v-toolbar>
         <v-data-table
           v-if="canListRoles"
@@ -41,23 +39,17 @@
             </td>
           </template>
           <template #item.actions="{ item }">
-            <span icon-text>
-              <v-icon
-                class="mr-1"
-                color="error"
-                :disabled="!item.can_delete"
-                @click="deleteRole(item.id)">
-                mdi-delete-outline
-              </v-icon>
-            </span>
+            <DialogDeleteConfirm
+              v-if="item.can_delete"
+              type="role"
+              :name="item.name"
+              @confirmed="deleteRole(item.id)" />
           </template>
           <template #no-data>
-            <roleDialog
-              v-if="myAccess.includes('create_role')"
-              :action-type="'add'"
-              @role-input="roleInput" />
+            <roleDialog v-if="canCreateRole" :action-type="'add'" @role-input="roleInput" />
           </template>
         </v-data-table>
+        <div v-else>You don't have permission to list roles</div>
       </v-col>
     </v-row>
   </span>
@@ -68,14 +60,16 @@ import { useFunctions } from '../../plugins/functions';
 import { ProjectAction, Role } from '../../gen/management/types.gen';
 import router from '../../router';
 import { Header } from '../../common/interfaces';
+import { useVisualStore } from '@/stores/visual';
 
 const functions = useFunctions();
 interface ExtendedRole extends Role {
   can_delete?: boolean;
 }
 
-const roles = ref<ExtendedRole[]>([]);
+const roles = reactive<ExtendedRole[]>([]);
 const loading = ref(true);
+const missAccessPermission = ref(true);
 
 const role = reactive({
   name: '',
@@ -90,11 +84,22 @@ const headers: readonly Header[] = Object.freeze([
 const isDialogActive = ref(false); // Declare the isDialogActive property
 const myAccess = reactive<ProjectAction[]>([]);
 const canListRoles = ref(false);
+const canCreateRole = ref(false);
+
+const visual = useVisualStore();
+
 onMounted(async () => {
   try {
-    await init();
+    Object.assign(
+      myAccess,
+      await functions.getProjectAccessById(visual.projectSelected['project-id']),
+    );
+    canListRoles.value = myAccess.includes('list_roles');
+    canCreateRole.value = myAccess.includes('create_role');
+    if (canListRoles.value) await listRoles();
     loading.value = false;
   } catch (error) {
+    missAccessPermission.value = false;
     console.error(error);
   }
 });
@@ -103,16 +108,20 @@ function getRole(id: string) {
   router.push(`/roles/${id}`);
 }
 
-async function init() {
-  roles.value = [];
-  Object.assign(myAccess, await functions.getProjectAccess());
-  canListRoles.value = myAccess.includes('list_roles');
-  Object.assign(roles.value, await functions.listRoles());
-  if (roles.value.length > 0) {
-    for (const role of roles.value) {
+async function listRoles() {
+  try {
+    roles.splice(0, roles.length);
+    const r = await functions.listRoles();
+
+    roles.push(...r);
+
+    for (const role of roles) {
       const roleAction = await functions.getRoleAccessById(role.id);
       role.can_delete = roleAction.includes('delete');
     }
+  } catch (error) {
+    missAccessPermission.value = false;
+    console.error('Failed to load data:', error);
   }
 }
 
@@ -120,7 +129,7 @@ async function createRole() {
   try {
     await functions.createRole(role.name, role.description);
     isDialogActive.value = false;
-    await init();
+    await listRoles();
   } catch (error) {
     console.error(error);
   }
@@ -129,10 +138,7 @@ async function createRole() {
 async function deleteRole(roleId: string) {
   try {
     await functions.deleteRole(roleId);
-
-    isDialogActive.value = false;
-
-    await init();
+    await listRoles();
   } catch (error) {
     console.error(error);
   }
@@ -146,7 +152,7 @@ function roleInput(roleIn: { name: string; description: string }) {
 }
 
 onUnmounted(() => {
-  roles.value.splice(0, roles.value.length);
+  roles.splice(0, roles.length);
   loading.value = true;
 });
 </script>
