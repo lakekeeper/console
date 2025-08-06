@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.0](https://github.com/lakekeeper/console/compare/v0.8.0...v0.9.0) (2025-08-06)
+
+
+### Features
+
+* add multi project support ([#145](https://github.com/lakekeeper/console/issues/145)) ([26d70fe](https://github.com/lakekeeper/console/commit/26d70fe56d00fb484aabff01403d75c6100e9e0a))
+
+
+### Bug Fixes
+
+* publish build ([6222b60](https://github.com/lakekeeper/console/commit/6222b60c35fd1622d20fb654b93dfdfdfa9f72fe))
+
 ## [0.8.0](https://github.com/lakekeeper/console/compare/v0.7.0...v0.8.0) (2025-06-15)
 
 
