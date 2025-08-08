@@ -6,7 +6,7 @@ fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
     let manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let repo_dir = Path::new(&manifest_dir).parent().unwrap();
-    let node_dir = Path::new(&out_dir).join("node");
+    let node_dir = Path::new(&out_dir).join("node/dist");
 
     println!("Node dir: {node_dir:?}");
     println!("Repo dir: {repo_dir:?}");
