@@ -123,15 +123,24 @@ function parseErrorText(errorText: string): { message: string; code: number } {
 
 function handleError(error: any, functionError: Error) {
   try {
-    if (error.message === 'Failed to fetch') {
-      if (window.location.pathname !== '/server-offline') router.push('/server-offline');
-
-      return;
-    }
-
     const functionName =
       functionError.stack?.split('\n')[1]?.trim()?.split(' ')[1]?.replace('Object.', '') ||
       'unknown';
+
+    // Check if this is a task management related error
+    const isTaskFunction = ['listTasks', 'getTaskDetails', 'controlTasks'].includes(functionName);
+
+    // Don't redirect to server-offline for task management failures or if it's already marked as a task error
+    if (error.message === 'Failed to fetch' && !isTaskFunction && !error.isTaskManagementError) {
+      if (window.location.pathname !== '/server-offline') router.push('/server-offline');
+      return;
+    }
+
+    // For task management errors, just log them without redirecting
+    if (isTaskFunction || error.isTaskManagementError) {
+      console.warn('Task management error (not redirecting):', error);
+      return;
+    }
 
     setError(error, 3000, functionName, Type.ERROR);
   } catch (newError: any) {
@@ -1946,6 +1955,23 @@ async function getTaskDetails(
 
     return data as GetTaskDetailsResponse;
   } catch (error: any) {
+    // Handle CORS preflight failures and 404 errors gracefully without redirecting to server-offline
+    if (
+      error?.response?.status === 404 ||
+      error?.status === 404 ||
+      error?.message?.includes('CORS') ||
+      error?.message?.includes('preflight') ||
+      error?.message?.includes('OPTIONS') ||
+      (error?.name === 'TypeError' && error?.message?.includes('fetch'))
+    ) {
+      const taskError = new Error(
+        `Task details not found: ${error?.message || 'Task not found or CORS issue'}`,
+      );
+      (taskError as any).response = { status: 404 };
+      (taskError as any).isTaskManagementError = true;
+      throw taskError;
+    }
+
     handleError(error, new Error());
     throw error;
   }
@@ -1976,6 +2002,23 @@ async function controlTasks(
 
     return true;
   } catch (error: any) {
+    // Handle CORS preflight failures and 404 errors gracefully without redirecting to server-offline
+    if (
+      error?.response?.status === 404 ||
+      error?.status === 404 ||
+      error?.message?.includes('CORS') ||
+      error?.message?.includes('preflight') ||
+      error?.message?.includes('OPTIONS') ||
+      (error?.name === 'TypeError' && error?.message?.includes('fetch'))
+    ) {
+      const taskError = new Error(
+        `Task control not available: ${error?.message || 'Endpoint not found or CORS issue'}`,
+      );
+      (taskError as any).response = { status: 404 };
+      (taskError as any).isTaskManagementError = true;
+      throw taskError;
+    }
+
     handleError(error, new Error());
     throw error;
   }
@@ -2000,6 +2043,25 @@ async function listTasks(
 
     return data as ListTasksResponse;
   } catch (error: any) {
+    // Handle CORS preflight failures and 404 errors gracefully without redirecting to server-offline
+    if (
+      error?.response?.status === 404 ||
+      error?.status === 404 ||
+      error?.message?.includes('CORS') ||
+      error?.message?.includes('preflight') ||
+      error?.message?.includes('OPTIONS') ||
+      (error?.name === 'TypeError' && error?.message?.includes('fetch'))
+    ) {
+      // Create a meaningful 404 error that won't trigger redirect
+      const taskError = new Error(
+        `Task management not available: ${error?.message || 'Endpoint not found or CORS issue'}`,
+      );
+      (taskError as any).response = { status: 404 };
+      (taskError as any).isTaskManagementError = true;
+      throw taskError;
+    }
+
+    // For other errors, use the standard error handling
     handleError(error, new Error());
     throw error;
   }

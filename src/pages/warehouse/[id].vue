@@ -367,7 +367,7 @@
                 @permissions="assign" />
             </v-tabs-window-item>
             <v-tabs-window-item v-if="loaded" value="tasks">
-              <TaskManager :warehouse-id="params.id" />
+              <TaskManager :warehouse-id="params.id" entity-type="warehouse" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
