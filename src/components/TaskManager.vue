@@ -24,95 +24,130 @@
         <v-expand-transition>
           <v-card v-show="showFilters" variant="outlined" class="mb-4">
             <v-card-text>
+              <!-- Filter Groups -->
               <v-row>
-                <v-col cols="12" md="4">
-                  <v-select
-                    v-model="filters.status"
-                    :items="statusOptions"
-                    label="Status"
-                    multiple
-                    chips
-                    clearable
-                    density="compact">
-                    <template #chip="{ props, item }">
-                      <v-chip v-bind="props" :color="getStatusColor(item.value)" size="small">
-                        {{ item.title }}
-                      </v-chip>
-                    </template>
-                  </v-select>
+                <v-col cols="12" md="6">
+                  <v-card variant="outlined" class="pa-3">
+                    <v-card-title class="text-subtitle-2 pb-2">Status & Queue Filters</v-card-title>
+                    <v-row dense>
+                      <v-col cols="12" sm="6">
+                        <v-select
+                          v-model="filters.status"
+                          :items="statusOptions"
+                          label="Status"
+                          multiple
+                          chips
+                          clearable
+                          density="compact"
+                          hide-details>
+                          <template #chip="{ props, item }">
+                            <v-chip v-bind="props" :color="getStatusColor(item.value)" size="small">
+                              {{ item.title }}
+                            </v-chip>
+                          </template>
+                        </v-select>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <v-combobox
+                          v-model="filters.queueNames"
+                          :items="queueNameOptions"
+                          item-title="title"
+                          item-value="value"
+                          label="Queue Names"
+                          multiple
+                          chips
+                          clearable
+                          density="compact"
+                          hide-details
+                          hint="Select from common queues or enter custom names"></v-combobox>
+                      </v-col>
+                    </v-row>
+                  </v-card>
                 </v-col>
 
-                <v-col cols="12" md="4">
-                  <v-combobox
-                    v-model="filters.queueNames"
-                    :items="queueNameOptions"
-                    item-title="title"
-                    item-value="value"
-                    label="Queue Names"
-                    multiple
-                    chips
-                    clearable
-                    density="compact"
-                    hint="Select from common queues or enter custom names"></v-combobox>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="filters.taskId"
-                    label="Task ID"
-                    clearable
-                    density="compact"
-                    hint="Filter by specific task ID"></v-text-field>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="filters.parentTaskId"
-                    label="Parent Task ID"
-                    clearable
-                    density="compact"
-                    hint="Filter by parent task ID"></v-text-field>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="filters.createdAfter"
-                    label="Created After"
-                    type="datetime-local"
-                    clearable
-                    density="compact"
-                    hint="Filter tasks created after this date"></v-text-field>
-                </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="filters.createdBefore"
-                    label="Created Before"
-                    type="datetime-local"
-                    clearable
-                    density="compact"
-                    hint="Filter tasks created before this date"></v-text-field>
+                <v-col cols="12" md="6">
+                  <v-card variant="outlined" class="pa-3">
+                    <v-card-title class="text-subtitle-2 pb-2">Task ID Filters</v-card-title>
+                    <v-row dense>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="filters.taskId"
+                          label="Task ID"
+                          clearable
+                          density="compact"
+                          hide-details
+                          hint="Filter by specific task ID"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="filters.parentTaskId"
+                          label="Parent Task ID"
+                          clearable
+                          density="compact"
+                          hide-details
+                          hint="Filter by parent task ID"></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-card>
                 </v-col>
               </v-row>
 
+              <!-- Date Range Filters -->
               <v-row>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="filters.scheduledAfter"
-                    label="Scheduled After"
-                    type="datetime-local"
-                    clearable
-                    density="compact"
-                    hint="Filter tasks scheduled after this date"></v-text-field>
+                <v-col cols="12" md="6">
+                  <v-card variant="outlined" class="pa-3">
+                    <v-card-title class="text-subtitle-2 pb-2">Created Date Range</v-card-title>
+                    <v-row dense>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="filters.createdAfter"
+                          label="After"
+                          type="datetime-local"
+                          clearable
+                          density="compact"
+                          hide-details
+                          hint="Tasks created after this date"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="filters.createdBefore"
+                          label="Before"
+                          type="datetime-local"
+                          clearable
+                          density="compact"
+                          hide-details
+                          hint="Tasks created before this date"></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-card>
                 </v-col>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="filters.scheduledBefore"
-                    label="Scheduled Before"
-                    type="datetime-local"
-                    clearable
-                    density="compact"
-                    hint="Filter tasks scheduled before this date"></v-text-field>
+
+                <v-col cols="12" md="6">
+                  <v-card variant="outlined" class="pa-3">
+                    <v-card-title class="text-subtitle-2 pb-2">Scheduled Date Range</v-card-title>
+                    <v-row dense>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="filters.scheduledAfter"
+                          label="After"
+                          type="datetime-local"
+                          clearable
+                          density="compact"
+                          hide-details
+                          hint="Tasks scheduled after this date"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6">
+                        <v-text-field
+                          v-model="filters.scheduledBefore"
+                          label="Before"
+                          type="datetime-local"
+                          clearable
+                          density="compact"
+                          hide-details
+                          hint="Tasks scheduled before this date"></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-card>
                 </v-col>
               </v-row>
 
@@ -157,7 +192,7 @@
           hover
           density="compact"
           fixed-header
-          height="60vh"
+          :height="showFilters ? '40vh' : '60vh'"
           @update:options="handlePaginationUpdate">
           <template #item.status="{ item }">
             <v-chip :color="getStatusColor(item.status)" size="small" variant="flat">
