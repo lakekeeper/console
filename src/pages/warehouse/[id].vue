@@ -61,6 +61,7 @@
             permissions
           </v-tab>
           <v-tab density="compact" value="details" @click="loadTabData">Details</v-tab>
+          <v-tab density="compact" value="tasks" @click="loadTabData">Tasks</v-tab>
         </v-tabs>
         <v-card>
           <v-tabs-window v-model="tab">
@@ -365,6 +366,9 @@
                 :relation-type="permissionType"
                 @permissions="assign" />
             </v-tabs-window-item>
+            <v-tabs-window-item v-if="loaded" value="tasks">
+              <TaskManager :warehouse-id="params.id" />
+            </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
       </v-col>
@@ -375,6 +379,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
+import TaskManager from '../../components/TaskManager.vue';
 import {
   AssignmentCollection,
   Header,
@@ -487,6 +492,8 @@ async function loadTabData() {
     await init();
   } else if (tab.value === 'details') {
     await loadWarehouse();
+  } else if (tab.value === 'tasks') {
+    // Tasks are handled by the TaskManager component
   }
 }
 async function init() {
