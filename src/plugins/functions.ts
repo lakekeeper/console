@@ -16,6 +16,8 @@ import JSONBig from 'json-bigint';
 import * as mng from '@/gen/management/sdk.gen';
 import * as mngClient from '@/gen/management/client.gen';
 import {
+  ControlTaskAction,
+  ControlTasksRequest,
   CreateRoleRequest,
   CreateWarehouseRequest,
   CreateWarehouseResponse,
@@ -24,10 +26,14 @@ import {
   GetNamespaceAuthPropertiesResponse,
   GetNamespaceProtectionResponse,
   GetProjectResponse,
+  GetTaskDetailsResponse,
+  GetTaskQueueConfigResponse,
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
   ListDeletedTabularsResponse,
   ListRolesResponse,
+  ListTasksRequest,
+  ListTasksResponse,
   ListWarehousesResponse,
   NamespaceAction,
   NamespaceAssignment,
@@ -43,6 +49,7 @@ import {
   ServerAction,
   ServerAssignment,
   ServerInfo,
+  SetTaskQueueConfigRequest,
   SetWarehouseProtectionResponse,
   StorageCredential,
   StorageProfile,
@@ -1827,6 +1834,177 @@ async function deleteRole(roleId: string): Promise<boolean> {
   }
 }
 
+// Tasks
+
+async function getTaskQueueConfigTabularExpiration(
+  warehouseId: string,
+): Promise<GetTaskQueueConfigResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getTaskQueueConfigTabularExpiration({
+      client,
+      path: { warehouse_id: warehouseId, queue_name: 'tabular_expiration' } as any,
+    });
+
+    if (error) throw error;
+
+    return data as GetTaskQueueConfigResponse;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setTaskQueueConfigTabularExpiration(
+  warehouseId: string,
+  config: SetTaskQueueConfigRequest,
+): Promise<boolean> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { error } = await mng.setTaskQueueConfigTabularExpiration({
+      client,
+      path: { warehouse_id: warehouseId, queue_name: 'tabular_expiration' } as any,
+      body: config,
+    });
+
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getTaskQueueConfigTabularPurge(
+  warehouseId: string,
+): Promise<GetTaskQueueConfigResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getTaskQueueConfigTabularPurge({
+      client,
+      path: { warehouse_id: warehouseId, queue_name: 'tabular_purge' } as any,
+    });
+
+    if (error) throw error;
+
+    return data as GetTaskQueueConfigResponse;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setTaskQueueConfigTabularPurge(
+  warehouseId: string,
+  config: SetTaskQueueConfigRequest,
+): Promise<boolean> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { error } = await mng.setTaskQueueConfigTabularPurge({
+      client,
+      path: { warehouse_id: warehouseId, queue_name: 'tabular_purge' } as any,
+      body: config,
+    });
+
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getTaskDetails(
+  warehouseId: string,
+  taskId: string,
+): Promise<GetTaskDetailsResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getTaskDetails({
+      client,
+      path: { warehouse_id: warehouseId, task_id: taskId },
+    });
+
+    if (error) throw error;
+
+    return data as GetTaskDetailsResponse;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function controlTasks(
+  warehouseId: string,
+  action: ControlTaskAction,
+  taskIds: string[],
+): Promise<boolean> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const body: ControlTasksRequest = {
+      action,
+      'task-ids': taskIds,
+    };
+
+    const { error } = await mng.controlTasks({
+      client,
+      path: { warehouse_id: warehouseId },
+      body,
+    });
+
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function listTasks(
+  warehouseId: string,
+  request: ListTasksRequest,
+): Promise<ListTasksResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.listTasks({
+      client,
+      path: { warehouse_id: warehouseId },
+      body: request,
+    });
+
+    if (error) throw error;
+
+    return data as ListTasksResponse;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
 // Access
 
 async function getServerAccess(): Promise<ServerAction[]> {
@@ -2172,6 +2350,14 @@ export function useFunctions() {
     setViewProtection,
     getViewProtection,
     getProjectAccessById,
+    // Task functions
+    getTaskQueueConfigTabularExpiration,
+    setTaskQueueConfigTabularExpiration,
+    getTaskQueueConfigTabularPurge,
+    setTaskQueueConfigTabularPurge,
+    getTaskDetails,
+    controlTasks,
+    listTasks,
   };
 }
 
