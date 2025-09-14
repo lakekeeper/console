@@ -129,6 +129,35 @@ export type CheckResponse = {
   allowed: boolean;
 };
 
+export type ControlTaskAction =
+  | {
+      action: 'stop';
+    }
+  | {
+      action: 'cancel';
+    }
+  | {
+      action: 'run-now';
+    }
+  | {
+      action: 'run-at';
+      /**
+       * The time to run the task at
+       */
+      scheduled_for: string;
+    };
+
+export type ControlTasksRequest = {
+  /**
+   * The action to perform on the task
+   */
+  action: ControlTaskAction;
+  /**
+   * Tasks to apply the action to
+   */
+  'task-ids': Array<string>;
+};
+
 export type CreateProjectRequest = {
   /**
    * Request a specific project ID - optional.
@@ -194,8 +223,7 @@ export type CreateUserRequest = {
 
 export type CreateWarehouseRequest = {
   /**
-   * Profile to determine behavior upon dropping of tabulars, defaults to soft-deletion with
-   * 7 days expiration.
+   * Profile to determine behavior upon dropping of tabulars. Default: hard deletion.
    */
   'delete-profile'?: TabularDeleteProfile;
   /**
@@ -357,13 +385,6 @@ export type ErrorModel = {
 };
 
 /**
- * Warehouse-specific configuration for the expiration queue.
- */
-export type ExpirationQueueConfig = {
-  [key: string]: unknown;
-};
-
-/**
  * GCS Credentials
  *
  * Currently only supports Service Account Key
@@ -492,6 +513,25 @@ export type GetTableAssignmentsResponse = {
   assignments: Array<TableAssignment>;
 };
 
+export type GetTaskDetailsResponse = Task & {
+  /**
+   * History of past attempts
+   */
+  attempts: Array<TaskAttempt>;
+  /**
+   * Execution details for the current attempt
+   */
+  'execution-details'?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Task-specific data
+   */
+  'task-data': {
+    [key: string]: unknown;
+  };
+};
+
 export type GetTaskQueueConfigResponse = {
   'max-seconds-since-last-heartbeat'?: number | null;
   'queue-config': QueueConfigResponse;
@@ -576,6 +616,50 @@ export type ListProjectsResponse = {
 export type ListRolesResponse = {
   'next-page-token'?: string | null;
   roles: Array<Role>;
+};
+
+export type ListTasksRequest = {
+  /**
+   * Filter tasks created after this timestamp
+   */
+  'created-after'?: string | null;
+  /**
+   * Filter tasks created before this timestamp
+   */
+  'created-before'?: string | null;
+  /**
+   * Filter by specific entity
+   */
+  entities?: Array<TaskEntity> | null;
+  /**
+   * Number of results per page
+   */
+  'page-size'?: number | null;
+  /**
+   * Next page token, re-use the same request as for the original request,
+   * but set this to the `next_page_token` from the previous response.
+   * Stop iterating when no more items are returned in a page.
+   */
+  'page-token'?: string | null;
+  /**
+   * Filter by one or more queue names
+   */
+  'queue-name'?: Array<string> | null;
+  /**
+   * Filter by task status
+   */
+  status?: Array<TaskStatus> | null;
+};
+
+export type ListTasksResponse = {
+  /**
+   * Token for the next page of results
+   */
+  'next-page-token'?: string | null;
+  /**
+   * List of tasks
+   */
+  tasks: Array<Task>;
 };
 
 export type ListUsersResponse = {
@@ -917,6 +1001,12 @@ export type S3Profile = {
    */
   'sts-role-arn'?: string | null;
   /**
+   * Optional session tags for STS assume role operations.
+   */
+  'sts-session-tags'?: {
+    [key: string]: string;
+  };
+  /**
    * The validity of the sts tokens in seconds. Default is 3600
    */
   'sts-token-validity-seconds'?: number;
@@ -1030,8 +1120,9 @@ export type ServerInfo = {
   queues: Array<string>;
   /**
    * ID of the server.
+   * Returns null if the catalog has not been bootstrapped.
    */
-  'server-id': string;
+  'server-id'?: string | null;
   /**
    * Version of the server.
    */
@@ -1137,6 +1228,13 @@ export type TabularDeleteProfile =
     };
 
 /**
+ * Warehouse-specific configuration for the tabular expiration (Soft-Deletion) queue.
+ */
+export type TabularExpirationQueueConfig = {
+  [key: string]: unknown;
+};
+
+/**
  * Identifier for a table or view, either a UUID or its name and namespace
  */
 export type TabularIdentOrUuid =
@@ -1166,6 +1264,110 @@ export type TabularIdentUuid =
  * Type of tabular
  */
 export type TabularType = 'table' | 'view';
+
+export type Task = {
+  /**
+   * Current attempt number
+   */
+  attempt: number;
+  /**
+   * When this task attempt was created
+   */
+  'created-at': string;
+  /**
+   * Type of entity this task operates on
+   */
+  entity: TaskEntity;
+  /**
+   * Last heartbeat timestamp for running tasks
+   */
+  'last-heartbeat-at'?: string | null;
+  /**
+   * Parent task ID if this is a sub-task
+   */
+  'parent-task-id'?: string | null;
+  /**
+   * When the latest attempt of the task was picked up for processing by a worker.
+   */
+  'picked-up-at'?: string | null;
+  /**
+   * Progress of the task (0.0 to 1.0)
+   */
+  progress: number;
+  /**
+   * Name of the queue processing this task
+   */
+  'queue-name': string;
+  /**
+   * When the latest attempt of the task is scheduled for
+   */
+  'scheduled-for': string;
+  /**
+   * Current status of the task
+   */
+  status: TaskStatus;
+  /**
+   * Unique identifier for the task
+   */
+  'task-id': string;
+  /**
+   * When the task was last updated
+   */
+  'updated-at'?: string | null;
+  /**
+   * Warehouse ID associated with the task
+   */
+  'warehouse-id': string;
+};
+
+export type TaskAttempt = {
+  /**
+   * Attempt number
+   */
+  attempt: number;
+  /**
+   * When this attempt was created
+   */
+  'created-at': string;
+  /**
+   * How long this attempt took
+   */
+  duration?: string | null;
+  /**
+   * Execution details for this attempt
+   */
+  'execution-details'?: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * Message associated with this attempt
+   */
+  message?: string | null;
+  /**
+   * Progress achieved in this attempt
+   */
+  progress: number;
+  /**
+   * When this attempt was scheduled for
+   */
+  'scheduled-for': string;
+  /**
+   * When this attempt started
+   */
+  'started-at'?: string | null;
+  /**
+   * Status of this attempt
+   */
+  status: TaskStatus;
+};
+
+export type TaskEntity = {
+  'table-id': string;
+  type: 'table';
+  'warehouse-id': string;
+};
+
+export type TaskStatus = 'RUNNING' | 'SCHEDULED' | 'STOPPING' | 'CANCELLED' | 'SUCCESS' | 'FAILED';
 
 export type TimeWindowSelector =
   | {
@@ -1997,7 +2199,7 @@ export type UpdateServerAssignmentsResponses = {
 export type UpdateServerAssignmentsResponse =
   UpdateServerAssignmentsResponses[keyof UpdateServerAssignmentsResponses];
 
-export type GetTableAccessByIdData = {
+export type GetTableAccessByIdDeprecatedData = {
   body?: never;
   path: {
     /**
@@ -2016,17 +2218,17 @@ export type GetTableAccessByIdData = {
   url: '/management/v1/permissions/table/{table_id}/access';
 };
 
-export type GetTableAccessByIdResponses = {
+export type GetTableAccessByIdDeprecatedResponses = {
   /**
    * Server Relations
    */
   200: GetTableAccessResponse;
 };
 
-export type GetTableAccessByIdResponse =
-  GetTableAccessByIdResponses[keyof GetTableAccessByIdResponses];
+export type GetTableAccessByIdDeprecatedResponse =
+  GetTableAccessByIdDeprecatedResponses[keyof GetTableAccessByIdDeprecatedResponses];
 
-export type GetTableAssignmentsByIdData = {
+export type GetTableAssignmentsByIdDeprecatedData = {
   body?: never;
   path: {
     /**
@@ -2043,14 +2245,14 @@ export type GetTableAssignmentsByIdData = {
   url: '/management/v1/permissions/table/{table_id}/assignments';
 };
 
-export type GetTableAssignmentsByIdResponses = {
+export type GetTableAssignmentsByIdDeprecatedResponses = {
   200: GetTableAssignmentsResponse;
 };
 
-export type GetTableAssignmentsByIdResponse =
-  GetTableAssignmentsByIdResponses[keyof GetTableAssignmentsByIdResponses];
+export type GetTableAssignmentsByIdDeprecatedResponse =
+  GetTableAssignmentsByIdDeprecatedResponses[keyof GetTableAssignmentsByIdDeprecatedResponses];
 
-export type UpdateTableAssignmentsByIdData = {
+export type UpdateTableAssignmentsByIdDeprecatedData = {
   body: UpdateTableAssignmentsRequest;
   path: {
     /**
@@ -2062,17 +2264,17 @@ export type UpdateTableAssignmentsByIdData = {
   url: '/management/v1/permissions/table/{table_id}/assignments';
 };
 
-export type UpdateTableAssignmentsByIdResponses = {
+export type UpdateTableAssignmentsByIdDeprecatedResponses = {
   /**
    * Permissions updated successfully
    */
   204: void;
 };
 
-export type UpdateTableAssignmentsByIdResponse =
-  UpdateTableAssignmentsByIdResponses[keyof UpdateTableAssignmentsByIdResponses];
+export type UpdateTableAssignmentsByIdDeprecatedResponse =
+  UpdateTableAssignmentsByIdDeprecatedResponses[keyof UpdateTableAssignmentsByIdDeprecatedResponses];
 
-export type GetViewAccessByIdData = {
+export type GetViewAccessByIdDeprecatedData = {
   body?: never;
   path: {
     /**
@@ -2091,14 +2293,14 @@ export type GetViewAccessByIdData = {
   url: '/management/v1/permissions/view/{view_id}/access';
 };
 
-export type GetViewAccessByIdResponses = {
+export type GetViewAccessByIdDeprecatedResponses = {
   200: GetViewAccessResponse;
 };
 
-export type GetViewAccessByIdResponse =
-  GetViewAccessByIdResponses[keyof GetViewAccessByIdResponses];
+export type GetViewAccessByIdDeprecatedResponse =
+  GetViewAccessByIdDeprecatedResponses[keyof GetViewAccessByIdDeprecatedResponses];
 
-export type GetViewAssignmentsByIdData = {
+export type GetViewAssignmentsByIdDeprecatedData = {
   body?: never;
   path: {
     /**
@@ -2115,14 +2317,14 @@ export type GetViewAssignmentsByIdData = {
   url: '/management/v1/permissions/view/{view_id}/assignments';
 };
 
-export type GetViewAssignmentsByIdResponses = {
+export type GetViewAssignmentsByIdDeprecatedResponses = {
   200: GetViewAssignmentsResponse;
 };
 
-export type GetViewAssignmentsByIdResponse =
-  GetViewAssignmentsByIdResponses[keyof GetViewAssignmentsByIdResponses];
+export type GetViewAssignmentsByIdDeprecatedResponse =
+  GetViewAssignmentsByIdDeprecatedResponses[keyof GetViewAssignmentsByIdDeprecatedResponses];
 
-export type UpdateViewAssignmentsByIdData = {
+export type UpdateViewAssignmentsByIdDeprecatedData = {
   body: UpdateViewAssignmentsRequest;
   path: {
     /**
@@ -2134,15 +2336,15 @@ export type UpdateViewAssignmentsByIdData = {
   url: '/management/v1/permissions/view/{view_id}/assignments';
 };
 
-export type UpdateViewAssignmentsByIdResponses = {
+export type UpdateViewAssignmentsByIdDeprecatedResponses = {
   /**
    * Permissions updated successfully
    */
   204: void;
 };
 
-export type UpdateViewAssignmentsByIdResponse =
-  UpdateViewAssignmentsByIdResponses[keyof UpdateViewAssignmentsByIdResponses];
+export type UpdateViewAssignmentsByIdDeprecatedResponse =
+  UpdateViewAssignmentsByIdDeprecatedResponses[keyof UpdateViewAssignmentsByIdDeprecatedResponses];
 
 export type GetWarehouseByIdData = {
   body?: never;
@@ -2249,6 +2451,177 @@ export type SetWarehouseManagedAccessData = {
 export type SetWarehouseManagedAccessResponses = {
   200: unknown;
 };
+
+export type GetTableAccessByIdData = {
+  body?: never;
+  path: {
+    /**
+     * Warehouse ID
+     */
+    warehouse_id: string;
+    /**
+     * Table ID
+     */
+    table_id: string;
+  };
+  query?: {
+    /**
+     * The user or role to show access for.
+     * If not specified, shows access for the current user.
+     */
+    principalUser?: string;
+    principalRole?: string;
+  };
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/table/{table_id}/access';
+};
+
+export type GetTableAccessByIdResponses = {
+  /**
+   * Server Relations
+   */
+  200: GetTableAccessResponse;
+};
+
+export type GetTableAccessByIdResponse =
+  GetTableAccessByIdResponses[keyof GetTableAccessByIdResponses];
+
+export type GetTableAssignmentsByIdData = {
+  body?: never;
+  path: {
+    /**
+     * Warehouse ID
+     */
+    warehouse_id: string;
+    /**
+     * Table ID
+     */
+    table_id: string;
+  };
+  query?: {
+    /**
+     * Relations to be loaded. If not specified, all relations are returned.
+     */
+    relations?: Array<TableRelation>;
+  };
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/table/{table_id}/assignments';
+};
+
+export type GetTableAssignmentsByIdResponses = {
+  200: GetTableAssignmentsResponse;
+};
+
+export type GetTableAssignmentsByIdResponse =
+  GetTableAssignmentsByIdResponses[keyof GetTableAssignmentsByIdResponses];
+
+export type UpdateTableAssignmentsByIdData = {
+  body: UpdateTableAssignmentsRequest;
+  path: {
+    /**
+     * Warehouse ID
+     */
+    warehouse_id: string;
+    /**
+     * Table ID
+     */
+    table_id: string;
+  };
+  query?: never;
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/table/{table_id}/assignments';
+};
+
+export type UpdateTableAssignmentsByIdResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
+
+export type UpdateTableAssignmentsByIdResponse =
+  UpdateTableAssignmentsByIdResponses[keyof UpdateTableAssignmentsByIdResponses];
+
+export type GetViewAccessByIdData = {
+  body?: never;
+  path: {
+    /**
+     * Warehouse ID
+     */
+    warehouse_id: string;
+    /**
+     * View ID
+     */
+    view_id: string;
+  };
+  query?: {
+    /**
+     * The user or role to show access for.
+     * If not specified, shows access for the current user.
+     */
+    principalUser?: string;
+    principalRole?: string;
+  };
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/view/{view_id}/access';
+};
+
+export type GetViewAccessByIdResponses = {
+  200: GetViewAccessResponse;
+};
+
+export type GetViewAccessByIdResponse =
+  GetViewAccessByIdResponses[keyof GetViewAccessByIdResponses];
+
+export type GetViewAssignmentsByIdData = {
+  body?: never;
+  path: {
+    /**
+     * Warehouse ID
+     */
+    warehouse_id: string;
+    /**
+     * View ID
+     */
+    view_id: string;
+  };
+  query?: {
+    /**
+     * Relations to be loaded. If not specified, all relations are returned.
+     */
+    relations?: Array<ViewRelation>;
+  };
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/view/{view_id}/assignments';
+};
+
+export type GetViewAssignmentsByIdResponses = {
+  200: GetViewAssignmentsResponse;
+};
+
+export type GetViewAssignmentsByIdResponse =
+  GetViewAssignmentsByIdResponses[keyof GetViewAssignmentsByIdResponses];
+
+export type UpdateViewAssignmentsByIdData = {
+  body: UpdateViewAssignmentsRequest;
+  path: {
+    /**
+     * Warehouse ID
+     */
+    warehouse_id: string;
+    /**
+     * View ID
+     */
+    view_id: string;
+  };
+  query?: never;
+  url: '/management/v1/permissions/warehouse/{warehouse_id}/view/{view_id}/assignments';
+};
+
+export type UpdateViewAssignmentsByIdResponses = {
+  /**
+   * Permissions updated successfully
+   */
+  204: void;
+};
+
+export type UpdateViewAssignmentsByIdResponse =
+  UpdateViewAssignmentsByIdResponses[keyof UpdateViewAssignmentsByIdResponses];
 
 export type DeleteDefaultProjectData = {
   body?: never;
@@ -2467,7 +2840,7 @@ export type ListRolesData = {
      * Signals an upper bound of the number of results that a client will receive.
      * Default: 100
      */
-    pageSize?: number;
+    pageSize?: number | null;
     /**
      * Project ID from which roles should be listed
      * Deprecated: Please use the `x-project-id` header instead.
@@ -2646,7 +3019,7 @@ export type ListUserData = {
      * Signals an upper bound of the number of results that a client will receive.
      * Default: 100
      */
-    pageSize?: number;
+    pageSize?: number | null;
   };
   url: '/management/v1/user';
 };
@@ -2951,7 +3324,7 @@ export type ListDeletedTabularsData = {
      * Signals an upper bound of the number of results that a client will receive.
      * Default: 100
      */
-    pageSize?: number;
+    pageSize?: number | null;
   };
   url: '/management/v1/warehouse/{warehouse_id}/deleted-tabulars';
 };
@@ -3340,14 +3713,14 @@ export type GetTaskQueueConfigTabularExpirationError =
   GetTaskQueueConfigTabularExpirationErrors[keyof GetTaskQueueConfigTabularExpirationErrors];
 
 export type GetTaskQueueConfigTabularExpirationResponses = {
-  200: ExpirationQueueConfig;
+  200: TabularExpirationQueueConfig;
 };
 
 export type GetTaskQueueConfigTabularExpirationResponse =
   GetTaskQueueConfigTabularExpirationResponses[keyof GetTaskQueueConfigTabularExpirationResponses];
 
 export type SetTaskQueueConfigTabularExpirationData = {
-  body: ExpirationQueueConfig;
+  body: TabularExpirationQueueConfig;
   path: {
     warehouse_id: string;
   };
@@ -3421,6 +3794,78 @@ export type SetTaskQueueConfigTabularPurgeResponses = {
 
 export type SetTaskQueueConfigTabularPurgeResponse =
   SetTaskQueueConfigTabularPurgeResponses[keyof SetTaskQueueConfigTabularPurgeResponses];
+
+export type GetTaskDetailsData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    task_id: string;
+  };
+  query?: {
+    /**
+     * Number of attempts to retrieve (default: 5)
+     */
+    numAttempts?: number | null;
+  };
+  url: '/management/v1/{warehouse_id}/task/by-id/{task_id}';
+};
+
+export type GetTaskDetailsErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetTaskDetailsError = GetTaskDetailsErrors[keyof GetTaskDetailsErrors];
+
+export type GetTaskDetailsResponses = {
+  200: GetTaskDetailsResponse;
+};
+
+export type GetTaskDetailsResponse2 = GetTaskDetailsResponses[keyof GetTaskDetailsResponses];
+
+export type ControlTasksData = {
+  body: ControlTasksRequest;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/{warehouse_id}/task/control';
+};
+
+export type ControlTasksErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type ControlTasksError = ControlTasksErrors[keyof ControlTasksErrors];
+
+export type ControlTasksResponses = {
+  /**
+   * All requested actions were successful
+   */
+  204: void;
+};
+
+export type ControlTasksResponse = ControlTasksResponses[keyof ControlTasksResponses];
+
+export type ListTasksData = {
+  body: ListTasksRequest;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/{warehouse_id}/task/list';
+};
+
+export type ListTasksErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type ListTasksError = ListTasksErrors[keyof ListTasksErrors];
+
+export type ListTasksResponses = {
+  200: ListTasksResponse;
+};
+
+export type ListTasksResponse2 = ListTasksResponses[keyof ListTasksResponses];
 
 export type ClientOptions = {
   baseUrl: '{scheme}://{host}/{basePath}' | (string & {});

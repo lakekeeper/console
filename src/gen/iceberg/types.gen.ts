@@ -953,7 +953,7 @@ export type FetchPlanningResult =
       status?: 'failed';
     } & FailedPlanningResult)
   | ({
-      status?: 'submitted';
+      status?: 'submitted' | 'cancelled';
     } & EmptyPlanningResult);
 
 /**
