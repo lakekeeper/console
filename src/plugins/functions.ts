@@ -1421,7 +1421,10 @@ async function setNamespaceManagedAccess(
   }
 }
 
-async function getTableAssignmentsById(tableId: string): Promise<TableAssignment[]> {
+async function getTableAssignmentsById(
+  tableId: string,
+  warehouseId: string,
+): Promise<TableAssignment[]> {
   try {
     const visual = useVisualStore();
     const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
@@ -1435,6 +1438,7 @@ async function getTableAssignmentsById(tableId: string): Promise<TableAssignment
       client,
       path: {
         table_id: tableId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1452,6 +1456,7 @@ async function updateTableAssignmentsById(
   tableId: string,
   deletes: TableAssignment[],
   writes: TableAssignment[],
+  warehouseId: string,
 ): Promise<boolean> {
   try {
     init();
@@ -1463,6 +1468,7 @@ async function updateTableAssignmentsById(
       body: { deletes, writes },
       path: {
         table_id: tableId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1475,7 +1481,10 @@ async function updateTableAssignmentsById(
   }
 }
 
-async function getViewAssignmentsById(viewId: string): Promise<ViewAssignment[]> {
+async function getViewAssignmentsById(
+  viewId: string,
+  warehouseId: string,
+): Promise<ViewAssignment[]> {
   try {
     const visual = useVisualStore();
     const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
@@ -1489,6 +1498,7 @@ async function getViewAssignmentsById(viewId: string): Promise<ViewAssignment[]>
       client,
       path: {
         view_id: viewId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1505,6 +1515,7 @@ async function updateViewAssignmentsById(
   viewId: string,
   deletes: ViewAssignment[],
   writes: ViewAssignment[],
+  warehouseId: string,
 ): Promise<boolean> {
   try {
     init();
@@ -1516,6 +1527,7 @@ async function updateViewAssignmentsById(
       body: { deletes, writes },
       path: {
         view_id: viewId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1947,7 +1959,7 @@ async function getNamespaceAccessById(namespaceId: string): Promise<NamespaceAct
   }
 }
 
-async function getTableAccessById(tableId: string): Promise<TableAction[]> {
+async function getTableAccessById(tableId: string, warehouseId: string): Promise<TableAction[]> {
   try {
     const visual = useVisualStore();
     const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
@@ -1962,6 +1974,7 @@ async function getTableAccessById(tableId: string): Promise<TableAction[]> {
       client,
       path: {
         table_id: tableId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1976,7 +1989,7 @@ async function getTableAccessById(tableId: string): Promise<TableAction[]> {
   }
 }
 
-async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
+async function getViewAccessById(viewId: string, warehouseId: string): Promise<ViewAction[]> {
   try {
     const visual = useVisualStore();
     const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
@@ -1990,6 +2003,7 @@ async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
       client,
       path: {
         view_id: viewId,
+        warehouse_id: warehouseId,
       },
     });
 

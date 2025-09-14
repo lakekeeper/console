@@ -190,14 +190,16 @@ async function init() {
   permissionObject.id = viewId.value;
   permissionObject.name = viewName;
   if (serverInfo['authz-backend'] != 'allow-all') {
-    Object.assign(myAccess, await functions.getViewAccessById(viewId.value));
+    Object.assign(myAccess, await functions.getViewAccessById(viewId.value, warehouseId));
     await getProtection();
 
     canReadPermissions.value = !!myAccess.includes('read_assignments');
 
     Object.assign(
       existingPermissions,
-      canReadPermissions.value ? await functions.getViewAssignmentsById(viewId.value) : [],
+      canReadPermissions.value
+        ? await functions.getViewAssignmentsById(viewId.value, warehouseId)
+        : [],
     );
   }
 
@@ -238,7 +240,7 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     const del = permissions.del as ViewAssignment[];
     const writes = permissions.writes as ViewAssignment[];
 
-    await functions.updateViewAssignmentsById(viewId.value, del, writes);
+    await functions.updateViewAssignmentsById(viewId.value, del, writes, warehouseId);
     assignStatus.value = StatusIntent.SUCCESS;
     loaded.value = true;
     await init();

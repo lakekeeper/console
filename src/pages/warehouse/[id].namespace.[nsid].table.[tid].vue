@@ -193,14 +193,16 @@ async function init() {
   permissionObject.id = tableId.value;
   permissionObject.name = tableName;
   if (serverInfo['authz-backend'] != 'allow-all') {
-    Object.assign(myAccess, await functions.getTableAccessById(tableId.value));
+    Object.assign(myAccess, await functions.getTableAccessById(tableId.value, warehouseId));
     await getProtection();
     canReadPermissions.value = !!myAccess.includes('read_assignments');
 
     existingPermissions.splice(0, existingPermissions.length);
     Object.assign(
       existingPermissions,
-      canReadPermissions.value ? await functions.getTableAssignmentsById(tableId.value) : [],
+      canReadPermissions.value
+        ? await functions.getTableAssignmentsById(tableId.value, warehouseId)
+        : [],
     );
   }
   loaded.value = true;
@@ -293,7 +295,7 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     const del = permissions.del as TableAssignment[];
     const writes = permissions.writes as TableAssignment[];
 
-    await functions.updateTableAssignmentsById(tableId.value, del, writes);
+    await functions.updateTableAssignmentsById(tableId.value, del, writes, warehouseId);
     assignStatus.value = StatusIntent.SUCCESS;
     loaded.value = true;
     await init();
