@@ -644,7 +644,7 @@ const currentPaginationOptions = ref({
 const showFilters = ref(false);
 const filters = reactive({
   status: [] as TaskStatus[],
-  queueNames: [] as string[],
+  queueNames: [] as (string | { title: string; value: string })[],
   createdAfter: '',
   createdBefore: '',
   scheduledAfter: '',
@@ -997,7 +997,11 @@ async function listTasks() {
       }),
       // Apply filters
       ...(filters.status.length > 0 && { status: filters.status }),
-      ...(filters.queueNames.length > 0 && { 'queue-name': filters.queueNames }),
+      ...(filters.queueNames.length > 0 && {
+        'queue-name': filters.queueNames.map((qn) =>
+          typeof qn === 'string' ? qn : qn.value || qn,
+        ) as string[],
+      }),
       ...(filters.createdAfter && {
         'created-after': new Date(filters.createdAfter).toISOString(),
       }),
