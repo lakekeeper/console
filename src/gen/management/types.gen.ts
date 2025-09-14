@@ -3624,6 +3624,178 @@ export type SetTableProtectionResponses = {
 export type SetTableProtectionResponse =
   SetTableProtectionResponses[keyof SetTableProtectionResponses];
 
+export type GetTaskQueueConfigTabularExpirationData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    queue_name: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_expiration/config';
+};
+
+export type GetTaskQueueConfigTabularExpirationErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetTaskQueueConfigTabularExpirationError =
+  GetTaskQueueConfigTabularExpirationErrors[keyof GetTaskQueueConfigTabularExpirationErrors];
+
+export type GetTaskQueueConfigTabularExpirationResponses = {
+  200: TabularExpirationQueueConfig;
+};
+
+export type GetTaskQueueConfigTabularExpirationResponse =
+  GetTaskQueueConfigTabularExpirationResponses[keyof GetTaskQueueConfigTabularExpirationResponses];
+
+export type SetTaskQueueConfigTabularExpirationData = {
+  body: TabularExpirationQueueConfig;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_expiration/config';
+};
+
+export type SetTaskQueueConfigTabularExpirationErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type SetTaskQueueConfigTabularExpirationError =
+  SetTaskQueueConfigTabularExpirationErrors[keyof SetTaskQueueConfigTabularExpirationErrors];
+
+export type SetTaskQueueConfigTabularExpirationResponses = {
+  /**
+   * Task queue config set successfully
+   */
+  204: void;
+};
+
+export type SetTaskQueueConfigTabularExpirationResponse =
+  SetTaskQueueConfigTabularExpirationResponses[keyof SetTaskQueueConfigTabularExpirationResponses];
+
+export type GetTaskQueueConfigTabularPurgeData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    queue_name: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_purge/config';
+};
+
+export type GetTaskQueueConfigTabularPurgeErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetTaskQueueConfigTabularPurgeError =
+  GetTaskQueueConfigTabularPurgeErrors[keyof GetTaskQueueConfigTabularPurgeErrors];
+
+export type GetTaskQueueConfigTabularPurgeResponses = {
+  200: PurgeQueueConfig;
+};
+
+export type GetTaskQueueConfigTabularPurgeResponse =
+  GetTaskQueueConfigTabularPurgeResponses[keyof GetTaskQueueConfigTabularPurgeResponses];
+
+export type SetTaskQueueConfigTabularPurgeData = {
+  body: PurgeQueueConfig;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_purge/config';
+};
+
+export type SetTaskQueueConfigTabularPurgeErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type SetTaskQueueConfigTabularPurgeError =
+  SetTaskQueueConfigTabularPurgeErrors[keyof SetTaskQueueConfigTabularPurgeErrors];
+
+export type SetTaskQueueConfigTabularPurgeResponses = {
+  /**
+   * Task queue config set successfully
+   */
+  204: void;
+};
+
+export type SetTaskQueueConfigTabularPurgeResponse =
+  SetTaskQueueConfigTabularPurgeResponses[keyof SetTaskQueueConfigTabularPurgeResponses];
+
+export type GetTaskDetailsData = {
+  body?: never;
+  path: {
+    warehouse_id: string;
+    task_id: string;
+  };
+  query?: {
+    /**
+     * Number of attempts to retrieve (default: 5)
+     */
+    numAttempts?: number | null;
+  };
+  url: '/management/v1/warehouse/{warehouse_id}/task/by-id/{task_id}';
+};
+
+export type GetTaskDetailsErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type GetTaskDetailsError = GetTaskDetailsErrors[keyof GetTaskDetailsErrors];
+
+export type GetTaskDetailsResponses = {
+  200: GetTaskDetailsResponse;
+};
+
+export type GetTaskDetailsResponse2 = GetTaskDetailsResponses[keyof GetTaskDetailsResponses];
+
+export type ControlTasksData = {
+  body: ControlTasksRequest;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/task/control';
+};
+
+export type ControlTasksErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type ControlTasksError = ControlTasksErrors[keyof ControlTasksErrors];
+
+export type ControlTasksResponses = {
+  /**
+   * All requested actions were successful
+   */
+  204: void;
+};
+
+export type ControlTasksResponse = ControlTasksResponses[keyof ControlTasksResponses];
+
+export type ListTasksData = {
+  body: ListTasksRequest;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/task/list';
+};
+
+export type ListTasksErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type ListTasksError = ListTasksErrors[keyof ListTasksErrors];
+
+export type ListTasksResponses = {
+  200: ListTasksResponse;
+};
+
+export type ListTasksResponse2 = ListTasksResponses[keyof ListTasksResponses];
+
 export type GetViewProtectionData = {
   body?: never;
   path: {
@@ -3694,178 +3866,6 @@ export type WhoamiResponses = {
 };
 
 export type WhoamiResponse = WhoamiResponses[keyof WhoamiResponses];
-
-export type GetTaskQueueConfigTabularExpirationData = {
-  body?: never;
-  path: {
-    warehouse_id: string;
-    queue_name: string;
-  };
-  query?: never;
-  url: '/management/v1/{warehouse_id}/task-queue/tabular_expiration/config';
-};
-
-export type GetTaskQueueConfigTabularExpirationErrors = {
-  '4XX': IcebergErrorResponse;
-};
-
-export type GetTaskQueueConfigTabularExpirationError =
-  GetTaskQueueConfigTabularExpirationErrors[keyof GetTaskQueueConfigTabularExpirationErrors];
-
-export type GetTaskQueueConfigTabularExpirationResponses = {
-  200: TabularExpirationQueueConfig;
-};
-
-export type GetTaskQueueConfigTabularExpirationResponse =
-  GetTaskQueueConfigTabularExpirationResponses[keyof GetTaskQueueConfigTabularExpirationResponses];
-
-export type SetTaskQueueConfigTabularExpirationData = {
-  body: TabularExpirationQueueConfig;
-  path: {
-    warehouse_id: string;
-  };
-  query?: never;
-  url: '/management/v1/{warehouse_id}/task-queue/tabular_expiration/config';
-};
-
-export type SetTaskQueueConfigTabularExpirationErrors = {
-  '4XX': IcebergErrorResponse;
-};
-
-export type SetTaskQueueConfigTabularExpirationError =
-  SetTaskQueueConfigTabularExpirationErrors[keyof SetTaskQueueConfigTabularExpirationErrors];
-
-export type SetTaskQueueConfigTabularExpirationResponses = {
-  /**
-   * Task queue config set successfully
-   */
-  204: void;
-};
-
-export type SetTaskQueueConfigTabularExpirationResponse =
-  SetTaskQueueConfigTabularExpirationResponses[keyof SetTaskQueueConfigTabularExpirationResponses];
-
-export type GetTaskQueueConfigTabularPurgeData = {
-  body?: never;
-  path: {
-    warehouse_id: string;
-    queue_name: string;
-  };
-  query?: never;
-  url: '/management/v1/{warehouse_id}/task-queue/tabular_purge/config';
-};
-
-export type GetTaskQueueConfigTabularPurgeErrors = {
-  '4XX': IcebergErrorResponse;
-};
-
-export type GetTaskQueueConfigTabularPurgeError =
-  GetTaskQueueConfigTabularPurgeErrors[keyof GetTaskQueueConfigTabularPurgeErrors];
-
-export type GetTaskQueueConfigTabularPurgeResponses = {
-  200: PurgeQueueConfig;
-};
-
-export type GetTaskQueueConfigTabularPurgeResponse =
-  GetTaskQueueConfigTabularPurgeResponses[keyof GetTaskQueueConfigTabularPurgeResponses];
-
-export type SetTaskQueueConfigTabularPurgeData = {
-  body: PurgeQueueConfig;
-  path: {
-    warehouse_id: string;
-  };
-  query?: never;
-  url: '/management/v1/{warehouse_id}/task-queue/tabular_purge/config';
-};
-
-export type SetTaskQueueConfigTabularPurgeErrors = {
-  '4XX': IcebergErrorResponse;
-};
-
-export type SetTaskQueueConfigTabularPurgeError =
-  SetTaskQueueConfigTabularPurgeErrors[keyof SetTaskQueueConfigTabularPurgeErrors];
-
-export type SetTaskQueueConfigTabularPurgeResponses = {
-  /**
-   * Task queue config set successfully
-   */
-  204: void;
-};
-
-export type SetTaskQueueConfigTabularPurgeResponse =
-  SetTaskQueueConfigTabularPurgeResponses[keyof SetTaskQueueConfigTabularPurgeResponses];
-
-export type GetTaskDetailsData = {
-  body?: never;
-  path: {
-    warehouse_id: string;
-    task_id: string;
-  };
-  query?: {
-    /**
-     * Number of attempts to retrieve (default: 5)
-     */
-    numAttempts?: number | null;
-  };
-  url: '/management/v1/{warehouse_id}/task/by-id/{task_id}';
-};
-
-export type GetTaskDetailsErrors = {
-  '4XX': IcebergErrorResponse;
-};
-
-export type GetTaskDetailsError = GetTaskDetailsErrors[keyof GetTaskDetailsErrors];
-
-export type GetTaskDetailsResponses = {
-  200: GetTaskDetailsResponse;
-};
-
-export type GetTaskDetailsResponse2 = GetTaskDetailsResponses[keyof GetTaskDetailsResponses];
-
-export type ControlTasksData = {
-  body: ControlTasksRequest;
-  path: {
-    warehouse_id: string;
-  };
-  query?: never;
-  url: '/management/v1/{warehouse_id}/task/control';
-};
-
-export type ControlTasksErrors = {
-  '4XX': IcebergErrorResponse;
-};
-
-export type ControlTasksError = ControlTasksErrors[keyof ControlTasksErrors];
-
-export type ControlTasksResponses = {
-  /**
-   * All requested actions were successful
-   */
-  204: void;
-};
-
-export type ControlTasksResponse = ControlTasksResponses[keyof ControlTasksResponses];
-
-export type ListTasksData = {
-  body: ListTasksRequest;
-  path: {
-    warehouse_id: string;
-  };
-  query?: never;
-  url: '/management/v1/{warehouse_id}/task/list';
-};
-
-export type ListTasksErrors = {
-  '4XX': IcebergErrorResponse;
-};
-
-export type ListTasksError = ListTasksErrors[keyof ListTasksErrors];
-
-export type ListTasksResponses = {
-  200: ListTasksResponse;
-};
-
-export type ListTasksResponse2 = ListTasksResponses[keyof ListTasksResponses];
 
 export type ClientOptions = {
   baseUrl: '{scheme}://{host}/{basePath}' | (string & {});

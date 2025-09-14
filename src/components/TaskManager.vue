@@ -22,7 +22,6 @@
             { title: '50 items', value: 50 },
             { title: '100 items', value: 100 },
           ]"
-          :sort-by="[{ key: 'created-at', order: 'desc' }]"
           hover
           density="compact">
           <template #item.status="{ item }">
@@ -142,12 +141,12 @@ const visual = useVisualStore();
 
 // Table headers
 const taskHeaders = Object.freeze([
-  { title: 'Task ID', key: 'task-id', align: 'start' as const },
-  { title: 'Status', key: 'status', align: 'start' as const },
+  { title: 'Task ID', key: 'task-id', align: 'start' as const, sortable: false },
+  { title: 'Status', key: 'status', align: 'start' as const, sortable: false },
   { title: 'Progress', key: 'progress', align: 'start' as const, sortable: false },
-  { title: 'Queue', key: 'queue-name', align: 'start' as const },
-  { title: 'Created', key: 'created-at', align: 'start' as const },
-  { title: 'Scheduled For', key: 'scheduled-for', align: 'start' as const },
+  { title: 'Queue', key: 'queue-name', align: 'start' as const, sortable: false },
+  { title: 'Created', key: 'created-at', align: 'start' as const, sortable: false },
+  { title: 'Scheduled For', key: 'scheduled-for', align: 'start' as const, sortable: false },
   { title: 'Actions', key: 'actions', align: 'end' as const, sortable: false },
 ]);
 
