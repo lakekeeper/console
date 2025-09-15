@@ -53,7 +53,7 @@
                           :items="queueNameOptions"
                           item-title="title"
                           item-value="value"
-                          label="Queue Names"
+                          label="Task Types"
                           multiple
                           chips
                           clearable
@@ -584,6 +584,7 @@
 import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
 import { Type } from '@/common/interfaces';
+import { useQueueConfig } from '@/common/queueConfig';
 import { reactive, ref, onMounted, computed } from 'vue';
 import {
   Task,
@@ -603,6 +604,9 @@ const props = defineProps<{
 // Composables
 const functions = useFunctions();
 const visual = useVisualStore();
+
+// Queue configuration
+const queueManager = useQueueConfig();
 
 // Table headers
 const taskHeaders = Object.freeze([
@@ -663,11 +667,13 @@ const statusOptions = [
   { title: 'Failed', value: 'FAILED' as TaskStatus },
 ];
 
-// Common queue names for the filter dropdown
-const queueNameOptions = [
-  { title: 'Tabular Expiration', value: 'tabular_expiration' },
-  { title: 'Tabular Purge', value: 'tabular_purge' },
-];
+// Queue name options from configuration
+const queueNameOptions = computed(() =>
+  queueManager.options.map((option) => ({
+    title: option.title,
+    value: option.value,
+  })),
+);
 
 // Computed properties for filter state
 const hasActiveFilters = computed(() => {
@@ -856,16 +862,7 @@ function formatDateTime(dateString: string): string {
 }
 
 function formatQueueName(queueName: string): string {
-  if (!queueName) return '';
-
-  // Find matching queue option to get human-readable title
-  const queueOption = queueNameOptions.find((option) => option.value === queueName);
-  if (queueOption) {
-    return queueOption.title;
-  }
-
-  // Fallback: return the original queue name if not found in queueNameOptions
-  return queueName;
+  return queueManager.formatQueueName(queueName);
 }
 
 // Task management functions
