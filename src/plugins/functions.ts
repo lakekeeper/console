@@ -27,7 +27,6 @@ import {
   GetNamespaceProtectionResponse,
   GetProjectResponse,
   GetTaskDetailsResponse,
-  GetTaskQueueConfigResponse,
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
   ListDeletedTabularsResponse,
@@ -40,6 +39,7 @@ import {
   ProjectAction,
   ProjectAssignment,
   ProtectionResponse,
+  PurgeQueueConfig,
   RenameProjectRequest,
   Role,
   RoleAction,
@@ -49,13 +49,13 @@ import {
   ServerAction,
   ServerAssignment,
   ServerInfo,
-  SetTaskQueueConfigRequest,
   SetWarehouseProtectionResponse,
   StorageCredential,
   StorageProfile,
   TableAction,
   TableAssignment,
   TabularDeleteProfile,
+  TabularExpirationQueueConfig,
   TimeWindowSelector,
   UpdateRoleRequest,
   User,
@@ -1847,7 +1847,7 @@ async function deleteRole(roleId: string): Promise<boolean> {
 
 async function getTaskQueueConfigTabularExpiration(
   warehouseId: string,
-): Promise<GetTaskQueueConfigResponse> {
+): Promise<TabularExpirationQueueConfig> {
   try {
     init();
 
@@ -1855,12 +1855,12 @@ async function getTaskQueueConfigTabularExpiration(
 
     const { data, error } = await mng.getTaskQueueConfigTabularExpiration({
       client,
-      path: { warehouse_id: warehouseId, queue_name: 'tabular_expiration' } as any,
+      path: { warehouse_id: warehouseId },
     });
 
     if (error) throw error;
 
-    return data as GetTaskQueueConfigResponse;
+    return data as TabularExpirationQueueConfig;
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
@@ -1869,7 +1869,7 @@ async function getTaskQueueConfigTabularExpiration(
 
 async function setTaskQueueConfigTabularExpiration(
   warehouseId: string,
-  config: SetTaskQueueConfigRequest,
+  config: TabularExpirationQueueConfig,
 ): Promise<boolean> {
   try {
     init();
@@ -1878,7 +1878,7 @@ async function setTaskQueueConfigTabularExpiration(
 
     const { error } = await mng.setTaskQueueConfigTabularExpiration({
       client,
-      path: { warehouse_id: warehouseId, queue_name: 'tabular_expiration' } as any,
+      path: { warehouse_id: warehouseId },
       body: config,
     });
 
@@ -1891,9 +1891,7 @@ async function setTaskQueueConfigTabularExpiration(
   }
 }
 
-async function getTaskQueueConfigTabularPurge(
-  warehouseId: string,
-): Promise<GetTaskQueueConfigResponse> {
+async function getTaskQueueConfigTabularPurge(warehouseId: string): Promise<PurgeQueueConfig> {
   try {
     init();
 
@@ -1901,12 +1899,12 @@ async function getTaskQueueConfigTabularPurge(
 
     const { data, error } = await mng.getTaskQueueConfigTabularPurge({
       client,
-      path: { warehouse_id: warehouseId, queue_name: 'tabular_purge' } as any,
+      path: { warehouse_id: warehouseId },
     });
 
     if (error) throw error;
 
-    return data as GetTaskQueueConfigResponse;
+    return data as PurgeQueueConfig;
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
@@ -1915,7 +1913,7 @@ async function getTaskQueueConfigTabularPurge(
 
 async function setTaskQueueConfigTabularPurge(
   warehouseId: string,
-  config: SetTaskQueueConfigRequest,
+  config: PurgeQueueConfig,
 ): Promise<boolean> {
   try {
     init();
@@ -1924,7 +1922,7 @@ async function setTaskQueueConfigTabularPurge(
 
     const { error } = await mng.setTaskQueueConfigTabularPurge({
       client,
-      path: { warehouse_id: warehouseId, queue_name: 'tabular_purge' } as any,
+      path: { warehouse_id: warehouseId },
       body: config,
     });
 
