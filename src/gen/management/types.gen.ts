@@ -3628,7 +3628,6 @@ export type GetTaskQueueConfigTabularExpirationData = {
   body?: never;
   path: {
     warehouse_id: string;
-    queue_name: string;
   };
   query?: never;
   url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_expiration/config';
@@ -3678,7 +3677,6 @@ export type GetTaskQueueConfigTabularPurgeData = {
   body?: never;
   path: {
     warehouse_id: string;
-    queue_name: string;
   };
   query?: never;
   url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_purge/config';
