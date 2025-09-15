@@ -35,7 +35,7 @@
           </v-tab>
           <v-tab value="tasks" @click="loadTabData">tasks</v-tab>
         </v-tabs>
-        <v-card style="max-height: 75vh; overflow: auto">
+        <v-card style="max-height: 80vh; overflow: auto">
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="overview">
               <v-toolbar color="transparent" density="compact" flat>
@@ -94,12 +94,14 @@
                   Expand
                 </v-btn>
               </div>
-              <vue-json-pretty
-                :data="table"
-                :deep="depthRawRepresentation"
-                :theme="themeText"
-                :showLineNumber="true"
-                :virtual="true" />
+              <div style="height: 65vh; overflow: auto">
+                <vue-json-pretty
+                  :data="table"
+                  :deep="depthRawRepresentation"
+                  :theme="themeText"
+                  :showLineNumber="true"
+                  :virtual="false" />
+              </div>
             </v-tabs-window-item>
 
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
@@ -141,7 +143,7 @@ import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
-const depthRawRepresentation = ref(1);
+const depthRawRepresentation = ref(3);
 const depthRawRepresentationMax = ref(1000);
 
 const recursiveDeleteProtection = ref(false);
