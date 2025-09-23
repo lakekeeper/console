@@ -27,6 +27,7 @@
         <v-tabs v-model="tab">
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
+          <v-tab value="details" @click="loadTabData">details</v-tab>
           <v-tab
             v-if="enabledAuthentication && enabledPermissions"
             value="permissions"
@@ -102,6 +103,251 @@
                   :showLineNumber="true"
                   :virtual="false" />
               </div>
+            </v-tabs-window-item>
+
+            <v-tabs-window-item value="details">
+              <v-card-text>
+                <v-row>
+                  <v-col cols="12" md="6">
+                    <v-card variant="outlined" class="mb-4">
+                      <v-card-title class="d-flex align-center">
+                        <v-icon class="mr-2">mdi-information-outline</v-icon>
+                        Table Information
+                      </v-card-title>
+                      <v-divider></v-divider>
+                      <v-list density="compact">
+                        <v-list-item>
+                          <v-list-item-title>Table UUID</v-list-item-title>
+                          <v-list-item-subtitle class="d-flex align-center">
+                            <span class="mr-2 font-mono">{{ table.metadata['table-uuid'] }}</span>
+                            <v-btn
+                              icon="mdi-content-copy"
+                              size="small"
+                              variant="flat"
+                              @click="
+                                functions.copyToClipboard(table.metadata['table-uuid'])
+                              "></v-btn>
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item>
+                          <v-list-item-title>Format Version</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ table.metadata['format-version'] }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="table.metadata.location">
+                          <v-list-item-title>Location</v-list-item-title>
+                          <v-list-item-subtitle class="d-flex align-center">
+                            <span class="mr-2 font-mono text-wrap">
+                              {{ table.metadata.location }}
+                            </span>
+                            <v-btn
+                              icon="mdi-content-copy"
+                              size="small"
+                              variant="flat"
+                              @click="functions.copyToClipboard(table.metadata.location)"></v-btn>
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="table.metadata['last-updated-ms']">
+                          <v-list-item-title>Last Updated</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ formatTimestamp(table.metadata['last-updated-ms']) }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="table.metadata['current-schema-id']">
+                          <v-list-item-title>Current Schema ID</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ table.metadata['current-schema-id'] }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="table.metadata['current-snapshot-id']">
+                          <v-list-item-title>Current Snapshot ID</v-list-item-title>
+                          <v-list-item-subtitle class="font-mono">
+                            {{ table.metadata['current-snapshot-id'] }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+                      </v-list>
+                    </v-card>
+                  </v-col>
+
+                  <v-col cols="12" md="6">
+                    <v-card variant="outlined" class="mb-4">
+                      <v-card-title class="d-flex align-center">
+                        <v-icon class="mr-2">mdi-table-cog</v-icon>
+                        Schema Information
+                      </v-card-title>
+                      <v-divider></v-divider>
+                      <v-list density="compact">
+                        <v-list-item
+                          v-if="table.metadata.schemas && table.metadata.schemas.length > 0">
+                          <v-list-item-title>Total Schemas</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ table.metadata.schemas.length }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="currentSchemaInfo">
+                          <v-list-item-title>Current Schema Fields</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ currentSchemaInfo?.fields?.length || 0 }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item
+                          v-if="table.metadata.snapshots && table.metadata.snapshots.length > 0">
+                          <v-list-item-title>Total Snapshots</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ table.metadata.snapshots.length }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item
+                          v-if="
+                            table.metadata['partition-specs'] &&
+                            table.metadata['partition-specs'].length > 0
+                          ">
+                          <v-list-item-title>Partition Specs</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ table.metadata['partition-specs'].length }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item
+                          v-if="
+                            table.metadata['sort-orders'] &&
+                            table.metadata['sort-orders'].length > 0
+                          ">
+                          <v-list-item-title>Sort Orders</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ table.metadata['sort-orders'].length }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+                      </v-list>
+                    </v-card>
+                  </v-col>
+                </v-row>
+
+                <!-- Properties Section -->
+                <v-row
+                  v-if="
+                    table.metadata.properties && Object.keys(table.metadata.properties).length > 0
+                  ">
+                  <v-col cols="12">
+                    <v-card variant="outlined" class="mb-4">
+                      <v-card-title class="d-flex align-center">
+                        <v-icon class="mr-2">mdi-cog-outline</v-icon>
+                        Table Properties
+                      </v-card-title>
+                      <v-divider></v-divider>
+                      <v-card-text>
+                        <v-row>
+                          <v-col
+                            v-for="(value, key) in table.metadata.properties"
+                            :key="key"
+                            cols="12"
+                            md="6">
+                            <v-list-item class="pa-0">
+                              <v-list-item-title class="text-body-2 font-weight-medium">
+                                {{ key }}
+                              </v-list-item-title>
+                              <v-list-item-subtitle class="font-mono text-wrap">
+                                {{ value }}
+                              </v-list-item-subtitle>
+                            </v-list-item>
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+
+                <!-- Current Snapshot Details -->
+                <v-row v-if="currentSnapshot">
+                  <v-col cols="12">
+                    <v-card variant="outlined">
+                      <v-card-title class="d-flex align-center">
+                        <v-icon class="mr-2">mdi-camera-outline</v-icon>
+                        Current Snapshot Details
+                      </v-card-title>
+                      <v-divider></v-divider>
+                      <v-list density="compact">
+                        <v-list-item>
+                          <v-list-item-title>Snapshot ID</v-list-item-title>
+                          <v-list-item-subtitle class="d-flex align-center">
+                            <span class="mr-2 font-mono">{{ currentSnapshot['snapshot-id'] }}</span>
+                            <v-btn
+                              icon="mdi-content-copy"
+                              size="small"
+                              variant="flat"
+                              @click="
+                                functions.copyToClipboard(String(currentSnapshot['snapshot-id']))
+                              "></v-btn>
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="currentSnapshot['timestamp-ms']">
+                          <v-list-item-title>Timestamp</v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ formatTimestamp(currentSnapshot['timestamp-ms']) }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="currentSnapshot.summary?.operation">
+                          <v-list-item-title>Operation</v-list-item-title>
+                          <v-list-item-subtitle>
+                            <v-chip size="small" variant="outlined">
+                              {{ currentSnapshot.summary.operation }}
+                            </v-chip>
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="currentSnapshot['manifest-list']">
+                          <v-list-item-title>Manifest List</v-list-item-title>
+                          <v-list-item-subtitle class="d-flex align-center">
+                            <span class="mr-2 font-mono text-wrap">
+                              {{ currentSnapshot['manifest-list'] }}
+                            </span>
+                            <v-btn
+                              icon="mdi-content-copy"
+                              size="small"
+                              variant="flat"
+                              @click="
+                                functions.copyToClipboard(currentSnapshot['manifest-list'])
+                              "></v-btn>
+                          </v-list-item-subtitle>
+                        </v-list-item>
+
+                        <v-list-item v-if="currentSnapshot.summary">
+                          <v-list-item-title>Summary</v-list-item-title>
+                          <v-list-item-subtitle>
+                            <v-row>
+                              <v-col
+                                v-for="(value, key) in currentSnapshot.summary"
+                                :key="key"
+                                cols="12"
+                                md="6">
+                                <v-list-item class="pa-0" density="compact">
+                                  <v-list-item-title class="text-caption">
+                                    {{ key }}
+                                  </v-list-item-title>
+                                  <v-list-item-subtitle class="font-mono">
+                                    {{ value }}
+                                  </v-list-item-subtitle>
+                                </v-list-item>
+                              </v-col>
+                            </v-row>
+                          </v-list-item-subtitle>
+                        </v-list-item>
+                      </v-list>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-card-text>
             </v-tabs-window-item>
 
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
@@ -350,6 +596,29 @@ async function setProtection() {
     console.error(error);
   }
 }
+
+// Helper functions for details tab
+function formatTimestamp(timestampMs: number): string {
+  if (!timestampMs) return '';
+  const date = new Date(timestampMs);
+  return date.toLocaleString();
+}
+
+function getCurrentSchema() {
+  if (!table.metadata.schemas || table.metadata.schemas.length === 0) return null;
+  return table.metadata.schemas.find((schema) => schema['schema-id'] === currentSchema.value);
+}
+
+function getCurrentSnapshot() {
+  if (!table.metadata.snapshots || table.metadata.snapshots.length === 0) return null;
+  return table.metadata.snapshots.find(
+    (snapshot) => snapshot['snapshot-id'] === table.metadata['current-snapshot-id'],
+  );
+}
+
+// Computed properties for safe access
+const currentSnapshot = computed(() => getCurrentSnapshot());
+const currentSchemaInfo = computed(() => getCurrentSchema());
 </script>
 
 <style scoped>
@@ -360,5 +629,16 @@ async function setProtection() {
 .icon-text {
   display: flex;
   align-items: center;
+}
+
+.font-mono {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.875rem;
+}
+
+.text-wrap {
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 </style>
