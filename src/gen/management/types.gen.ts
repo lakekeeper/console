@@ -1122,7 +1122,7 @@ export type ServerInfo = {
    * ID of the server.
    * Returns null if the catalog has not been bootstrapped.
    */
-  'server-id'?: string | null;
+  'server-id': string;
   /**
    * Version of the server.
    */
@@ -1240,6 +1240,7 @@ export type TabularExpirationQueueConfig = {
 export type TabularIdentOrUuid =
   | {
       'table-id': string;
+      'warehouse-id': string;
     }
   | {
       namespace: Array<string>;
@@ -1278,6 +1279,10 @@ export type Task = {
    * Type of entity this task operates on
    */
   entity: TaskEntity;
+  /**
+   * Name of the entity this task operates on
+   */
+  'entity-name': Array<string>;
   /**
    * Last heartbeat timestamp for running tasks
    */
