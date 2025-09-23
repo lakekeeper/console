@@ -28,6 +28,7 @@
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab value="details" @click="loadTabData">details</v-tab>
+          <v-tab value="history" @click="loadTabData">history</v-tab>
           <v-tab
             v-if="enabledAuthentication && enabledPermissions"
             value="permissions"
@@ -350,6 +351,232 @@
               </v-card-text>
             </v-tabs-window-item>
 
+            <v-tabs-window-item value="history">
+              <v-card-text>
+                <div class="d-flex align-center mb-4">
+                  <v-icon class="mr-2">mdi-history</v-icon>
+                  <span class="text-h6">Table Evolution History</span>
+                </div>
+
+                <div v-if="snapshotHistory.length === 0" class="text-center pa-8">
+                  <v-icon size="64" color="grey">mdi-camera-off-outline</v-icon>
+                  <div class="text-subtitle-1 mt-2">No snapshots found</div>
+                  <div class="text-body-2 text-medium-emphasis">
+                    This table has no snapshot history
+                  </div>
+                </div>
+
+                <v-timeline v-else side="end" density="compact" class="pa-0">
+                  <v-timeline-item
+                    v-for="(snapshot, index) in snapshotHistory"
+                    :key="snapshot['snapshot-id']"
+                    :dot-color="index === 0 ? 'success' : 'info'"
+                    size="small">
+                    <template #icon>
+                      <v-icon v-if="index === 0" size="small">mdi-check-circle</v-icon>
+                      <v-icon v-else size="small">mdi-camera</v-icon>
+                    </template>
+
+                    <v-card variant="outlined" class="mb-4">
+                      <v-card-title class="d-flex align-center justify-space-between">
+                        <div class="d-flex align-center">
+                          <v-chip
+                            v-if="index === 0"
+                            size="small"
+                            color="success"
+                            variant="flat"
+                            class="mr-2">
+                            Current
+                          </v-chip>
+                          <span class="font-mono">{{ snapshot['snapshot-id'] }}</span>
+                        </div>
+                        <v-btn
+                          icon="mdi-content-copy"
+                          size="small"
+                          variant="flat"
+                          @click="
+                            functions.copyToClipboard(String(snapshot['snapshot-id']))
+                          "></v-btn>
+                      </v-card-title>
+
+                      <v-divider></v-divider>
+
+                      <v-card-text>
+                        <v-row>
+                          <v-col cols="12" md="6">
+                            <v-list density="compact">
+                              <v-list-item>
+                                <v-list-item-title>Timestamp</v-list-item-title>
+                                <v-list-item-subtitle>
+                                  {{ formatTimestamp(snapshot['timestamp-ms']) }}
+                                </v-list-item-subtitle>
+                              </v-list-item>
+
+                              <v-list-item v-if="snapshot.summary?.operation">
+                                <v-list-item-title>Operation</v-list-item-title>
+                                <v-list-item-subtitle>
+                                  <v-chip size="small" variant="outlined">
+                                    {{ snapshot.summary.operation }}
+                                  </v-chip>
+                                </v-list-item-subtitle>
+                              </v-list-item>
+
+                              <v-list-item v-if="snapshot['schema-id']">
+                                <v-list-item-title>Schema ID</v-list-item-title>
+                                <v-list-item-subtitle class="font-mono">
+                                  {{ snapshot['schema-id'] }}
+                                  <v-chip
+                                    v-if="getSchemaChanges(snapshot, index)"
+                                    size="x-small"
+                                    color="warning"
+                                    variant="flat"
+                                    class="ml-2">
+                                    Schema Changed
+                                  </v-chip>
+                                </v-list-item-subtitle>
+                              </v-list-item>
+                            </v-list>
+                          </v-col>
+
+                          <v-col cols="12" md="6">
+                            <v-list density="compact">
+                              <v-list-item v-if="snapshot['manifest-list']">
+                                <v-list-item-title>Manifest List</v-list-item-title>
+                                <v-list-item-subtitle class="d-flex align-center">
+                                  <span
+                                    class="mr-2 font-mono text-truncate"
+                                    style="max-width: 200px">
+                                    {{ snapshot['manifest-list'] }}
+                                  </span>
+                                  <v-btn
+                                    icon="mdi-content-copy"
+                                    size="small"
+                                    variant="flat"
+                                    @click="
+                                      functions.copyToClipboard(snapshot['manifest-list'])
+                                    "></v-btn>
+                                </v-list-item-subtitle>
+                              </v-list-item>
+
+                              <v-list-item v-if="snapshot['parent-snapshot-id']">
+                                <v-list-item-title>Parent Snapshot</v-list-item-title>
+                                <v-list-item-subtitle class="font-mono">
+                                  {{ snapshot['parent-snapshot-id'] }}
+                                </v-list-item-subtitle>
+                              </v-list-item>
+                            </v-list>
+                          </v-col>
+                        </v-row>
+
+                        <!-- Summary Details -->
+                        <v-row v-if="snapshot.summary && Object.keys(snapshot.summary).length > 1">
+                          <v-col cols="12">
+                            <v-divider class="my-2"></v-divider>
+                            <div class="text-subtitle-2 mb-2 d-flex align-center">
+                              <v-icon size="small" class="mr-1">mdi-chart-line</v-icon>
+                              Operation Summary
+                            </div>
+                            <v-row>
+                              <v-col
+                                v-for="(value, key) in snapshot.summary"
+                                :key="key"
+                                cols="6"
+                                md="3">
+                                <v-list-item
+                                  class="pa-0"
+                                  density="compact"
+                                  v-if="String(key) !== 'operation'">
+                                  <v-list-item-title class="text-caption text-medium-emphasis">
+                                    {{ formatSummaryKey(key) }}
+                                  </v-list-item-title>
+                                  <v-list-item-subtitle class="font-mono text-body-2">
+                                    {{ formatSummaryValue(value) }}
+                                  </v-list-item-subtitle>
+                                </v-list-item>
+                              </v-col>
+                            </v-row>
+                          </v-col>
+                        </v-row>
+
+                        <!-- Schema Changes -->
+                        <v-row v-if="getSchemaInfo(snapshot['schema-id'])">
+                          <v-col cols="12">
+                            <v-divider class="my-2"></v-divider>
+                            <v-expansion-panels variant="accordion" class="mt-2">
+                              <v-expansion-panel>
+                                <v-expansion-panel-title class="text-subtitle-2">
+                                  <v-icon class="mr-2" size="small">mdi-table-cog</v-icon>
+                                  Schema Details ({{
+                                    getSchemaInfo(snapshot['schema-id'])?.fields?.length || 0
+                                  }}
+                                  fields)
+                                  <v-chip
+                                    v-if="getSchemaChanges(snapshot, index)"
+                                    size="x-small"
+                                    color="warning"
+                                    variant="flat"
+                                    class="ml-2">
+                                    Changed
+                                  </v-chip>
+                                </v-expansion-panel-title>
+                                <v-expansion-panel-text>
+                                  <div
+                                    class="schema-fields-container"
+                                    style="max-height: 300px; overflow-y: auto">
+                                    <v-list density="compact">
+                                      <v-list-item
+                                        v-for="field in getSchemaInfo(snapshot['schema-id'])
+                                          ?.fields || []"
+                                        :key="field.id"
+                                        class="pa-1">
+                                        <template #prepend>
+                                          <v-icon
+                                            :color="
+                                              isFieldNew(field, snapshot, index)
+                                                ? 'success'
+                                                : undefined
+                                            "
+                                            size="small">
+                                            {{ getFieldIcon(field) }}
+                                          </v-icon>
+                                        </template>
+                                        <v-list-item-title
+                                          :class="
+                                            isFieldNew(field, snapshot, index)
+                                              ? 'text-success font-weight-bold'
+                                              : ''
+                                          ">
+                                          {{ field.name }}
+                                          <v-chip
+                                            v-if="isFieldNew(field, snapshot, index)"
+                                            size="x-small"
+                                            color="success"
+                                            variant="flat"
+                                            class="ml-2">
+                                            New
+                                          </v-chip>
+                                        </v-list-item-title>
+                                        <v-list-item-subtitle>
+                                          {{ getFieldTypeString(field.type) }}
+                                          <span v-if="field.required" class="text-error ml-1">
+                                            *
+                                          </span>
+                                        </v-list-item-subtitle>
+                                      </v-list-item>
+                                    </v-list>
+                                  </div>
+                                </v-expansion-panel-text>
+                              </v-expansion-panel>
+                            </v-expansion-panels>
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-timeline-item>
+                </v-timeline>
+              </v-card-text>
+            </v-tabs-window-item>
+
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
@@ -441,6 +668,7 @@ const schemaFieldsTransformed = reactive<TreeItem[]>([]);
 const currentSchema = ref(0);
 const existingPermissions = reactive<TableAssignment[]>([]);
 const loaded = ref(false);
+const snapshotHistory = reactive<any[]>([]);
 
 async function init() {
   loaded.value = false;
@@ -481,6 +709,16 @@ async function init() {
       }
     });
   }
+
+  // Process snapshot history - sort by timestamp descending (newest first)
+  snapshotHistory.splice(0, snapshotHistory.length);
+  if (table.metadata.snapshots) {
+    const sortedSnapshots = [...table.metadata.snapshots].sort((a, b) => {
+      return (b['timestamp-ms'] || 0) - (a['timestamp-ms'] || 0);
+    });
+    snapshotHistory.push(...sortedSnapshots);
+  }
+
   depthRawRepresentationMax.value = getMaxDepth(table);
 }
 onMounted(async () => {
@@ -614,6 +852,72 @@ function getCurrentSnapshot() {
   return table.metadata.snapshots.find(
     (snapshot) => snapshot['snapshot-id'] === table.metadata['current-snapshot-id'],
   );
+}
+
+// Helper functions for history tab
+function getSchemaInfo(schemaId: number) {
+  if (!table.metadata.schemas || table.metadata.schemas.length === 0) return null;
+  return table.metadata.schemas.find((schema) => schema['schema-id'] === schemaId);
+}
+
+function getSchemaChanges(snapshot: any, index: number): boolean {
+  if (index === snapshotHistory.length - 1) return false; // Last snapshot, no previous to compare
+  const nextSnapshot = snapshotHistory[index + 1];
+  return snapshot['schema-id'] !== nextSnapshot['schema-id'];
+}
+
+function isFieldNew(field: any, snapshot: any, index: number): boolean {
+  if (index === snapshotHistory.length - 1) return false; // Last snapshot, all fields are "original"
+
+  const nextSnapshot = snapshotHistory[index + 1];
+  const nextSchemaInfo = getSchemaInfo(nextSnapshot['schema-id']);
+
+  if (!nextSchemaInfo || !nextSchemaInfo.fields) return true;
+
+  // Check if this field existed in the previous schema
+  return !nextSchemaInfo.fields.some((prevField: any) => prevField.id === field.id);
+}
+
+function getFieldIcon(field: any): string {
+  const fieldType = getFieldTypeString(field.type);
+  if (fieldType.includes('string')) return 'mdi-alphabetical';
+  if (fieldType.includes('int')) return 'mdi-numeric';
+  if (fieldType.includes('long') || fieldType.includes('double')) return 'mdi-decimal';
+  if (fieldType.includes('array') || fieldType.includes('list')) return 'mdi-format-list-group';
+  if (fieldType.includes('struct')) return 'mdi-code-braces';
+  return 'mdi-pound-box-outline';
+}
+
+function getFieldTypeString(type: any): string {
+  if (typeof type === 'string') return type;
+  if (typeof type === 'object') {
+    if (type.type === 'struct') return 'struct';
+    if (type.type === 'list') return `list<${getFieldTypeString(type.element)}>`;
+    if (type.type === 'map')
+      return `map<${getFieldTypeString(type.key)}, ${getFieldTypeString(type.value)}>`;
+    return type.type || 'unknown';
+  }
+  return 'unknown';
+}
+
+function formatSummaryKey(key: string | number): string {
+  const keyStr = String(key);
+  return keyStr
+    .replace(/-/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function formatSummaryValue(value: any): string {
+  if (typeof value === 'number') {
+    // Format large numbers with commas
+    if (value >= 1000) {
+      return value.toLocaleString();
+    }
+  }
+  return String(value);
 }
 
 // Computed properties for safe access
