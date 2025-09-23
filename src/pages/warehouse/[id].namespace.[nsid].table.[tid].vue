@@ -854,8 +854,15 @@
                                 width: '16px',
                                 height: '16px',
                                 borderRadius: '2px',
+                                opacity: branch.type === 'dropped-branch' ? 0.7 : 1,
                               }"></div>
-                            <span class="text-body-2">{{ branchName }} ({{ branch.type }})</span>
+                            <span
+                              class="text-body-2"
+                              :class="{ 'text-grey-darken-1': branch.type === 'dropped-branch' }">
+                              {{ branchName }}
+                              <span v-if="branch.type === 'dropped-branch'">(dropped)</span>
+                              <span v-else>({{ branch.type }})</span>
+                            </span>
                           </div>
                         </div>
                         <div class="d-flex flex-wrap gap-4 align-center">
@@ -1713,20 +1720,77 @@ const graphWidth = ref(1000);
 const graphHeight = ref(700);
 
 const branchInfo = computed(() => {
-  if (!table.metadata.refs) return {};
-
   const branches: Record<string, { color: string; type: string; snapshotId: number }> = {};
   const colors = ['#1976d2', '#388e3c', '#f57c00', '#d32f2f', '#7b1fa2', '#00796b', '#c2185b'];
   let colorIndex = 0;
 
-  Object.entries(table.metadata.refs).forEach(([branchName, refData]: [string, any]) => {
-    branches[branchName] = {
-      color: colors[colorIndex % colors.length],
-      type: refData.type || 'branch',
-      snapshotId: refData['snapshot-id'],
-    };
-    colorIndex++;
-  });
+  // Add existing branches from refs
+  if (table.metadata.refs) {
+    Object.entries(table.metadata.refs).forEach(([branchName, refData]: [string, any]) => {
+      branches[branchName] = {
+        color: colors[colorIndex % colors.length],
+        type: refData.type || 'branch',
+        snapshotId: refData['snapshot-id'],
+      };
+      colorIndex++;
+    });
+  }
+
+  // Detect dropped branches
+  if (snapshotHistory.length > 0) {
+    const sortedSnapshots = [...snapshotHistory].sort((a, b) => {
+      const seqA = a['sequence-number'] || 0;
+      const seqB = b['sequence-number'] || 0;
+      return seqA - seqB;
+    });
+
+    // Build a map of parent-child relationships
+    const childrenMap = new Map<number, number[]>();
+    sortedSnapshots.forEach((snapshot) => {
+      const parentId = snapshot['parent-snapshot-id'];
+      if (parentId) {
+        if (!childrenMap.has(parentId)) {
+          childrenMap.set(parentId, []);
+        }
+        childrenMap.get(parentId)!.push(snapshot['snapshot-id']);
+      }
+    });
+
+    // Find snapshots that are dropped branches
+    // A dropped branch is a snapshot that:
+    // 1. Has no children (is a leaf node)
+    // 2. Is not the head of any named branch
+    // 3. Is not part of the main development line
+    sortedSnapshots.forEach((snapshot, index) => {
+      const snapshotId = snapshot['snapshot-id'];
+      const currentSeq = snapshot['sequence-number'] || 0;
+
+      // Check if this snapshot has no children
+      const hasChildren = childrenMap.has(snapshotId) && childrenMap.get(snapshotId)!.length > 0;
+
+      // Check if this snapshot is the head of any named branch
+      const isNamedBranchHead = Object.values(branches).some(
+        (branch) => branch.snapshotId === snapshotId,
+      );
+
+      // Check if this snapshot is part of the main line of development
+      // Main line consists of snapshots that have children or are the current head
+      const isPartOfMainLine = hasChildren || isNamedBranchHead;
+
+      // If this snapshot has no children and is not a named branch head,
+      // it's likely a dropped branch
+      if (!isPartOfMainLine && currentSeq > 1) {
+        // Don't consider the initial snapshot
+        const droppedBranchName = `dropped-seq-${currentSeq}`;
+
+        branches[droppedBranchName] = {
+          color: '#9e9e9e', // Gray color for dropped branches
+          type: 'dropped-branch',
+          snapshotId: snapshotId,
+        };
+      }
+    });
+  }
 
   return branches;
 });
@@ -1758,7 +1822,6 @@ const graphNodes = computed(() => {
 
   const nodeSpacingX = 120;
   const nodeSpacingY = 80;
-  const startX = 80;
 
   // Calculate dynamic height based on number of snapshots
   const minHeight = 200; // Minimum height for small graphs
@@ -1769,7 +1832,8 @@ const graphNodes = computed(() => {
 
   // Create a map to track which column each branch should use
   const branchColumns = new Map<string, number>();
-  let nextColumn = 0;
+  let nextRightColumn = 1; // Columns to the right of main (1, 2, 3...)
+  let nextLeftColumn = -1; // Columns to the left of main (-1, -2, -3...)
 
   // Function to trace a branch's full history from its head snapshot
   function getBranchHistory(branchSnapshotId: number): number[] {
@@ -1823,17 +1887,37 @@ const graphNodes = computed(() => {
 
   // Assign columns for branches
   if (branchHistories.has('main')) {
-    branchColumns.set('main', 0);
-    nextColumn = 1;
+    branchColumns.set('main', 0); // Main branch is at column 0
   }
 
-  // Assign columns for other branches
+  // Assign columns for branches
   const mainHistory = branchHistories.get('main') || [];
   branchHistories.forEach((history, branchName) => {
     if (branchName !== 'main' && !branchColumns.has(branchName)) {
-      branchColumns.set(branchName, nextColumn++);
+      const branchType = branchInfo.value[branchName]?.type;
+
+      if (branchType === 'dropped-branch') {
+        // Dropped branches go to the left side
+        branchColumns.set(branchName, nextLeftColumn--);
+      } else {
+        // Regular branches go to the right side
+        branchColumns.set(branchName, nextRightColumn++);
+      }
     }
   });
+
+  // Calculate the range of columns to determine graph width and starting position
+  const columnNumbers = Array.from(branchColumns.values());
+  const minColumn = Math.min(...columnNumbers, 0); // Include 0 for main branch
+  const maxColumn = Math.max(...columnNumbers, 0);
+
+  // Adjust starting X position to account for left-side branches
+  const leftPadding = Math.abs(minColumn) * nodeSpacingX + 80;
+  const startX = leftPadding; // This will be the X position for column 0 (main)
+
+  // Update graph width to accommodate all columns
+  const totalColumns = maxColumn - minColumn + 1;
+  graphWidth.value = leftPadding + (totalColumns - 1) * nodeSpacingX + 80;
 
   // Position snapshots from bottom (sequence 1) to top (latest sequence)
   sortedSnapshots.forEach((snapshot, index) => {
@@ -1848,9 +1932,19 @@ const graphNodes = computed(() => {
     // Determine which branches this snapshot belongs to
     const belongsToMain = mainHistory.includes(snapshotId);
     const otherBranches: string[] = [];
+    const isDroppedBranch = Object.keys(branchInfo.value).some(
+      (branchName) =>
+        branchInfo.value[branchName].type === 'dropped-branch' &&
+        branchInfo.value[branchName].snapshotId === snapshotId,
+    );
 
+    // Check regular branches (non-dropped)
     branchHistories.forEach((history, branchName) => {
       if (branchName !== 'main' && history.includes(snapshotId)) {
+        // Skip if this is a dropped branch - it should be handled separately
+        const branchType = branchInfo.value[branchName]?.type;
+        if (branchType === 'dropped-branch') return;
+
         // Check if this snapshot is part of the unique path for this branch
         // (i.e., not shared with main branch)
         const divergencePoint = findDivergencePoint(mainHistory, history);
@@ -1873,7 +1967,36 @@ const graphNodes = computed(() => {
     });
 
     // Create nodes based on branch membership
-    if (belongsToMain && otherBranches.length === 0) {
+    if (isDroppedBranch) {
+      // This is a dropped branch - give it its own column on the left side
+      const droppedBranchName = Object.keys(branchInfo.value).find(
+        (branchName) =>
+          branchInfo.value[branchName].type === 'dropped-branch' &&
+          branchInfo.value[branchName].snapshotId === snapshotId,
+      );
+
+      if (droppedBranchName && !branchColumns.has(droppedBranchName)) {
+        branchColumns.set(droppedBranchName, nextLeftColumn--);
+      }
+
+      const columnX = startX + (branchColumns.get(droppedBranchName || '') || -1) * nodeSpacingX;
+      const branchColor = branchInfo.value[droppedBranchName || '']?.color || '#9e9e9e';
+
+      nodes.push({
+        id: `node-${snapshotId}-${droppedBranchName}`,
+        snapshotId,
+        x: columnX,
+        y: yPosition,
+        radius: schemaChangeInfo.hasSchemaChange ? 15 : 12,
+        color: schemaChangeInfo.hasSchemaChange ? '#ff9800' : branchColor,
+        strokeColor: schemaChangeInfo.hasSchemaChange ? '#f57c00' : '#757575',
+        branches: [droppedBranchName || 'dropped'],
+        parentId: snapshot['parent-snapshot-id'],
+        level: index,
+        sequenceNumber,
+        schemaChangeInfo,
+      });
+    } else if (belongsToMain && otherBranches.length === 0) {
       // Only on main branch
       nodes.push({
         id: `node-${snapshotId}-main`,
@@ -2055,7 +2178,19 @@ const branchPaths = computed(() => {
   Object.entries(branchInfo.value).forEach(([branchName, branch]) => {
     if (branchName === 'main') return;
 
-    // Find the divergence point for this branch
+    // For dropped branches, we need special handling
+    if (branch.type === 'dropped-branch') {
+      // Find the parent of the dropped branch snapshot
+      const droppedSnapshot = snapshotHistory.find((s) => s['snapshot-id'] === branch.snapshotId);
+      if (droppedSnapshot && droppedSnapshot['parent-snapshot-id']) {
+        branchDivergenceConnections.add(
+          `${droppedSnapshot['parent-snapshot-id']}-${branch.snapshotId}`,
+        );
+      }
+      return;
+    }
+
+    // Regular branch handling
     const branchHistory = getBranchHistoryForPaths(branch.snapshotId);
     const mainHistory = getBranchHistoryForPaths(branchInfo.value['main']?.snapshotId || 0);
 
@@ -2132,7 +2267,30 @@ const branchPaths = computed(() => {
 
     branchIndex++; // Increment for each non-main branch
 
-    // Find the divergence point for this branch
+    // Special handling for dropped branches
+    if (branch.type === 'dropped-branch') {
+      const droppedSnapshot = snapshotHistory.find((s) => s['snapshot-id'] === branch.snapshotId);
+      if (droppedSnapshot && droppedSnapshot['parent-snapshot-id']) {
+        const parentNode = graphNodes.value.find(
+          (n) =>
+            n.snapshotId === droppedSnapshot['parent-snapshot-id'] && n.branches.includes('main'),
+        );
+        const droppedNode = graphNodes.value.find(
+          (n) => n.snapshotId === branch.snapshotId && n.branches.includes(branchName),
+        );
+
+        if (parentNode && droppedNode) {
+          const pathId = `divergence-${branchName}-${droppedSnapshot['parent-snapshot-id']}`;
+          paths[pathId] = {
+            pathData: createPath(parentNode, droppedNode, true, branchIndex),
+            color: branch.color || '#9e9e9e',
+          };
+        }
+      }
+      return;
+    }
+
+    // Regular branch handling
     const branchHistory = getBranchHistoryForPaths(branch.snapshotId);
     const mainHistory = getBranchHistoryForPaths(branchInfo.value['main']?.snapshotId || 0);
 
