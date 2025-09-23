@@ -722,12 +722,13 @@
                       <v-card variant="outlined" class="pa-4">
                         <div
                           class="graph-content"
-                          style="
-                            height: 50vh;
-                            overflow: auto;
-                            border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-                            border-radius: 4px;
-                          ">
+                          :style="{
+                            height: Math.min(graphHeight + 50, 700) + 'px',
+                            overflow: 'auto',
+                            border:
+                              '1px solid rgba(var(--v-border-color), var(--v-border-opacity))',
+                            borderRadius: '4px',
+                          }">
                           <svg :width="graphWidth" :height="graphHeight" class="branch-graph">
                             <defs>
                               <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -1649,8 +1650,11 @@ const graphNodes = computed(() => {
   const nodeSpacingY = 80;
   const startX = 80;
 
-  // Calculate total height based on number of snapshots
-  const totalHeight = Math.max(900, (sortedSnapshots.length + 3) * nodeSpacingY);
+  // Calculate dynamic height based on number of snapshots
+  const minHeight = 200; // Minimum height for small graphs
+  const padding = 100; // Top and bottom padding
+  const calculatedHeight = padding + sortedSnapshots.length * nodeSpacingY;
+  const totalHeight = Math.max(minHeight, calculatedHeight); // No maximum cap for large graphs
   graphHeight.value = totalHeight;
 
   // Create a map to track which column each branch should use
