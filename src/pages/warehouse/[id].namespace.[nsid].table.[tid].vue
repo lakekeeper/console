@@ -366,214 +366,305 @@
                   </div>
                 </div>
 
-                <v-timeline v-else side="end" density="compact" class="pa-0">
-                  <v-timeline-item
-                    v-for="(snapshot, index) in snapshotHistory"
-                    :key="snapshot['snapshot-id']"
-                    :dot-color="index === 0 ? 'success' : 'info'"
-                    size="small">
-                    <template #icon>
-                      <v-icon v-if="index === 0" size="small">mdi-check-circle</v-icon>
-                      <v-icon v-else size="small">mdi-camera</v-icon>
-                    </template>
+                <!-- Interactive Timeline Overview -->
+                <div v-if="snapshotHistory.length > 0" class="mb-6">
+                  <div class="text-subtitle-1 mb-3 d-flex align-center">
+                    <v-icon class="mr-2" size="small">mdi-timeline-clock-outline</v-icon>
+                    Timeline Overview
+                    <v-spacer></v-spacer>
+                    <v-chip size="small" variant="outlined" class="ml-2">
+                      {{ snapshotHistory.length }} snapshots
+                    </v-chip>
+                  </div>
 
-                    <v-card variant="outlined" class="mb-4">
-                      <v-card-title class="d-flex align-center justify-space-between">
-                        <div class="d-flex align-center">
-                          <v-chip
-                            v-if="index === 0"
-                            size="small"
-                            color="success"
-                            variant="flat"
-                            class="mr-2">
-                            Current
-                          </v-chip>
-                          <span class="font-mono">{{ snapshot['snapshot-id'] }}</span>
-                        </div>
-                        <v-btn
-                          icon="mdi-content-copy"
+                  <v-card variant="outlined" class="pa-4">
+                    <div class="horizontal-timeline-container" style="overflow-x: auto">
+                      <v-timeline
+                        direction="horizontal"
+                        density="compact"
+                        class="pa-0"
+                        style="min-width: max-content">
+                        <v-timeline-item
+                          v-for="(snapshot, index) in snapshotHistory"
+                          :key="snapshot['snapshot-id']"
+                          :dot-color="index === 0 ? 'success' : 'info'"
                           size="small"
-                          variant="flat"
-                          @click="
-                            functions.copyToClipboard(String(snapshot['snapshot-id']))
-                          "></v-btn>
-                      </v-card-title>
-
-                      <v-divider></v-divider>
-
-                      <v-card-text>
-                        <v-row>
-                          <v-col cols="12" md="6">
-                            <v-list density="compact">
-                              <v-list-item>
-                                <v-list-item-title>Timestamp</v-list-item-title>
-                                <v-list-item-subtitle>
+                          style="min-width: 200px">
+                          <template #icon>
+                            <v-tooltip location="top">
+                              <template #activator="{ props }">
+                                <v-icon
+                                  v-bind="props"
+                                  :size="index === 0 ? 16 : 14"
+                                  color="white"
+                                  style="cursor: pointer"
+                                  @click="scrollToSnapshot(snapshot['snapshot-id'])">
+                                  {{ index === 0 ? 'mdi-check-circle' : 'mdi-camera' }}
+                                </v-icon>
+                              </template>
+                              <div class="text-center">
+                                <div class="font-weight-bold">
+                                  {{ index === 0 ? 'Current' : 'Snapshot' }} #{{
+                                    snapshot['snapshot-id']
+                                  }}
+                                </div>
+                                <div class="text-caption">
                                   {{ formatTimestamp(snapshot['timestamp-ms']) }}
-                                </v-list-item-subtitle>
-                              </v-list-item>
+                                </div>
+                                <div v-if="snapshot.summary?.operation" class="text-caption">
+                                  {{ snapshot.summary.operation }}
+                                </div>
+                              </div>
+                            </v-tooltip>
+                          </template>
 
-                              <v-list-item v-if="snapshot.summary?.operation">
-                                <v-list-item-title>Operation</v-list-item-title>
-                                <v-list-item-subtitle>
-                                  <v-chip size="small" variant="outlined">
-                                    {{ snapshot.summary.operation }}
-                                  </v-chip>
-                                </v-list-item-subtitle>
-                              </v-list-item>
-
-                              <v-list-item v-if="snapshot['schema-id']">
-                                <v-list-item-title>Schema ID</v-list-item-title>
-                                <v-list-item-subtitle class="font-mono">
-                                  {{ snapshot['schema-id'] }}
-                                  <v-chip
-                                    v-if="getSchemaChanges(snapshot, index)"
-                                    size="x-small"
-                                    color="warning"
-                                    variant="flat"
-                                    class="ml-2">
-                                    Schema Changed
-                                  </v-chip>
-                                </v-list-item-subtitle>
-                              </v-list-item>
-                            </v-list>
-                          </v-col>
-
-                          <v-col cols="12" md="6">
-                            <v-list density="compact">
-                              <v-list-item v-if="snapshot['manifest-list']">
-                                <v-list-item-title>Manifest List</v-list-item-title>
-                                <v-list-item-subtitle class="d-flex align-center">
-                                  <span
-                                    class="mr-2 font-mono text-truncate"
-                                    style="max-width: 200px">
-                                    {{ snapshot['manifest-list'] }}
-                                  </span>
-                                  <v-btn
-                                    icon="mdi-content-copy"
-                                    size="small"
-                                    variant="flat"
-                                    @click="
-                                      functions.copyToClipboard(snapshot['manifest-list'])
-                                    "></v-btn>
-                                </v-list-item-subtitle>
-                              </v-list-item>
-
-                              <v-list-item v-if="snapshot['parent-snapshot-id']">
-                                <v-list-item-title>Parent Snapshot</v-list-item-title>
-                                <v-list-item-subtitle class="font-mono">
-                                  {{ snapshot['parent-snapshot-id'] }}
-                                </v-list-item-subtitle>
-                              </v-list-item>
-                            </v-list>
-                          </v-col>
-                        </v-row>
-
-                        <!-- Summary Details -->
-                        <v-row v-if="snapshot.summary && Object.keys(snapshot.summary).length > 1">
-                          <v-col cols="12">
-                            <v-divider class="my-2"></v-divider>
-                            <div class="text-subtitle-2 mb-2 d-flex align-center">
-                              <v-icon size="small" class="mr-1">mdi-chart-line</v-icon>
-                              Operation Summary
+                          <!-- Content directly under the icon -->
+                          <div
+                            class="text-center timeline-item-content"
+                            style="min-width: 180px; max-width: 180px">
+                            <div
+                              v-if="index === 0"
+                              class="text-caption font-weight-bold text-success mb-1">
+                              Current
                             </div>
-                            <v-row>
-                              <v-col
-                                v-for="(value, key) in snapshot.summary"
-                                :key="key"
-                                cols="6"
-                                md="3">
-                                <v-list-item
-                                  class="pa-0"
-                                  density="compact"
-                                  v-if="String(key) !== 'operation'">
-                                  <v-list-item-title class="text-caption text-medium-emphasis">
-                                    {{ formatSummaryKey(key) }}
-                                  </v-list-item-title>
-                                  <v-list-item-subtitle class="font-mono text-body-2">
-                                    {{ formatSummaryValue(value) }}
+                            <div class="text-caption mb-1">
+                              {{ formatTimelineDate(snapshot['timestamp-ms']) }}
+                            </div>
+                            <div v-if="snapshot.summary?.operation">
+                              <v-chip
+                                size="x-small"
+                                :color="getOperationColor(snapshot.summary.operation)"
+                                variant="flat"
+                                class="text-caption">
+                                {{ snapshot.summary.operation }}
+                              </v-chip>
+                            </div>
+                          </div>
+                        </v-timeline-item>
+                      </v-timeline>
+                    </div>
+                  </v-card>
+                </div>
+
+                <div style="max-height: 60vh; overflow-y: auto" class="vertical-timeline-container">
+                  <v-timeline
+                    v-if="snapshotHistory.length > 0"
+                    side="end"
+                    density="compact"
+                    class="pa-0">
+                    <v-timeline-item
+                      v-for="(snapshot, index) in snapshotHistory"
+                      :key="snapshot['snapshot-id']"
+                      :dot-color="index === 0 ? 'success' : 'info'"
+                      size="small"
+                      :data-snapshot-id="snapshot['snapshot-id']">
+                      <template #icon>
+                        <v-icon v-if="index === 0" size="small">mdi-check-circle</v-icon>
+                        <v-icon v-else size="small">mdi-camera</v-icon>
+                      </template>
+
+                      <v-card
+                        variant="outlined"
+                        class="mb-4"
+                        :data-snapshot-id="snapshot['snapshot-id']">
+                        <v-card-title class="d-flex align-center justify-space-between">
+                          <div class="d-flex align-center">
+                            <v-chip
+                              v-if="index === 0"
+                              size="small"
+                              color="success"
+                              variant="flat"
+                              class="mr-2">
+                              Current
+                            </v-chip>
+                            <span class="font-mono">{{ snapshot['snapshot-id'] }}</span>
+                          </div>
+                          <v-btn
+                            icon="mdi-content-copy"
+                            size="small"
+                            variant="flat"
+                            @click="
+                              functions.copyToClipboard(String(snapshot['snapshot-id']))
+                            "></v-btn>
+                        </v-card-title>
+
+                        <v-divider></v-divider>
+
+                        <v-card-text>
+                          <v-row>
+                            <v-col cols="12" md="6">
+                              <v-list density="compact">
+                                <v-list-item>
+                                  <v-list-item-title>Timestamp</v-list-item-title>
+                                  <v-list-item-subtitle>
+                                    {{ formatTimestamp(snapshot['timestamp-ms']) }}
                                   </v-list-item-subtitle>
                                 </v-list-item>
-                              </v-col>
-                            </v-row>
-                          </v-col>
-                        </v-row>
 
-                        <!-- Schema Changes -->
-                        <v-row v-if="getSchemaInfo(snapshot['schema-id'])">
-                          <v-col cols="12">
-                            <v-divider class="my-2"></v-divider>
-                            <v-expansion-panels variant="accordion" class="mt-2">
-                              <v-expansion-panel>
-                                <v-expansion-panel-title class="text-subtitle-2">
-                                  <v-icon class="mr-2" size="small">mdi-table-cog</v-icon>
-                                  Schema Details ({{
-                                    getSchemaInfo(snapshot['schema-id'])?.fields?.length || 0
-                                  }}
-                                  fields)
-                                  <v-chip
-                                    v-if="getSchemaChanges(snapshot, index)"
-                                    size="x-small"
-                                    color="warning"
-                                    variant="flat"
-                                    class="ml-2">
-                                    Changed
-                                  </v-chip>
-                                </v-expansion-panel-title>
-                                <v-expansion-panel-text>
-                                  <div
-                                    class="schema-fields-container"
-                                    style="max-height: 300px; overflow-y: auto">
-                                    <v-list density="compact">
-                                      <v-list-item
-                                        v-for="field in getSchemaInfo(snapshot['schema-id'])
-                                          ?.fields || []"
-                                        :key="field.id"
-                                        class="pa-1">
-                                        <template #prepend>
-                                          <v-icon
-                                            :color="
+                                <v-list-item v-if="snapshot.summary?.operation">
+                                  <v-list-item-title>Operation</v-list-item-title>
+                                  <v-list-item-subtitle>
+                                    <v-chip size="small" variant="outlined">
+                                      {{ snapshot.summary.operation }}
+                                    </v-chip>
+                                  </v-list-item-subtitle>
+                                </v-list-item>
+
+                                <v-list-item v-if="snapshot['schema-id']">
+                                  <v-list-item-title>Schema ID</v-list-item-title>
+                                  <v-list-item-subtitle class="font-mono">
+                                    {{ snapshot['schema-id'] }}
+                                    <v-chip
+                                      v-if="getSchemaChanges(snapshot, index)"
+                                      size="x-small"
+                                      color="warning"
+                                      variant="flat"
+                                      class="ml-2">
+                                      Schema Changed
+                                    </v-chip>
+                                  </v-list-item-subtitle>
+                                </v-list-item>
+                              </v-list>
+                            </v-col>
+
+                            <v-col cols="12" md="6">
+                              <v-list density="compact">
+                                <v-list-item v-if="snapshot['manifest-list']">
+                                  <v-list-item-title>Manifest List</v-list-item-title>
+                                  <v-list-item-subtitle class="d-flex align-center">
+                                    <span
+                                      class="mr-2 font-mono text-truncate"
+                                      style="max-width: 200px">
+                                      {{ snapshot['manifest-list'] }}
+                                    </span>
+                                    <v-btn
+                                      icon="mdi-content-copy"
+                                      size="small"
+                                      variant="flat"
+                                      @click="
+                                        functions.copyToClipboard(snapshot['manifest-list'])
+                                      "></v-btn>
+                                  </v-list-item-subtitle>
+                                </v-list-item>
+
+                                <v-list-item v-if="snapshot['parent-snapshot-id']">
+                                  <v-list-item-title>Parent Snapshot</v-list-item-title>
+                                  <v-list-item-subtitle class="font-mono">
+                                    {{ snapshot['parent-snapshot-id'] }}
+                                  </v-list-item-subtitle>
+                                </v-list-item>
+                              </v-list>
+                            </v-col>
+                          </v-row>
+
+                          <!-- Summary Details -->
+                          <v-row
+                            v-if="snapshot.summary && Object.keys(snapshot.summary).length > 1">
+                            <v-col cols="12">
+                              <v-divider class="my-2"></v-divider>
+                              <div class="text-subtitle-2 mb-2 d-flex align-center">
+                                <v-icon size="small" class="mr-1">mdi-chart-line</v-icon>
+                                Operation Summary
+                              </div>
+                              <v-row>
+                                <v-col
+                                  v-for="(value, key) in snapshot.summary"
+                                  :key="key"
+                                  cols="6"
+                                  md="3">
+                                  <v-list-item
+                                    class="pa-0"
+                                    density="compact"
+                                    v-if="String(key) !== 'operation'">
+                                    <v-list-item-title class="text-caption text-medium-emphasis">
+                                      {{ formatSummaryKey(key) }}
+                                    </v-list-item-title>
+                                    <v-list-item-subtitle class="font-mono text-body-2">
+                                      {{ formatSummaryValue(value) }}
+                                    </v-list-item-subtitle>
+                                  </v-list-item>
+                                </v-col>
+                              </v-row>
+                            </v-col>
+                          </v-row>
+
+                          <!-- Schema Changes -->
+                          <v-row v-if="getSchemaInfo(snapshot['schema-id'])">
+                            <v-col cols="12">
+                              <v-divider class="my-2"></v-divider>
+                              <v-expansion-panels variant="accordion" class="mt-2">
+                                <v-expansion-panel>
+                                  <v-expansion-panel-title class="text-subtitle-2">
+                                    <v-icon class="mr-2" size="small">mdi-table-cog</v-icon>
+                                    Schema Details ({{
+                                      getSchemaInfo(snapshot['schema-id'])?.fields?.length || 0
+                                    }}
+                                    fields)
+                                    <v-chip
+                                      v-if="getSchemaChanges(snapshot, index)"
+                                      size="x-small"
+                                      color="warning"
+                                      variant="flat"
+                                      class="ml-2">
+                                      Changed
+                                    </v-chip>
+                                  </v-expansion-panel-title>
+                                  <v-expansion-panel-text>
+                                    <div
+                                      class="schema-fields-container"
+                                      style="max-height: 300px; overflow-y: auto">
+                                      <v-list density="compact">
+                                        <v-list-item
+                                          v-for="field in getSchemaInfo(snapshot['schema-id'])
+                                            ?.fields || []"
+                                          :key="field.id"
+                                          class="pa-1">
+                                          <template #prepend>
+                                            <v-icon
+                                              :color="
+                                                isFieldNew(field, snapshot, index)
+                                                  ? 'success'
+                                                  : undefined
+                                              "
+                                              size="small">
+                                              {{ getFieldIcon(field) }}
+                                            </v-icon>
+                                          </template>
+                                          <v-list-item-title
+                                            :class="
                                               isFieldNew(field, snapshot, index)
-                                                ? 'success'
-                                                : undefined
-                                            "
-                                            size="small">
-                                            {{ getFieldIcon(field) }}
-                                          </v-icon>
-                                        </template>
-                                        <v-list-item-title
-                                          :class="
-                                            isFieldNew(field, snapshot, index)
-                                              ? 'text-success font-weight-bold'
-                                              : ''
-                                          ">
-                                          {{ field.name }}
-                                          <v-chip
-                                            v-if="isFieldNew(field, snapshot, index)"
-                                            size="x-small"
-                                            color="success"
-                                            variant="flat"
-                                            class="ml-2">
-                                            New
-                                          </v-chip>
-                                        </v-list-item-title>
-                                        <v-list-item-subtitle>
-                                          {{ getFieldTypeString(field.type) }}
-                                          <span v-if="field.required" class="text-error ml-1">
-                                            *
-                                          </span>
-                                        </v-list-item-subtitle>
-                                      </v-list-item>
-                                    </v-list>
-                                  </div>
-                                </v-expansion-panel-text>
-                              </v-expansion-panel>
-                            </v-expansion-panels>
-                          </v-col>
-                        </v-row>
-                      </v-card-text>
-                    </v-card>
-                  </v-timeline-item>
-                </v-timeline>
+                                                ? 'text-success font-weight-bold'
+                                                : ''
+                                            ">
+                                            {{ field.name }}
+                                            <v-chip
+                                              v-if="isFieldNew(field, snapshot, index)"
+                                              size="x-small"
+                                              color="success"
+                                              variant="flat"
+                                              class="ml-2">
+                                              New
+                                            </v-chip>
+                                          </v-list-item-title>
+                                          <v-list-item-subtitle>
+                                            {{ getFieldTypeString(field.type) }}
+                                            <span v-if="field.required" class="text-error ml-1">
+                                              *
+                                            </span>
+                                          </v-list-item-subtitle>
+                                        </v-list-item>
+                                      </v-list>
+                                    </div>
+                                  </v-expansion-panel-text>
+                                </v-expansion-panel>
+                              </v-expansion-panels>
+                            </v-col>
+                          </v-row>
+                        </v-card-text>
+                      </v-card>
+                    </v-timeline-item>
+                  </v-timeline>
+                </div>
               </v-card-text>
             </v-tabs-window-item>
 
@@ -920,6 +1011,49 @@ function formatSummaryValue(value: any): string {
   return String(value);
 }
 
+function scrollToSnapshot(snapshotId: number) {
+  // Find the element with the snapshot ID and scroll to it
+  const element = document.querySelector(`[data-snapshot-id="${snapshotId}"]`);
+  if (element) {
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest',
+    });
+
+    // Add a brief highlight effect
+    element.classList.add('snapshot-highlight');
+    setTimeout(() => {
+      element.classList.remove('snapshot-highlight');
+    }, 2000);
+  }
+}
+
+function formatTimelineDate(timestampMs: number): string {
+  if (!timestampMs) return '';
+  const date = new Date(timestampMs);
+  return (
+    date.toLocaleDateString() +
+    ' ' +
+    date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  );
+}
+
+function getOperationColor(operation: string): string {
+  switch (operation?.toLowerCase()) {
+    case 'append':
+      return 'success';
+    case 'overwrite':
+      return 'warning';
+    case 'delete':
+      return 'error';
+    case 'replace':
+      return 'info';
+    default:
+      return 'primary';
+  }
+}
+
 // Computed properties for safe access
 const currentSnapshot = computed(() => getCurrentSnapshot());
 const currentSchemaInfo = computed(() => getCurrentSchema());
@@ -944,5 +1078,63 @@ const currentSchemaInfo = computed(() => getCurrentSchema());
   word-wrap: break-word;
   word-break: break-all;
   white-space: pre-wrap;
+}
+
+.timeline-bubble-avatar {
+  transition: all 0.2s ease;
+}
+
+.timeline-bubble-avatar:hover {
+  transform: scale(1.1);
+}
+
+.snapshot-highlight {
+  animation: highlight-pulse 2s ease-in-out;
+}
+
+.vertical-timeline-container {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.horizontal-timeline-container {
+  max-width: 100%;
+  scrollbar-width: thin;
+}
+
+.horizontal-timeline-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.horizontal-timeline-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.horizontal-timeline-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.horizontal-timeline-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.timeline-item-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+@keyframes highlight-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
 }
 </style>
