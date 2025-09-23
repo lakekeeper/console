@@ -33,6 +33,7 @@
             @click="loadTabData">
             Permissions
           </v-tab>
+          <v-tab value="tasks" @click="loadTabData">tasks</v-tab>
         </v-tabs>
         <v-card style="max-height: 80vh; overflow: auto; min-height: 55vh">
           <v-tabs-window v-model="tab">
@@ -97,6 +98,17 @@
                 :relation-type="permissionType"
                 @permissions="assign" />
             </v-tabs-window-item>
+            <v-tabs-window-item value="tasks">
+              <TaskManager
+                v-if="loaded && viewId"
+                :warehouse-id="warehouseId"
+                :table-id="viewId"
+                entity-type="table" />
+              <div v-else class="text-center pa-8">
+                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                <div class="text-subtitle-1 mt-2">Loading view information...</div>
+              </div>
+            </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
       </v-col>
@@ -109,6 +121,7 @@ import 'vue-json-pretty/lib/styles.css';
 import { onMounted, reactive, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
+import TaskManager from '../../components/TaskManager.vue';
 import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
