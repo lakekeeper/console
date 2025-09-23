@@ -32,15 +32,6 @@
         </v-list-item>
 
         <v-list-item>
-          <v-list-item-title>Status</v-list-item-title>
-          <v-list-item-subtitle>
-            <v-chip :color="getStatusColor(task.status)" size="small" variant="flat">
-              {{ task.status }}
-            </v-chip>
-          </v-list-item-subtitle>
-        </v-list-item>
-
-        <v-list-item>
           <v-list-item-title>Queue</v-list-item-title>
           <v-list-item-subtitle>
             <v-chip size="small" variant="outlined">
