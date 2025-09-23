@@ -385,9 +385,11 @@
                           :dot-color="
                             event.type === 'schema-change'
                               ? 'warning'
-                              : index === 0
-                                ? 'success'
-                                : 'info'
+                              : event.type === 'snapshot' && isInitialSnapshot(event.snapshot)
+                                ? 'purple'
+                                : index === 0
+                                  ? 'success'
+                                  : 'info'
                           "
                           :size="event.type === 'schema-change' ? 'x-small' : 'small'"
                           style="min-width: 200px">
@@ -1128,6 +1130,13 @@ function getOperationColor(operation: string): string {
     default:
       return 'primary';
   }
+}
+
+function isInitialSnapshot(snapshot: any): boolean {
+  if (!snapshotHistory.length) return false;
+  // The initial snapshot is the one with the earliest timestamp (last in the sorted array)
+  const oldestSnapshot = snapshotHistory[snapshotHistory.length - 1];
+  return snapshot['snapshot-id'] === oldestSnapshot['snapshot-id'];
 }
 
 // Computed properties for safe access
