@@ -391,42 +391,32 @@
                           size="small"
                           style="min-width: 200px">
                           <template #icon>
-                            <v-tooltip location="top">
-                              <template #activator="{ props }">
-                                <v-icon
-                                  v-bind="props"
-                                  :size="index === 0 ? 16 : 14"
-                                  color="white"
-                                  style="cursor: pointer"
-                                  @click="scrollToSnapshot(snapshot['snapshot-id'])">
-                                  {{ index === 0 ? 'mdi-check-circle' : 'mdi-camera' }}
-                                </v-icon>
-                              </template>
-                              <div class="text-center">
-                                <div class="font-weight-bold">
-                                  {{ index === 0 ? 'Current' : 'Snapshot' }} #{{
-                                    snapshot['snapshot-id']
-                                  }}
-                                </div>
-                                <div class="text-caption">
-                                  {{ formatTimestamp(snapshot['timestamp-ms']) }}
-                                </div>
-                                <div v-if="snapshot.summary?.operation" class="text-caption">
-                                  {{ snapshot.summary.operation }}
-                                </div>
-                              </div>
-                            </v-tooltip>
+                            <div
+                              style="
+                                cursor: pointer;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                              "
+                              @click="scrollToSnapshot(snapshot['snapshot-id'])">
+                              <v-tooltip location="top">
+                                <template #activator="{ props }">
+                                  <v-icon
+                                    v-bind="props"
+                                    :size="index === 0 ? 16 : 14"
+                                    color="white">
+                                    {{ index === 0 ? 'mdi-check-circle' : 'mdi-camera' }}
+                                  </v-icon>
+                                </template>
+                                {{ snapshot['snapshot-id'] }}
+                              </v-tooltip>
+                            </div>
                           </template>
 
                           <!-- Content directly under the icon -->
                           <div
                             class="text-center timeline-item-content"
                             style="min-width: 180px; max-width: 180px">
-                            <div
-                              v-if="index === 0"
-                              class="text-caption font-weight-bold text-success mb-1">
-                              Current
-                            </div>
                             <div class="text-caption mb-1">
                               {{ formatTimelineDate(snapshot['timestamp-ms']) }}
                             </div>
@@ -1012,20 +1002,78 @@ function formatSummaryValue(value: any): string {
 }
 
 function scrollToSnapshot(snapshotId: number) {
-  // Find the element with the snapshot ID and scroll to it
-  const element = document.querySelector(`[data-snapshot-id="${snapshotId}"]`);
+  console.log('Scrolling to snapshot:', snapshotId);
+
+  // Find the container first
+  const container = document.querySelector('.vertical-timeline-container') as HTMLElement;
+
+  if (!container) {
+    console.log('Vertical timeline container not found');
+    return;
+  }
+
+  // Find the specific card element within the vertical timeline container
+  // Since v-card renders as a div, we need to look for any element with the data attribute
+  const element = container.querySelector(
+    `[data-snapshot-id="${snapshotId}"]:not(.v-timeline-item)`,
+  ) as HTMLElement;
+
+  console.log('Found container:', container);
+  console.log('Found element:', element);
+
   if (element) {
-    element.scrollIntoView({
+    // Get the actual card element (should be a div with v-card classes)
+    const cardElement = (element.closest('.v-card') || element) as HTMLElement;
+
+    // Calculate element's position relative to container
+    const elementTop = cardElement.offsetTop;
+    const containerHeight = container.clientHeight;
+    const elementHeight = cardElement.offsetHeight;
+
+    // Calculate target scroll position to center the element
+    const targetScrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
+
+    console.log('Container height:', containerHeight);
+    console.log('Element top offset:', elementTop);
+    console.log('Element height:', elementHeight);
+    console.log('Target scroll position:', targetScrollTop);
+
+    // Scroll to the calculated position
+    container.scrollTo({
+      top: Math.max(0, targetScrollTop),
       behavior: 'smooth',
-      block: 'center',
-      inline: 'nearest',
     });
 
     // Add a brief highlight effect
-    element.classList.add('snapshot-highlight');
+    cardElement.classList.add('snapshot-highlight');
     setTimeout(() => {
-      element.classList.remove('snapshot-highlight');
+      cardElement.classList.remove('snapshot-highlight');
     }, 2000);
+  } else {
+    console.log('No card element found with snapshot ID:', snapshotId);
+    // Debug: Show all elements with data-snapshot-id in the container
+    const allElements = container.querySelectorAll('[data-snapshot-id]');
+    console.log(
+      'All snapshot elements found in container:',
+      Array.from(allElements).map((el) => ({
+        id: el.getAttribute('data-snapshot-id'),
+        tagName: el.tagName,
+        classList: Array.from(el.classList),
+      })),
+    );
+
+    // Fallback: try any element with the snapshot ID in the container
+    const fallbackElement = container.querySelector(
+      `[data-snapshot-id="${snapshotId}"]`,
+    ) as HTMLElement;
+    if (fallbackElement) {
+      console.log('Using fallback element');
+      fallbackElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
   }
 }
 
