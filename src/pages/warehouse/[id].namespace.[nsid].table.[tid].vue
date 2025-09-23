@@ -29,6 +29,7 @@
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab value="details" @click="loadTabData">details</v-tab>
           <v-tab value="history" @click="loadTabData">history</v-tab>
+          <v-tab value="graph" @click="loadTabData">graph</v-tab>
           <v-tab
             v-if="enabledAuthentication && enabledPermissions"
             value="permissions"
@@ -697,6 +698,121 @@
               </v-card-text>
             </v-tabs-window-item>
 
+            <v-tabs-window-item value="graph">
+              <div class="pa-4">
+                <div class="text-h6 mb-4 d-flex align-center">
+                  <v-icon class="mr-2">mdi-source-branch</v-icon>
+                  Branch Graph
+                </div>
+
+                <div
+                  v-if="!table.metadata.refs || Object.keys(table.metadata.refs).length === 0"
+                  class="text-center pa-8">
+                  <v-icon size="64" color="grey-lighten-1">mdi-source-branch-remove</v-icon>
+                  <div class="text-h6 mt-2 text-grey-lighten-1">No branches found</div>
+                  <div class="text-body-1 text-grey-lighten-1">
+                    This table has no branch references
+                  </div>
+                </div>
+
+                <div v-else class="graph-container">
+                  <v-card variant="outlined" class="pa-4">
+                    <div
+                      class="graph-content"
+                      style="
+                        height: 600px;
+                        overflow: auto;
+                        border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+                        border-radius: 4px;
+                      ">
+                      <svg :width="graphWidth" :height="graphHeight" class="branch-graph">
+                        <defs>
+                          <marker
+                            id="arrowhead"
+                            markerWidth="10"
+                            markerHeight="7"
+                            refX="9"
+                            refY="3.5"
+                            orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+                          </marker>
+                        </defs>
+
+                        <!-- Branch lines -->
+                        <g v-for="(path, branchName) in branchPaths" :key="branchName">
+                          <path
+                            :d="path.pathData"
+                            :stroke="path.color"
+                            stroke-width="2"
+                            fill="none"
+                            marker-end="url(#arrowhead)" />
+                        </g>
+
+                        <!-- Snapshot nodes -->
+                        <g v-for="node in graphNodes" :key="node.id">
+                          <circle
+                            :cx="node.x"
+                            :cy="node.y"
+                            :r="node.radius"
+                            :fill="node.color"
+                            :stroke="node.strokeColor"
+                            stroke-width="2" />
+
+                          <!-- Sequence number inside the node -->
+                          <text
+                            :x="node.x"
+                            :y="node.y + 4"
+                            font-size="10"
+                            font-weight="bold"
+                            fill="white"
+                            text-anchor="middle">
+                            {{ node.sequenceNumber }}
+                          </text>
+
+                          <!-- Branch labels -->
+                          <text
+                            v-for="branch in node.branches"
+                            :key="branch"
+                            :x="node.x + 15"
+                            :y="node.y + 5"
+                            font-size="12"
+                            :fill="getBranchColor(branch)">
+                            {{ branch }}
+                          </text>
+
+                          <!-- Snapshot ID tooltip -->
+                          <title>
+                            Sequence: {{ node.sequenceNumber }} | Snapshot: {{ node.snapshotId }}
+                          </title>
+                        </g>
+                      </svg>
+                    </div>
+                  </v-card>
+
+                  <!-- Legend -->
+                  <v-card variant="outlined" class="mt-4 pa-3">
+                    <div class="text-subtitle-2 mb-2">Legend</div>
+                    <div class="d-flex flex-wrap gap-4">
+                      <div
+                        v-for="(branch, branchName) in branchInfo"
+                        :key="branchName"
+                        class="d-flex align-center">
+                        <div
+                          class="branch-color-indicator mr-2"
+                          :style="{
+                            backgroundColor: branch.color,
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '2px',
+                          }"></div>
+                        <span class="text-body-2">{{ branchName }} ({{ branch.type }})</span>
+                      </div>
+                    </div>
+                  </v-card>
+                </div>
+              </div>
+            </v-tabs-window-item>
+
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
@@ -1199,6 +1315,350 @@ const timelineEvents = computed(() => {
   // Sort events by timestamp (descending, newest first)
   return events.sort((a, b) => b.timestampMs - a.timestampMs);
 });
+
+// Graph visualization computed properties
+const graphWidth = ref(800);
+const graphHeight = ref(600);
+
+const branchInfo = computed(() => {
+  if (!table.metadata.refs) return {};
+
+  const branches: Record<string, { color: string; type: string; snapshotId: number }> = {};
+  const colors = ['#1976d2', '#388e3c', '#f57c00', '#d32f2f', '#7b1fa2', '#00796b', '#c2185b'];
+  let colorIndex = 0;
+
+  Object.entries(table.metadata.refs).forEach(([branchName, refData]: [string, any]) => {
+    branches[branchName] = {
+      color: colors[colorIndex % colors.length],
+      type: refData.type || 'branch',
+      snapshotId: refData['snapshot-id'],
+    };
+    colorIndex++;
+  });
+
+  return branches;
+});
+
+const graphNodes = computed(() => {
+  if (!snapshotHistory.length) return [];
+
+  const nodes: Array<{
+    id: string;
+    snapshotId: number;
+    x: number;
+    y: number;
+    radius: number;
+    color: string;
+    strokeColor: string;
+    branches: string[];
+    parentId?: number;
+    level: number;
+    sequenceNumber: number;
+  }> = [];
+
+  // Sort snapshots by sequence number (1 = first commit at bottom, highest = latest at top)
+  const sortedSnapshots = [...snapshotHistory].sort((a, b) => {
+    const seqA = a['sequence-number'] || 0;
+    const seqB = b['sequence-number'] || 0;
+    return seqA - seqB;
+  });
+
+  const nodeSpacingX = 100;
+  const nodeSpacingY = 60;
+  const startX = 60;
+
+  // Calculate total height based on number of snapshots
+  const totalHeight = Math.max(800, (sortedSnapshots.length + 2) * nodeSpacingY);
+  graphHeight.value = totalHeight;
+
+  // Create a map to track which column each branch should use
+  const branchColumns = new Map<string, number>();
+  let nextColumn = 0;
+
+  // Function to trace a branch's full history from its head snapshot
+  function getBranchHistory(branchSnapshotId: number): number[] {
+    const history: number[] = [];
+    const visited = new Set<number>();
+
+    function trace(snapshotId: number) {
+      if (visited.has(snapshotId)) return;
+      visited.add(snapshotId);
+
+      const snapshot = sortedSnapshots.find((s) => s['snapshot-id'] === snapshotId);
+      if (!snapshot) return;
+
+      history.push(snapshotId);
+
+      if (snapshot['parent-snapshot-id']) {
+        trace(snapshot['parent-snapshot-id']);
+      }
+    }
+
+    trace(branchSnapshotId);
+    return history;
+  }
+
+  // Build branch histories
+  const branchHistories = new Map<string, number[]>();
+  Object.entries(branchInfo.value).forEach(([branchName, branch]) => {
+    branchHistories.set(branchName, getBranchHistory(branch.snapshotId));
+  });
+
+  // Find divergence points between branches
+  function findDivergencePoint(branch1History: number[], branch2History: number[]): number | null {
+    // Find the last common snapshot between two branches
+    const common = branch1History.filter((id) => branch2History.includes(id));
+    if (common.length === 0) return null;
+
+    // Find the snapshot with the highest sequence number among common ones
+    let lastCommon = common[0];
+    let maxSequence = 0;
+
+    common.forEach((snapshotId) => {
+      const snapshot = sortedSnapshots.find((s) => s['snapshot-id'] === snapshotId);
+      if (snapshot && (snapshot['sequence-number'] || 0) > maxSequence) {
+        maxSequence = snapshot['sequence-number'] || 0;
+        lastCommon = snapshotId;
+      }
+    });
+
+    return lastCommon;
+  }
+
+  // Assign columns for branches
+  if (branchHistories.has('main')) {
+    branchColumns.set('main', 0);
+    nextColumn = 1;
+  }
+
+  // Assign columns for other branches
+  const mainHistory = branchHistories.get('main') || [];
+  branchHistories.forEach((history, branchName) => {
+    if (branchName !== 'main' && !branchColumns.has(branchName)) {
+      branchColumns.set(branchName, nextColumn++);
+    }
+  });
+
+  // Position snapshots from bottom (sequence 1) to top (latest sequence)
+  sortedSnapshots.forEach((snapshot, index) => {
+    const snapshotId = snapshot['snapshot-id'];
+    const sequenceNumber = snapshot['sequence-number'] || 0;
+
+    // Position from bottom to top (index 0 = bottom, higher index = higher on screen)
+    const yPosition = totalHeight - nodeSpacingY - index * nodeSpacingY;
+
+    // Determine which branches this snapshot belongs to
+    const belongsToMain = mainHistory.includes(snapshotId);
+    const otherBranches: string[] = [];
+
+    branchHistories.forEach((history, branchName) => {
+      if (branchName !== 'main' && history.includes(snapshotId)) {
+        // Check if this snapshot is part of the unique path for this branch
+        // (i.e., not shared with main branch)
+        const divergencePoint = findDivergencePoint(mainHistory, history);
+        const branchHead = branchInfo.value[branchName].snapshotId;
+
+        // Trace from branch head to divergence point to get unique branch path
+        const uniqueBranchPath: number[] = [];
+        let current = branchHead;
+
+        while (current && current !== divergencePoint) {
+          uniqueBranchPath.push(current);
+          const currentSnapshot = sortedSnapshots.find((s) => s['snapshot-id'] === current);
+          current = currentSnapshot?.['parent-snapshot-id'];
+        }
+
+        if (uniqueBranchPath.includes(snapshotId)) {
+          otherBranches.push(branchName);
+        }
+      }
+    });
+
+    // Create nodes based on branch membership
+    if (belongsToMain && otherBranches.length === 0) {
+      // Only on main branch
+      nodes.push({
+        id: `node-${snapshotId}-main`,
+        snapshotId,
+        x: startX,
+        y: yPosition,
+        radius: 10,
+        color: '#4caf50',
+        strokeColor: '#388e3c',
+        branches: ['main'],
+        parentId: snapshot['parent-snapshot-id'],
+        level: index,
+        sequenceNumber,
+      });
+    } else if (!belongsToMain && otherBranches.length > 0) {
+      // Only on other branch(es)
+      otherBranches.forEach((branchName) => {
+        const columnX = startX + (branchColumns.get(branchName) || 0) * nodeSpacingX;
+        nodes.push({
+          id: `node-${snapshotId}-${branchName}`,
+          snapshotId,
+          x: columnX,
+          y: yPosition,
+          radius: 10,
+          color: branchInfo.value[branchName]?.color || '#2196f3',
+          strokeColor: branchInfo.value[branchName]?.color || '#1976d2',
+          branches: [branchName],
+          parentId: snapshot['parent-snapshot-id'],
+          level: index,
+          sequenceNumber,
+        });
+      });
+    } else if (belongsToMain && otherBranches.length > 0) {
+      // Divergence point - create main node only
+      nodes.push({
+        id: `node-${snapshotId}-main`,
+        snapshotId,
+        x: startX,
+        y: yPosition,
+        radius: 12, // Slightly larger for divergence points
+        color: '#4caf50',
+        strokeColor: '#388e3c',
+        branches: ['main'],
+        parentId: snapshot['parent-snapshot-id'],
+        level: index,
+        sequenceNumber,
+      });
+    } else {
+      // Fallback - shouldn't happen but create a generic node
+      nodes.push({
+        id: `node-${snapshotId}`,
+        snapshotId,
+        x: startX,
+        y: yPosition,
+        radius: 8,
+        color: '#666',
+        strokeColor: '#444',
+        branches: [],
+        parentId: snapshot['parent-snapshot-id'],
+        level: index,
+        sequenceNumber,
+      });
+    }
+  });
+
+  return nodes;
+});
+
+const branchPaths = computed(() => {
+  if (!graphNodes.value.length) return {};
+
+  const paths: Record<string, { pathData: string; color: string }> = {};
+
+  // Helper function to get branch history
+  function getBranchHistoryForPaths(branchSnapshotId: number): number[] {
+    if (!branchSnapshotId) return [];
+
+    const history: number[] = [];
+    const visited = new Set<number>();
+
+    function trace(snapshotId: number) {
+      if (visited.has(snapshotId)) return;
+      visited.add(snapshotId);
+
+      const snapshot = snapshotHistory.find((s) => s['snapshot-id'] === snapshotId);
+      if (!snapshot) return;
+
+      history.push(snapshotId);
+
+      if (snapshot['parent-snapshot-id']) {
+        trace(snapshot['parent-snapshot-id']);
+      }
+    }
+
+    trace(branchSnapshotId);
+    return history;
+  }
+
+  // Create parent-child connections for each branch
+  graphNodes.value.forEach((node) => {
+    if (node.parentId) {
+      // Find parent node in the same branch first
+      let parentNode = graphNodes.value.find(
+        (n) => n.snapshotId === node.parentId && n.branches[0] === node.branches[0],
+      );
+
+      // If no same-branch parent, find main branch parent (for branch connections)
+      if (!parentNode) {
+        parentNode = graphNodes.value.find(
+          (n) => n.snapshotId === node.parentId && n.branches.includes('main'),
+        );
+      }
+
+      if (parentNode) {
+        const pathId = `connection-${node.id}-${parentNode.id}`;
+        const branchColor = node.branches.includes('main')
+          ? '#4caf50'
+          : branchInfo.value[node.branches[0]]?.color || '#2196f3';
+
+        paths[pathId] = {
+          pathData: `M ${parentNode.x} ${parentNode.y} L ${node.x} ${node.y}`,
+          color: branchColor,
+        };
+      }
+    }
+  });
+
+  // Add branch divergence lines (from main branch to other branches at divergence points)
+  Object.entries(branchInfo.value).forEach(([branchName, branch]) => {
+    if (branchName === 'main') return;
+
+    // Find the divergence point for this branch
+    const branchHistory = getBranchHistoryForPaths(branch.snapshotId);
+    const mainHistory = getBranchHistoryForPaths(branchInfo.value['main']?.snapshotId || 0);
+
+    // Find last common snapshot
+    const common = branchHistory.filter((id) => mainHistory.includes(id));
+    if (common.length === 0) return;
+
+    let divergenceSnapshotId = common[0];
+    let maxSequence = 0;
+
+    common.forEach((snapshotId) => {
+      const snapshot = snapshotHistory.find((s) => s['snapshot-id'] === snapshotId);
+      if (snapshot && (snapshot['sequence-number'] || 0) > maxSequence) {
+        maxSequence = snapshot['sequence-number'] || 0;
+        divergenceSnapshotId = snapshotId;
+      }
+    });
+
+    // Find the first branch-specific snapshot (child of divergence point)
+    const branchSpecificSnapshot = snapshotHistory.find(
+      (s) =>
+        s['parent-snapshot-id'] === divergenceSnapshotId &&
+        branchHistory.includes(s['snapshot-id']) &&
+        !mainHistory.includes(s['snapshot-id']),
+    );
+
+    if (branchSpecificSnapshot) {
+      const divergenceNode = graphNodes.value.find(
+        (n) => n.snapshotId === divergenceSnapshotId && n.branches.includes('main'),
+      );
+      const branchNode = graphNodes.value.find(
+        (n) =>
+          n.snapshotId === branchSpecificSnapshot['snapshot-id'] && n.branches.includes(branchName),
+      );
+
+      if (divergenceNode && branchNode) {
+        const pathId = `divergence-${branchName}-${divergenceSnapshotId}`;
+        paths[pathId] = {
+          pathData: `M ${divergenceNode.x} ${divergenceNode.y} L ${branchNode.x} ${branchNode.y}`,
+          color: branchInfo.value[branchName]?.color || '#2196f3',
+        };
+      }
+    }
+  });
+
+  return paths;
+});
+
+function getBranchColor(branchName: string): string {
+  return branchInfo.value[branchName]?.color || '#666';
+}
 </script>
 
 <style scoped>
@@ -1278,5 +1738,23 @@ const timelineEvents = computed(() => {
   100% {
     box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
   }
+}
+
+.graph-container {
+  width: 100%;
+}
+
+.branch-graph {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 4px;
+  background: rgba(var(--v-theme-surface));
+}
+
+.branch-color-indicator {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.graph-content {
+  position: relative;
 }
 </style>
