@@ -32,6 +32,7 @@ declare module 'vue' {
     SnackbarMessage: typeof import('./components/SnackbarMessage.vue')['default']
     StatisticsDialog: typeof import('./components/StatisticsDialog.vue')['default']
     TaskConfigDialog: typeof import('./components/TaskConfigDialog.vue')['default']
+    TaskDetails: typeof import('./components/TaskDetails.vue')['default']
     TaskManager: typeof import('./components/TaskManager.vue')['default']
     UserManager: typeof import('./components/UserManager.vue')['default']
     UserRenameDialog: typeof import('./components/UserRenameDialog.vue')['default']

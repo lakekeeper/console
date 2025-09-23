@@ -297,16 +297,12 @@
     </v-row>
 
     <!-- Task Details Modal -->
-    <v-dialog v-model="showTaskDetailsDialog" max-width="800px" scrollable>
+    <v-dialog v-model="showTaskDetailsDialog" max-width="900px" scrollable>
       <v-card>
         <v-card-title class="d-flex align-center">
-          <v-icon class="mr-2">mdi-information</v-icon>
-          Task Details
           <v-spacer></v-spacer>
           <v-btn icon="mdi-close" variant="text" @click="closeTaskDetailsDialog"></v-btn>
         </v-card-title>
-
-        <v-divider></v-divider>
 
         <v-card-text v-if="taskDetailsLoading" class="text-center pa-8">
           <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
@@ -322,157 +318,12 @@
           </v-btn>
         </v-card-text>
 
-        <v-card-text v-else-if="selectedTaskDetails" class="pa-0">
-          <v-list density="compact">
-            <v-list-item>
-              <v-list-item-title>Task ID</v-list-item-title>
-              <v-list-item-subtitle class="d-flex align-center">
-                <span class="mr-2">{{ selectedTaskDetails['task-id'] }}</span>
-
-                <v-btn
-                  icon="mdi-content-copy"
-                  size="small"
-                  variant="flat"
-                  @click="functions.copyToClipboard(selectedTaskDetails['task-id'])"></v-btn>
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title>Status</v-list-item-title>
-              <v-list-item-subtitle>
-                <v-chip
-                  :color="getStatusColor(selectedTaskDetails.status)"
-                  size="small"
-                  variant="flat">
-                  {{ selectedTaskDetails.status }}
-                </v-chip>
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title>Queue</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ formatQueueName(selectedTaskDetails['queue-name']) }}
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title>Progress</v-list-item-title>
-              <v-list-item-subtitle>
-                <div class="d-flex align-center">
-                  <v-progress-linear
-                    :model-value="selectedTaskDetails.progress * 100"
-                    :color="getStatusColor(selectedTaskDetails.status)"
-                    height="6"
-                    rounded
-                    class="mr-2"
-                    style="width: 200px"></v-progress-linear>
-                  <span>{{ Math.round(selectedTaskDetails.progress * 100) }}%</span>
-                </div>
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title>Attempt</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ selectedTaskDetails.attempt || 'N/A' }}
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title>Created At</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ formatDateTime(selectedTaskDetails['created-at']) }}
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title>Scheduled For</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ formatDateTime(selectedTaskDetails['scheduled-for']) }}
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item v-if="selectedTaskDetails['picked-up-at']">
-              <v-list-item-title>Picked Up At</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ formatDateTime(selectedTaskDetails['picked-up-at']) }}
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item v-if="selectedTaskDetails['last-heartbeat-at']">
-              <v-list-item-title>Last Heartbeat At</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ formatDateTime(selectedTaskDetails['last-heartbeat-at']) }}
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title>Updated At</v-list-item-title>
-              <v-list-item-subtitle>
-                {{
-                  selectedTaskDetails['updated-at']
-                    ? formatDateTime(selectedTaskDetails['updated-at'])
-                    : 'N/A'
-                }}
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item v-if="selectedTaskDetails['parent-task-id']">
-              <v-list-item-title>Parent Task ID</v-list-item-title>
-              <v-list-item-subtitle class="d-flex align-center">
-                <span class="mr-2">{{ selectedTaskDetails['parent-task-id'] }}</span>
-                <v-btn
-                  icon="mdi-content-copy"
-                  size="small"
-                  variant="flat"
-                  @click="functions.copyToClipboard(selectedTaskDetails['parent-task-id'])"></v-btn>
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-title>Warehouse ID</v-list-item-title>
-              <v-list-item-subtitle class="d-flex align-center">
-                <span class="mr-2">{{ selectedTaskDetails['warehouse-id'] }}</span>
-                <v-btn
-                  icon="mdi-content-copy"
-                  size="small"
-                  variant="flat"
-                  @click="functions.copyToClipboard(selectedTaskDetails['warehouse-id'])"></v-btn>
-              </v-list-item-subtitle>
-            </v-list-item>
-
-            <v-list-item v-if="selectedTaskDetails.entity">
-              <v-list-item-title>Entity</v-list-item-title>
-              <v-list-item-subtitle>
-                <div>
-                  <div>
-                    <strong>Type:</strong>
-                    {{ selectedTaskDetails.entity.type }}
-                  </div>
-                  <div v-if="selectedTaskDetails.entity['table-id']">
-                    <strong>Table ID:</strong>
-                    <span class="mr-2">{{ selectedTaskDetails.entity['table-id'] }}</span>
-                    <v-btn
-                      icon="mdi-content-copy"
-                      size="small"
-                      variant="flat"
-                      @click="
-                        functions.copyToClipboard(selectedTaskDetails.entity['table-id'])
-                      "></v-btn>
-                  </div>
-                </div>
-              </v-list-item-subtitle>
-            </v-list-item>
-          </v-list>
+        <v-card-text v-else class="pa-0">
+          <TaskDetails
+            :task="selectedTaskDetails"
+            :format-queue-name="formatQueueName"
+            @copy="functions.copyToClipboard" />
         </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="primary" variant="text" @click="closeTaskDetailsDialog">Close</v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -586,12 +437,15 @@ import { useVisualStore } from '@/stores/visual';
 import { Type } from '@/common/interfaces';
 import { useQueueConfig } from '@/common/queueConfig';
 import { reactive, ref, onMounted, computed } from 'vue';
+import TaskDetails from '@/components/TaskDetails.vue';
+import { getStatusColor, formatDateTime } from '@/common/taskUtils';
 import {
   Task,
   ListTasksRequest,
   ListTasksResponse,
   TaskEntity,
   TaskStatus,
+  GetTaskDetailsResponse,
 } from '@/gen/management/types.gen';
 
 // Props
@@ -628,7 +482,7 @@ const errorMessage = ref('');
 
 // Task details modal data
 const showTaskDetailsDialog = ref(false);
-const selectedTaskDetails = ref<Task | null>(null);
+const selectedTaskDetails = ref<GetTaskDetailsResponse | null>(null);
 const taskDetailsLoading = ref(false);
 const taskDetailsError = ref('');
 
@@ -833,70 +687,6 @@ async function confirmRunTaskNow() {
 }
 
 // Helper functions
-function getStatusColor(status: string): string {
-  switch (status) {
-    case 'RUNNING':
-      return 'info';
-    case 'SUCCESS':
-      return 'success';
-    case 'FAILED':
-      return 'error';
-    case 'CANCELLED':
-      return 'warning';
-    case 'SCHEDULED':
-      return 'primary';
-    case 'STOPPING':
-      return 'orange';
-    default:
-      return 'grey';
-  }
-}
-
-function formatDateTime(dateString: string): string {
-  if (!dateString) return '';
-  try {
-    const date = new Date(dateString);
-
-    // Get day with ordinal suffix
-    const day = date.getDate();
-    const getOrdinalSuffix = (n: number) => {
-      const s = ['th', 'st', 'nd', 'rd'];
-      const v = n % 100;
-      return s[(v - 20) % 10] || s[v] || s[0];
-    };
-    const dayWithSuffix = day + getOrdinalSuffix(day);
-
-    // Get month name
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    const month = months[date.getMonth()];
-
-    // Get year
-    const year = date.getFullYear();
-
-    // Get time in HH:MM:SS format
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-
-    return `${dayWithSuffix} ${month} ${year} ${hours}:${minutes}:${seconds}`;
-  } catch (error) {
-    return dateString;
-  }
-}
-
 function formatQueueName(queueName: string): string {
   return queueManager.formatQueueName(queueName);
 }
@@ -968,7 +758,7 @@ async function handlePaginationUpdate(options: any) {
 }
 
 async function viewTaskDetails(task: Task) {
-  selectedTaskDetails.value = task; // Set initial task data
+  selectedTaskDetails.value = null; // Reset details data
   showTaskDetailsDialog.value = true;
   await loadTaskDetails(task['task-id']);
 }
