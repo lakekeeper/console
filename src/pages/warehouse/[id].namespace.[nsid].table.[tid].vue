@@ -91,9 +91,18 @@
                   size="small"
                   variant="outlined"
                   color="success"
+                  class="mr-8"
                   @click="depthRawRepresentation = depthRawRepresentationMax"
                   append-icon="mdi-expand-all">
                   Expand
+                </v-btn>
+                <v-btn
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                  @click="copyTableJson"
+                  prepend-icon="mdi-content-copy">
+                  Copy JSON
                 </v-btn>
               </div>
               <div style="height: 65vh; overflow: auto">
@@ -1137,6 +1146,15 @@ function isInitialSnapshot(snapshot: any): boolean {
   // The initial snapshot is the one with the earliest timestamp (last in the sorted array)
   const oldestSnapshot = snapshotHistory[snapshotHistory.length - 1];
   return snapshot['snapshot-id'] === oldestSnapshot['snapshot-id'];
+}
+
+function copyTableJson() {
+  try {
+    const jsonString = JSON.stringify(table, null, 2);
+    functions.copyToClipboard(jsonString);
+  } catch (error) {
+    console.error('Failed to copy table JSON:', error);
+  }
 }
 
 // Computed properties for safe access
