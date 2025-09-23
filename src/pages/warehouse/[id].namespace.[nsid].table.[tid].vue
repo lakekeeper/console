@@ -380,20 +380,27 @@
                         class="pa-0"
                         style="min-width: max-content">
                         <v-timeline-item
-                          v-for="(snapshot, index) in snapshotHistory"
-                          :key="snapshot['snapshot-id']"
-                          :dot-color="index === 0 ? 'success' : 'info'"
-                          size="small"
+                          v-for="(event, index) in timelineEvents"
+                          :key="event.id"
+                          :dot-color="
+                            event.type === 'schema-change'
+                              ? 'warning'
+                              : index === 0
+                                ? 'success'
+                                : 'info'
+                          "
+                          :size="event.type === 'schema-change' ? 'x-small' : 'small'"
                           style="min-width: 200px">
                           <template #icon>
                             <div
+                              v-if="event.type === 'snapshot'"
                               style="
                                 cursor: pointer;
                                 display: flex;
                                 align-items: center;
                                 justify-content: center;
                               "
-                              @click="scrollToSnapshot(snapshot['snapshot-id'])">
+                              @click="scrollToSnapshot(event.snapshot['snapshot-id'])">
                               <v-tooltip location="top">
                                 <template #activator="{ props }">
                                   <v-icon
@@ -403,7 +410,19 @@
                                     {{ index === 0 ? 'mdi-check-circle' : 'mdi-camera' }}
                                   </v-icon>
                                 </template>
-                                {{ snapshot['snapshot-id'] }}
+                                {{ event.snapshot['snapshot-id'] }}
+                              </v-tooltip>
+                            </div>
+                            <div
+                              v-else-if="event.type === 'schema-change'"
+                              style="display: flex; align-items: center; justify-content: center">
+                              <v-tooltip location="top">
+                                <template #activator="{ props }">
+                                  <v-icon v-bind="props" size="12" color="white">
+                                    mdi-table-cog
+                                  </v-icon>
+                                </template>
+                                Schema Change: {{ event.schemaId }}
                               </v-tooltip>
                             </div>
                           </template>
@@ -412,16 +431,30 @@
                           <div
                             class="text-center timeline-item-content"
                             style="min-width: 180px; max-width: 180px">
-                            <div class="text-caption mb-1">
-                              {{ formatTimelineDate(snapshot['timestamp-ms']) }}
+                            <div v-if="event.type === 'snapshot'">
+                              <div class="text-caption mb-1">
+                                {{ formatTimelineDate(event.snapshot['timestamp-ms']) }}
+                              </div>
+                              <div v-if="event.snapshot.summary?.operation">
+                                <v-chip
+                                  size="x-small"
+                                  :color="getOperationColor(event.snapshot.summary.operation)"
+                                  variant="flat"
+                                  class="text-caption">
+                                  {{ event.snapshot.summary.operation }}
+                                </v-chip>
+                              </div>
                             </div>
-                            <div v-if="snapshot.summary?.operation">
+                            <div v-else-if="event.type === 'schema-change'">
+                              <div class="text-caption mb-1" style="color: #fb8c00">
+                                Schema Change
+                              </div>
                               <v-chip
                                 size="x-small"
-                                :color="getOperationColor(snapshot.summary.operation)"
+                                color="warning"
                                 variant="flat"
                                 class="text-caption">
-                                {{ snapshot.summary.operation }}
+                                ID: {{ event.schemaId }}
                               </v-chip>
                             </div>
                           </div>
@@ -1100,6 +1133,45 @@ function getOperationColor(operation: string): string {
 // Computed properties for safe access
 const currentSnapshot = computed(() => getCurrentSnapshot());
 const currentSchemaInfo = computed(() => getCurrentSchema());
+
+// Create timeline events that include both snapshots and schema changes
+const timelineEvents = computed(() => {
+  const events: Array<{
+    type: 'snapshot' | 'schema-change';
+    snapshot?: any;
+    schemaId?: number;
+    timestampMs: number;
+    id: string;
+  }> = [];
+
+  // Add all snapshots as events
+  snapshotHistory.forEach((snapshot, index) => {
+    // Check if this snapshot introduces a new schema (compared to the previous snapshot)
+    if (index < snapshotHistory.length - 1) {
+      const prevSnapshot = snapshotHistory[index + 1]; // Previous in time (next in array since sorted desc)
+      if (snapshot['schema-id'] !== prevSnapshot['schema-id']) {
+        // Add schema change event before this snapshot
+        events.push({
+          type: 'schema-change',
+          schemaId: snapshot['schema-id'],
+          timestampMs: snapshot['timestamp-ms'] - 1, // Slightly before the snapshot
+          id: `schema-${prevSnapshot['schema-id']}-${snapshot['schema-id']}`,
+        });
+      }
+    }
+
+    // Add the snapshot event
+    events.push({
+      type: 'snapshot',
+      snapshot,
+      timestampMs: snapshot['timestamp-ms'],
+      id: `snapshot-${snapshot['snapshot-id']}`,
+    });
+  });
+
+  // Sort events by timestamp (descending, newest first)
+  return events.sort((a, b) => b.timestampMs - a.timestampMs);
+});
 </script>
 
 <style scoped>
