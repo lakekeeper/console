@@ -26,11 +26,11 @@
             <v-card-text>
               <!-- Filter Groups -->
               <v-row>
-                <v-col cols="12" md="6">
+                <v-col cols="12">
                   <v-card variant="outlined" class="pa-3">
-                    <v-card-title class="text-subtitle-2 pb-2">Status & Queue Filters</v-card-title>
+                    <v-card-title class="text-subtitle-2 pb-2">General Filters</v-card-title>
                     <v-row dense>
-                      <v-col cols="12" sm="6">
+                      <v-col cols="12" sm="4">
                         <v-select
                           v-model="filters.status"
                           :items="statusOptions"
@@ -47,7 +47,7 @@
                           </template>
                         </v-select>
                       </v-col>
-                      <v-col cols="12" sm="6">
+                      <v-col cols="12" sm="4">
                         <v-combobox
                           v-model="filters.queueNames"
                           :items="queueNameOptions"
@@ -61,31 +61,15 @@
                           hide-details
                           hint="Select from common queues or enter custom names"></v-combobox>
                       </v-col>
-                    </v-row>
-                  </v-card>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                  <v-card variant="outlined" class="pa-3">
-                    <v-card-title class="text-subtitle-2 pb-2">Task ID Filters</v-card-title>
-                    <v-row dense>
-                      <v-col cols="12" sm="6">
+                      <v-col cols="12" sm="4">
                         <v-text-field
                           v-model="filters.taskId"
+                          placeholder="01997633-d918-70f3-aec1-1889ae4bb232"
                           label="Task ID"
                           clearable
                           density="compact"
                           hide-details
                           hint="Filter by specific task ID"></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          v-model="filters.parentTaskId"
-                          label="Parent Task ID"
-                          clearable
-                          density="compact"
-                          hide-details
-                          hint="Filter by parent task ID"></v-text-field>
                       </v-col>
                     </v-row>
                   </v-card>
