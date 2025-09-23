@@ -29,7 +29,7 @@
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab value="details" @click="loadTabData">details</v-tab>
           <v-tab value="history" @click="loadTabData">history</v-tab>
-          <v-tab value="graph" @click="loadTabData">graph</v-tab>
+          <v-tab value="branch" @click="loadTabData">branch</v-tab>
           <v-tab
             v-if="enabledAuthentication && enabledPermissions"
             value="permissions"
@@ -698,7 +698,7 @@
               </v-card-text>
             </v-tabs-window-item>
 
-            <v-tabs-window-item value="graph">
+            <v-tabs-window-item value="branch">
               <div class="pa-4">
                 <div class="text-h6 mb-4 d-flex align-center">
                   <v-icon class="mr-2">mdi-source-branch</v-icon>
@@ -716,99 +716,380 @@
                 </div>
 
                 <div v-else class="graph-container">
-                  <v-card variant="outlined" class="pa-4">
-                    <div
-                      class="graph-content"
-                      style="
-                        height: 600px;
-                        overflow: auto;
-                        border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-                        border-radius: 4px;
-                      ">
-                      <svg :width="graphWidth" :height="graphHeight" class="branch-graph">
-                        <defs>
-                          <marker
-                            id="arrowhead"
-                            markerWidth="10"
-                            markerHeight="7"
-                            refX="9"
-                            refY="3.5"
-                            orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
-                          </marker>
-                        </defs>
-
-                        <!-- Branch lines -->
-                        <g v-for="(path, branchName) in branchPaths" :key="branchName">
-                          <path
-                            :d="path.pathData"
-                            :stroke="path.color"
-                            stroke-width="2"
-                            fill="none"
-                            marker-end="url(#arrowhead)" />
-                        </g>
-
-                        <!-- Snapshot nodes -->
-                        <g v-for="node in graphNodes" :key="node.id">
-                          <circle
-                            :cx="node.x"
-                            :cy="node.y"
-                            :r="node.radius"
-                            :fill="node.color"
-                            :stroke="node.strokeColor"
-                            stroke-width="2" />
-
-                          <!-- Sequence number inside the node -->
-                          <text
-                            :x="node.x"
-                            :y="node.y + 4"
-                            font-size="10"
-                            font-weight="bold"
-                            fill="white"
-                            text-anchor="middle">
-                            {{ node.sequenceNumber }}
-                          </text>
-
-                          <!-- Branch labels -->
-                          <text
-                            v-for="branch in node.branches"
-                            :key="branch"
-                            :x="node.x + 15"
-                            :y="node.y + 5"
-                            font-size="12"
-                            :fill="getBranchColor(branch)">
-                            {{ branch }}
-                          </text>
-
-                          <!-- Snapshot ID tooltip -->
-                          <title>
-                            Sequence: {{ node.sequenceNumber }} | Snapshot: {{ node.snapshotId }}
-                          </title>
-                        </g>
-                      </svg>
-                    </div>
-                  </v-card>
-
-                  <!-- Legend -->
-                  <v-card variant="outlined" class="mt-4 pa-3">
-                    <div class="text-subtitle-2 mb-2">Legend</div>
-                    <div class="d-flex flex-wrap gap-4">
-                      <div
-                        v-for="(branch, branchName) in branchInfo"
-                        :key="branchName"
-                        class="d-flex align-center">
+                  <v-row>
+                    <!-- Graph Column -->
+                    <v-col cols="12" lg="8">
+                      <v-card variant="outlined" class="pa-4">
                         <div
-                          class="branch-color-indicator mr-2"
-                          :style="{
-                            backgroundColor: branch.color,
-                            width: '16px',
-                            height: '16px',
-                            borderRadius: '2px',
-                          }"></div>
-                        <span class="text-body-2">{{ branchName }} ({{ branch.type }})</span>
-                      </div>
-                    </div>
-                  </v-card>
+                          class="graph-content"
+                          style="
+                            height: 50vh;
+                            overflow: auto;
+                            border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+                            border-radius: 4px;
+                          ">
+                          <svg :width="graphWidth" :height="graphHeight" class="branch-graph">
+                            <defs>
+                              <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3" />
+                              </filter>
+                            </defs>
+
+                            <!-- Branch lines -->
+                            <g v-for="(path, branchName) in branchPaths" :key="branchName">
+                              <path
+                                :d="path.pathData"
+                                :stroke="path.color"
+                                stroke-width="3"
+                                fill="none"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                opacity="0.8" />
+                            </g>
+
+                            <!-- Snapshot nodes -->
+                            <g v-for="node in graphNodes" :key="node.id">
+                              <circle
+                                :cx="node.x"
+                                :cy="node.y"
+                                :r="node.radius"
+                                :fill="node.color"
+                                :stroke="node.strokeColor"
+                                :stroke-width="
+                                  selectedSnapshot?.['snapshot-id'] === node.snapshotId ? 4 : 3
+                                "
+                                filter="url(#nodeShadow)"
+                                style="cursor: pointer"
+                                @click="selectSnapshot(node.snapshotId)" />
+
+                              <!-- Sequence number inside the node -->
+                              <text
+                                :x="node.x"
+                                :y="node.y + 4"
+                                font-size="10"
+                                font-weight="bold"
+                                fill="white"
+                                text-anchor="middle"
+                                style="cursor: pointer; pointer-events: none">
+                                {{ node.sequenceNumber }}
+                              </text>
+
+                              <!-- Branch labels -->
+                              <text
+                                v-for="branch in node.branches"
+                                :key="branch"
+                                :x="node.x + 20"
+                                :y="node.y + 5"
+                                font-size="12"
+                                font-weight="500"
+                                :fill="getBranchColor(branch)"
+                                style="pointer-events: none">
+                                {{ branch }}
+                              </text>
+
+                              <!-- Snapshot ID tooltip -->
+                              <title>
+                                Sequence: {{ node.sequenceNumber }} | Snapshot:
+                                {{ node.snapshotId }}
+                              </title>
+                            </g>
+                          </svg>
+                        </div>
+                      </v-card>
+
+                      <!-- Legend -->
+                      <v-card variant="outlined" class="mt-4 pa-3">
+                        <div class="text-subtitle-2 mb-2">Legend</div>
+                        <div class="d-flex flex-wrap gap-4">
+                          <div
+                            v-for="(branch, branchName) in branchInfo"
+                            :key="branchName"
+                            class="d-flex align-center">
+                            <div
+                              class="branch-color-indicator mr-2"
+                              :style="{
+                                backgroundColor: branch.color,
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '2px',
+                              }"></div>
+                            <span class="text-body-2">{{ branchName }} ({{ branch.type }})</span>
+                          </div>
+                        </div>
+                      </v-card>
+                    </v-col>
+
+                    <!-- Details Column -->
+                    <v-col cols="12" lg="4">
+                      <v-card variant="outlined" class="pa-4" style="height: 60vh">
+                        <div v-if="!selectedSnapshot" class="text-center pa-8">
+                          <v-icon size="64" color="grey-lighten-2">mdi-cursor-default-click</v-icon>
+                          <div class="text-h6 mt-2 text-grey-lighten-1">Select a Node</div>
+                          <div class="text-body-2 text-grey-lighten-1">
+                            Click on any node in the graph to view snapshot details
+                          </div>
+                        </div>
+
+                        <div v-else style="height: 100%; overflow-y: auto">
+                          <div class="d-flex align-center justify-space-between mb-4">
+                            <div class="text-h6 d-flex align-center">
+                              <v-icon class="mr-2">mdi-camera-outline</v-icon>
+                              Snapshot Details
+                            </div>
+                            <v-btn
+                              icon="mdi-close"
+                              size="small"
+                              variant="flat"
+                              @click="selectedSnapshot = null"></v-btn>
+                          </div>
+
+                          <v-divider class="mb-4"></v-divider>
+
+                          <!-- Basic Info -->
+                          <v-card variant="outlined" class="mb-4">
+                            <v-card-title class="text-subtitle-1 pa-3">
+                              <v-icon class="mr-2" size="small">mdi-information-outline</v-icon>
+                              Basic Information
+                            </v-card-title>
+                            <v-divider></v-divider>
+                            <v-list density="compact">
+                              <v-list-item>
+                                <v-list-item-title>Snapshot ID</v-list-item-title>
+                                <v-list-item-subtitle class="d-flex align-center">
+                                  <span class="mr-2 font-mono">
+                                    {{ selectedSnapshot['snapshot-id'] }}
+                                  </span>
+                                  <v-btn
+                                    icon="mdi-content-copy"
+                                    size="x-small"
+                                    variant="flat"
+                                    @click="
+                                      functions.copyToClipboard(
+                                        String(selectedSnapshot['snapshot-id']),
+                                      )
+                                    "></v-btn>
+                                </v-list-item-subtitle>
+                              </v-list-item>
+
+                              <v-list-item v-if="selectedSnapshot['sequence-number']">
+                                <v-list-item-title>Sequence Number</v-list-item-title>
+                                <v-list-item-subtitle>
+                                  {{ selectedSnapshot['sequence-number'] }}
+                                </v-list-item-subtitle>
+                              </v-list-item>
+
+                              <v-list-item v-if="selectedSnapshot['timestamp-ms']">
+                                <v-list-item-title>Timestamp</v-list-item-title>
+                                <v-list-item-subtitle>
+                                  {{ formatTimestamp(selectedSnapshot['timestamp-ms']) }}
+                                </v-list-item-subtitle>
+                              </v-list-item>
+
+                              <v-list-item v-if="selectedSnapshot.summary?.operation">
+                                <v-list-item-title>Operation</v-list-item-title>
+                                <v-list-item-subtitle>
+                                  <v-chip
+                                    size="small"
+                                    :color="getOperationColor(selectedSnapshot.summary.operation)"
+                                    variant="flat">
+                                    {{ selectedSnapshot.summary.operation }}
+                                  </v-chip>
+                                </v-list-item-subtitle>
+                              </v-list-item>
+
+                              <v-list-item v-if="selectedSnapshot['parent-snapshot-id']">
+                                <v-list-item-title>Parent Snapshot</v-list-item-title>
+                                <v-list-item-subtitle class="font-mono">
+                                  {{ selectedSnapshot['parent-snapshot-id'] }}
+                                </v-list-item-subtitle>
+                              </v-list-item>
+
+                              <v-list-item v-if="selectedSnapshot['schema-id']">
+                                <v-list-item-title>Schema ID</v-list-item-title>
+                                <v-list-item-subtitle class="font-mono">
+                                  {{ selectedSnapshot['schema-id'] }}
+                                </v-list-item-subtitle>
+                              </v-list-item>
+                            </v-list>
+                          </v-card>
+
+                          <!-- Operation Summary -->
+                          <v-card
+                            v-if="
+                              selectedSnapshot.summary &&
+                              Object.keys(selectedSnapshot.summary).length > 1
+                            "
+                            variant="outlined"
+                            class="mb-4">
+                            <v-card-title class="text-subtitle-1 pa-3">
+                              <v-icon class="mr-2" size="small">mdi-chart-line</v-icon>
+                              Operation Summary
+                            </v-card-title>
+                            <v-divider></v-divider>
+                            <v-card-text class="pa-3">
+                              <v-row dense>
+                                <v-col
+                                  v-for="(value, key) in selectedSnapshot.summary"
+                                  :key="key"
+                                  cols="12">
+                                  <v-list-item
+                                    v-if="String(key) !== 'operation'"
+                                    class="pa-0"
+                                    density="compact">
+                                    <v-list-item-title class="text-caption text-medium-emphasis">
+                                      {{ formatSummaryKey(key) }}
+                                    </v-list-item-title>
+                                    <v-list-item-subtitle class="font-mono text-body-2">
+                                      {{ formatSummaryValue(value) }}
+                                    </v-list-item-subtitle>
+                                  </v-list-item>
+                                </v-col>
+                              </v-row>
+                            </v-card-text>
+                          </v-card>
+
+                          <!-- Manifest List -->
+                          <v-card
+                            v-if="selectedSnapshot['manifest-list']"
+                            variant="outlined"
+                            class="mb-4">
+                            <v-card-title class="text-subtitle-1 pa-3">
+                              <v-icon class="mr-2" size="small">mdi-file-document-outline</v-icon>
+                              Manifest List
+                            </v-card-title>
+                            <v-divider></v-divider>
+                            <v-card-text class="pa-3">
+                              <div class="d-flex align-center">
+                                <span
+                                  class="mr-2 font-mono text-wrap text-body-2"
+                                  style="word-break: break-all">
+                                  {{ selectedSnapshot['manifest-list'] }}
+                                </span>
+                                <v-btn
+                                  icon="mdi-content-copy"
+                                  size="x-small"
+                                  variant="flat"
+                                  @click="
+                                    functions.copyToClipboard(selectedSnapshot['manifest-list'])
+                                  "></v-btn>
+                              </div>
+                            </v-card-text>
+                          </v-card>
+
+                          <!-- Schema Details -->
+                          <v-card
+                            v-if="getSchemaInfo(selectedSnapshot['schema-id'])"
+                            variant="outlined"
+                            class="mb-4">
+                            <v-card-text class="pa-0">
+                              <v-expansion-panels variant="accordion">
+                                <v-expansion-panel>
+                                  <v-expansion-panel-title class="text-subtitle-2">
+                                    <v-icon class="mr-2" size="small">mdi-table-cog</v-icon>
+                                    Schema Details ({{
+                                      getSchemaInfo(selectedSnapshot['schema-id'])?.fields
+                                        ?.length || 0
+                                    }}
+                                    fields)
+                                    <v-chip
+                                      v-if="
+                                        getSchemaChanges(
+                                          selectedSnapshot,
+                                          snapshotHistory.findIndex(
+                                            (s) =>
+                                              s['snapshot-id'] === selectedSnapshot['snapshot-id'],
+                                          ),
+                                        )
+                                      "
+                                      size="x-small"
+                                      color="warning"
+                                      variant="flat"
+                                      class="ml-2">
+                                      Changed
+                                    </v-chip>
+                                  </v-expansion-panel-title>
+                                  <v-expansion-panel-text>
+                                    <div
+                                      class="schema-fields-container"
+                                      style="max-height: 300px; overflow-y: auto">
+                                      <v-list density="compact">
+                                        <v-list-item
+                                          v-for="field in getSchemaInfo(
+                                            selectedSnapshot['schema-id'],
+                                          )?.fields || []"
+                                          :key="field.id"
+                                          class="pa-1">
+                                          <template #prepend>
+                                            <v-icon
+                                              :color="
+                                                isFieldNew(
+                                                  field,
+                                                  selectedSnapshot,
+                                                  snapshotHistory.findIndex(
+                                                    (s) =>
+                                                      s['snapshot-id'] ===
+                                                      selectedSnapshot['snapshot-id'],
+                                                  ),
+                                                )
+                                                  ? 'success'
+                                                  : undefined
+                                              "
+                                              size="small">
+                                              {{ getFieldIcon(field) }}
+                                            </v-icon>
+                                          </template>
+                                          <v-list-item-title
+                                            :class="
+                                              isFieldNew(
+                                                field,
+                                                selectedSnapshot,
+                                                snapshotHistory.findIndex(
+                                                  (s) =>
+                                                    s['snapshot-id'] ===
+                                                    selectedSnapshot['snapshot-id'],
+                                                ),
+                                              )
+                                                ? 'text-success font-weight-bold'
+                                                : ''
+                                            ">
+                                            {{ field.name }}
+                                            <v-chip
+                                              v-if="
+                                                isFieldNew(
+                                                  field,
+                                                  selectedSnapshot,
+                                                  snapshotHistory.findIndex(
+                                                    (s) =>
+                                                      s['snapshot-id'] ===
+                                                      selectedSnapshot['snapshot-id'],
+                                                  ),
+                                                )
+                                              "
+                                              size="x-small"
+                                              color="success"
+                                              variant="flat"
+                                              class="ml-2">
+                                              New
+                                            </v-chip>
+                                          </v-list-item-title>
+                                          <v-list-item-subtitle>
+                                            {{ getFieldTypeString(field.type) }}
+                                            <span v-if="field.required" class="text-error ml-1">
+                                              *
+                                            </span>
+                                          </v-list-item-subtitle>
+                                        </v-list-item>
+                                      </v-list>
+                                    </div>
+                                  </v-expansion-panel-text>
+                                </v-expansion-panel>
+                              </v-expansion-panels>
+                            </v-card-text>
+                          </v-card>
+                        </div>
+                      </v-card>
+                    </v-col>
+                  </v-row>
                 </div>
               </div>
             </v-tabs-window-item>
@@ -905,6 +1186,7 @@ const currentSchema = ref(0);
 const existingPermissions = reactive<TableAssignment[]>([]);
 const loaded = ref(false);
 const snapshotHistory = reactive<any[]>([]);
+const selectedSnapshot = ref<any>(null);
 
 async function init() {
   loaded.value = false;
@@ -1317,8 +1599,8 @@ const timelineEvents = computed(() => {
 });
 
 // Graph visualization computed properties
-const graphWidth = ref(800);
-const graphHeight = ref(600);
+const graphWidth = ref(1000);
+const graphHeight = ref(700);
 
 const branchInfo = computed(() => {
   if (!table.metadata.refs) return {};
@@ -1363,12 +1645,12 @@ const graphNodes = computed(() => {
     return seqA - seqB;
   });
 
-  const nodeSpacingX = 100;
-  const nodeSpacingY = 60;
-  const startX = 60;
+  const nodeSpacingX = 120;
+  const nodeSpacingY = 80;
+  const startX = 80;
 
   // Calculate total height based on number of snapshots
-  const totalHeight = Math.max(800, (sortedSnapshots.length + 2) * nodeSpacingY);
+  const totalHeight = Math.max(900, (sortedSnapshots.length + 3) * nodeSpacingY);
   graphHeight.value = totalHeight;
 
   // Create a map to track which column each branch should use
@@ -1444,7 +1726,8 @@ const graphNodes = computed(() => {
     const snapshotId = snapshot['snapshot-id'];
     const sequenceNumber = snapshot['sequence-number'] || 0;
 
-    // Position from bottom to top (index 0 = bottom, higher index = higher on screen)
+    // Position from bottom to top (sequence 1 at bottom, higher sequences going up)
+    // Use index directly: index 0 (sequence 1) at bottom, higher index going up
     const yPosition = totalHeight - nodeSpacingY - index * nodeSpacingY;
 
     // Determine which branches this snapshot belongs to
@@ -1482,7 +1765,7 @@ const graphNodes = computed(() => {
         snapshotId,
         x: startX,
         y: yPosition,
-        radius: 10,
+        radius: 12,
         color: '#4caf50',
         strokeColor: '#388e3c',
         branches: ['main'],
@@ -1499,7 +1782,7 @@ const graphNodes = computed(() => {
           snapshotId,
           x: columnX,
           y: yPosition,
-          radius: 10,
+          radius: 12,
           color: branchInfo.value[branchName]?.color || '#2196f3',
           strokeColor: branchInfo.value[branchName]?.color || '#1976d2',
           branches: [branchName],
@@ -1515,7 +1798,7 @@ const graphNodes = computed(() => {
         snapshotId,
         x: startX,
         y: yPosition,
-        radius: 12, // Slightly larger for divergence points
+        radius: 15, // Larger for divergence points
         color: '#4caf50',
         strokeColor: '#388e3c',
         branches: ['main'],
@@ -1530,7 +1813,7 @@ const graphNodes = computed(() => {
         snapshotId,
         x: startX,
         y: yPosition,
-        radius: 8,
+        radius: 10,
         color: '#666',
         strokeColor: '#444',
         branches: [],
@@ -1548,6 +1831,57 @@ const branchPaths = computed(() => {
   if (!graphNodes.value.length) return {};
 
   const paths: Record<string, { pathData: string; color: string }> = {};
+
+  // Helper function to create straight or curved path depending on connection type
+  function createPath(startNode: any, endNode: any, isBranchDivergence: boolean = false): string {
+    const dx = endNode.x - startNode.x;
+    const dy = endNode.y - startNode.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    let startX, startY, endX, endY;
+
+    if (isBranchDivergence) {
+      // For branch divergence: start from top of parent node, end at bottom of child node
+      startX = startNode.x;
+      startY = startNode.y - startNode.radius; // Top of parent node
+      endX = endNode.x;
+      endY = endNode.y + endNode.radius; // Bottom of child node
+    } else {
+      // For regular connections: use margins from node centers
+      const margin = 15; // Distance from node edge
+      startX = startNode.x + (dx / distance) * margin;
+      startY = startNode.y + (dy / distance) * margin;
+      endX = endNode.x - (dx / distance) * margin;
+      endY = endNode.y - (dy / distance) * margin;
+    }
+
+    // For straight vertical lines (same branch), always use straight line
+    if (Math.abs(dx) < 10) {
+      return `M ${startX} ${startY} L ${endX} ${endY}`;
+    }
+
+    // For branch divergence (lines between different columns), use curves
+    if (isBranchDivergence && Math.abs(dx) > 50) {
+      // Create a smooth curved path with right offset to avoid overlapping straight lines
+      const rightOffset = 30; // Offset to the right to avoid overlapping the straight parent-child line
+      const verticalDistance = Math.abs(dy) * 0.4; // How far to go up vertically
+      const horizontalDistance = Math.abs(dx); // Total horizontal distance to cover
+
+      // Control points for a smooth S-curve
+      const control1X = startX + rightOffset; // First control point: offset to the right
+      const control1Y = startY - verticalDistance * 0.5; // Slight upward curve
+
+      const control2X = startX + rightOffset + horizontalDistance * 0.6; // Second control point: further right
+      const control2Y = startY - verticalDistance; // Higher up for the curve
+
+      // Create a smooth cubic Bézier curve with natural flow
+      return `M ${startX} ${startY} 
+              C ${control1X} ${control1Y} ${control2X} ${control2Y} ${endX} ${endY}`;
+    }
+
+    // For all other connections, use straight line
+    return `M ${startX} ${startY} L ${endX} ${endY}`;
+  }
 
   // Helper function to get branch history
   function getBranchHistoryForPaths(branchSnapshotId: number): number[] {
@@ -1574,9 +1908,56 @@ const branchPaths = computed(() => {
     return history;
   }
 
-  // Create parent-child connections for each branch
+  // First, collect all branch divergence connections to avoid duplicates
+  const branchDivergenceConnections = new Set<string>();
+
+  Object.entries(branchInfo.value).forEach(([branchName, branch]) => {
+    if (branchName === 'main') return;
+
+    // Find the divergence point for this branch
+    const branchHistory = getBranchHistoryForPaths(branch.snapshotId);
+    const mainHistory = getBranchHistoryForPaths(branchInfo.value['main']?.snapshotId || 0);
+
+    // Find last common snapshot
+    const common = branchHistory.filter((id) => mainHistory.includes(id));
+    if (common.length === 0) return;
+
+    let divergenceSnapshotId = common[0];
+    let maxSequence = 0;
+
+    common.forEach((snapshotId) => {
+      const snapshot = snapshotHistory.find((s) => s['snapshot-id'] === snapshotId);
+      if (snapshot && (snapshot['sequence-number'] || 0) > maxSequence) {
+        maxSequence = snapshot['sequence-number'] || 0;
+        divergenceSnapshotId = snapshotId;
+      }
+    });
+
+    // Find the first branch-specific snapshot (child of divergence point)
+    const branchSpecificSnapshot = snapshotHistory.find(
+      (s) =>
+        s['parent-snapshot-id'] === divergenceSnapshotId &&
+        branchHistory.includes(s['snapshot-id']) &&
+        !mainHistory.includes(s['snapshot-id']),
+    );
+
+    if (branchSpecificSnapshot) {
+      // Mark this connection as a branch divergence
+      branchDivergenceConnections.add(
+        `${divergenceSnapshotId}-${branchSpecificSnapshot['snapshot-id']}`,
+      );
+    }
+  });
+
+  // Create parent-child connections for each branch, but skip if it's a branch divergence
   graphNodes.value.forEach((node) => {
     if (node.parentId) {
+      // Check if this is a branch divergence connection that we'll handle separately
+      const connectionKey = `${node.parentId}-${node.snapshotId}`;
+      if (branchDivergenceConnections.has(connectionKey)) {
+        return; // Skip this connection, it will be handled as a branch divergence
+      }
+
       // Find parent node in the same branch first
       let parentNode = graphNodes.value.find(
         (n) => n.snapshotId === node.parentId && n.branches[0] === node.branches[0],
@@ -1596,7 +1977,7 @@ const branchPaths = computed(() => {
           : branchInfo.value[node.branches[0]]?.color || '#2196f3';
 
         paths[pathId] = {
-          pathData: `M ${parentNode.x} ${parentNode.y} L ${node.x} ${node.y}`,
+          pathData: createPath(parentNode, node, false),
           color: branchColor,
         };
       }
@@ -1646,7 +2027,7 @@ const branchPaths = computed(() => {
       if (divergenceNode && branchNode) {
         const pathId = `divergence-${branchName}-${divergenceSnapshotId}`;
         paths[pathId] = {
-          pathData: `M ${divergenceNode.x} ${divergenceNode.y} L ${branchNode.x} ${branchNode.y}`,
+          pathData: createPath(divergenceNode, branchNode, true),
           color: branchInfo.value[branchName]?.color || '#2196f3',
         };
       }
@@ -1658,6 +2039,13 @@ const branchPaths = computed(() => {
 
 function getBranchColor(branchName: string): string {
   return branchInfo.value[branchName]?.color || '#666';
+}
+
+function selectSnapshot(snapshotId: number) {
+  const snapshot = snapshotHistory.find((s) => s['snapshot-id'] === snapshotId);
+  if (snapshot) {
+    selectedSnapshot.value = snapshot;
+  }
 }
 </script>
 
