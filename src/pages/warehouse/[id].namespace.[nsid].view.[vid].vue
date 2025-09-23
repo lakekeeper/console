@@ -399,11 +399,7 @@
                             </div>
                             <div
                               v-else-if="event.type === 'schema-change'"
-                              style="
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                              ">
+                              style="display: flex; align-items: center; justify-content: center">
                               <v-tooltip location="top">
                                 <template #activator="{ props }">
                                   <v-icon v-bind="props" size="12" color="white">
@@ -489,7 +485,9 @@
                             icon="mdi-content-copy"
                             size="small"
                             variant="flat"
-                            @click="functions.copyToClipboard(String(version['version-id']))"></v-btn>
+                            @click="
+                              functions.copyToClipboard(String(version['version-id']))
+                            "></v-btn>
                         </v-card-title>
 
                         <v-divider></v-divider>
@@ -520,7 +518,8 @@
                                   </v-list-item-subtitle>
                                 </v-list-item>
 
-                                <v-list-item v-if="version.representations && version.representations[0]">
+                                <v-list-item
+                                  v-if="version.representations && version.representations[0]">
                                   <v-list-item-title>SQL Query</v-list-item-title>
                                   <v-list-item-subtitle class="d-flex align-center">
                                     <span class="mr-2 font-mono text-wrap" style="max-width: 300px">
@@ -530,7 +529,9 @@
                                       icon="mdi-content-copy"
                                       size="small"
                                       variant="flat"
-                                      @click="functions.copyToClipboard(version.representations[0].sql)"></v-btn>
+                                      @click="
+                                        functions.copyToClipboard(version.representations[0].sql)
+                                      "></v-btn>
                                   </v-list-item-subtitle>
                                 </v-list-item>
                               </v-list>
@@ -542,16 +543,20 @@
                                   <v-list-item-title>Engine Info</v-list-item-title>
                                   <v-list-item-subtitle>
                                     <div v-if="version.summary['engine-name']" class="mb-1">
-                                      <strong>Engine:</strong> {{ version.summary['engine-name'] }}
+                                      <strong>Engine:</strong>
+                                      {{ version.summary['engine-name'] }}
                                       {{ version.summary['engine-version'] }}
                                     </div>
-                                    <div v-if="version.summary['iceberg-version']" class="text-caption">
+                                    <div
+                                      v-if="version.summary['iceberg-version']"
+                                      class="text-caption">
                                       {{ version.summary['iceberg-version'] }}
                                     </div>
                                   </v-list-item-subtitle>
                                 </v-list-item>
 
-                                <v-list-item v-if="version.representations && version.representations[0]">
+                                <v-list-item
+                                  v-if="version.representations && version.representations[0]">
                                   <v-list-item-title>SQL Dialect</v-list-item-title>
                                   <v-list-item-subtitle>
                                     {{ version.representations[0].dialect || 'Not specified' }}
@@ -571,7 +576,8 @@
                                     <v-icon class="mr-2" size="small">mdi-table-cog</v-icon>
                                     Schema Details ({{
                                       getSchemaInfo(version['schema-id'])?.fields?.length || 0
-                                    }} fields)
+                                    }}
+                                    fields)
                                     <v-chip
                                       v-if="getSchemaChanges(version, index)"
                                       size="x-small"
@@ -587,12 +593,17 @@
                                       style="max-height: 300px; overflow-y: auto">
                                       <v-list density="compact">
                                         <v-list-item
-                                          v-for="field in getSchemaInfo(version['schema-id'])?.fields || []"
+                                          v-for="field in getSchemaInfo(version['schema-id'])
+                                            ?.fields || []"
                                           :key="field.id"
                                           class="pa-1">
                                           <template #prepend>
                                             <v-icon
-                                              :color="isFieldNew(field, version, index) ? 'success' : undefined"
+                                              :color="
+                                                isFieldNew(field, version, index)
+                                                  ? 'success'
+                                                  : undefined
+                                              "
                                               size="small">
                                               {{ getFieldIcon(field) }}
                                             </v-icon>
@@ -615,7 +626,9 @@
                                           </v-list-item-title>
                                           <v-list-item-subtitle>
                                             {{ getFieldTypeString(field.type) }}
-                                            <span v-if="field.required" class="text-error ml-1">*</span>
+                                            <span v-if="field.required" class="text-error ml-1">
+                                              *
+                                            </span>
                                           </v-list-item-subtitle>
                                         </v-list-item>
                                       </v-list>
@@ -763,7 +776,7 @@ async function init() {
   }
 
   depthRawRepresentationMax.value = getMaxDepth(view);
-  
+
   // Process version history - sort by timestamp descending (newest first)
   versionHistory.splice(0, versionHistory.length);
   if (view.metadata.versions) {
@@ -772,7 +785,7 @@ async function init() {
     });
     versionHistory.push(...sortedVersions);
   }
-  
+
   loaded.value = true;
 }
 
@@ -937,7 +950,9 @@ function scrollToVersion(versionId: number) {
   }
 
   // Find the specific card element within the vertical timeline container
-  const element = container.querySelector(`[data-version-id="${versionId}"]:not(.v-timeline-item)`) as HTMLElement;
+  const element = container.querySelector(
+    `[data-version-id="${versionId}"]:not(.v-timeline-item)`,
+  ) as HTMLElement;
 
   console.log('Found container:', container);
   console.log('Found element:', element);
@@ -945,7 +960,7 @@ function scrollToVersion(versionId: number) {
   if (element) {
     // Get the actual card element (should be a div with v-card classes)
     const cardElement = (element.closest('.v-card') || element) as HTMLElement;
-    
+
     // Calculate element's position relative to container
     const elementTop = cardElement.offsetTop;
     const containerHeight = container.clientHeight;
@@ -979,7 +994,7 @@ function scrollToVersion(versionId: number) {
       Array.from(allElements).map((el) => ({
         id: el.getAttribute('data-version-id'),
         tagName: el.tagName,
-        classList: Array.from(el.classList)
+        classList: Array.from(el.classList),
       })),
     );
 
