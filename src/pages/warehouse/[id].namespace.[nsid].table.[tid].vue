@@ -353,11 +353,6 @@
 
             <v-tabs-window-item value="history">
               <v-card-text>
-                <div class="d-flex align-center mb-4">
-                  <v-icon class="mr-2">mdi-history</v-icon>
-                  <span class="text-h6">Table Evolution History</span>
-                </div>
-
                 <div v-if="snapshotHistory.length === 0" class="text-center pa-8">
                   <v-icon size="64" color="grey">mdi-camera-off-outline</v-icon>
                   <div class="text-subtitle-1 mt-2">No snapshots found</div>
