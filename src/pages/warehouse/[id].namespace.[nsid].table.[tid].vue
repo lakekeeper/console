@@ -766,13 +766,50 @@
                               <!-- Sequence number inside the node -->
                               <text
                                 :x="node.x"
-                                :y="node.y + 4"
+                                :y="node.y - 2"
                                 font-size="10"
                                 font-weight="bold"
                                 fill="white"
                                 text-anchor="middle"
                                 style="cursor: pointer; pointer-events: none">
                                 {{ node.sequenceNumber }}
+                              </text>
+
+                              <!-- Schema change indicator below sequence number -->
+                              <text
+                                v-if="node.schemaChangeInfo?.hasSchemaChange"
+                                :x="node.x"
+                                :y="node.y + 8"
+                                font-size="8"
+                                font-weight="bold"
+                                fill="white"
+                                text-anchor="middle"
+                                style="pointer-events: none; opacity: 0.9">
+                                {{
+                                  `S${node.schemaChangeInfo.fromSchema}→${node.schemaChangeInfo.toSchema}`
+                                }}
+                              </text>
+
+                              <!-- Schema change icon indicator -->
+                              <circle
+                                v-if="node.schemaChangeInfo?.hasSchemaChange"
+                                :cx="node.x + node.radius - 2"
+                                :cy="node.y - node.radius + 2"
+                                r="6"
+                                fill="#ff5722"
+                                stroke="white"
+                                stroke-width="1"
+                                style="pointer-events: none"></circle>
+                              <text
+                                v-if="node.schemaChangeInfo?.hasSchemaChange"
+                                :x="node.x + node.radius - 2"
+                                :y="node.y - node.radius + 5"
+                                font-size="8"
+                                font-weight="bold"
+                                fill="white"
+                                text-anchor="middle"
+                                style="pointer-events: none">
+                                S
                               </text>
 
                               <!-- Branch labels -->
@@ -790,8 +827,12 @@
 
                               <!-- Snapshot ID tooltip -->
                               <title>
-                                Sequence: {{ node.sequenceNumber }} | Snapshot:
-                                {{ node.snapshotId }}
+                                Sequence: {{ node.sequenceNumber }} | Snapshot: {{ node.snapshotId
+                                }}{{
+                                  node.schemaChangeInfo?.hasSchemaChange
+                                    ? ` | Schema: ${node.schemaChangeInfo.fromSchema}→${node.schemaChangeInfo.toSchema}`
+                                    : ''
+                                }}
                               </title>
                             </g>
                           </svg>
@@ -801,7 +842,7 @@
                       <!-- Legend -->
                       <v-card variant="outlined" class="mt-4 pa-3">
                         <div class="text-subtitle-2 mb-2">Legend</div>
-                        <div class="d-flex flex-wrap gap-4">
+                        <div class="d-flex flex-wrap gap-4 mb-3">
                           <div
                             v-for="(branch, branchName) in branchInfo"
                             :key="branchName"
@@ -815,6 +856,44 @@
                                 borderRadius: '2px',
                               }"></div>
                             <span class="text-body-2">{{ branchName }} ({{ branch.type }})</span>
+                          </div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-4 align-center">
+                          <div class="d-flex align-center">
+                            <div class="mr-2" style="position: relative">
+                              <div
+                                style="
+                                  width: 16px;
+                                  height: 16px;
+                                  border-radius: 50%;
+                                  background-color: #ff9800;
+                                  border: 2px solid #f57c00;
+                                "></div>
+                              <div
+                                style="
+                                  position: absolute;
+                                  top: -2px;
+                                  right: -2px;
+                                  width: 8px;
+                                  height: 8px;
+                                  border-radius: 50%;
+                                  background-color: #ff5722;
+                                  border: 1px solid white;
+                                "></div>
+                            </div>
+                            <span class="text-body-2">Schema Change</span>
+                          </div>
+                          <div class="d-flex align-center">
+                            <div
+                              style="
+                                width: 16px;
+                                height: 16px;
+                                border-radius: 50%;
+                                background-color: #4caf50;
+                                border: 2px solid #388e3c;
+                              "
+                              class="mr-2"></div>
+                            <span class="text-body-2">Regular Snapshot</span>
                           </div>
                         </div>
                       </v-card>
@@ -1397,6 +1476,36 @@ function isFieldNew(field: any, snapshot: any, index: number): boolean {
   return !nextSchemaInfo.fields.some((prevField: any) => prevField.id === field.id);
 }
 
+function getSchemaChangeInfo(snapshot: any): {
+  hasSchemaChange: boolean;
+  fromSchema?: number;
+  toSchema?: number;
+} {
+  if (!snapshot || !snapshot['parent-snapshot-id']) {
+    return { hasSchemaChange: false };
+  }
+
+  const parentSnapshot = snapshotHistory.find(
+    (s) => s['snapshot-id'] === snapshot['parent-snapshot-id'],
+  );
+  if (!parentSnapshot) {
+    return { hasSchemaChange: false };
+  }
+
+  const currentSchemaId = snapshot['schema-id'];
+  const parentSchemaId = parentSnapshot['schema-id'];
+
+  if (currentSchemaId !== parentSchemaId) {
+    return {
+      hasSchemaChange: true,
+      fromSchema: parentSchemaId,
+      toSchema: currentSchemaId,
+    };
+  }
+
+  return { hasSchemaChange: false };
+}
+
 function getFieldIcon(field: any): string {
   const fieldType = getFieldTypeString(field.type);
   if (fieldType.includes('string')) return 'mdi-alphabetical';
@@ -1637,6 +1746,7 @@ const graphNodes = computed(() => {
     parentId?: number;
     level: number;
     sequenceNumber: number;
+    schemaChangeInfo?: { hasSchemaChange: boolean; fromSchema?: number; toSchema?: number };
   }> = [];
 
   // Sort snapshots by sequence number (1 = first commit at bottom, highest = latest at top)
@@ -1729,6 +1839,7 @@ const graphNodes = computed(() => {
   sortedSnapshots.forEach((snapshot, index) => {
     const snapshotId = snapshot['snapshot-id'];
     const sequenceNumber = snapshot['sequence-number'] || 0;
+    const schemaChangeInfo = getSchemaChangeInfo(snapshot);
 
     // Position from bottom to top (sequence 1 at bottom, higher sequences going up)
     // Use index directly: index 0 (sequence 1) at bottom, higher index going up
@@ -1769,30 +1880,35 @@ const graphNodes = computed(() => {
         snapshotId,
         x: startX,
         y: yPosition,
-        radius: 12,
-        color: '#4caf50',
-        strokeColor: '#388e3c',
+        radius: schemaChangeInfo.hasSchemaChange ? 15 : 12, // Larger radius for schema changes
+        color: schemaChangeInfo.hasSchemaChange ? '#ff9800' : '#4caf50',
+        strokeColor: schemaChangeInfo.hasSchemaChange ? '#f57c00' : '#388e3c',
         branches: ['main'],
         parentId: snapshot['parent-snapshot-id'],
         level: index,
         sequenceNumber,
+        schemaChangeInfo,
       });
     } else if (!belongsToMain && otherBranches.length > 0) {
       // Only on other branch(es)
       otherBranches.forEach((branchName) => {
         const columnX = startX + (branchColumns.get(branchName) || 0) * nodeSpacingX;
+        const branchColor = branchInfo.value[branchName]?.color || '#2196f3';
         nodes.push({
           id: `node-${snapshotId}-${branchName}`,
           snapshotId,
           x: columnX,
           y: yPosition,
-          radius: 12,
-          color: branchInfo.value[branchName]?.color || '#2196f3',
-          strokeColor: branchInfo.value[branchName]?.color || '#1976d2',
+          radius: schemaChangeInfo.hasSchemaChange ? 15 : 12,
+          color: schemaChangeInfo.hasSchemaChange ? '#ff9800' : branchColor,
+          strokeColor: schemaChangeInfo.hasSchemaChange
+            ? '#f57c00'
+            : branchInfo.value[branchName]?.color || '#1976d2',
           branches: [branchName],
           parentId: snapshot['parent-snapshot-id'],
           level: index,
           sequenceNumber,
+          schemaChangeInfo,
         });
       });
     } else if (belongsToMain && otherBranches.length > 0) {
@@ -1802,13 +1918,14 @@ const graphNodes = computed(() => {
         snapshotId,
         x: startX,
         y: yPosition,
-        radius: 15, // Larger for divergence points
-        color: '#4caf50',
-        strokeColor: '#388e3c',
+        radius: schemaChangeInfo.hasSchemaChange ? 18 : 15, // Even larger for divergence points with schema changes
+        color: schemaChangeInfo.hasSchemaChange ? '#ff9800' : '#4caf50',
+        strokeColor: schemaChangeInfo.hasSchemaChange ? '#f57c00' : '#388e3c',
         branches: ['main'],
         parentId: snapshot['parent-snapshot-id'],
         level: index,
         sequenceNumber,
+        schemaChangeInfo,
       });
     } else {
       // Fallback - shouldn't happen but create a generic node
@@ -1817,13 +1934,14 @@ const graphNodes = computed(() => {
         snapshotId,
         x: startX,
         y: yPosition,
-        radius: 10,
-        color: '#666',
-        strokeColor: '#444',
+        radius: schemaChangeInfo.hasSchemaChange ? 12 : 10,
+        color: schemaChangeInfo.hasSchemaChange ? '#ff9800' : '#666',
+        strokeColor: schemaChangeInfo.hasSchemaChange ? '#f57c00' : '#444',
         branches: [],
         parentId: snapshot['parent-snapshot-id'],
         level: index,
         sequenceNumber,
+        schemaChangeInfo,
       });
     }
   });
