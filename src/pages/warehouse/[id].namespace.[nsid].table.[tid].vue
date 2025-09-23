@@ -720,6 +720,25 @@
                     <!-- Graph Column -->
                     <v-col cols="12" lg="8">
                       <v-card variant="outlined" class="pa-4">
+                        <!-- Zoom Controls -->
+                        <div class="d-flex align-center mb-3">
+                          <v-btn-group variant="outlined" size="x-small">
+                            <v-btn
+                              :disabled="zoomScale >= maxZoom"
+                              size="small"
+                              @click="zoomIn"
+                              prepend-icon="mdi-magnify-plus"></v-btn>
+                            <v-btn @click="resetZoom" prepend-icon="mdi-magnify" size="small">
+                              {{ Math.round(zoomScale * 100) }}%
+                            </v-btn>
+                            <v-btn
+                              :disabled="zoomScale <= minZoom"
+                              size="small"
+                              @click="zoomOut"
+                              prepend-icon="mdi-magnify-minus"></v-btn>
+                          </v-btn-group>
+                        </div>
+
                         <div
                           class="graph-content"
                           :style="{
@@ -729,111 +748,126 @@
                               '1px solid rgba(var(--v-border-color), var(--v-border-opacity))',
                             borderRadius: '4px',
                           }">
-                          <svg :width="graphWidth" :height="graphHeight" class="branch-graph">
-                            <defs>
-                              <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
-                                <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3" />
-                              </filter>
-                            </defs>
+                          <svg
+                            :width="graphWidth * zoomScale"
+                            :height="graphHeight * zoomScale"
+                            class="branch-graph">
+                            <g :transform="`scale(${zoomScale})`">
+                              <defs>
+                                <filter
+                                  id="nodeShadow"
+                                  x="-20%"
+                                  y="-20%"
+                                  width="140%"
+                                  height="140%">
+                                  <feDropShadow
+                                    dx="2"
+                                    dy="2"
+                                    stdDeviation="2"
+                                    flood-opacity="0.3" />
+                                </filter>
+                              </defs>
 
-                            <!-- Branch lines -->
-                            <g v-for="(path, branchName) in branchPaths" :key="branchName">
-                              <path
-                                :d="path.pathData"
-                                :stroke="path.color"
-                                stroke-width="3"
-                                fill="none"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                opacity="0.8" />
-                            </g>
+                              <!-- Branch lines -->
+                              <g v-for="(path, branchName) in branchPaths" :key="branchName">
+                                <path
+                                  :d="path.pathData"
+                                  :stroke="path.color"
+                                  stroke-width="3"
+                                  fill="none"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  opacity="0.8" />
+                              </g>
 
-                            <!-- Snapshot nodes -->
-                            <g v-for="node in graphNodes" :key="node.id">
-                              <circle
-                                :cx="node.x"
-                                :cy="node.y"
-                                :r="node.radius"
-                                :fill="node.color"
-                                :stroke="node.strokeColor"
-                                :stroke-width="
-                                  selectedSnapshot?.['snapshot-id'] === node.snapshotId ? 4 : 3
-                                "
-                                filter="url(#nodeShadow)"
-                                style="cursor: pointer"
-                                @click="selectSnapshot(node.snapshotId)" />
+                              <!-- Snapshot nodes -->
+                              <g v-for="node in graphNodes" :key="node.id">
+                                <circle
+                                  :cx="node.x"
+                                  :cy="node.y"
+                                  :r="node.radius"
+                                  :fill="node.color"
+                                  :stroke="node.strokeColor"
+                                  :stroke-width="
+                                    selectedSnapshot?.['snapshot-id'] === node.snapshotId ? 4 : 3
+                                  "
+                                  filter="url(#nodeShadow)"
+                                  style="cursor: pointer"
+                                  @click="selectSnapshot(node.snapshotId)" />
 
-                              <!-- Sequence number inside the node -->
-                              <text
-                                :x="node.x"
-                                :y="node.y - 2"
-                                font-size="10"
-                                font-weight="bold"
-                                fill="white"
-                                text-anchor="middle"
-                                style="cursor: pointer; pointer-events: none">
-                                {{ node.sequenceNumber }}
-                              </text>
+                                <!-- Sequence number inside the node -->
+                                <text
+                                  :x="node.x"
+                                  :y="node.y - 2"
+                                  font-size="10"
+                                  font-weight="bold"
+                                  fill="white"
+                                  text-anchor="middle"
+                                  style="cursor: pointer; pointer-events: none">
+                                  {{ node.sequenceNumber }}
+                                </text>
 
-                              <!-- Schema change indicator below sequence number -->
-                              <text
-                                v-if="node.schemaChangeInfo?.hasSchemaChange"
-                                :x="node.x"
-                                :y="node.y + 8"
-                                font-size="8"
-                                font-weight="bold"
-                                fill="white"
-                                text-anchor="middle"
-                                style="pointer-events: none; opacity: 0.9">
-                                {{
-                                  `S${node.schemaChangeInfo.fromSchema}→${node.schemaChangeInfo.toSchema}`
-                                }}
-                              </text>
+                                <!-- Schema change indicator below sequence number -->
+                                <text
+                                  v-if="node.schemaChangeInfo?.hasSchemaChange"
+                                  :x="node.x"
+                                  :y="node.y + 8"
+                                  font-size="8"
+                                  font-weight="bold"
+                                  fill="white"
+                                  text-anchor="middle"
+                                  style="pointer-events: none; opacity: 0.9">
+                                  {{
+                                    `S${node.schemaChangeInfo.fromSchema}→${node.schemaChangeInfo.toSchema}`
+                                  }}
+                                </text>
 
-                              <!-- Schema change icon indicator -->
-                              <circle
-                                v-if="node.schemaChangeInfo?.hasSchemaChange"
-                                :cx="node.x + node.radius - 2"
-                                :cy="node.y - node.radius + 2"
-                                r="6"
-                                fill="#ff5722"
-                                stroke="white"
-                                stroke-width="1"
-                                style="pointer-events: none"></circle>
-                              <text
-                                v-if="node.schemaChangeInfo?.hasSchemaChange"
-                                :x="node.x + node.radius - 2"
-                                :y="node.y - node.radius + 5"
-                                font-size="8"
-                                font-weight="bold"
-                                fill="white"
-                                text-anchor="middle"
-                                style="pointer-events: none">
-                                S
-                              </text>
+                                <!-- Schema change icon indicator -->
+                                <circle
+                                  v-if="node.schemaChangeInfo?.hasSchemaChange"
+                                  :cx="node.x + node.radius - 2"
+                                  :cy="node.y - node.radius + 2"
+                                  r="6"
+                                  fill="#ff5722"
+                                  stroke="white"
+                                  stroke-width="1"
+                                  style="pointer-events: none"></circle>
+                                <text
+                                  v-if="node.schemaChangeInfo?.hasSchemaChange"
+                                  :x="node.x + node.radius - 2"
+                                  :y="node.y - node.radius + 5"
+                                  font-size="8"
+                                  font-weight="bold"
+                                  fill="white"
+                                  text-anchor="middle"
+                                  style="pointer-events: none">
+                                  S
+                                </text>
 
-                              <!-- Branch labels -->
-                              <text
-                                v-for="branch in node.branches"
-                                :key="branch"
-                                :x="node.x + 20"
-                                :y="node.y + 5"
-                                font-size="12"
-                                font-weight="500"
-                                :fill="getBranchColor(branch)"
-                                style="pointer-events: none">
-                                {{ branch }}
-                              </text>
+                                <!-- Branch labels -->
+                                <text
+                                  v-for="branch in node.branches"
+                                  :key="branch"
+                                  :x="node.x + 20"
+                                  :y="node.y + 5"
+                                  font-size="12"
+                                  font-weight="500"
+                                  :fill="getBranchColor(branch)"
+                                  style="pointer-events: none">
+                                  {{ branch }}
+                                </text>
 
-                              <!-- Snapshot ID tooltip -->
-                              <title>
-                                Sequence: {{ node.sequenceNumber }} | Snapshot: {{ node.snapshotId
-                                }}{{
-                                  node.schemaChangeInfo?.hasSchemaChange
-                                    ? ` | Schema: ${node.schemaChangeInfo.fromSchema}→${node.schemaChangeInfo.toSchema}`
-                                    : ''
-                                }}
-                              </title>
+                                <!-- Snapshot ID tooltip -->
+                                <title>
+                                  Sequence: {{ node.sequenceNumber }} | Snapshot:
+                                  {{ node.snapshotId
+                                  }}{{
+                                    node.schemaChangeInfo?.hasSchemaChange
+                                      ? ` | Schema: ${node.schemaChangeInfo.fromSchema}→${node.schemaChangeInfo.toSchema}`
+                                      : ''
+                                  }}
+                                </title>
+                              </g>
                             </g>
                           </svg>
                         </div>
@@ -1274,6 +1308,29 @@ const existingPermissions = reactive<TableAssignment[]>([]);
 const loaded = ref(false);
 const snapshotHistory = reactive<any[]>([]);
 const selectedSnapshot = ref<any>(null);
+
+// Zoom functionality
+const zoomScale = ref(1);
+const minZoom = 0.1;
+const maxZoom = 3;
+const zoomStep = 0.1;
+
+// Zoom functions
+function zoomIn() {
+  if (zoomScale.value < maxZoom) {
+    zoomScale.value = Math.min(zoomScale.value + zoomStep, maxZoom);
+  }
+}
+
+function zoomOut() {
+  if (zoomScale.value > minZoom) {
+    zoomScale.value = Math.max(zoomScale.value - zoomStep, minZoom);
+  }
+}
+
+function resetZoom() {
+  zoomScale.value = 1;
+}
 
 async function init() {
   loaded.value = false;
