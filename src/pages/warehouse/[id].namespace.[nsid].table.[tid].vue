@@ -1836,8 +1836,13 @@ const branchPaths = computed(() => {
 
   const paths: Record<string, { pathData: string; color: string }> = {};
 
-  // Helper function to create straight or curved path depending on connection type
-  function createPath(startNode: any, endNode: any, isBranchDivergence: boolean = false): string {
+  // Helper function to create straight or curved path with anti-crossing logic
+  function createPath(
+    startNode: any,
+    endNode: any,
+    isBranchDivergence: boolean = false,
+    branchIndex: number = 0,
+  ): string {
     const dx = endNode.x - startNode.x;
     const dy = endNode.y - startNode.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1864,23 +1869,37 @@ const branchPaths = computed(() => {
       return `M ${startX} ${startY} L ${endX} ${endY}`;
     }
 
-    // For branch divergence (lines between different columns), use curves
+    // For branch divergence (lines between different columns), use anti-crossing curves
     if (isBranchDivergence && Math.abs(dx) > 50) {
-      // Create a smooth curved path with right offset to avoid overlapping straight lines
-      const rightOffset = 30; // Offset to the right to avoid overlapping the straight parent-child line
-      const verticalDistance = Math.abs(dy) * 0.4; // How far to go up vertically
-      const horizontalDistance = Math.abs(dx); // Total horizontal distance to cover
+      // Calculate dynamic offset based on branch index to prevent crossings
+      const baseOffset = 30;
+      const offsetMultiplier = 20; // Additional offset per branch
+      const rightOffset = baseOffset + branchIndex * offsetMultiplier;
 
-      // Control points for a smooth S-curve
-      const control1X = startX + rightOffset; // First control point: offset to the right
-      const control1Y = startY - verticalDistance * 0.5; // Slight upward curve
+      // Calculate curve points to avoid crossings
+      const verticalDistance = Math.abs(dy) * 0.3;
+      const horizontalDistance = Math.abs(dx);
 
-      const control2X = startX + rightOffset + horizontalDistance * 0.6; // Second control point: further right
-      const control2Y = startY - verticalDistance; // Higher up for the curve
+      // Use different curve strategies based on direction
+      if (dx > 0) {
+        // Diverging to the right - use outward curve
+        const control1X = startX + rightOffset;
+        const control1Y = startY - verticalDistance * 0.3;
+        const control2X = startX + rightOffset + horizontalDistance * 0.4;
+        const control2Y = startY - verticalDistance * 0.8;
 
-      // Create a smooth cubic Bézier curve with natural flow
-      return `M ${startX} ${startY} 
-              C ${control1X} ${control1Y} ${control2X} ${control2Y} ${endX} ${endY}`;
+        return `M ${startX} ${startY} 
+                C ${control1X} ${control1Y} ${control2X} ${control2Y} ${endX} ${endY}`;
+      } else {
+        // Diverging to the left - use inward curve
+        const control1X = startX - rightOffset;
+        const control1Y = startY - verticalDistance * 0.3;
+        const control2X = startX - rightOffset + horizontalDistance * 0.6;
+        const control2Y = startY - verticalDistance * 0.8;
+
+        return `M ${startX} ${startY} 
+                C ${control1X} ${control1Y} ${control2X} ${control2Y} ${endX} ${endY}`;
+      }
     }
 
     // For all other connections, use straight line
@@ -1989,8 +2008,11 @@ const branchPaths = computed(() => {
   });
 
   // Add branch divergence lines (from main branch to other branches at divergence points)
+  let branchIndex = 0;
   Object.entries(branchInfo.value).forEach(([branchName, branch]) => {
     if (branchName === 'main') return;
+
+    branchIndex++; // Increment for each non-main branch
 
     // Find the divergence point for this branch
     const branchHistory = getBranchHistoryForPaths(branch.snapshotId);
@@ -2031,7 +2053,7 @@ const branchPaths = computed(() => {
       if (divergenceNode && branchNode) {
         const pathId = `divergence-${branchName}-${divergenceSnapshotId}`;
         paths[pathId] = {
-          pathData: createPath(divergenceNode, branchNode, true),
+          pathData: createPath(divergenceNode, branchNode, true, branchIndex),
           color: branchInfo.value[branchName]?.color || '#2196f3',
         };
       }
