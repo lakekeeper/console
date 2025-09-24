@@ -419,7 +419,7 @@
 import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
 import { Type } from '@/common/interfaces';
-import { useQueueConfig } from '@/common/queueConfig';
+import { useQueueConfig, type QueueOption } from '@/common/queueConfig';
 import { reactive, ref, onMounted, computed } from 'vue';
 import TaskDetails from '@/components/TaskDetails.vue';
 import { getStatusColor, formatDateTime } from '@/common/taskUtils';
@@ -792,9 +792,16 @@ async function listTasks() {
       // Apply filters
       ...(filters.status.length > 0 && { status: filters.status }),
       ...(filters.queueNames.length > 0 && {
-        'queue-name': filters.queueNames.map((qn) =>
-          typeof qn === 'string' ? qn : qn.value || qn,
-        ) as string[],
+        'queue-name': filters.queueNames.map((qn: string | QueueOption) => {
+          if (typeof qn === 'string') {
+            return qn;
+          }
+          if (qn && typeof qn === 'object' && qn.value) {
+            return qn.value;
+          }
+          // Fallback for unexpected cases
+          return String(qn);
+        }) as string[],
       }),
       ...(filters.createdAfter && {
         'created-after': new Date(filters.createdAfter).toISOString(),
