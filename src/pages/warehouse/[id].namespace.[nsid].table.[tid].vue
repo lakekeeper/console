@@ -886,16 +886,14 @@
                               :style="{
                                 backgroundColor: branch.color,
                                 width: '16px',
-                                height: '16px',
+                                height: '2px',
                                 borderRadius: '2px',
                                 opacity: branch.type === 'dropped-branch' ? 0.7 : 1,
                               }"></div>
                             <span
-                              class="text-body-2"
+                              class="text-body-2 mr-2"
                               :class="{ 'text-grey-darken-1': branch.type === 'dropped-branch' }">
-                              {{ branchName }}
-                              <span v-if="branch.type === 'dropped-branch'">(dropped)</span>
-                              <span v-else>({{ branch.type }})</span>
+                              {{ branch.type }}
                             </span>
                           </div>
                         </div>
@@ -924,7 +922,7 @@
                             </div>
                             <span class="text-body-2">Schema Change</span>
                           </div>
-                          <div class="d-flex align-center">
+                          <div class="d-flex align-center ml-2">
                             <div
                               style="
                                 width: 16px;
