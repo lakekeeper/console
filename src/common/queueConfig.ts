@@ -68,7 +68,7 @@ export const queueConfig = new QueueConfigManager();
  * Hook for extending queue options in specific contexts
  */
 export function useQueueConfig(additionalOptions?: QueueOption[]): QueueConfigManager {
-  const config = new QueueConfigManager();
+  const config = new QueueConfigManager(DEFAULT_QUEUE_OPTIONS);
 
   if (additionalOptions) {
     additionalOptions.forEach((option) => config.addOption(option));
