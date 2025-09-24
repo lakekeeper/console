@@ -418,7 +418,7 @@ const branchInfo = computed(() => {
     });
   }
 
-  // Detect dropped branches
+  // Detect dropped branches - improved logic
   if (props.snapshotHistory.length > 0) {
     const sortedSnapshots = [...props.snapshotHistory].sort((a, b) => {
       const seqA = a['sequence-number'] || 0;
@@ -438,34 +438,103 @@ const branchInfo = computed(() => {
       }
     });
 
-    // Find snapshots that are dropped branches
-    sortedSnapshots.forEach((snapshot, index) => {
-      const snapshotId = snapshot['snapshot-id'];
-      const currentSeq = snapshot['sequence-number'] || 0;
+    // Build ancestry map only for the current heads of named branches
+    const currentBranchHeads = new Set<number>();
+    Object.values(branches).forEach((branch) => {
+      currentBranchHeads.add(branch.snapshotId);
+    });
 
-      // Check if this snapshot has no children
-      const hasChildren = childrenMap.has(snapshotId) && childrenMap.get(snapshotId)!.length > 0;
+    // Find all snapshots that are reachable from current branch heads
+    const reachableFromBranches = new Set<number>();
 
-      // Check if this snapshot is the head of any named branch
-      const isNamedBranchHead = Object.values(branches).some(
-        (branch) => branch.snapshotId === snapshotId,
-      );
+    const traceReachable = (snapshotId: number, visited = new Set<number>()) => {
+      if (visited.has(snapshotId) || reachableFromBranches.has(snapshotId)) return;
+      visited.add(snapshotId);
+      reachableFromBranches.add(snapshotId);
 
-      // Check if this snapshot is part of the main line of development
-      const isPartOfMainLine = hasChildren || isNamedBranchHead;
-
-      // If this snapshot has no children and is not a named branch head,
-      // it's likely a dropped branch
-      if (!isPartOfMainLine && currentSeq > 1) {
-        // Don't consider the initial snapshot
-        const droppedBranchName = `dropped-seq-${currentSeq}`;
-
-        branches[droppedBranchName] = {
-          color: '#9e9e9e', // Gray color for dropped branches
-          type: 'dropped-branch',
-          snapshotId: snapshotId,
-        };
+      const snapshot = sortedSnapshots.find((s) => s['snapshot-id'] === snapshotId);
+      if (snapshot && snapshot['parent-snapshot-id']) {
+        traceReachable(snapshot['parent-snapshot-id'], visited);
       }
+    };
+
+    // Trace from each current branch head
+    currentBranchHeads.forEach((headId) => {
+      traceReachable(headId);
+    });
+
+    // Find all snapshots that are not reachable from any current branch head
+    const unreachableSnapshots = sortedSnapshots.filter((snapshot) => {
+      const snapshotId = snapshot['snapshot-id'];
+      const isNamedBranchHead = currentBranchHeads.has(snapshotId);
+      const isReachableFromBranch = reachableFromBranches.has(snapshotId);
+
+      // An unreachable snapshot is one that is not reachable from any current branch head
+      return !isNamedBranchHead && !isReachableFromBranch;
+    });
+
+    // Group unreachable snapshots into dropped branch chains
+    const processedSnapshots = new Set<number>();
+
+    unreachableSnapshots.forEach((snapshot) => {
+      const snapshotId = snapshot['snapshot-id'];
+      if (processedSnapshots.has(snapshotId)) return;
+
+      const currentSeq = snapshot['sequence-number'] || 0;
+      if (currentSeq <= 1) return; // Don't consider the initial snapshot
+
+      // Find the root of this dropped branch chain
+      let headSnapshot = snapshot;
+      let current = snapshot;
+
+      // Trace back to find the head of this dropped branch
+      while (current && current['parent-snapshot-id']) {
+        const parent = sortedSnapshots.find(
+          (s) => s['snapshot-id'] === current['parent-snapshot-id'],
+        );
+        if (!parent) break;
+
+        // If parent is reachable from current branches, we found the divergence point
+        if (reachableFromBranches.has(parent['snapshot-id'])) {
+          break;
+        }
+
+        // If parent is also unreachable, it's part of this dropped branch chain
+        if (unreachableSnapshots.some((s) => s['snapshot-id'] === parent['snapshot-id'])) {
+          headSnapshot = parent;
+          current = parent;
+        } else {
+          break;
+        }
+      }
+
+      // Mark all snapshots in this chain as processed
+      let chainCurrent = headSnapshot;
+      while (chainCurrent) {
+        processedSnapshots.add(chainCurrent['snapshot-id']);
+
+        // Find the next snapshot in the chain
+        const children = childrenMap.get(chainCurrent['snapshot-id']) || [];
+        const nextInChain = children.find(
+          (childId) =>
+            unreachableSnapshots.some((s) => s['snapshot-id'] === childId) &&
+            !processedSnapshots.has(childId),
+        );
+
+        if (nextInChain) {
+          chainCurrent = sortedSnapshots.find((s) => s['snapshot-id'] === nextInChain);
+        } else {
+          break;
+        }
+      }
+
+      // Create dropped branch entry
+      const droppedBranchName = `dropped-seq-${headSnapshot['sequence-number']}`;
+      branches[droppedBranchName] = {
+        color: '#9e9e9e',
+        type: 'dropped-branch',
+        snapshotId: headSnapshot['snapshot-id'],
+      };
     });
   }
 
@@ -623,11 +692,53 @@ const graphNodes = computed(() => {
     // Determine which branches this snapshot belongs to
     const belongsToMain = mainHistory.includes(snapshotId);
     const otherBranches: string[] = [];
-    const isDroppedBranch = Object.keys(branchInfo.value).some(
-      (branchName) =>
-        branchInfo.value[branchName].type === 'dropped-branch' &&
-        branchInfo.value[branchName].snapshotId === snapshotId,
-    );
+
+    // Check if this snapshot belongs to any dropped branch (including chain members)
+    let belongsToDroppedBranch = false;
+    let droppedBranchName = '';
+
+    // Check all dropped branches to see if this snapshot belongs to any of them
+    for (const [branchName, branch] of Object.entries(branchInfo.value)) {
+      if (branch.type !== 'dropped-branch') continue;
+
+      // If it's the head of the dropped branch
+      if (branch.snapshotId === snapshotId) {
+        belongsToDroppedBranch = true;
+        droppedBranchName = branchName;
+        break;
+      }
+
+      // Check if it's part of the dropped branch chain by following parent-child relationships
+      // Starting from the head, follow children until we find this snapshot or reach the end
+      let current = props.snapshotHistory.find((s) => s['snapshot-id'] === branch.snapshotId);
+      const visited = new Set<number>();
+
+      while (current && !visited.has(current['snapshot-id'])) {
+        visited.add(current['snapshot-id']);
+
+        if (current['snapshot-id'] === snapshotId) {
+          belongsToDroppedBranch = true;
+          droppedBranchName = branchName;
+          break;
+        }
+
+        // Find children and follow the dropped branch chain
+        const children = props.snapshotHistory.filter(
+          (s) => s['parent-snapshot-id'] === current['snapshot-id'],
+        );
+        // Find a child that is not part of any named branch (likely continuation of dropped branch)
+        current =
+          children.find((child) => {
+            return !Object.values(branchInfo.value).some(
+              (b) =>
+                b.type !== 'dropped-branch' &&
+                branchHistories.get('main')?.includes(child['snapshot-id']),
+            );
+          }) || null;
+      }
+
+      if (belongsToDroppedBranch) break;
+    }
 
     // Check regular branches (non-dropped)
     branchHistories.forEach((history, branchName) => {
@@ -644,13 +755,7 @@ const graphNodes = computed(() => {
     });
 
     // Special handling for dropped branches
-    if (isDroppedBranch) {
-      const droppedBranchName = Object.keys(branchInfo.value).find(
-        (branchName) =>
-          branchInfo.value[branchName].type === 'dropped-branch' &&
-          branchInfo.value[branchName].snapshotId === snapshotId,
-      );
-
+    if (belongsToDroppedBranch) {
       const columnX = startX + (branchColumns.get(droppedBranchName || '') || -1) * nodeSpacingX;
       const branchColor = branchInfo.value[droppedBranchName || '']?.color || '#9e9e9e';
 
