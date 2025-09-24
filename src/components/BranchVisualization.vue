@@ -282,17 +282,7 @@
               <!-- Operational Summary -->
               <v-expansion-panels v-if="selectedSnapshot.summary" class="mb-4">
                 <v-expansion-panel>
-                  <v-expansion-panel-title>
-                    Operational Summary
-                    <v-chip
-                      v-if="selectedSnapshot.summary.operation"
-                      :color="getOperationColor(selectedSnapshot.summary.operation)"
-                      size="x-small"
-                      variant="flat"
-                      class="ml-2">
-                      {{ selectedSnapshot.summary.operation }}
-                    </v-chip>
-                  </v-expansion-panel-title>
+                  <v-expansion-panel-title>Operational Summary</v-expansion-panel-title>
                   <v-expansion-panel-text>
                     <div class="summary-grid">
                       <div
