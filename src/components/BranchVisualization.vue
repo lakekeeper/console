@@ -260,8 +260,52 @@
                     <strong>Parent:</strong>
                     {{ selectedSnapshot['parent-snapshot-id'] }}
                   </div>
+                  <div v-if="selectedSnapshot.summary?.operation" class="mb-2">
+                    <strong>Operation:</strong>
+                    <v-chip
+                      :color="getOperationColor(selectedSnapshot.summary.operation)"
+                      size="small"
+                      variant="flat"
+                      class="ml-1">
+                      {{ selectedSnapshot.summary.operation }}
+                    </v-chip>
+                  </div>
+                  <div v-if="selectedSnapshot['manifest-list']" class="mb-2">
+                    <strong>Manifest List:</strong>
+                    <div class="text-caption text-wrap">
+                      {{ selectedSnapshot['manifest-list'] }}
+                    </div>
+                  </div>
                 </v-card-text>
               </v-card>
+
+              <!-- Operational Summary -->
+              <v-expansion-panels v-if="selectedSnapshot.summary" class="mb-4">
+                <v-expansion-panel>
+                  <v-expansion-panel-title>
+                    Operational Summary
+                    <v-chip
+                      v-if="selectedSnapshot.summary.operation"
+                      :color="getOperationColor(selectedSnapshot.summary.operation)"
+                      size="x-small"
+                      variant="flat"
+                      class="ml-2">
+                      {{ selectedSnapshot.summary.operation }}
+                    </v-chip>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <div class="summary-grid">
+                      <div
+                        v-for="[key, value] in Object.entries(selectedSnapshot.summary)"
+                        :key="key"
+                        class="mb-2">
+                        <strong>{{ formatSummaryKey(key) }}:</strong>
+                        <span class="ml-2">{{ formatSummaryValue(value) }}</span>
+                      </div>
+                    </div>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
 
               <!-- Schema Information -->
               <v-expansion-panels v-if="getSchemaInfo(selectedSnapshot['schema-id'])">
@@ -1162,6 +1206,64 @@ function getFieldTypeString(type: any): string {
   }
   return 'unknown';
 }
+
+function formatSummaryKey(key: string): string {
+  return key
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function formatSummaryValue(value: any): string {
+  if (value === null || value === undefined) {
+    return 'N/A';
+  }
+
+  if (typeof value === 'number') {
+    // Format large numbers with commas
+    if (value >= 1000) {
+      return value.toLocaleString();
+    }
+    return value.toString();
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No';
+  }
+
+  if (typeof value === 'string') {
+    // Check if it's a timestamp
+    if (value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+      return new Date(value).toLocaleString();
+    }
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return `[${value.length} items]`;
+  }
+
+  if (typeof value === 'object') {
+    return JSON.stringify(value, null, 2);
+  }
+
+  return String(value);
+}
+
+function getOperationColor(operation: string): string {
+  const operationColors: Record<string, string> = {
+    append: 'success',
+    overwrite: 'warning',
+    delete: 'error',
+    replace: 'primary',
+    merge: 'info',
+    optimize: 'secondary',
+    expire: 'orange',
+    compact: 'teal',
+  };
+
+  return operationColors[operation?.toLowerCase()] || 'default';
+}
 </script>
 
 <style scoped>
@@ -1181,5 +1283,18 @@ function getFieldTypeString(type: any): string {
 
 .graph-content {
   position: relative;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.summary-grid > div {
+  padding: 4px 8px;
+  background: rgba(var(--v-theme-surface-variant), 0.3);
+  border-radius: 4px;
+  border-left: 3px solid rgba(var(--v-theme-primary), 0.5);
 }
 </style>
