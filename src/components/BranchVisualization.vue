@@ -664,6 +664,7 @@ const graphNodes = computed(() => {
   const padding = 100;
   const calculatedHeight = padding + sortedSnapshots.length * nodeSpacingY;
   const totalHeight = Math.max(minHeight, calculatedHeight);
+  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
   graphHeight.value = totalHeight;
 
   // Create a map to track which column each branch should use
@@ -741,6 +742,7 @@ const graphNodes = computed(() => {
 
   // Update graph width to accommodate all columns with extra padding
   const totalColumns = maxColumn - minColumn + 1;
+  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
   graphWidth.value = leftPadding + (totalColumns - 1) * nodeSpacingX + 100;
 
   // Position snapshots from bottom (sequence 1) to top (latest sequence)
@@ -919,12 +921,7 @@ const branchPaths = computed(() => {
   const paths: Record<string, { pathData: string; color: string }> = {};
 
   // Helper function to create straight or curved path
-  function createPath(
-    startNode: any,
-    endNode: any,
-    isBranchDivergence: boolean = false,
-    branchIndex: number = 0,
-  ): string {
+  function createPath(startNode: any, endNode: any, isBranchDivergence: boolean = false): string {
     const dx = endNode.x - startNode.x;
     const dy = endNode.y - startNode.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -1076,11 +1073,8 @@ const branchPaths = computed(() => {
   });
 
   // Add branch divergence lines
-  let branchIndex = 0;
   Object.entries(branchInfo.value).forEach(([branchName, branch]) => {
     if (branchName === 'main') return;
-
-    branchIndex++;
 
     // Special handling for dropped branches
     if (branch.type === 'dropped-branch') {
@@ -1099,7 +1093,7 @@ const branchPaths = computed(() => {
         if (parentNode && droppedNode) {
           const pathId = `divergence-${branchName}-${droppedSnapshot['parent-snapshot-id']}`;
           paths[pathId] = {
-            pathData: createPath(parentNode, droppedNode, true, branchIndex),
+            pathData: createPath(parentNode, droppedNode, true),
             color: branch.color,
           };
         }
@@ -1141,7 +1135,7 @@ const branchPaths = computed(() => {
         if (divergenceNode && branchNode) {
           const pathId = `divergence-${branchName}-${divergenceSnapshotId}`;
           paths[pathId] = {
-            pathData: createPath(divergenceNode, branchNode, true, branchIndex),
+            pathData: createPath(divergenceNode, branchNode, true),
             color: branchInfo.value[branchName]?.color || '#2196f3',
           };
         }
