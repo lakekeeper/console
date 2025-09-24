@@ -391,7 +391,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 // Props
 interface Props {
@@ -430,6 +430,46 @@ function zoomOut() {
 function resetZoom() {
   zoomScale.value = 1;
 }
+
+// Compute graph dimensions separately to avoid side effects in graphNodes
+const graphDimensions = computed(() => {
+  if (!props.snapshotHistory.length) {
+    return { height: 200, width: 300 };
+  }
+
+  const sortedSnapshots = [...props.snapshotHistory].sort((a, b) => {
+    const seqA = a['sequence-number'] || 0;
+    const seqB = b['sequence-number'] || 0;
+    return seqA - seqB;
+  });
+
+  const nodeSpacingX = 120;
+  const nodeSpacingY = 80;
+
+  // Calculate height
+  const minHeight = 200;
+  const padding = 100;
+  const calculatedHeight = padding + sortedSnapshots.length * nodeSpacingY;
+  const height = Math.max(minHeight, calculatedHeight);
+
+  // Calculate width using simplified branch logic
+  const branchNames = Object.keys(props.table.metadata.refs || {});
+  const estimatedColumns = Math.max(branchNames.length, 3);
+  const leftPadding = 200; // Conservative padding
+  const width = leftPadding + estimatedColumns * nodeSpacingX + 100;
+
+  return { height, width };
+});
+
+// Watch graph dimensions and update reactive values
+watch(
+  graphDimensions,
+  (dimensions) => {
+    graphHeight.value = dimensions.height;
+    graphWidth.value = dimensions.width;
+  },
+  { immediate: true },
+);
 
 // Branch info computed
 const branchInfo = computed(() => {
@@ -659,13 +699,8 @@ const graphNodes = computed(() => {
   const nodeSpacingX = 120;
   const nodeSpacingY = 80;
 
-  // Calculate dynamic height based on number of snapshots
-  const minHeight = 200;
-  const padding = 100;
-  const calculatedHeight = padding + sortedSnapshots.length * nodeSpacingY;
-  const totalHeight = Math.max(minHeight, calculatedHeight);
-  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-  graphHeight.value = totalHeight;
+  // Get dimensions from our reactive watcher
+  const totalHeight = graphHeight.value;
 
   // Create a map to track which column each branch should use
   const branchColumns = new Map<string, number>();
@@ -730,20 +765,15 @@ const graphNodes = computed(() => {
     }
   });
 
-  // Calculate all column numbers that will be used (now including dropped branches)
+  // Calculate all column numbers for positioning
   const columnNumbers = Array.from(branchColumns.values());
-
   const minColumn = Math.min(...columnNumbers, 0);
-  const maxColumn = Math.max(...columnNumbers, 0);
 
   // Adjust starting X position to account for left-side branches
   const leftPadding = Math.abs(minColumn) * nodeSpacingX + 100;
   const startX = leftPadding;
 
-  // Update graph width to accommodate all columns with extra padding
-  const totalColumns = maxColumn - minColumn + 1;
-  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-  graphWidth.value = leftPadding + (totalColumns - 1) * nodeSpacingX + 100;
+  // Width is managed by our reactive watcher, just use current startX for positioning
 
   // Position snapshots from bottom (sequence 1) to top (latest sequence)
   sortedSnapshots.forEach((snapshot, index) => {
