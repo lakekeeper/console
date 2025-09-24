@@ -162,23 +162,20 @@
           <v-card variant="outlined" class="mt-4 pa-3">
             <div class="text-subtitle-2 mb-2">Legend</div>
             <div class="d-flex flex-wrap gap-4 mb-3">
-              <div
-                v-for="(branch, branchName) in branchInfo"
-                :key="branchName"
-                class="d-flex align-center">
+              <div v-for="entry in legendEntries" :key="entry.name" class="d-flex align-center">
                 <div
                   class="branch-color-indicator mr-2"
                   :style="{
-                    backgroundColor: branch.color,
+                    backgroundColor: entry.color,
                     width: '16px',
                     height: '2px',
                     borderRadius: '2px',
-                    opacity: branch.type === 'dropped-branch' ? 0.7 : 1,
+                    opacity: entry.opacity,
                   }"></div>
                 <span
                   class="text-body-2 mr-2"
-                  :class="{ 'text-grey-darken-1': branch.type === 'dropped-branch' }">
-                  {{ branch.type }}
+                  :class="{ 'text-grey-darken-1': entry.type === 'dropped-branch' }">
+                  {{ entry.name }}
                 </span>
               </div>
             </div>
@@ -573,6 +570,38 @@ const branchInfo = computed(() => {
   }
 
   return branches;
+});
+
+// Group legend entries to avoid duplicate "dropped-branch" entries
+const legendEntries = computed(() => {
+  const entries = [];
+  const droppedBranches = [];
+
+  // Separate regular branches from dropped branches
+  Object.entries(branchInfo.value).forEach(([branchName, branch]) => {
+    if (branch.type === 'dropped-branch') {
+      droppedBranches.push({ branchName, branch });
+    } else {
+      entries.push({
+        name: branchName,
+        color: branch.color,
+        type: branch.type,
+        opacity: 1,
+      });
+    }
+  });
+
+  // Add a single entry for all dropped branches if any exist
+  if (droppedBranches.length > 0) {
+    entries.push({
+      name: `dropped branches (${droppedBranches.length})`,
+      color: '#9e9e9e',
+      type: 'dropped-branch',
+      opacity: 0.7,
+    });
+  }
+
+  return entries;
 });
 
 // Helper function to detect schema changes
