@@ -29,12 +29,17 @@
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab value="history" @click="loadTabData">history</v-tab>
           <v-tab
-            v-if="enabledAuthentication && enabledPermissions"
+            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
             value="permissions"
             @click="loadTabData">
             Permissions
           </v-tab>
-          <v-tab value="tasks" @click="loadTabData">tasks</v-tab>
+          <v-tab
+            v-if="canModifyView && enabledAuthentication && enabledPermissions"
+            value="tasks"
+            @click="loadTabData">
+            tasks
+          </v-tab>
         </v-tabs>
         <v-card style="max-height: 80vh; overflow: auto; min-height: 55vh">
           <v-tabs-window v-model="tab">
@@ -108,7 +113,7 @@
                 :relation-type="permissionType"
                 @permissions="assign" />
             </v-tabs-window-item>
-            <v-tabs-window-item value="tasks">
+            <v-tabs-window-item v-if="canModifyView" value="tasks">
               <TaskManager
                 v-if="loaded && viewId"
                 :warehouse-id="warehouseId"
@@ -189,6 +194,7 @@ const view = reactive<LoadViewResultReadable>({
 const loaded = ref(false);
 const existingPermissions = reactive<ViewAssignment[]>([]);
 const canReadPermissions = ref(false);
+const canModifyView = ref(false);
 const recursiveDeleteProtection = ref(false);
 
 const currentVersionId = ref(0);
@@ -221,6 +227,9 @@ async function init() {
     await getProtection();
 
     canReadPermissions.value = !!myAccess.includes('read_assignments');
+    canModifyView.value = !!(
+      myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
+    );
 
     Object.assign(
       existingPermissions,

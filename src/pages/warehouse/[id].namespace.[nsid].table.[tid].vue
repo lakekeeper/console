@@ -29,12 +29,17 @@
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
           <v-tab value="branch" @click="loadTabData">branch</v-tab>
           <v-tab
-            v-if="enabledAuthentication && enabledPermissions"
+            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
             value="permissions"
             @click="loadTabData">
             Permissions
           </v-tab>
-          <v-tab value="tasks" @click="loadTabData">tasks</v-tab>
+          <v-tab
+            v-if="canModifyTable && enabledAuthentication && enabledPermissions"
+            value="tasks"
+            @click="loadTabData">
+            tasks
+          </v-tab>
         </v-tabs>
         <v-card style="max-height: 80vh; overflow: auto">
           <v-tabs-window v-model="tab">
@@ -106,7 +111,7 @@
                 :relation-type="permissionType"
                 @permissions="assign" />
             </v-tabs-window-item>
-            <v-tabs-window-item value="tasks">
+            <v-tabs-window-item v-if="canModifyTable" value="tasks">
               <TaskManager
                 v-if="loaded && tableId"
                 :warehouse-id="warehouseId"
@@ -152,6 +157,7 @@ const namespacePath = ref('');
 const loading = ref(true);
 const myAccess = reactive<TableAction[]>([]);
 const canReadPermissions = ref(false);
+const canModifyTable = ref(false);
 const warehouseId = (route.params as { id: string }).id;
 const namespaceId = (route.params as { nsid: string }).nsid;
 const tableName = (route.params as { tid: string }).tid;
@@ -196,6 +202,9 @@ async function init() {
     Object.assign(myAccess, await functions.getTableAccessById(tableId.value, warehouseId));
     await getProtection();
     canReadPermissions.value = !!myAccess.includes('read_assignments');
+    canModifyTable.value = !!(
+      myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
+    );
 
     existingPermissions.splice(0, existingPermissions.length);
     Object.assign(
