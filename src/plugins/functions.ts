@@ -883,7 +883,7 @@ async function loadTableCustomized(warehouseId: string, namespacePath: string, t
     // const data = JSON.parse(textData, (key, value) => {
     //   // If the value is a large number (potentially snapshot-id), convert it to BigInt
     //   if (typeof value === 'number' && value > Number.MAX_SAFE_INTEGER) {
-    //     console.log('value', value);
+
     //     return String(BigInt(value)); // Convert to BigInt to preserve precision
     //   }
     //   return value;
