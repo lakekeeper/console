@@ -361,13 +361,10 @@ const isInitialVersion = (version: any): boolean => {
 };
 
 const scrollToVersion = (versionId: number) => {
-  console.log('Scrolling to version:', versionId);
-
   // Find the container first
   const container = document.querySelector('.vertical-timeline-container') as HTMLElement;
 
   if (!container) {
-    console.log('Vertical timeline container not found');
     return;
   }
 
@@ -375,9 +372,6 @@ const scrollToVersion = (versionId: number) => {
   const element = container.querySelector(
     `[data-version-id="${versionId}"]:not(.v-timeline-item)`,
   ) as HTMLElement;
-
-  console.log('Found container:', container);
-  console.log('Found element:', element);
 
   if (element) {
     // Get the actual card element (should be a div with v-card classes)
@@ -391,11 +385,6 @@ const scrollToVersion = (versionId: number) => {
     // Calculate target scroll position to center the element
     const targetScrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
 
-    console.log('Container height:', containerHeight);
-    console.log('Element top offset:', elementTop);
-    console.log('Element height:', elementHeight);
-    console.log('Target scroll position:', targetScrollTop);
-
     // Scroll to the calculated position
     container.scrollTo({
       top: Math.max(0, targetScrollTop),
@@ -408,24 +397,11 @@ const scrollToVersion = (versionId: number) => {
       cardElement.classList.remove('snapshot-highlight');
     }, 2000);
   } else {
-    console.log('No card element found with version ID:', versionId);
-    // Debug: Show all elements with data-version-id in the container
-    const allElements = container.querySelectorAll('[data-version-id]');
-    console.log(
-      'All version elements found in container:',
-      Array.from(allElements).map((el) => ({
-        id: el.getAttribute('data-version-id'),
-        tagName: el.tagName,
-        classList: Array.from(el.classList),
-      })),
-    );
-
     // Fallback: try any element with the version ID in the container
     const fallbackElement = container.querySelector(
       `[data-version-id="${versionId}"]`,
     ) as HTMLElement;
     if (fallbackElement) {
-      console.log('Using fallback element');
       fallbackElement.scrollIntoView({
         behavior: 'smooth',
         block: 'center',

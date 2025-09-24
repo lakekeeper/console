@@ -688,26 +688,18 @@ async function refreshTasks() {
   const targetMinimumItems = itemsPerPage * 2; // Always maintain 2x buffer
 
   if (tasksNextPageToken.value && tasks.length > 0 && tasks.length < targetMinimumItems) {
-    console.log(
-      `Preloading after refresh: current ${tasks.length}, target ${targetMinimumItems}, itemsPerPage ${itemsPerPage}`,
-    );
     await loadMoreTasks();
   }
 }
 
 async function loadMoreTasks() {
   if (tasksNextPageToken.value) {
-    console.log('Loading more tasks with token:', tasksNextPageToken.value);
-    console.log('Current tasks count:', tasks.length);
     await listTasks();
-    console.log('Tasks count after loading more:', tasks.length);
   }
 }
 
 // Handle automatic pagination when user navigates through pages
 async function handlePaginationUpdate(options: any) {
-  console.log('Pagination update:', options);
-
   // Store current pagination options for refresh functionality
   if (options.page && options.itemsPerPage) {
     currentPaginationOptions.value = {
@@ -731,11 +723,6 @@ async function handlePaginationUpdate(options: any) {
 
     // If we don't have enough items loaded and more data is available, load more
     if (totalLoadedItems < minimumLoadedItems && tasksNextPageToken.value && !tasksLoading.value) {
-      console.log(
-        `Auto-loading more tasks: page ${currentPage}, itemsPerPage ${itemsPerPage}, 
-        currentlyViewed ${currentlyViewedItems}, totalLoaded ${totalLoadedItems}, 
-        minimumNeeded ${minimumLoadedItems}`,
-      );
       await loadMoreTasks();
     }
   }
@@ -817,14 +804,6 @@ async function listTasks() {
       }),
     };
 
-    // Debug logging
-    console.log('TaskManager - listTasks request:', {
-      warehouseId: props.warehouseId,
-      tableId: props.tableId,
-      entityType: props.entityType,
-      request,
-    });
-
     const response: ListTasksResponse = await functions.listTasks(props.warehouseId, request);
 
     let filteredTasks = response.tasks || [];
@@ -869,23 +848,13 @@ async function listTasks() {
 
     if (isLoadingMore) {
       // If we were loading more data, append to existing tasks
-      console.log(
-        'Appending',
-        filteredTasks.length,
-        'new tasks to existing',
-        tasks.length,
-        'tasks',
-      );
+
       tasks.push(...filteredTasks);
-      console.log('Total tasks after append:', tasks.length);
     } else {
       // If this was a fresh load, replace all tasks
-      console.log('Replacing tasks with', filteredTasks.length, 'new tasks');
       tasks.splice(0, tasks.length, ...filteredTasks);
-      console.log('Total tasks after replace:', tasks.length);
     }
 
-    console.log('Setting next page token to:', response['next-page-token']);
     tasksNextPageToken.value = response['next-page-token'] || undefined;
     tasksLoading.value = false;
   } catch (error: any) {
@@ -948,9 +917,6 @@ onMounted(async () => {
   const targetMinimumItems = itemsPerPage * 2; // Always maintain 2x buffer
 
   if (tasksNextPageToken.value && tasks.length > 0 && tasks.length < targetMinimumItems) {
-    console.log(
-      `Initial preload: current ${tasks.length}, target ${targetMinimumItems}, itemsPerPage ${itemsPerPage}`,
-    );
     await loadMoreTasks();
   }
 });
