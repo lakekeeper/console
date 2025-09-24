@@ -197,10 +197,11 @@ import { computed } from 'vue';
 import { useFunctions } from '../plugins/functions';
 import SnapshotDetails from './SnapshotDetails.vue';
 import { transformFields } from '../common/schemaUtils';
+import type { LoadTableResultReadable } from '../gen/iceberg/types.gen';
 
 // Props
 interface Props {
-  table: any;
+  table: LoadTableResultReadable;
 }
 
 const props = defineProps<Props>();

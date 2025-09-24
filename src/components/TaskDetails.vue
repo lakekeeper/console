@@ -317,6 +317,7 @@
 <script setup lang="ts">
 import type { GetTaskDetailsResponse } from '@/gen/management/types.gen';
 import { getStatusColor, formatDateTime } from '@/common/taskUtils';
+import { queueConfig } from '@/common/queueConfig';
 
 // Props
 interface Props {
@@ -325,8 +326,7 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  formatQueueName: (queueName: string) =>
-    queueName.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
+  formatQueueName: (queueName: string) => queueConfig.formatQueueName(queueName),
 });
 
 // Emits
