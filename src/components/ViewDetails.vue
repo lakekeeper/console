@@ -249,16 +249,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useFunctions } from '../plugins/functions';
-import type { StructField } from '../gen/iceberg/types.gen';
-
-// Types
-interface TreeItem {
-  id: number;
-  title: string;
-  datatype: string;
-  required: boolean;
-  children?: TreeItem[];
-}
+import { transformFields } from '../common/schemaUtils';
 
 // Props
 interface Props {
@@ -305,48 +296,6 @@ const schemaFieldsTransformed = computed(() => {
   if (!currentSchemaInfo.value?.fields) return [];
   return transformFields(currentSchemaInfo.value.fields);
 });
-
-// Helper functions for schema transformation
-const isStructType = (type: any): type is { type: 'struct'; fields: StructField[] } => {
-  return type && type.type === 'struct' && Array.isArray(type.fields);
-};
-
-const isListType = (type: any): type is { type: 'list'; element: any } => {
-  return type && type.type === 'list' && type.element;
-};
-
-const transformFields = (fields: StructField[]): TreeItem[] => {
-  return fields.map((field) => {
-    let title = field.name;
-    let datatype = typeof field.type === 'string' ? field.type : '';
-
-    if (typeof field.type === 'object') {
-      if (isStructType(field.type)) {
-        datatype = 'struct';
-      } else if (isListType(field.type)) {
-        datatype = 'array';
-      }
-    }
-    title = `${title} (${datatype})`;
-
-    const item: TreeItem = {
-      id: field.id,
-      title,
-      datatype,
-      required: field.required,
-    };
-
-    if (typeof field.type === 'object') {
-      if (isStructType(field.type)) {
-        item.children = transformFields(field.type.fields);
-      } else if (isListType(field.type) && isStructType(field.type.element)) {
-        item.children = transformFields(field.type.element.fields);
-      }
-    }
-
-    return item;
-  });
-};
 </script>
 
 <style scoped>
