@@ -39,6 +39,8 @@ declare module 'vue' {
     TaskManager: typeof import('./components/TaskManager.vue')['default']
     UserManager: typeof import('./components/UserManager.vue')['default']
     UserRenameDialog: typeof import('./components/UserRenameDialog.vue')['default']
+    ViewDetails: typeof import('./components/ViewDetails.vue')['default']
+    ViewHistory: typeof import('./components/ViewHistory.vue')['default']
     WarehouseActionsMenu: typeof import('./components/WarehouseActionsMenu.vue')['default']
     WarehouseAzure: typeof import('./components/WarehouseAzure.vue')['default']
     WarehouseGCS: typeof import('./components/WarehouseGCS.vue')['default']
