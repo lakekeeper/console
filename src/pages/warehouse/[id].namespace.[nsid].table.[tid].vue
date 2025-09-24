@@ -279,82 +279,9 @@
                 <!-- Current Snapshot Details -->
                 <v-row v-if="currentSnapshot">
                   <v-col cols="12">
-                    <v-card variant="outlined">
-                      <v-card-title class="d-flex align-center">
-                        <v-icon class="mr-2">mdi-camera-outline</v-icon>
-                        Current Snapshot Details
-                      </v-card-title>
-                      <v-divider></v-divider>
-                      <v-list density="compact">
-                        <v-list-item>
-                          <v-list-item-title>Snapshot ID</v-list-item-title>
-                          <v-list-item-subtitle class="d-flex align-center">
-                            <span class="mr-2 font-mono">{{ currentSnapshot['snapshot-id'] }}</span>
-                            <v-btn
-                              icon="mdi-content-copy"
-                              size="small"
-                              variant="flat"
-                              @click="
-                                functions.copyToClipboard(String(currentSnapshot['snapshot-id']))
-                              "></v-btn>
-                          </v-list-item-subtitle>
-                        </v-list-item>
-
-                        <v-list-item v-if="currentSnapshot['timestamp-ms']">
-                          <v-list-item-title>Timestamp</v-list-item-title>
-                          <v-list-item-subtitle>
-                            {{ formatTimestamp(currentSnapshot['timestamp-ms']) }}
-                          </v-list-item-subtitle>
-                        </v-list-item>
-
-                        <v-list-item v-if="currentSnapshot.summary?.operation">
-                          <v-list-item-title>Operation</v-list-item-title>
-                          <v-list-item-subtitle>
-                            <v-chip size="small" variant="outlined">
-                              {{ currentSnapshot.summary.operation }}
-                            </v-chip>
-                          </v-list-item-subtitle>
-                        </v-list-item>
-
-                        <v-list-item v-if="currentSnapshot['manifest-list']">
-                          <v-list-item-title>Manifest List</v-list-item-title>
-                          <v-list-item-subtitle class="d-flex align-center">
-                            <span class="mr-2 font-mono text-wrap">
-                              {{ currentSnapshot['manifest-list'] }}
-                            </span>
-                            <v-btn
-                              icon="mdi-content-copy"
-                              size="small"
-                              variant="flat"
-                              @click="
-                                functions.copyToClipboard(currentSnapshot['manifest-list'])
-                              "></v-btn>
-                          </v-list-item-subtitle>
-                        </v-list-item>
-
-                        <v-list-item v-if="currentSnapshot.summary">
-                          <v-list-item-title>Summary</v-list-item-title>
-                          <v-list-item-subtitle>
-                            <v-row>
-                              <v-col
-                                v-for="(value, key) in currentSnapshot.summary"
-                                :key="key"
-                                cols="12"
-                                md="6">
-                                <v-list-item class="pa-0" density="compact">
-                                  <v-list-item-title class="text-caption">
-                                    {{ key }}
-                                  </v-list-item-title>
-                                  <v-list-item-subtitle class="font-mono">
-                                    {{ value }}
-                                  </v-list-item-subtitle>
-                                </v-list-item>
-                              </v-col>
-                            </v-row>
-                          </v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
-                    </v-card>
+                    <SnapshotDetails 
+                      :snapshot="currentSnapshot" 
+                      title="Current Snapshot Details" />
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -404,6 +331,7 @@ import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 import BranchVisualization from '@/components/BranchVisualization.vue';
+import SnapshotDetails from '@/components/SnapshotDetails.vue';
 const depthRawRepresentation = ref(3);
 const depthRawRepresentationMax = ref(1000);
 

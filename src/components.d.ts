@@ -31,6 +31,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SnackbarMessage: typeof import('./components/SnackbarMessage.vue')['default']
+    SnapshotDetails: typeof import('./components/SnapshotDetails.vue')['default']
     StatisticsDialog: typeof import('./components/StatisticsDialog.vue')['default']
     TaskConfigDialog: typeof import('./components/TaskConfigDialog.vue')['default']
     TaskDetails: typeof import('./components/TaskDetails.vue')['default']
