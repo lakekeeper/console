@@ -144,6 +144,45 @@
       </v-col>
     </v-row>
 
+    <!-- Schema Tree View Section -->
+    <v-row>
+      <v-col cols="12">
+        <v-expansion-panels class="mb-4">
+          <v-expansion-panel>
+            <v-expansion-panel-title>
+              <div class="d-flex align-center">
+                <v-icon class="mr-2">mdi-file-tree</v-icon>
+                Schema Fields
+              </div>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <v-treeview :items="schemaFieldsTransformed" open-on-click>
+                <template #prepend="{ item }">
+                  <v-icon v-if="item.datatype == 'string'" size="small">mdi-alphabetical</v-icon>
+                  <v-icon v-else-if="item.datatype == 'int'" size="small">mdi-numeric</v-icon>
+                  <v-icon
+                    v-else-if="item.datatype == 'long' || item.datatype == 'double'"
+                    size="small">
+                    mdi-decimal
+                  </v-icon>
+                  <v-icon v-else-if="item.datatype == 'array'" size="small">
+                    mdi-format-list-group
+                  </v-icon>
+                  <v-icon v-else size="small">mdi-pound-box-outline</v-icon>
+                </template>
+                <template #append="{ item }">
+                  <span>
+                    <span v-if="item.required" style="font-size: 0.575rem">required</span>
+                    <v-icon v-if="item.required" color="error" size="x-small">mdi-asterisk</v-icon>
+                  </span>
+                </template>
+              </v-treeview>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+
     <!-- Current Snapshot Details -->
     <v-row v-if="currentSnapshot">
       <v-col cols="12">
@@ -157,6 +196,16 @@
 import { computed } from 'vue';
 import { useFunctions } from '../plugins/functions';
 import SnapshotDetails from './SnapshotDetails.vue';
+import type { StructField } from '../gen/iceberg/types.gen';
+
+// Types
+interface TreeItem {
+  id: number;
+  title: string;
+  datatype: string;
+  required: boolean;
+  children?: TreeItem[];
+}
 
 // Props
 interface Props {
@@ -196,6 +245,53 @@ const getCurrentSnapshot = () => {
 // Computed properties
 const currentSnapshot = computed(() => getCurrentSnapshot());
 const currentSchemaInfo = computed(() => getCurrentSchema());
+
+const schemaFieldsTransformed = computed(() => {
+  if (!currentSchemaInfo.value?.fields) return [];
+  return transformFields(currentSchemaInfo.value.fields);
+});
+
+// Helper functions for schema transformation
+const isStructType = (type: any): type is { type: 'struct'; fields: StructField[] } => {
+  return type && type.type === 'struct' && Array.isArray(type.fields);
+};
+
+const isListType = (type: any): type is { type: 'list'; element: any } => {
+  return type && type.type === 'list' && type.element;
+};
+
+const transformFields = (fields: StructField[]): TreeItem[] => {
+  return fields.map((field) => {
+    let title = field.name;
+    let datatype = typeof field.type === 'string' ? field.type : '';
+
+    if (typeof field.type === 'object') {
+      if (isStructType(field.type)) {
+        datatype = 'struct';
+      } else if (isListType(field.type)) {
+        datatype = 'array';
+      }
+    }
+    title = `${title} (${datatype})`;
+
+    const item: TreeItem = {
+      id: field.id,
+      title,
+      datatype,
+      required: field.required,
+    };
+
+    if (typeof field.type === 'object') {
+      if (isStructType(field.type)) {
+        item.children = transformFields(field.type.fields);
+      } else if (isListType(field.type) && isStructType(field.type.element)) {
+        item.children = transformFields(field.type.element.fields);
+      }
+    }
+
+    return item;
+  });
+};
 </script>
 
 <style scoped>

@@ -27,7 +27,6 @@
         <v-tabs v-model="tab">
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
-          <v-tab value="details" @click="loadTabData">details</v-tab>
           <v-tab value="branch" @click="loadTabData">branch</v-tab>
           <v-tab
             v-if="enabledAuthentication && enabledPermissions"
@@ -53,28 +52,7 @@
                   @click="setProtection"></v-switch>
               </v-toolbar>
 
-              <v-treeview :items="schemaFieldsTransformed" open-on-click>
-                <template #prepend="{ item }">
-                  <v-icon v-if="item.datatype == 'string'" size="small">mdi-alphabetical</v-icon>
-                  <v-icon v-else-if="item.datatype == 'int'" size="small">mdi-numeric</v-icon>
-                  <v-icon
-                    v-else-if="item.datatype == 'long' || item.datatype == 'double'"
-                    size="small">
-                    mdi-decimal
-                  </v-icon>
-
-                  <v-icon v-else-if="item.datatype == 'array'" size="small">
-                    mdi-format-list-group
-                  </v-icon>
-                  <v-icon v-else size="small">mdi-pound-box-outline</v-icon>
-                </template>
-                <template #append="{ item }">
-                  <span>
-                    <span v-if="item.required" style="font-size: 0.575rem">required</span>
-                    <v-icon v-if="item.required" color="error" size="x-small">mdi-asterisk</v-icon>
-                  </span>
-                </template>
-              </v-treeview>
+              <TableDetails :table="table" />
             </v-tabs-window-item>
             <v-tabs-window-item value="raw">
               <div class="mb-4 mt-4">
@@ -115,10 +93,6 @@
               </div>
             </v-tabs-window-item>
 
-            <v-tabs-window-item value="details">
-              <TableDetails :table="table" />
-            </v-tabs-window-item>
-
             <v-tabs-window-item value="branch">
               <BranchVisualization :table="table" :snapshot-history="snapshotHistory" />
             </v-tabs-window-item>
@@ -156,7 +130,7 @@ import { onMounted, reactive, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import TaskManager from '../../components/TaskManager.vue';
-import { LoadTableResultReadable, StructField } from '../../gen/iceberg/types.gen';
+import { LoadTableResultReadable } from '../../gen/iceberg/types.gen';
 import { TableAction, TableAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
@@ -203,17 +177,6 @@ const themeText = computed(() => {
   return themeLight.value ? 'light' : 'dark';
 });
 
-interface TreeItem {
-  id: number;
-  title: string;
-  datatype: string;
-  required: boolean;
-  children?: TreeItem[];
-}
-
-const schemaFields = reactive<StructField[]>([]);
-const schemaFieldsTransformed = reactive<TreeItem[]>([]);
-const currentSchema = ref(0);
 const existingPermissions = reactive<TableAssignment[]>([]);
 const loaded = ref(false);
 const snapshotHistory = reactive<any[]>([]);
@@ -226,7 +189,6 @@ async function init() {
   Object.assign(table, await functions.loadTableCustomized(warehouseId, namespaceId, tableName));
 
   tableId.value = table.metadata['table-uuid'];
-  currentSchema.value = table.metadata['current-schema-id'] || 0;
 
   permissionObject.id = tableId.value;
   permissionObject.name = tableName;
@@ -244,19 +206,6 @@ async function init() {
     );
   }
   loaded.value = true;
-
-  schemaFields.splice(0, schemaFields.length);
-  if (table.metadata.schemas) {
-    table.metadata.schemas.forEach((schema) => {
-      if (schema['schema-id'] === currentSchema.value) {
-        for (const field of schema.fields) {
-          schemaFields.push(field);
-        }
-        schemaFieldsTransformed.splice(0, schemaFieldsTransformed.length);
-        schemaFieldsTransformed.push(...transformFields(schemaFields));
-      }
-    });
-  }
 
   // Process snapshot history - sort by timestamp descending (newest first)
   snapshotHistory.splice(0, snapshotHistory.length);
@@ -293,47 +242,6 @@ function getMaxDepth(obj: any): number {
 
   findDepth(obj, 0);
   return maxDepth;
-}
-
-function isStructType(type: any): type is { type: 'struct'; fields: StructField[] } {
-  return type && type.type === 'struct' && Array.isArray(type.fields);
-}
-
-function isListType(type: any): type is { type: 'list'; element: any } {
-  return type && type.type === 'list' && type.element;
-}
-
-function transformFields(fields: StructField[]): TreeItem[] {
-  return fields.map((field) => {
-    let title = field.name;
-    let datatype = typeof field.type === 'string' ? field.type : '';
-
-    if (typeof field.type === 'object') {
-      if (isStructType(field.type)) {
-        datatype = 'struct';
-      } else if (isListType(field.type)) {
-        datatype = 'array';
-      }
-    }
-    title = `${title} (${datatype})`;
-
-    const item: TreeItem = {
-      id: field.id,
-      title,
-      datatype,
-      required: field.required,
-    };
-
-    if (typeof field.type === 'object') {
-      if (isStructType(field.type)) {
-        item.children = transformFields(field.type.fields);
-      } else if (isListType(field.type) && isStructType(field.type.element)) {
-        item.children = transformFields(field.type.element.fields);
-      }
-    }
-
-    return item;
-  });
 }
 
 async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
