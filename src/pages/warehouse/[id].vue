@@ -492,15 +492,50 @@ async function loadWarehouse() {
     Object.assign(selectedWarehouse, whResponse);
   }
 }
+async function loadPermissionsData() {
+  try {
+    loaded.value = false;
+
+    myAccess.splice(0, myAccess.length);
+    namespaceId.value = '';
+    relationId.value = params.value.id;
+    existingPermissions.splice(0, existingPermissions.length);
+
+    Object.assign(myAccess, await functions.getWarehouseAccessById(params.value.id));
+
+    canReadPermissions.value = !!myAccess.includes('read_assignments');
+    canModifyWarehouse.value = !!(
+      (myAccess as WarehouseAction[]).includes('modify_storage') ||
+      (myAccess as WarehouseAction[]).includes('modify_storage_credential') ||
+      (myAccess as WarehouseAction[]).includes('rename') ||
+      (myAccess as WarehouseAction[]).includes('grant_create') ||
+      (myAccess as WarehouseAction[]).includes('grant_modify')
+    );
+
+    Object.assign(
+      existingPermissions,
+      canReadPermissions.value ? await functions.getWarehouseAssignmentsById(params.value.id) : [],
+    );
+    loaded.value = true;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function loadTabData() {
-  if (tab.value === 'namespaces') {
-    await listNamespaces();
-  } else if (tab.value === 'permissions') {
-    await init();
-  } else if (tab.value === 'details') {
-    await loadWarehouse();
-  } else if (tab.value === 'tasks') {
-    // Tasks are handled by the TaskManager component
+  switch (tab.value) {
+    case 'namespaces':
+      await listNamespaces();
+      break;
+    case 'permissions':
+      await loadPermissionsData();
+      break;
+    case 'details':
+      await loadWarehouse();
+      break;
+    case 'tasks':
+      // Tasks are handled by the TaskManager component
+      break;
   }
 }
 async function init() {
@@ -524,10 +559,16 @@ async function init() {
       (myAccess as WarehouseAction[]).includes('grant_modify')
     );
 
-    Object.assign(
-      existingPermissions,
-      canReadPermissions.value ? await functions.getWarehouseAssignmentsById(params.value.id) : [],
-    );
+    // Only load permissions data if we're on the permissions tab
+    if (tab.value === 'permissions') {
+      Object.assign(
+        existingPermissions,
+        canReadPermissions.value
+          ? await functions.getWarehouseAssignmentsById(params.value.id)
+          : [],
+      );
+    }
+
     loaded.value = true;
     await Promise.all([loadWarehouse(), listNamespaces(), getWarehouseStatistics()]);
     loading.value = false;

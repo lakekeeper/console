@@ -206,13 +206,14 @@ async function init() {
       myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
     );
 
-    existingPermissions.splice(0, existingPermissions.length);
-    Object.assign(
-      existingPermissions,
-      canReadPermissions.value
-        ? await functions.getTableAssignmentsById(tableId.value, warehouseId)
-        : [],
-    );
+    // Only load permissions data if we're on the permissions tab
+    if (tab.value === 'permissions' && canReadPermissions.value) {
+      existingPermissions.splice(0, existingPermissions.length);
+      Object.assign(
+        existingPermissions,
+        await functions.getTableAssignmentsById(tableId.value, warehouseId),
+      );
+    }
   }
   loaded.value = true;
 
@@ -274,7 +275,37 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
 }
 
 async function loadTabData() {
-  await init();
+  // Load fresh data specific to the current tab
+  switch (tab.value) {
+    case 'permissions':
+      await loadPermissionsData();
+      break;
+    case 'tasks':
+      // Tasks are loaded by TaskManager component - it handles its own refresh
+      break;
+    case 'overview':
+    case 'raw':
+    case 'branch':
+    default:
+      // Refresh table data for these tabs
+      Object.assign(table, await functions.loadTableCustomized(warehouseId, namespaceId, tableName));
+      depthRawRepresentationMax.value = getMaxDepth(table);
+      break;
+  }
+}
+
+async function loadPermissionsData() {
+  if (!canReadPermissions.value) return;
+
+  try {
+    existingPermissions.splice(0, existingPermissions.length);
+    Object.assign(
+      existingPermissions,
+      await functions.getTableAssignmentsById(tableId.value, warehouseId),
+    );
+  } catch (error) {
+    console.error('Failed to load permissions data:', error);
+  }
 }
 
 async function getProtection() {

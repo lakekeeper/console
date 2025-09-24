@@ -200,7 +200,45 @@ const recursiveDeleteProtection = ref(false);
 const currentVersionId = ref(0);
 const sqlStatement = ref('');
 async function loadTabData() {
-  await init();
+  // Load fresh data specific to the current tab
+  switch (tab.value) {
+    case 'permissions':
+      await loadPermissionsData();
+      break;
+    case 'tasks':
+      // Tasks are loaded by TaskManager component - it handles its own refresh
+      break;
+    case 'overview':
+    case 'raw':
+    case 'history':
+    default:
+      // Refresh view data for these tabs
+      Object.assign(view, await functions.loadView(warehouseId, namespaceId, viewName));
+      depthRawRepresentationMax.value = getMaxDepth(view);
+      
+      // Update version-specific data for overview tab
+      currentVersionId.value = view.metadata['current-version-id'] || 0;
+      view.metadata.versions.forEach((version) => {
+        if (version['version-id'] === currentVersionId.value) {
+          sqlStatement.value = version.representations[0].sql;
+        }
+      });
+      break;
+  }
+}
+
+async function loadPermissionsData() {
+  if (!canReadPermissions.value) return;
+
+  try {
+    existingPermissions.splice(0, existingPermissions.length);
+    Object.assign(
+      existingPermissions,
+      await functions.getViewAssignmentsById(viewId.value, warehouseId),
+    );
+  } catch (error) {
+    console.error('Failed to load permissions data:', error);
+  }
 }
 
 async function init() {
@@ -233,7 +271,7 @@ async function init() {
 
     Object.assign(
       existingPermissions,
-      canReadPermissions.value
+      canReadPermissions.value && tab.value === 'permissions'
         ? await functions.getViewAssignmentsById(viewId.value, warehouseId)
         : [],
     );
