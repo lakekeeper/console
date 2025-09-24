@@ -5,7 +5,7 @@
       {{ title || 'Snapshot Details' }}
     </v-card-title>
     <v-divider></v-divider>
-    
+
     <v-card-text v-if="!snapshot" class="text-center pa-8">
       <v-icon size="64" color="grey-lighten-1">mdi-camera-off-outline</v-icon>
       <div class="text-h6 mt-2 text-grey-lighten-1">No snapshot available</div>
@@ -21,8 +21,7 @@
             icon="mdi-content-copy"
             size="small"
             variant="flat"
-            @click="copyToClipboard(String(snapshot['snapshot-id']))">
-          </v-btn>
+            @click="copyToClipboard(String(snapshot['snapshot-id']))"></v-btn>
         </v-list-item-subtitle>
       </v-list-item>
 
@@ -59,8 +58,7 @@
             icon="mdi-content-copy"
             size="small"
             variant="flat"
-            @click="copyToClipboard(String(snapshot['parent-snapshot-id']))">
-          </v-btn>
+            @click="copyToClipboard(String(snapshot['parent-snapshot-id']))"></v-btn>
         </v-list-item-subtitle>
       </v-list-item>
 
@@ -68,9 +66,9 @@
       <v-list-item v-if="snapshot.summary?.operation">
         <v-list-item-title>Operation</v-list-item-title>
         <v-list-item-subtitle>
-          <v-chip 
+          <v-chip
             :color="getOperationColor(snapshot.summary.operation)"
-            size="small" 
+            size="small"
             variant="flat">
             {{ snapshot.summary.operation }}
           </v-chip>
@@ -88,8 +86,7 @@
             icon="mdi-content-copy"
             size="small"
             variant="flat"
-            @click="copyToClipboard(snapshot['manifest-list'])">
-          </v-btn>
+            @click="copyToClipboard(snapshot['manifest-list'])"></v-btn>
         </v-list-item-subtitle>
       </v-list-item>
 
@@ -101,18 +98,13 @@
             :icon="summaryExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
             size="small"
             variant="text"
-            @click="summaryExpanded = !summaryExpanded">
-          </v-btn>
+            @click="summaryExpanded = !summaryExpanded"></v-btn>
         </v-list-item-title>
         <v-list-item-subtitle>
           <v-expand-transition>
             <div v-show="summaryExpanded">
               <v-row class="mt-2">
-                <v-col
-                  v-for="(value, key) in snapshot.summary"
-                  :key="key"
-                  cols="12"
-                  md="6">
+                <v-col v-for="(value, key) in snapshot.summary" :key="key" cols="12" md="6">
                   <v-list-item class="pa-2" density="compact" variant="tonal" rounded>
                     <v-list-item-title class="text-caption font-weight-medium">
                       {{ formatSummaryKey(String(key)) }}
@@ -143,7 +135,7 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  showSummary: true
+  showSummary: true,
 });
 
 // Composables
@@ -164,7 +156,7 @@ const formatTimestamp = (timestamp: number): string => {
 const formatSummaryKey = (key: string): string => {
   return key
     .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
 
@@ -172,7 +164,7 @@ const formatSummaryValue = (value: any): string => {
   if (value === null || value === undefined) {
     return 'N/A';
   }
-  
+
   if (typeof value === 'number') {
     // Format large numbers with commas
     if (value >= 1000) {
@@ -180,11 +172,11 @@ const formatSummaryValue = (value: any): string => {
     }
     return value.toString();
   }
-  
+
   if (typeof value === 'boolean') {
     return value ? 'Yes' : 'No';
   }
-  
+
   if (typeof value === 'string') {
     // Check if it's a timestamp
     if (value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
@@ -192,30 +184,30 @@ const formatSummaryValue = (value: any): string => {
     }
     return value;
   }
-  
+
   if (Array.isArray(value)) {
     return `[${value.length} items]`;
   }
-  
+
   if (typeof value === 'object') {
     return JSON.stringify(value, null, 2);
   }
-  
+
   return String(value);
 };
 
 const getOperationColor = (operation: string): string => {
   const operationColors: Record<string, string> = {
-    'append': 'success',
-    'overwrite': 'warning',
-    'delete': 'error',
-    'replace': 'primary',
-    'merge': 'info',
-    'optimize': 'secondary',
-    'expire': 'orange',
-    'compact': 'teal'
+    append: 'success',
+    overwrite: 'warning',
+    delete: 'error',
+    replace: 'primary',
+    merge: 'info',
+    optimize: 'secondary',
+    expire: 'orange',
+    compact: 'teal',
   };
-  
+
   return operationColors[operation?.toLowerCase()] || 'default';
 };
 </script>

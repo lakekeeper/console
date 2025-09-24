@@ -279,9 +279,7 @@
                 <!-- Current Snapshot Details -->
                 <v-row v-if="currentSnapshot">
                   <v-col cols="12">
-                    <SnapshotDetails 
-                      :snapshot="currentSnapshot" 
-                      title="Current Snapshot Details" />
+                    <SnapshotDetails :snapshot="currentSnapshot" title="Current Snapshot Details" />
                   </v-col>
                 </v-row>
               </v-card-text>
