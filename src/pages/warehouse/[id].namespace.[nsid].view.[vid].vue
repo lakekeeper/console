@@ -215,7 +215,7 @@ async function loadTabData() {
       // Refresh view data for these tabs
       Object.assign(view, await functions.loadView(warehouseId, namespaceId, viewName));
       depthRawRepresentationMax.value = getMaxDepth(view);
-      
+
       // Update version-specific data for overview tab
       currentVersionId.value = view.metadata['current-version-id'] || 0;
       view.metadata.versions.forEach((version) => {

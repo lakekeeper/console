@@ -288,7 +288,10 @@ async function loadTabData() {
     case 'branch':
     default:
       // Refresh table data for these tabs
-      Object.assign(table, await functions.loadTableCustomized(warehouseId, namespaceId, tableName));
+      Object.assign(
+        table,
+        await functions.loadTableCustomized(warehouseId, namespaceId, tableName),
+      );
       depthRawRepresentationMax.value = getMaxDepth(table);
       break;
   }
