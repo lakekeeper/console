@@ -1188,7 +1188,9 @@ export type TableAction =
   | 'grant_describe'
   | 'grant_select'
   | 'grant_modify'
-  | 'change_ownership';
+  | 'change_ownership'
+  | 'get_tasks'
+  | 'control_tasks';
 
 export type TableAssignment =
   | (UserOrRole & {
@@ -1555,7 +1557,9 @@ export type ViewAction =
   | 'grant_manage_grants'
   | 'grant_describe'
   | 'grant_modify'
-  | 'change_ownership';
+  | 'change_ownership'
+  | 'get_tasks'
+  | 'control_tasks';
 
 export type ViewAssignment =
   | (UserOrRole & {
@@ -1596,7 +1600,9 @@ export type WarehouseAction =
   | 'grant_select'
   | 'grant_pass_grants'
   | 'grant_manage_grants'
-  | 'change_ownership';
+  | 'change_ownership'
+  | 'get_all_tasks'
+  | 'control_all_tasks';
 
 export type WarehouseAssignment =
   | (UserOrRole & {
