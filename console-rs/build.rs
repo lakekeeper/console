@@ -9,8 +9,11 @@ fn main() {
     let node_root = Path::new(&out_dir).join("node");
     let asset_dir = node_root.join("dist");
 
-    println!("Node root: {node_root:?}");
-    println!("Asset dir (dist): {asset_dir:?}");
+    println!("cargo:warning=Node root: {node_root:?}");
+    println!("cargo:warning=Asset dir (dist): {asset_dir:?}");
+    // limit rebuilds to UI changes
+    println!("cargo:rerun-if-changed={}", repo_dir.join("package.json").display());
+    println!("cargo:rerun-if-changed={}", repo_dir.join("package-lock.json").display());
     // Copy everything from repo_dir to node_dir, we are not allowed to write anywhere else
     fs::remove_dir_all(&node_root).ok();
     fs::create_dir_all(&asset_dir).unwrap();
