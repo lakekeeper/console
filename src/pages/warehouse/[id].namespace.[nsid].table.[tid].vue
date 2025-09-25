@@ -147,6 +147,7 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 import BranchVisualization from '@/components/BranchVisualization.vue';
 import TableDetails from '@/components/TableDetails.vue';
+import type { Snapshot } from '../../gen/iceberg/types.gen';
 const depthRawRepresentation = ref(3);
 const depthRawRepresentationMax = ref(1000);
 
@@ -190,7 +191,7 @@ const themeText = computed(() => {
 
 const existingPermissions = reactive<TableAssignment[]>([]);
 const loaded = ref(false);
-const snapshotHistory = reactive<any[]>([]);
+const snapshotHistory = reactive<Snapshot[]>([]);
 
 async function init() {
   loaded.value = false;
