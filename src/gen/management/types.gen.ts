@@ -1366,11 +1366,17 @@ export type TaskAttempt = {
   status: TaskStatus;
 };
 
-export type TaskEntity = {
-  'table-id': string;
-  type: 'table';
-  'warehouse-id': string;
-};
+export type TaskEntity =
+  | {
+      'table-id': string;
+      type: 'table';
+      'warehouse-id': string;
+    }
+  | {
+      type: 'view';
+      'view-id': string;
+      'warehouse-id': string;
+    };
 
 export type TaskStatus = 'RUNNING' | 'SCHEDULED' | 'STOPPING' | 'CANCELLED' | 'SUCCESS' | 'FAILED';
 

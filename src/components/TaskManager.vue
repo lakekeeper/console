@@ -436,12 +436,47 @@ import {
 const props = defineProps<{
   warehouseId: string;
   tableId?: string;
-  entityType?: 'warehouse' | 'table';
+  viewId?: string;
+  entityType?: 'warehouse' | 'table' | 'view';
 }>();
 
 // Composables
 const functions = useFunctions();
 const visual = useVisualStore();
+
+// Helper functions to handle entity type differences
+const getEntityId = () => {
+  if (props.entityType === 'view') {
+    return props.viewId;
+  } else if (props.entityType === 'table') {
+    return props.tableId;
+  }
+  return null;
+};
+
+const createEntityFilter = (): TaskEntity[] | undefined => {
+  const entityId = getEntityId();
+  if (!entityId) return undefined;
+
+  if (props.entityType === 'view') {
+    return [
+      {
+        type: 'view',
+        'warehouse-id': props.warehouseId,
+        'view-id': entityId,
+      },
+    ] as TaskEntity[];
+  } else if (props.entityType === 'table') {
+    return [
+      {
+        type: 'table',
+        'warehouse-id': props.warehouseId,
+        'table-id': entityId,
+      },
+    ] as TaskEntity[];
+  }
+  return undefined;
+};
 
 // Queue configuration
 const queueManager = useQueueConfig();
@@ -779,15 +814,9 @@ async function listTasks() {
     const request: ListTasksRequest = {
       'page-size': 110, // Load more items per request to reduce API calls
       'page-token': tasksNextPageToken.value,
-      // Add table entity filter if tableId is provided
-      ...(props.tableId && {
-        entities: [
-          {
-            type: 'table',
-            'warehouse-id': props.warehouseId,
-            'table-id': props.tableId,
-          },
-        ] as TaskEntity[],
+      // Add entity filter if entityId is provided
+      ...(getEntityId() && {
+        entities: createEntityFilter(),
       }),
       // Apply filters
       ...(filters.status.length > 0 && { status: filters.status }),
@@ -870,11 +899,13 @@ async function listTasks() {
 
     // Handle different error types gracefully
     if (error?.response?.status === 404 || error?.isTaskManagementError) {
-      if (props.tableId) {
-        errorMessage.value = `Task management is not available for this table. This may be because:
-• The table does not support task operations
-• Task features are not enabled for this table type
-• The table ID format is not compatible with task management`;
+      const entityId = getEntityId();
+      if (entityId) {
+        const entityName = props.entityType === 'view' ? 'view' : 'table';
+        errorMessage.value = `Task management is not available for this ${entityName}. This may be because:
+• The ${entityName} does not support task operations
+• Task features are not enabled for this ${entityName} type
+• The ${entityName} ID format is not compatible with task management`;
       } else {
         errorMessage.value = `Task management is not available for this warehouse yet.`;
       }
@@ -914,6 +945,13 @@ onMounted(async () => {
   if (props.entityType === 'table' && (!props.tableId || props.tableId.trim() === '')) {
     hasError.value = true;
     errorMessage.value = 'Table ID is required to load table-specific tasks.';
+    return;
+  }
+
+  // For view context, ensure viewId is provided and valid
+  if (props.entityType === 'view' && (!props.viewId || props.viewId.trim() === '')) {
+    hasError.value = true;
+    errorMessage.value = 'View ID is required to load view-specific tasks.';
     return;
   }
 

@@ -121,8 +121,8 @@
               <TaskManager
                 v-if="loaded && viewId"
                 :warehouse-id="warehouseId"
-                :table-id="viewId"
-                entity-type="table" />
+                :view-id="viewId"
+                entity-type="view" />
               <div v-else class="text-center pa-8">
                 <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
                 <div class="text-subtitle-1 mt-2">Loading view information...</div>

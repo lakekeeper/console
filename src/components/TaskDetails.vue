@@ -105,17 +105,17 @@
           </v-list-item-subtitle>
         </v-list-item>
 
-        <v-list-item v-if="task.entity['table-id']">
+        <v-list-item v-if="getEntityId(task.entity)">
           <v-list-item-title>
             {{ task.entity.type.charAt(0).toUpperCase() + task.entity.type.slice(1) }} ID
           </v-list-item-title>
           <v-list-item-subtitle class="d-flex align-center">
-            <span class="mr-2 font-mono">{{ task.entity['table-id'] }}</span>
+            <span class="mr-2 font-mono">{{ getEntityId(task.entity) }}</span>
             <v-btn
               icon="mdi-content-copy"
               size="small"
               variant="flat"
-              @click="$emit('copy', task.entity['table-id'])"></v-btn>
+              @click="$emit('copy', getEntityId(task.entity) || '')"></v-btn>
           </v-list-item-subtitle>
         </v-list-item>
 
@@ -335,6 +335,15 @@ defineEmits<{
 }>();
 
 // Helper functions
+function getEntityId(entity: any): string | null {
+  if (entity.type === 'table') {
+    return entity['table-id'] || null;
+  } else if (entity.type === 'view') {
+    return entity['view-id'] || null;
+  }
+  return null;
+}
+
 function getEntityTypeColor(type: string): string {
   switch (type.toLowerCase()) {
     case 'table':
