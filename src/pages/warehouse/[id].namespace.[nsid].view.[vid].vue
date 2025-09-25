@@ -27,14 +27,21 @@
         <v-tabs v-model="tab">
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
           <v-tab value="raw" @click="loadTabData">raw</v-tab>
+          <v-tab value="history" @click="loadTabData">history</v-tab>
           <v-tab
-            v-if="enabledAuthentication && enabledPermissions"
+            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
             value="permissions"
             @click="loadTabData">
             Permissions
           </v-tab>
+          <v-tab
+            v-if="canModifyView && enabledAuthentication && enabledPermissions"
+            value="tasks"
+            @click="loadTabData">
+            tasks
+          </v-tab>
         </v-tabs>
-        <v-card style="max-height: 75vh; overflow: auto; min-height: 55vh">
+        <v-card style="max-height: 80vh; overflow: auto; min-height: 55vh">
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="overview">
               <v-toolbar color="transparent" density="compact" flat>
@@ -50,13 +57,8 @@
                   @click="setProtection"></v-switch>
               </v-toolbar>
               <v-card-text>
-                <v-row>
-                  <v-col>
-                    View SQL Statement:
-                    <pre
-                      class="language-sql"><code ref="codeRef" class="language-sql">{{ sqlStatement }}</code></pre>
-                  </v-col>
-                </v-row>
+                <!-- View Details -->
+                <ViewDetails v-if="loaded" :view="view" />
               </v-card-text>
             </v-tabs-window-item>
             <v-tabs-window-item value="raw">
@@ -74,18 +76,34 @@
                   size="small"
                   variant="outlined"
                   color="success"
+                  class="mr-8"
                   @click="depthRawRepresentation = depthRawRepresentationMax"
                   append-icon="mdi-expand-all">
                   Expand
                 </v-btn>
+                <v-btn
+                  size="small"
+                  variant="outlined"
+                  color="primary"
+                  @click="copyViewJson"
+                  prepend-icon="mdi-content-copy">
+                  Copy JSON
+                </v-btn>
               </div>
-              <vue-json-pretty
-                :data="view"
-                :deep="depthRawRepresentation"
-                :theme="themeText"
-                :showLineNumber="true"
-                :virtual="true" />
+              <div style="height: 65vh; overflow: auto">
+                <vue-json-pretty
+                  :data="view"
+                  :deep="depthRawRepresentation"
+                  :theme="themeText"
+                  :showLineNumber="true"
+                  :virtual="false" />
+              </div>
             </v-tabs-window-item>
+
+            <v-tabs-window-item value="history">
+              <ViewHistory v-if="loaded" :view="view" />
+            </v-tabs-window-item>
+
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
                 v-if="loaded"
@@ -94,6 +112,17 @@
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
                 @permissions="assign" />
+            </v-tabs-window-item>
+            <v-tabs-window-item v-if="canModifyView" value="tasks">
+              <TaskManager
+                v-if="loaded && viewId"
+                :warehouse-id="warehouseId"
+                :table-id="viewId"
+                entity-type="table" />
+              <div v-else class="text-center pa-8">
+                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                <div class="text-subtitle-1 mt-2">Loading view information...</div>
+              </div>
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
@@ -107,6 +136,9 @@ import 'vue-json-pretty/lib/styles.css';
 import { onMounted, reactive, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
+import TaskManager from '../../components/TaskManager.vue';
+import ViewDetails from '../../components/ViewDetails.vue';
+import ViewHistory from '../../components/ViewHistory.vue';
 import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
 import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
@@ -121,7 +153,7 @@ const crumbPath = ref('');
 const loading = ref(true);
 const assignStatus = ref(StatusIntent.INACTIVE);
 
-const depthRawRepresentation = ref(1);
+const depthRawRepresentation = ref(3);
 const depthRawRepresentationMax = ref(1000);
 
 const myAccess = reactive<TableAction[]>([]);
@@ -162,12 +194,51 @@ const view = reactive<LoadViewResultReadable>({
 const loaded = ref(false);
 const existingPermissions = reactive<ViewAssignment[]>([]);
 const canReadPermissions = ref(false);
+const canModifyView = ref(false);
 const recursiveDeleteProtection = ref(false);
 
 const currentVersionId = ref(0);
 const sqlStatement = ref('');
 async function loadTabData() {
-  await init();
+  // Load fresh data specific to the current tab
+  switch (tab.value) {
+    case 'permissions':
+      await loadPermissionsData();
+      break;
+    case 'tasks':
+      // Tasks are loaded by TaskManager component - it handles its own refresh
+      break;
+    case 'overview':
+    case 'raw':
+    case 'history':
+    default:
+      // Refresh view data for these tabs
+      Object.assign(view, await functions.loadView(warehouseId, namespaceId, viewName));
+      depthRawRepresentationMax.value = getMaxDepth(view);
+
+      // Update version-specific data for overview tab
+      currentVersionId.value = view.metadata['current-version-id'] || 0;
+      view.metadata.versions.forEach((version) => {
+        if (version['version-id'] === currentVersionId.value) {
+          sqlStatement.value = version.representations[0].sql;
+        }
+      });
+      break;
+  }
+}
+
+async function loadPermissionsData() {
+  if (!canReadPermissions.value) return;
+
+  try {
+    existingPermissions.splice(0, existingPermissions.length);
+    Object.assign(
+      existingPermissions,
+      await functions.getViewAssignmentsById(viewId.value, warehouseId),
+    );
+  } catch (error) {
+    console.error('Failed to load permissions data:', error);
+  }
 }
 
 async function init() {
@@ -190,18 +261,24 @@ async function init() {
   permissionObject.id = viewId.value;
   permissionObject.name = viewName;
   if (serverInfo['authz-backend'] != 'allow-all') {
-    Object.assign(myAccess, await functions.getViewAccessById(viewId.value));
+    Object.assign(myAccess, await functions.getViewAccessById(viewId.value, warehouseId));
     await getProtection();
 
     canReadPermissions.value = !!myAccess.includes('read_assignments');
+    canModifyView.value = !!(
+      myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
+    );
 
     Object.assign(
       existingPermissions,
-      canReadPermissions.value ? await functions.getViewAssignmentsById(viewId.value) : [],
+      canReadPermissions.value && tab.value === 'permissions'
+        ? await functions.getViewAssignmentsById(viewId.value, warehouseId)
+        : [],
     );
   }
 
   depthRawRepresentationMax.value = getMaxDepth(view);
+
   loaded.value = true;
 }
 
@@ -238,7 +315,7 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     const del = permissions.del as ViewAssignment[];
     const writes = permissions.writes as ViewAssignment[];
 
-    await functions.updateViewAssignmentsById(viewId.value, del, writes);
+    await functions.updateViewAssignmentsById(viewId.value, del, writes, warehouseId);
     assignStatus.value = StatusIntent.SUCCESS;
     loaded.value = true;
     await init();
@@ -268,6 +345,15 @@ async function setProtection() {
     console.error(error);
   }
 }
+
+function copyViewJson() {
+  try {
+    const jsonString = JSON.stringify(view, null, 2);
+    functions.copyToClipboard(jsonString);
+  } catch (error) {
+    console.error('Failed to copy view JSON:', error);
+  }
+}
 </script>
 
 <style scoped>
@@ -278,5 +364,16 @@ async function setProtection() {
 .icon-text {
   display: flex;
   align-items: center;
+}
+
+.font-mono {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.875rem;
+}
+
+.text-wrap {
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 </style>

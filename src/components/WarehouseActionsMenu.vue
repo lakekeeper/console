@@ -34,6 +34,8 @@
         @update-deletion-profile="updateDeletionProfile" />
 
       <ComputeConnectDialog :warehouse="warehouse" />
+
+      <TaskConfigDialog :warehouse="warehouse" />
     </v-list>
   </v-menu>
 </template>
@@ -47,6 +49,7 @@ import {
 } from '../gen/management/types.gen';
 import { ref, onMounted } from 'vue';
 import { Intent, ObjectType } from '../common/enums';
+import TaskConfigDialog from './TaskConfigDialog.vue';
 
 const menuOpen = ref(false);
 

@@ -224,6 +224,60 @@
         </v-col>
       </v-row>
 
+      <!-- STS Session Tags -->
+      <div v-if="warehouseObjectData['storage-profile']['sts-enabled']">
+        <v-row>
+          <v-col>
+            <h4 class="text-subtitle-1 mb-2">STS Session Tags (Optional)</h4>
+            <p class="text-caption text-medium-emphasis mb-3">
+              Key-value pairs that are passed as session tags when assuming the STS role
+            </p>
+          </v-col>
+        </v-row>
+
+        <div v-if="stsSessionTagsArray.length > 0">
+          <v-row v-for="(tag, index) in stsSessionTagsArray" :key="index">
+            <v-col cols="5">
+              <v-text-field
+                v-model="tag.key"
+                label="Key"
+                placeholder="Environment"
+                density="compact"
+                @input="updateStsSessionTags"></v-text-field>
+            </v-col>
+            <v-col cols="5">
+              <v-text-field
+                v-model="tag.value"
+                label="Value"
+                placeholder="Production"
+                density="compact"
+                @input="updateStsSessionTags"></v-text-field>
+            </v-col>
+            <v-col cols="2" class="d-flex align-center">
+              <v-btn
+                icon="mdi-delete"
+                variant="text"
+                size="small"
+                color="error"
+                @click="removeStsSessionTag(index)"></v-btn>
+            </v-col>
+          </v-row>
+        </div>
+
+        <v-row>
+          <v-col>
+            <v-btn
+              prepend-icon="mdi-plus"
+              variant="outlined"
+              size="small"
+              class="mb-2"
+              @click="addStsSessionTag">
+              Session Tag
+            </v-btn>
+          </v-col>
+        </v-row>
+      </div>
+
       <v-btn
         v-if="props.intent === Intent.CREATE && props.objectType === ObjectType.WAREHOUSE"
         color="success"
@@ -341,6 +395,31 @@ const warehouseObjectData = reactive<{
   },
 });
 
+// STS Session Tags management
+const stsSessionTagsArray = ref<Array<{ key: string; value: string }>>([]);
+
+const updateStsSessionTags = () => {
+  // Filter out empty tags and convert to object
+  const validTags = stsSessionTagsArray.value.filter((tag) => tag.key.trim() && tag.value.trim());
+  const tagsObject: { [key: string]: string } = {};
+
+  validTags.forEach((tag) => {
+    tagsObject[tag.key.trim()] = tag.value.trim();
+  });
+
+  warehouseObjectData['storage-profile']['sts-session-tags'] =
+    Object.keys(tagsObject).length > 0 ? tagsObject : undefined;
+};
+
+const addStsSessionTag = () => {
+  stsSessionTagsArray.value.push({ key: '', value: '' });
+};
+
+const removeStsSessionTag = (index: number) => {
+  stsSessionTagsArray.value.splice(index, 1);
+  updateStsSessionTags();
+};
+
 const regions = [
   'us-east-2',
   'us-east-1',
@@ -457,7 +536,18 @@ const emitNewProfile = () => {
 };
 
 onMounted(() => {
-  if (props.warehouseObject) Object.assign(warehouseObjectData, props.warehouseObject);
+  if (props.warehouseObject) {
+    Object.assign(warehouseObjectData, props.warehouseObject);
+
+    // Initialize STS session tags array from existing data
+    const existingTags = warehouseObjectData['storage-profile']['sts-session-tags'];
+    if (existingTags) {
+      stsSessionTagsArray.value = Object.entries(existingTags).map(([key, value]) => ({
+        key,
+        value,
+      }));
+    }
+  }
 });
 
 watch(
@@ -465,6 +555,17 @@ watch(
   (newValue) => {
     if (newValue === 'cloudflare-r2') {
       warehouseObjectData['storage-profile'].flavor = 's3-compat';
+    }
+  },
+);
+
+watch(
+  () => warehouseObjectData['storage-profile']['sts-enabled'],
+  (newValue) => {
+    if (!newValue) {
+      // Clear STS session tags when STS is disabled
+      stsSessionTagsArray.value = [];
+      warehouseObjectData['storage-profile']['sts-session-tags'] = undefined;
     }
   },
 );

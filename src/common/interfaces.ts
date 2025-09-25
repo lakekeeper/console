@@ -20,6 +20,11 @@ export interface Project {
   'project-name': string;
 }
 
+export interface QueueOption {
+  title: string;
+  value: string;
+}
+
 export interface Data {
   projects: Project[];
 }

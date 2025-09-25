@@ -16,6 +16,8 @@ import JSONBig from 'json-bigint';
 import * as mng from '@/gen/management/sdk.gen';
 import * as mngClient from '@/gen/management/client.gen';
 import {
+  ControlTaskAction,
+  ControlTasksRequest,
   CreateRoleRequest,
   CreateWarehouseRequest,
   CreateWarehouseResponse,
@@ -24,16 +26,20 @@ import {
   GetNamespaceAuthPropertiesResponse,
   GetNamespaceProtectionResponse,
   GetProjectResponse,
+  GetTaskDetailsResponse,
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
   ListDeletedTabularsResponse,
   ListRolesResponse,
+  ListTasksRequest,
+  ListTasksResponse,
   ListWarehousesResponse,
   NamespaceAction,
   NamespaceAssignment,
   ProjectAction,
   ProjectAssignment,
   ProtectionResponse,
+  PurgeQueueConfig,
   RenameProjectRequest,
   Role,
   RoleAction,
@@ -49,6 +55,7 @@ import {
   TableAction,
   TableAssignment,
   TabularDeleteProfile,
+  TabularExpirationQueueConfig,
   TimeWindowSelector,
   UpdateRoleRequest,
   User,
@@ -116,15 +123,24 @@ function parseErrorText(errorText: string): { message: string; code: number } {
 
 function handleError(error: any, functionError: Error) {
   try {
-    if (error.message === 'Failed to fetch') {
-      if (window.location.pathname !== '/server-offline') router.push('/server-offline');
-
-      return;
-    }
-
     const functionName =
       functionError.stack?.split('\n')[1]?.trim()?.split(' ')[1]?.replace('Object.', '') ||
       'unknown';
+
+    // Check if this is a task management related error
+    const isTaskFunction = ['listTasks', 'getTaskDetails', 'controlTasks'].includes(functionName);
+
+    // Don't redirect to server-offline for task management failures or if it's already marked as a task error
+    if (error.message === 'Failed to fetch' && !isTaskFunction && !error.isTaskManagementError) {
+      if (window.location.pathname !== '/server-offline') router.push('/server-offline');
+      return;
+    }
+
+    // For task management errors, just log them without redirecting
+    if (isTaskFunction || error.isTaskManagementError) {
+      console.warn('Task management error (not redirecting):', error);
+      return;
+    }
 
     setError(error, 3000, functionName, Type.ERROR);
   } catch (newError: any) {
@@ -867,7 +883,7 @@ async function loadTableCustomized(warehouseId: string, namespacePath: string, t
     // const data = JSON.parse(textData, (key, value) => {
     //   // If the value is a large number (potentially snapshot-id), convert it to BigInt
     //   if (typeof value === 'number' && value > Number.MAX_SAFE_INTEGER) {
-    //     console.log('value', value);
+
     //     return String(BigInt(value)); // Convert to BigInt to preserve precision
     //   }
     //   return value;
@@ -1421,7 +1437,10 @@ async function setNamespaceManagedAccess(
   }
 }
 
-async function getTableAssignmentsById(tableId: string): Promise<TableAssignment[]> {
+async function getTableAssignmentsById(
+  tableId: string,
+  warehouseId: string,
+): Promise<TableAssignment[]> {
   try {
     const visual = useVisualStore();
     const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
@@ -1435,6 +1454,7 @@ async function getTableAssignmentsById(tableId: string): Promise<TableAssignment
       client,
       path: {
         table_id: tableId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1452,6 +1472,7 @@ async function updateTableAssignmentsById(
   tableId: string,
   deletes: TableAssignment[],
   writes: TableAssignment[],
+  warehouseId: string,
 ): Promise<boolean> {
   try {
     init();
@@ -1463,6 +1484,7 @@ async function updateTableAssignmentsById(
       body: { deletes, writes },
       path: {
         table_id: tableId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1475,7 +1497,10 @@ async function updateTableAssignmentsById(
   }
 }
 
-async function getViewAssignmentsById(viewId: string): Promise<ViewAssignment[]> {
+async function getViewAssignmentsById(
+  viewId: string,
+  warehouseId: string,
+): Promise<ViewAssignment[]> {
   try {
     const visual = useVisualStore();
     const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
@@ -1489,6 +1514,7 @@ async function getViewAssignmentsById(viewId: string): Promise<ViewAssignment[]>
       client,
       path: {
         view_id: viewId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1505,6 +1531,7 @@ async function updateViewAssignmentsById(
   viewId: string,
   deletes: ViewAssignment[],
   writes: ViewAssignment[],
+  warehouseId: string,
 ): Promise<boolean> {
   try {
     init();
@@ -1516,6 +1543,7 @@ async function updateViewAssignmentsById(
       body: { deletes, writes },
       path: {
         view_id: viewId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1815,6 +1843,228 @@ async function deleteRole(roleId: string): Promise<boolean> {
   }
 }
 
+// Tasks
+
+async function getTaskQueueConfigTabularExpiration(
+  warehouseId: string,
+): Promise<TabularExpirationQueueConfig> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getTaskQueueConfigTabularExpiration({
+      client,
+      path: { warehouse_id: warehouseId },
+    });
+
+    if (error) throw error;
+
+    return data as TabularExpirationQueueConfig;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setTaskQueueConfigTabularExpiration(
+  warehouseId: string,
+  config: TabularExpirationQueueConfig,
+): Promise<boolean> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { error } = await mng.setTaskQueueConfigTabularExpiration({
+      client,
+      path: { warehouse_id: warehouseId },
+      body: config,
+    });
+
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getTaskQueueConfigTabularPurge(warehouseId: string): Promise<PurgeQueueConfig> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getTaskQueueConfigTabularPurge({
+      client,
+      path: { warehouse_id: warehouseId },
+    });
+
+    if (error) throw error;
+
+    return data as PurgeQueueConfig;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function setTaskQueueConfigTabularPurge(
+  warehouseId: string,
+  config: PurgeQueueConfig,
+): Promise<boolean> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { error } = await mng.setTaskQueueConfigTabularPurge({
+      client,
+      path: { warehouse_id: warehouseId },
+      body: config,
+    });
+
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function getTaskDetails(
+  warehouseId: string,
+  taskId: string,
+): Promise<GetTaskDetailsResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.getTaskDetails({
+      client,
+      path: { warehouse_id: warehouseId, task_id: taskId },
+    });
+
+    if (error) throw error;
+
+    return data as GetTaskDetailsResponse;
+  } catch (error: any) {
+    // Handle CORS preflight failures and 404 errors gracefully without redirecting to server-offline
+    if (
+      error?.response?.status === 404 ||
+      error?.status === 404 ||
+      error?.message?.includes('CORS') ||
+      error?.message?.includes('preflight') ||
+      error?.message?.includes('OPTIONS') ||
+      (error?.name === 'TypeError' && error?.message?.includes('fetch'))
+    ) {
+      const taskError = new Error(
+        `Task details not found: ${error?.message || 'Task not found or CORS issue'}`,
+      );
+      (taskError as any).response = { status: 404 };
+      (taskError as any).isTaskManagementError = true;
+      throw taskError;
+    }
+
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function controlTasks(
+  warehouseId: string,
+  action: ControlTaskAction,
+  taskIds: string[],
+): Promise<boolean> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const body: ControlTasksRequest = {
+      action,
+      'task-ids': taskIds,
+    };
+
+    const { error } = await mng.controlTasks({
+      client,
+      path: { warehouse_id: warehouseId },
+      body,
+    });
+
+    if (error) throw error;
+
+    return true;
+  } catch (error: any) {
+    // Handle CORS preflight failures and 404 errors gracefully without redirecting to server-offline
+    if (
+      error?.response?.status === 404 ||
+      error?.status === 404 ||
+      error?.message?.includes('CORS') ||
+      error?.message?.includes('preflight') ||
+      error?.message?.includes('OPTIONS') ||
+      (error?.name === 'TypeError' && error?.message?.includes('fetch'))
+    ) {
+      const taskError = new Error(
+        `Task control not available: ${error?.message || 'Endpoint not found or CORS issue'}`,
+      );
+      (taskError as any).response = { status: 404 };
+      (taskError as any).isTaskManagementError = true;
+      throw taskError;
+    }
+
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
+async function listTasks(
+  warehouseId: string,
+  request: ListTasksRequest,
+): Promise<ListTasksResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.listTasks({
+      client,
+      path: { warehouse_id: warehouseId },
+      body: request,
+    });
+
+    if (error) throw error;
+
+    return data as ListTasksResponse;
+  } catch (error: any) {
+    // Handle CORS preflight failures and 404 errors gracefully without redirecting to server-offline
+    if (
+      error?.response?.status === 404 ||
+      error?.status === 404 ||
+      error?.message?.includes('CORS') ||
+      error?.message?.includes('preflight') ||
+      error?.message?.includes('OPTIONS') ||
+      (error?.name === 'TypeError' && error?.message?.includes('fetch'))
+    ) {
+      // Create a meaningful 404 error that won't trigger redirect
+      const taskError = new Error(
+        `Task management not available: ${error?.message || 'Endpoint not found or CORS issue'}`,
+      );
+      (taskError as any).response = { status: 404 };
+      (taskError as any).isTaskManagementError = true;
+      throw taskError;
+    }
+
+    // For other errors, use the standard error handling
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
 // Access
 
 async function getServerAccess(): Promise<ServerAction[]> {
@@ -1947,7 +2197,7 @@ async function getNamespaceAccessById(namespaceId: string): Promise<NamespaceAct
   }
 }
 
-async function getTableAccessById(tableId: string): Promise<TableAction[]> {
+async function getTableAccessById(tableId: string, warehouseId: string): Promise<TableAction[]> {
   try {
     const visual = useVisualStore();
     const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
@@ -1962,6 +2212,7 @@ async function getTableAccessById(tableId: string): Promise<TableAction[]> {
       client,
       path: {
         table_id: tableId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -1976,7 +2227,7 @@ async function getTableAccessById(tableId: string): Promise<TableAction[]> {
   }
 }
 
-async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
+async function getViewAccessById(viewId: string, warehouseId: string): Promise<ViewAction[]> {
   try {
     const visual = useVisualStore();
     const authOff = visual.getServerInfo()['authz-backend'] === 'allow-all' ? true : false;
@@ -1990,6 +2241,7 @@ async function getViewAccessById(viewId: string): Promise<ViewAction[]> {
       client,
       path: {
         view_id: viewId,
+        warehouse_id: warehouseId,
       },
     });
 
@@ -2158,6 +2410,14 @@ export function useFunctions() {
     setViewProtection,
     getViewProtection,
     getProjectAccessById,
+    // Task functions
+    getTaskQueueConfigTabularExpiration,
+    setTaskQueueConfigTabularExpiration,
+    getTaskQueueConfigTabularPurge,
+    setTaskQueueConfigTabularPurge,
+    getTaskDetails,
+    controlTasks,
+    listTasks,
   };
 }
 

@@ -54,6 +54,27 @@ import type {
   GetServerAssignmentsResponse2,
   UpdateServerAssignmentsData,
   UpdateServerAssignmentsResponse,
+  GetTableAccessByIdDeprecatedData,
+  GetTableAccessByIdDeprecatedResponse,
+  GetTableAssignmentsByIdDeprecatedData,
+  GetTableAssignmentsByIdDeprecatedResponse,
+  UpdateTableAssignmentsByIdDeprecatedData,
+  UpdateTableAssignmentsByIdDeprecatedResponse,
+  GetViewAccessByIdDeprecatedData,
+  GetViewAccessByIdDeprecatedResponse,
+  GetViewAssignmentsByIdDeprecatedData,
+  GetViewAssignmentsByIdDeprecatedResponse,
+  UpdateViewAssignmentsByIdDeprecatedData,
+  UpdateViewAssignmentsByIdDeprecatedResponse,
+  GetWarehouseByIdData,
+  GetWarehouseByIdResponse,
+  GetWarehouseAccessByIdData,
+  GetWarehouseAccessByIdResponse,
+  GetWarehouseAssignmentsByIdData,
+  GetWarehouseAssignmentsByIdResponse,
+  UpdateWarehouseAssignmentsByIdData,
+  UpdateWarehouseAssignmentsByIdResponse,
+  SetWarehouseManagedAccessData,
   GetTableAccessByIdData,
   GetTableAccessByIdResponse,
   GetTableAssignmentsByIdData,
@@ -66,15 +87,6 @@ import type {
   GetViewAssignmentsByIdResponse,
   UpdateViewAssignmentsByIdData,
   UpdateViewAssignmentsByIdResponse,
-  GetWarehouseByIdData,
-  GetWarehouseByIdResponse,
-  GetWarehouseAccessByIdData,
-  GetWarehouseAccessByIdResponse,
-  GetWarehouseAssignmentsByIdData,
-  GetWarehouseAssignmentsByIdResponse,
-  UpdateWarehouseAssignmentsByIdData,
-  UpdateWarehouseAssignmentsByIdResponse,
-  SetWarehouseManagedAccessData,
   DeleteDefaultProjectData,
   DeleteDefaultProjectResponse,
   DeleteDefaultProjectError,
@@ -183,15 +195,6 @@ import type {
   SetTableProtectionData,
   SetTableProtectionResponse,
   SetTableProtectionError,
-  GetViewProtectionData,
-  GetViewProtectionResponse,
-  GetViewProtectionError,
-  SetViewProtectionData,
-  SetViewProtectionResponse,
-  SetViewProtectionError,
-  WhoamiData,
-  WhoamiResponse,
-  WhoamiError,
   GetTaskQueueConfigTabularExpirationData,
   GetTaskQueueConfigTabularExpirationResponse,
   GetTaskQueueConfigTabularExpirationError,
@@ -204,6 +207,24 @@ import type {
   SetTaskQueueConfigTabularPurgeData,
   SetTaskQueueConfigTabularPurgeResponse,
   SetTaskQueueConfigTabularPurgeError,
+  GetTaskDetailsData,
+  GetTaskDetailsResponse2,
+  GetTaskDetailsError,
+  ControlTasksData,
+  ControlTasksResponse,
+  ControlTasksError,
+  ListTasksData,
+  ListTasksResponse2,
+  ListTasksError,
+  GetViewProtectionData,
+  GetViewProtectionResponse,
+  GetViewProtectionError,
+  SetViewProtectionData,
+  SetViewProtectionResponse,
+  SetViewProtectionError,
+  WhoamiData,
+  WhoamiResponse,
+  WhoamiError,
 } from './types.gen';
 import { client as _heyApiClient } from './client.gen';
 
@@ -815,12 +836,18 @@ export const updateServerAssignments = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * @deprecated
  * Get my access to a table
+ * This endpoint is deprecated and will be removed in a future version.
  */
-export const getTableAccessById = <ThrowOnError extends boolean = false>(
-  options: Options<GetTableAccessByIdData, ThrowOnError>,
+export const getTableAccessByIdDeprecated = <ThrowOnError extends boolean = false>(
+  options: Options<GetTableAccessByIdDeprecatedData, ThrowOnError>,
 ) => {
-  return (options.client ?? _heyApiClient).get<GetTableAccessByIdResponse, unknown, ThrowOnError>({
+  return (options.client ?? _heyApiClient).get<
+    GetTableAccessByIdDeprecatedResponse,
+    unknown,
+    ThrowOnError
+  >({
     security: [
       {
         scheme: 'bearer',
@@ -833,13 +860,15 @@ export const getTableAccessById = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * @deprecated
  * Get user and role assignments for a table
+ * This endpoint is deprecated and will be removed in a future version.
  */
-export const getTableAssignmentsById = <ThrowOnError extends boolean = false>(
-  options: Options<GetTableAssignmentsByIdData, ThrowOnError>,
+export const getTableAssignmentsByIdDeprecated = <ThrowOnError extends boolean = false>(
+  options: Options<GetTableAssignmentsByIdDeprecatedData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    GetTableAssignmentsByIdResponse,
+    GetTableAssignmentsByIdDeprecatedResponse,
     unknown,
     ThrowOnError
   >({
@@ -855,13 +884,15 @@ export const getTableAssignmentsById = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * @deprecated
  * Update permissions for a table
+ * This endpoint is deprecated and will be removed in a future version.
  */
-export const updateTableAssignmentsById = <ThrowOnError extends boolean = false>(
-  options: Options<UpdateTableAssignmentsByIdData, ThrowOnError>,
+export const updateTableAssignmentsByIdDeprecated = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateTableAssignmentsByIdDeprecatedData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).post<
-    UpdateTableAssignmentsByIdResponse,
+    UpdateTableAssignmentsByIdDeprecatedResponse,
     unknown,
     ThrowOnError
   >({
@@ -881,12 +912,18 @@ export const updateTableAssignmentsById = <ThrowOnError extends boolean = false>
 };
 
 /**
+ * @deprecated
  * Get my access to a view
+ * This endpoint is deprecated and will be removed in a future version.
  */
-export const getViewAccessById = <ThrowOnError extends boolean = false>(
-  options: Options<GetViewAccessByIdData, ThrowOnError>,
+export const getViewAccessByIdDeprecated = <ThrowOnError extends boolean = false>(
+  options: Options<GetViewAccessByIdDeprecatedData, ThrowOnError>,
 ) => {
-  return (options.client ?? _heyApiClient).get<GetViewAccessByIdResponse, unknown, ThrowOnError>({
+  return (options.client ?? _heyApiClient).get<
+    GetViewAccessByIdDeprecatedResponse,
+    unknown,
+    ThrowOnError
+  >({
     security: [
       {
         scheme: 'bearer',
@@ -899,13 +936,15 @@ export const getViewAccessById = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * @deprecated
  * Get user and role assignments for a view
+ * This endpoint is deprecated and will be removed in a future version.
  */
-export const getViewAssignmentsById = <ThrowOnError extends boolean = false>(
-  options: Options<GetViewAssignmentsByIdData, ThrowOnError>,
+export const getViewAssignmentsByIdDeprecated = <ThrowOnError extends boolean = false>(
+  options: Options<GetViewAssignmentsByIdDeprecatedData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    GetViewAssignmentsByIdResponse,
+    GetViewAssignmentsByIdDeprecatedResponse,
     unknown,
     ThrowOnError
   >({
@@ -921,13 +960,15 @@ export const getViewAssignmentsById = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * @deprecated
  * Update permissions for a view
+ * This endpoint is deprecated and will be removed in a future version.
  */
-export const updateViewAssignmentsById = <ThrowOnError extends boolean = false>(
-  options: Options<UpdateViewAssignmentsByIdData, ThrowOnError>,
+export const updateViewAssignmentsByIdDeprecated = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateViewAssignmentsByIdDeprecatedData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).post<
-    UpdateViewAssignmentsByIdResponse,
+    UpdateViewAssignmentsByIdDeprecatedResponse,
     unknown,
     ThrowOnError
   >({
@@ -1048,6 +1089,138 @@ export const setWarehouseManagedAccess = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/management/v1/permissions/warehouse/{warehouse_id}/managed-access',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get my access to a table
+ */
+export const getTableAccessById = <ThrowOnError extends boolean = false>(
+  options: Options<GetTableAccessByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<GetTableAccessByIdResponse, unknown, ThrowOnError>({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/permissions/warehouse/{warehouse_id}/table/{table_id}/access',
+    ...options,
+  });
+};
+
+/**
+ * Get user and role assignments for a table
+ */
+export const getTableAssignmentsById = <ThrowOnError extends boolean = false>(
+  options: Options<GetTableAssignmentsByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTableAssignmentsByIdResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/permissions/warehouse/{warehouse_id}/table/{table_id}/assignments',
+    ...options,
+  });
+};
+
+/**
+ * Update permissions for a table
+ */
+export const updateTableAssignmentsById = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateTableAssignmentsByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    UpdateTableAssignmentsByIdResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/permissions/warehouse/{warehouse_id}/table/{table_id}/assignments',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get my access to a view
+ */
+export const getViewAccessById = <ThrowOnError extends boolean = false>(
+  options: Options<GetViewAccessByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<GetViewAccessByIdResponse, unknown, ThrowOnError>({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/permissions/warehouse/{warehouse_id}/view/{view_id}/access',
+    ...options,
+  });
+};
+
+/**
+ * Get user and role assignments for a view
+ */
+export const getViewAssignmentsById = <ThrowOnError extends boolean = false>(
+  options: Options<GetViewAssignmentsByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetViewAssignmentsByIdResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/permissions/warehouse/{warehouse_id}/view/{view_id}/assignments',
+    ...options,
+  });
+};
+
+/**
+ * Update permissions for a view
+ */
+export const updateViewAssignmentsById = <ThrowOnError extends boolean = false>(
+  options: Options<UpdateViewAssignmentsByIdData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    UpdateViewAssignmentsByIdResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/permissions/warehouse/{warehouse_id}/view/{view_id}/assignments',
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -1993,6 +2166,177 @@ export const setTableProtection = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * Get the configuration for a Task Queue.
+ * These configurations are global per warehouse and shared across all instances of this kind of task.
+ */
+export const getTaskQueueConfigTabularExpiration = <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskQueueConfigTabularExpirationData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTaskQueueConfigTabularExpirationResponse,
+    GetTaskQueueConfigTabularExpirationError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_expiration/config',
+    ...options,
+  });
+};
+
+/**
+ * Set the configuration for a Task Queue.
+ * These configurations are global per warehouse and shared across all instances of this kind of task.
+ */
+export const setTaskQueueConfigTabularExpiration = <ThrowOnError extends boolean = false>(
+  options: Options<SetTaskQueueConfigTabularExpirationData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    SetTaskQueueConfigTabularExpirationResponse,
+    SetTaskQueueConfigTabularExpirationError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_expiration/config',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get the configuration for a Task Queue.
+ * These configurations are global per warehouse and shared across all instances of this kind of task.
+ */
+export const getTaskQueueConfigTabularPurge = <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskQueueConfigTabularPurgeData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTaskQueueConfigTabularPurgeResponse,
+    GetTaskQueueConfigTabularPurgeError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_purge/config',
+    ...options,
+  });
+};
+
+/**
+ * Set the configuration for a Task Queue.
+ * These configurations are global per warehouse and shared across all instances of this kind of task.
+ */
+export const setTaskQueueConfigTabularPurge = <ThrowOnError extends boolean = false>(
+  options: Options<SetTaskQueueConfigTabularPurgeData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    SetTaskQueueConfigTabularPurgeResponse,
+    SetTaskQueueConfigTabularPurgeError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/task-queue/tabular_purge/config',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get Details about a specific task by its ID.
+ */
+export const getTaskDetails = <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskDetailsData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTaskDetailsResponse2,
+    GetTaskDetailsError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/task/by-id/{task_id}',
+    ...options,
+  });
+};
+
+/**
+ * Control a set of tasks by their IDs (e.g., cancel, request stop, run now)
+ * Accepts at most 100 task IDs in one request.
+ */
+export const controlTasks = <ThrowOnError extends boolean = false>(
+  options: Options<ControlTasksData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    ControlTasksResponse,
+    ControlTasksError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/task/control',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * List active and historic tasks.
+ */
+export const listTasks = <ThrowOnError extends boolean = false>(
+  options: Options<ListTasksData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<ListTasksResponse2, ListTasksError, ThrowOnError>({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/task/list',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
  * Get View Protection
  * Retrieves whether a view is protected from deletion.
  */
@@ -2058,101 +2402,5 @@ export const whoami = <ThrowOnError extends boolean = false>(
     ],
     url: '/management/v1/whoami',
     ...options,
-  });
-};
-
-/**
- * Get task-queue config
- */
-export const getTaskQueueConfigTabularExpiration = <ThrowOnError extends boolean = false>(
-  options: Options<GetTaskQueueConfigTabularExpirationData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetTaskQueueConfigTabularExpirationResponse,
-    GetTaskQueueConfigTabularExpirationError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/{warehouse_id}/task-queue/tabular_expiration/config',
-    ...options,
-  });
-};
-
-/**
- * Set task-queue config
- */
-export const setTaskQueueConfigTabularExpiration = <ThrowOnError extends boolean = false>(
-  options: Options<SetTaskQueueConfigTabularExpirationData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    SetTaskQueueConfigTabularExpirationResponse,
-    SetTaskQueueConfigTabularExpirationError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/{warehouse_id}/task-queue/tabular_expiration/config',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Get task-queue config
- */
-export const getTaskQueueConfigTabularPurge = <ThrowOnError extends boolean = false>(
-  options: Options<GetTaskQueueConfigTabularPurgeData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetTaskQueueConfigTabularPurgeResponse,
-    GetTaskQueueConfigTabularPurgeError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/{warehouse_id}/task-queue/tabular_purge/config',
-    ...options,
-  });
-};
-
-/**
- * Set task-queue config
- */
-export const setTaskQueueConfigTabularPurge = <ThrowOnError extends boolean = false>(
-  options: Options<SetTaskQueueConfigTabularPurgeData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    SetTaskQueueConfigTabularPurgeResponse,
-    SetTaskQueueConfigTabularPurgeError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/{warehouse_id}/task-queue/tabular_purge/config',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
   });
 };

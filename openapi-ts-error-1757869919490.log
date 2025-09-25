@@ -1,0 +1,28 @@
+Error parsing /Users/viktor/Biz/console/openapi/management-open-api.yaml: end of the stream or a document separator is expected (35:28)
+
+ 32 | 
+ 33 |   <style type="text/css">
+ 34 |     :root {
+ 35 |       --tab-size-preference: 4;
+---------------------------------^
+ 36 |     }
+ 37 | 
+ParserError: Error parsing /Users/viktor/Biz/console/openapi/management-open-api.yaml: end of the stream or a document separator is expected (35:28)
+
+ 32 | 
+ 33 |   <style type="text/css">
+ 34 |     :root {
+ 35 |       --tab-size-preference: 4;
+---------------------------------^
+ 36 |     }
+ 37 | 
+    at Object.handler (/Users/viktor/Biz/console/node_modules/@hey-api/json-schema-ref-parser/dist/lib/parsers/yaml.js:24:19)
+    at runNextPlugin (/Users/viktor/Biz/console/node_modules/@hey-api/json-schema-ref-parser/dist/lib/util/plugins.js:24:45)
+    at /Users/viktor/Biz/console/node_modules/@hey-api/json-schema-ref-parser/dist/lib/util/plugins.js:43:9
+    at new Promise (<anonymous>)
+    at Object.run (/Users/viktor/Biz/console/node_modules/@hey-api/json-schema-ref-parser/dist/lib/util/plugins.js:16:12)
+    at parseFile (/Users/viktor/Biz/console/node_modules/@hey-api/json-schema-ref-parser/dist/lib/parse.js:72:30)
+    at $RefParser.parse (/Users/viktor/Biz/console/node_modules/@hey-api/json-schema-ref-parser/dist/lib/index.js:200:68)
+    at async $RefParser.bundle (/Users/viktor/Biz/console/node_modules/@hey-api/json-schema-ref-parser/dist/lib/index.js:122:9)
+    at async ci (/Users/viktor/Biz/console/node_modules/@hey-api/openapi-ts/dist/index.cjs:12:1928)
+    at async ho (/Users/viktor/Biz/console/node_modules/@hey-api/openapi-ts/dist/index.cjs:14:95801)
