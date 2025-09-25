@@ -376,7 +376,7 @@
                 <div class="text-subtitle-1 mt-2">Loading permissions...</div>
               </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canModifyWarehouse && loaded" value="tasks">
+            <v-tabs-window-item v-if="canGetMetadata && loaded" value="tasks">
               <TaskManager :warehouse-id="params.id" entity-type="warehouse" />
             </v-tabs-window-item>
           </v-tabs-window>

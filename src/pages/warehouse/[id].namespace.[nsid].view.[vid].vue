@@ -117,7 +117,7 @@
                 <div class="text-subtitle-1 mt-2">Loading permissions...</div>
               </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canModifyView" value="tasks">
+            <v-tabs-window-item v-if="canGetMetadata" value="tasks">
               <TaskManager
                 v-if="loaded && viewId"
                 :warehouse-id="warehouseId"
