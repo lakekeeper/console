@@ -498,33 +498,20 @@ async function loadWarehouse() {
   }
 }
 async function loadPermissionsData() {
+  if (!canReadPermissions.value) return;
+
   try {
     loaded.value = false;
-
-    myAccess.splice(0, myAccess.length);
-    namespaceId.value = '';
-    relationId.value = params.value.id;
     existingPermissions.splice(0, existingPermissions.length);
-
-    Object.assign(myAccess, await functions.getWarehouseAccessById(params.value.id));
-
-    canReadPermissions.value = !!myAccess.includes('read_assignments');
-    canModifyWarehouse.value = !!(
-      (myAccess as WarehouseAction[]).includes('modify_storage') ||
-      (myAccess as WarehouseAction[]).includes('modify_storage_credential') ||
-      (myAccess as WarehouseAction[]).includes('rename') ||
-      (myAccess as WarehouseAction[]).includes('grant_create') ||
-      (myAccess as WarehouseAction[]).includes('grant_modify')
-    );
-    canGetMetadata.value = !!myAccess.includes('get_metadata');
 
     Object.assign(
       existingPermissions,
-      canReadPermissions.value ? await functions.getWarehouseAssignmentsById(params.value.id) : [],
+      await functions.getWarehouseAssignmentsById(params.value.id),
     );
     loaded.value = true;
   } catch (error) {
-    console.error(error);
+    console.error('Failed to load permissions data:', error);
+    loaded.value = true;
   }
 }
 
@@ -564,6 +551,7 @@ async function init() {
       (myAccess as WarehouseAction[]).includes('grant_create') ||
       (myAccess as WarehouseAction[]).includes('grant_modify')
     );
+    canGetMetadata.value = !!myAccess.includes('get_metadata');
 
     // Only load permissions data if we're on the permissions tab
     if (tab.value === 'permissions') {
