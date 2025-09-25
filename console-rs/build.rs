@@ -14,6 +14,9 @@ fn main() {
     // limit rebuilds to UI changes
     println!("cargo:rerun-if-changed={}", repo_dir.join("package.json").display());
     println!("cargo:rerun-if-changed={}", repo_dir.join("package-lock.json").display());
+    println!("cargo:rerun-if-changed={}", repo_dir.join("src").display());
+    println!("cargo:rerun-if-changed={}", repo_dir.join("public").display());
+    println!("cargo:rerun-if-changed={}", repo_dir.join("vite.config.js").display());
     // Copy everything from repo_dir to node_dir, we are not allowed to write anywhere else
     fs::remove_dir_all(&node_root).ok();
     fs::create_dir_all(&asset_dir).unwrap();
