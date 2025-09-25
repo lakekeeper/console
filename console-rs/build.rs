@@ -31,9 +31,21 @@ fn main() {
         .current_dir(node_root.clone())
         .status()
         .expect("Failed to install Lakekeeper UI dependencies with npm");
-    std::process::Command::new("npm")
+    let output = std::process::Command::new("npm")
         .args(["run", "build-placeholder"])
-        .current_dir(node_root.clone())
-        .status()
-        .expect("Failed to build Lakekeeper UI with npm");
+        .current_dir(&node_root)
+        .output()
+        .expect("Failed to spawn npm to build Lakekeeper UI");
+    if !output.status.success() {
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    panic!(
+        "npm run build-placeholder failed with exit code: {:?}\n\
+         STDOUT:\n{stdout}\n\
+         STDERR:\n{stderr}\n\
+         Working directory: {}",
+        output.status.code(),
+        node_root.display()
+    );
+}
 }
