@@ -62,7 +62,7 @@
           </v-tab>
           <v-tab density="compact" value="details" @click="loadTabData">Details</v-tab>
           <v-tab
-            v-if="canModifyWarehouse && enabledAuthentication && enabledPermissions"
+            v-if="canGetMetadata && enabledAuthentication && enabledPermissions"
             density="compact"
             value="tasks"
             @click="loadTabData">
@@ -461,6 +461,7 @@ const myAccess = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 const relationId = ref('');
 const canReadPermissions = ref(false);
 const canModifyWarehouse = ref(false);
+const canGetMetadata = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
@@ -511,6 +512,7 @@ async function loadPermissionsData() {
       (myAccess as WarehouseAction[]).includes('grant_create') ||
       (myAccess as WarehouseAction[]).includes('grant_modify')
     );
+    canGetMetadata.value = !!myAccess.includes('get_metadata');
 
     Object.assign(
       existingPermissions,

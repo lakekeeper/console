@@ -35,7 +35,7 @@
             Permissions
           </v-tab>
           <v-tab
-            v-if="canModifyView && enabledAuthentication && enabledPermissions"
+            v-if="canGetMetadata && enabledAuthentication && enabledPermissions"
             value="tasks"
             @click="loadTabData">
             tasks
@@ -195,6 +195,7 @@ const loaded = ref(false);
 const existingPermissions = reactive<ViewAssignment[]>([]);
 const canReadPermissions = ref(false);
 const canModifyView = ref(false);
+const canGetMetadata = ref(false);
 const recursiveDeleteProtection = ref(false);
 
 const currentVersionId = ref(0);
@@ -268,6 +269,8 @@ async function init() {
     canModifyView.value = !!(
       myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
     );
+
+    canGetMetadata.value = !!myAccess.includes('get_metadata');
 
     Object.assign(
       existingPermissions,

@@ -35,7 +35,7 @@
             Permissions
           </v-tab>
           <v-tab
-            v-if="canModifyTable && enabledAuthentication && enabledPermissions"
+            v-if="canGetMetadata && enabledAuthentication && enabledPermissions"
             value="tasks"
             @click="loadTabData">
             tasks
@@ -158,6 +158,7 @@ const loading = ref(true);
 const myAccess = reactive<TableAction[]>([]);
 const canReadPermissions = ref(false);
 const canModifyTable = ref(false);
+const canGetMetadata = ref(false);
 const warehouseId = (route.params as { id: string }).id;
 const namespaceId = (route.params as { nsid: string }).nsid;
 const tableName = (route.params as { tid: string }).tid;
@@ -205,6 +206,7 @@ async function init() {
     canModifyTable.value = !!(
       myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
     );
+    canGetMetadata.value = !!myAccess.includes('get_metadata');
 
     // Only load permissions data if we're on the permissions tab
     if (tab.value === 'permissions' && canReadPermissions.value) {
