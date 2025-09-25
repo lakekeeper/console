@@ -295,16 +295,17 @@
               </v-expansion-panels>
 
               <!-- Schema Information -->
-              <v-expansion-panels v-if="getSchemaInfo(selectedSnapshot['schema-id'])">
+              <v-expansion-panels v-if="selectedSnapshot">
                 <v-expansion-panel>
                   <v-expansion-panel-title>
                     Schema Information
                     <v-chip
                       v-if="
+                        selectedSnapshot &&
                         getSchemaChanges(
                           selectedSnapshot,
                           snapshotHistory.findIndex(
-                            (s) => s['snapshot-id'] === selectedSnapshot['snapshot-id'],
+                            (s) => s['snapshot-id'] === selectedSnapshot!['snapshot-id'],
                           ),
                         )
                       "
@@ -316,23 +317,57 @@
                     </v-chip>
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
+                    <div v-if="!getEffectiveSchemaInfo(selectedSnapshot)" class="text-center pa-4">
+                      <v-icon size="48" color="grey-lighten-2">mdi-information-outline</v-icon>
+                      <div class="text-body-1 text-grey-lighten-1 mt-2">
+                        Schema information not available
+                      </div>
+                      <div class="text-caption text-grey-lighten-2">
+                        Snapshot Schema ID: {{ selectedSnapshot['schema-id'] }}
+                      </div>
+                      <div class="text-caption text-grey-lighten-2">
+                        Table Current Schema ID: {{ table.metadata['current-schema-id'] }}
+                      </div>
+                      <div class="text-caption text-grey-lighten-2">
+                        Effective Schema ID: {{ getEffectiveSchemaId(selectedSnapshot) }}
+                      </div>
+                      <div class="text-caption text-grey-lighten-2 mt-1">
+                        Available schemas: {{ table.metadata.schemas?.length || 0 }}
+                      </div>
+                      <div
+                        v-if="table.metadata.schemas && table.metadata.schemas.length > 0"
+                        class="text-caption text-grey-lighten-2 mt-1">
+                        Schema IDs:
+                        {{ table.metadata.schemas.map((s) => s['schema-id']).join(', ') }}
+                      </div>
+                    </div>
                     <div
+                      v-else
                       class="schema-fields-container"
                       style="max-height: 300px; overflow-y: auto">
+                      <div class="mb-2 text-caption">
+                        Using
+                        {{
+                          getEffectiveSchemaId(selectedSnapshot) === selectedSnapshot['schema-id']
+                            ? 'snapshot'
+                            : 'table current'
+                        }}
+                        schema (ID: {{ getEffectiveSchemaId(selectedSnapshot) }})
+                      </div>
                       <v-list density="compact">
                         <v-list-item
-                          v-for="field in getSchemaInfo(selectedSnapshot['schema-id'])?.fields ||
-                          []"
+                          v-for="field in getEffectiveSchemaInfo(selectedSnapshot)?.fields || []"
                           :key="field.id"
                           class="pa-1">
                           <template #prepend>
                             <v-icon
                               :color="
+                                selectedSnapshot &&
                                 isFieldNew(
                                   field,
                                   selectedSnapshot,
                                   snapshotHistory.findIndex(
-                                    (s) => s['snapshot-id'] === selectedSnapshot['snapshot-id'],
+                                    (s) => s['snapshot-id'] === selectedSnapshot!['snapshot-id'],
                                   ),
                                 )
                                   ? 'success'
@@ -344,11 +379,12 @@
                           </template>
                           <v-list-item-title
                             :class="
+                              selectedSnapshot &&
                               isFieldNew(
                                 field,
                                 selectedSnapshot,
                                 snapshotHistory.findIndex(
-                                  (s) => s['snapshot-id'] === selectedSnapshot['snapshot-id'],
+                                  (s) => s['snapshot-id'] === selectedSnapshot!['snapshot-id'],
                                 ),
                               )
                                 ? 'text-success font-weight-bold'
@@ -357,11 +393,12 @@
                             {{ field.name }}
                             <v-chip
                               v-if="
+                                selectedSnapshot &&
                                 isFieldNew(
                                   field,
                                   selectedSnapshot,
                                   snapshotHistory.findIndex(
-                                    (s) => s['snapshot-id'] === selectedSnapshot['snapshot-id'],
+                                    (s) => s['snapshot-id'] === selectedSnapshot!['snapshot-id'],
                                   ),
                                 )
                               "
@@ -392,17 +429,18 @@
 
 <script lang="ts" setup>
 import { computed, ref, watch } from 'vue';
+import type { LoadTableResultReadable, Snapshot } from '../gen/iceberg/types.gen';
 
 // Props
 interface Props {
-  table: any;
-  snapshotHistory: any[];
+  table: LoadTableResultReadable;
+  snapshotHistory: Snapshot[];
 }
 
 const props = defineProps<Props>();
 
 // Reactive data
-const selectedSnapshot = ref<any>(null);
+const selectedSnapshot = ref<Snapshot | null>(null);
 
 // Zoom functionality
 const zoomScale = ref(1);
@@ -580,20 +618,20 @@ const branchInfo = computed(() => {
       }
 
       // Mark all snapshots in this chain as processed
-      let chainCurrent = headSnapshot;
+      let chainCurrent: Snapshot | null = headSnapshot;
       while (chainCurrent) {
         processedSnapshots.add(chainCurrent['snapshot-id']);
 
         // Find the next snapshot in the chain
-        const children = childrenMap.get(chainCurrent['snapshot-id']) || [];
-        const nextInChain = children.find(
-          (childId) =>
+        const children: number[] = childrenMap.get(chainCurrent['snapshot-id']) || [];
+        const nextInChain: number | undefined = children.find(
+          (childId: number) =>
             unreachableSnapshots.some((s) => s['snapshot-id'] === childId) &&
             !processedSnapshots.has(childId),
         );
 
         if (nextInChain) {
-          chainCurrent = sortedSnapshots.find((s) => s['snapshot-id'] === nextInChain);
+          chainCurrent = sortedSnapshots.find((s) => s['snapshot-id'] === nextInChain) || null;
         } else {
           break;
         }
@@ -645,7 +683,7 @@ const legendEntries = computed(() => {
 });
 
 // Helper function to detect schema changes
-function getSchemaChangeInfo(snapshot: any): {
+function getSchemaChangeInfo(snapshot: Snapshot): {
   hasSchemaChange: boolean;
   fromSchema?: number;
   toSchema?: number;
@@ -805,7 +843,9 @@ const graphNodes = computed(() => {
 
       // Check if it's part of the dropped branch chain by following parent-child relationships
       // Starting from the head, follow children until we find this snapshot or reach the end
-      let current = props.snapshotHistory.find((s) => s['snapshot-id'] === branch.snapshotId);
+      let current: Snapshot | undefined = props.snapshotHistory.find(
+        (s) => s['snapshot-id'] === branch.snapshotId,
+      );
       const visited = new Set<number>();
 
       while (current && !visited.has(current['snapshot-id'])) {
@@ -819,7 +859,7 @@ const graphNodes = computed(() => {
 
         // Find children and follow the dropped branch chain
         const children = props.snapshotHistory.filter(
-          (s) => s['parent-snapshot-id'] === current['snapshot-id'],
+          (s) => s['parent-snapshot-id'] === current!['snapshot-id'],
         );
         // Find a child that is not part of any named branch (likely continuation of dropped branch)
         current =
@@ -829,7 +869,7 @@ const graphNodes = computed(() => {
                 b.type !== 'dropped-branch' &&
                 branchHistories.get('main')?.includes(child['snapshot-id']),
             );
-          }) || null;
+          }) || undefined;
       }
 
       if (belongsToDroppedBranch) break;
@@ -1189,18 +1229,34 @@ function selectSnapshot(snapshotId: number) {
 }
 
 // Schema helper functions
-function getSchemaInfo(schemaId: number) {
-  if (!props.table.metadata.schemas || props.table.metadata.schemas.length === 0) return null;
+function getSchemaInfo(schemaId: number | undefined) {
+  if (
+    schemaId === undefined ||
+    schemaId === null ||
+    !props.table.metadata.schemas ||
+    props.table.metadata.schemas.length === 0
+  )
+    return null;
   return props.table.metadata.schemas.find((schema: any) => schema['schema-id'] === schemaId);
 }
 
-function getSchemaChanges(version: any, index: number): boolean {
+// Helper functions to get effective schema (fallback to table's current schema if snapshot doesn't have one)
+function getEffectiveSchemaId(snapshot: Snapshot): number | undefined {
+  return snapshot['schema-id'] || props.table.metadata['current-schema-id'];
+}
+
+function getEffectiveSchemaInfo(snapshot: Snapshot) {
+  const effectiveSchemaId = getEffectiveSchemaId(snapshot);
+  return getSchemaInfo(effectiveSchemaId);
+}
+
+function getSchemaChanges(version: Snapshot, index: number): boolean {
   if (index === props.snapshotHistory.length - 1) return false;
   const nextVersion = props.snapshotHistory[index + 1];
   return version['schema-id'] !== nextVersion['schema-id'];
 }
 
-function isFieldNew(field: any, version: any, index: number): boolean {
+function isFieldNew(field: any, version: Snapshot, index: number): boolean {
   if (index === props.snapshotHistory.length - 1) return false;
   const nextVersion = props.snapshotHistory[index + 1];
   const nextSchema = getSchemaInfo(nextVersion['schema-id']);
