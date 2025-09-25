@@ -371,6 +371,10 @@
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
                 @permissions="assign" />
+              <div v-else class="text-center pa-8">
+                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                <div class="text-subtitle-1 mt-2">Loading permissions...</div>
+              </div>
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canModifyWarehouse && loaded" value="tasks">
               <TaskManager :warehouse-id="params.id" entity-type="warehouse" />

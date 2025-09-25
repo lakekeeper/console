@@ -112,6 +112,10 @@
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
                 @permissions="assign" />
+              <div v-else class="text-center pa-8">
+                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                <div class="text-subtitle-1 mt-2">Loading permissions...</div>
+              </div>
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canModifyView" value="tasks">
               <TaskManager
@@ -232,13 +236,16 @@ async function loadPermissionsData() {
   if (!canReadPermissions.value) return;
 
   try {
+    loaded.value = false;
     existingPermissions.splice(0, existingPermissions.length);
     Object.assign(
       existingPermissions,
       await functions.getViewAssignmentsById(viewId.value, warehouseId),
     );
+    loaded.value = true;
   } catch (error) {
     console.error('Failed to load permissions data:', error);
+    loaded.value = true;
   }
 }
 
