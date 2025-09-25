@@ -210,7 +210,7 @@
 
         <!-- Details Column -->
         <v-col cols="12" lg="4">
-          <v-card variant="outlined" class="pa-4" style="height: 60vh">
+          <v-card variant="outlined" class="pa-4" style="height: 70vh">
             <div v-if="!selectedSnapshot" class="text-center pa-8">
               <v-icon size="64" color="grey-lighten-2">mdi-cursor-default-click</v-icon>
               <div class="text-h6 mt-2 text-grey-lighten-1">Select a Node</div>
