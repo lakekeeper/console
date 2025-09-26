@@ -30,7 +30,11 @@
           <v-spacer></v-spacer>
 
           <addNamespaceDialog
-            v-if="myAccess.includes('create_namespace')"
+            v-if="
+              myAccess.includes('create_namespace') ||
+              enabledAuthentication == false ||
+              enabledPermissions == false
+            "
             :parent-path="namespacePath"
             :status-intent="addNamespaceStatus"
             @add-namespace="addNamespace" />
