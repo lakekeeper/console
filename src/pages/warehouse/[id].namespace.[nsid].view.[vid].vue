@@ -35,7 +35,7 @@
             Permissions
           </v-tab>
           <v-tab
-            v-if="canGetMetadata && enabledAuthentication && enabledPermissions"
+            v-if="canGetTasks && enabledAuthentication && enabledPermissions"
             value="tasks"
             @click="loadTabData">
             tasks
@@ -117,12 +117,13 @@
                 <div class="text-subtitle-1 mt-2">Loading permissions...</div>
               </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canGetMetadata" value="tasks">
+            <v-tabs-window-item v-if="canGetTasks" value="tasks">
               <TaskManager
                 v-if="loaded && viewId"
                 :warehouse-id="warehouseId"
                 :view-id="viewId"
-                entity-type="view" />
+                entity-type="view"
+                :can-control-tasks="canControlTasks" />
               <div v-else class="text-center pa-8">
                 <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
                 <div class="text-subtitle-1 mt-2">Loading view information...</div>
@@ -144,7 +145,7 @@ import TaskManager from '../../components/TaskManager.vue';
 import ViewDetails from '../../components/ViewDetails.vue';
 import ViewHistory from '../../components/ViewHistory.vue';
 import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
-import { TableAction, ViewAssignment } from '../../gen/management/types.gen';
+import { ViewAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -160,7 +161,7 @@ const assignStatus = ref(StatusIntent.INACTIVE);
 const depthRawRepresentation = ref(3);
 const depthRawRepresentationMax = ref(1000);
 
-const myAccess = reactive<TableAction[]>([]);
+const myAccess = reactive<ViewAction[]>([]);
 
 const permissionType = ref<RelationType>('view');
 
@@ -199,7 +200,8 @@ const loaded = ref(false);
 const existingPermissions = reactive<ViewAssignment[]>([]);
 const canReadPermissions = ref(false);
 const canModifyView = ref(false);
-const canGetMetadata = ref(false);
+const canGetTasks = ref(false);
+const canControlTasks = ref(false);
 const recursiveDeleteProtection = ref(false);
 
 const currentVersionId = ref(0);
@@ -260,6 +262,14 @@ async function init() {
   Object.assign(view, await functions.loadView(warehouseId, namespaceId, viewName));
 
   viewId.value = view.metadata['view-uuid'];
+
+  // Only proceed with permission checks if we have a valid view ID
+  if (!viewId.value) {
+    console.warn('View UUID is missing from view metadata');
+    loaded.value = true;
+    return;
+  }
+
   currentVersionId.value = view.metadata['current-version-id'] || 0;
   view.metadata.versions.forEach((version) => {
     if (version['version-id'] === currentVersionId.value) {
@@ -270,14 +280,17 @@ async function init() {
   permissionObject.name = viewName;
   if (serverInfo['authz-backend'] != 'allow-all') {
     Object.assign(myAccess, await functions.getViewAccessById(viewId.value, warehouseId));
-    await getProtection();
+    if (viewId.value) {
+      await getProtection();
+    }
 
     canReadPermissions.value = !!myAccess.includes('read_assignments');
     canModifyView.value = !!(
       myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
     );
 
-    canGetMetadata.value = !!myAccess.includes('get_metadata');
+    canGetTasks.value = !!(myAccess as ViewAction[]).includes('get_tasks');
+    canControlTasks.value = !!(myAccess as ViewAction[]).includes('control_tasks');
 
     Object.assign(
       existingPermissions,

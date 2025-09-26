@@ -35,7 +35,7 @@
             Permissions
           </v-tab>
           <v-tab
-            v-if="canGetMetadata && enabledAuthentication && enabledPermissions"
+            v-if="canGetTasks && enabledAuthentication && enabledPermissions"
             value="tasks"
             @click="loadTabData">
             tasks
@@ -115,12 +115,13 @@
                 <div class="text-subtitle-1 mt-2">Loading permissions...</div>
               </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canGetMetadata" value="tasks">
+            <v-tabs-window-item v-if="canGetTasks" value="tasks">
               <TaskManager
                 v-if="loaded && tableId"
                 :warehouse-id="warehouseId"
                 :table-id="tableId"
-                entity-type="table" />
+                entity-type="table"
+                :can-control-tasks="canControlTasks" />
               <div v-else class="text-center pa-8">
                 <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
                 <div class="text-subtitle-1 mt-2">Loading table information...</div>
@@ -163,7 +164,8 @@ const loading = ref(true);
 const myAccess = reactive<TableAction[]>([]);
 const canReadPermissions = ref(false);
 const canModifyTable = ref(false);
-const canGetMetadata = ref(false);
+const canGetTasks = ref(false);
+const canControlTasks = ref(false);
 const warehouseId = (route.params as { id: string }).id;
 const namespaceId = (route.params as { nsid: string }).nsid;
 const tableName = (route.params as { tid: string }).tid;
@@ -202,16 +204,26 @@ async function init() {
 
   tableId.value = table.metadata['table-uuid'];
 
+  // Only proceed with permission checks if we have a valid table ID
+  if (!tableId.value) {
+    console.warn('Table UUID is missing from table metadata');
+    loaded.value = true;
+    return;
+  }
+
   permissionObject.id = tableId.value;
   permissionObject.name = tableName;
   if (serverInfo['authz-backend'] != 'allow-all') {
     Object.assign(myAccess, await functions.getTableAccessById(tableId.value, warehouseId));
-    await getProtection();
+    if (tableId.value) {
+      await getProtection();
+    }
     canReadPermissions.value = !!myAccess.includes('read_assignments');
     canModifyTable.value = !!(
       myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
     );
-    canGetMetadata.value = !!myAccess.includes('get_metadata');
+    canGetTasks.value = !!(myAccess as TableAction[]).includes('get_tasks');
+    canControlTasks.value = !!(myAccess as TableAction[]).includes('control_tasks');
 
     // Only load permissions data if we're on the permissions tab
     if (tab.value === 'permissions' && canReadPermissions.value) {

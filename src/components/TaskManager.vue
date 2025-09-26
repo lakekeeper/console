@@ -223,21 +223,21 @@
               variant="text"
               @click="viewTaskDetails(item)"></v-btn>
             <v-btn
-              v-if="item.status === 'RUNNING'"
+              v-if="item.status === 'RUNNING' && props.canControlTasks"
               icon="mdi-stop"
               size="small"
               variant="text"
               color="warning"
               @click="stopTask(item)"></v-btn>
             <v-btn
-              v-if="['SCHEDULED', 'RUNNING'].includes(item.status)"
+              v-if="['SCHEDULED', 'RUNNING'].includes(item.status) && props.canControlTasks"
               icon="mdi-cancel"
               size="small"
               variant="text"
               color="error"
               @click="cancelTask(item)"></v-btn>
             <v-btn
-              v-if="item.status === 'SCHEDULED'"
+              v-if="item.status === 'SCHEDULED' && props.canControlTasks"
               icon="mdi-play"
               size="small"
               variant="text"
@@ -438,6 +438,7 @@ const props = defineProps<{
   tableId?: string;
   viewId?: string;
   entityType?: 'warehouse' | 'table' | 'view';
+  canControlTasks?: boolean;
 }>();
 
 // Composables

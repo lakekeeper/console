@@ -62,7 +62,7 @@
           </v-tab>
           <v-tab density="compact" value="details" @click="loadTabData">Details</v-tab>
           <v-tab
-            v-if="canGetMetadata && enabledAuthentication && enabledPermissions"
+            v-if="canGetAllTasks && enabledAuthentication && enabledPermissions"
             density="compact"
             value="tasks"
             @click="loadTabData">
@@ -376,8 +376,11 @@
                 <div class="text-subtitle-1 mt-2">Loading permissions...</div>
               </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canGetMetadata && loaded" value="tasks">
-              <TaskManager :warehouse-id="params.id" entity-type="warehouse" />
+            <v-tabs-window-item v-if="canGetAllTasks && loaded" value="tasks">
+              <TaskManager
+                :warehouse-id="params.id"
+                entity-type="warehouse"
+                :can-control-tasks="canControlAllTasks" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
@@ -465,7 +468,8 @@ const myAccess = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 const relationId = ref('');
 const canReadPermissions = ref(false);
 const canModifyWarehouse = ref(false);
-const canGetMetadata = ref(false);
+const canGetAllTasks = ref(false);
+const canControlAllTasks = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
@@ -551,7 +555,8 @@ async function init() {
       (myAccess as WarehouseAction[]).includes('grant_create') ||
       (myAccess as WarehouseAction[]).includes('grant_modify')
     );
-    canGetMetadata.value = !!myAccess.includes('get_metadata');
+    canGetAllTasks.value = !!(myAccess as WarehouseAction[]).includes('get_all_tasks');
+    canControlAllTasks.value = !!(myAccess as WarehouseAction[]).includes('control_all_tasks');
 
     // Only load permissions data if we're on the permissions tab
     if (tab.value === 'permissions') {
