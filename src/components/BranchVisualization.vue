@@ -300,15 +300,7 @@
                   <v-expansion-panel-title>
                     Schema Information
                     <v-chip
-                      v-if="
-                        selectedSnapshot &&
-                        getSchemaChanges(
-                          selectedSnapshot,
-                          snapshotHistory.findIndex(
-                            (s) => s['snapshot-id'] === selectedSnapshot!['snapshot-id'],
-                          ),
-                        )
-                      "
+                      v-if="selectedSnapshot && getSchemaChanges(selectedSnapshot)"
                       size="x-small"
                       color="warning"
                       variant="flat"
@@ -1250,10 +1242,8 @@ function getEffectiveSchemaInfo(snapshot: Snapshot) {
   return getSchemaInfo(effectiveSchemaId);
 }
 
-function getSchemaChanges(version: Snapshot, index: number): boolean {
-  if (index === props.snapshotHistory.length - 1) return false;
-  const nextVersion = props.snapshotHistory[index + 1];
-  return version['schema-id'] !== nextVersion['schema-id'];
+function getSchemaChanges(version: Snapshot): boolean {
+  return getSchemaChangeInfo(version).hasSchemaChange;
 }
 
 function isFieldNew(field: any, version: Snapshot, index: number): boolean {
