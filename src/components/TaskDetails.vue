@@ -336,12 +336,20 @@ defineEmits<{
 
 // Helper functions
 function getEntityId(entity: any): string | null {
-  if (entity.type === 'table') {
-    return entity['table-id'] || null;
-  } else if (entity.type === 'view') {
-    return entity['view-id'] || null;
+  if (!entity?.type) return null;
+
+  switch (entity.type) {
+    case 'table':
+      return entity['table-id'] || null;
+    case 'view':
+      return entity['view-id'] || null;
+    case 'namespace':
+      return entity['namespace-id'] || null;
+    case 'warehouse':
+      return entity['warehouse-id'] || null;
+    default:
+      return entity['entity-id'] || null;
   }
-  return null;
 }
 
 function getEntityTypeColor(type: string): string {
