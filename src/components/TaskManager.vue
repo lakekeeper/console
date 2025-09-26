@@ -449,8 +449,12 @@ const visual = useVisualStore();
 
 // Computed property to determine if task controls should be shown
 const canShowControls = computed(() => {
-  // Show controls if user has permission OR if authentication/permissions are disabled
-  return props.canControlTasks || !props.enabledAuthentication || !props.enabledPermissions;
+  // Show controls if the caller explicitly grants control or explicitly disables gating
+  return (
+    props.canControlTasks === true ||
+    props.enabledAuthentication === false ||
+    props.enabledPermissions === false
+  );
 });
 
 // Helper functions to handle entity type differences
