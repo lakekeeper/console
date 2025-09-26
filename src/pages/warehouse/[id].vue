@@ -62,7 +62,7 @@
           </v-tab>
           <v-tab density="compact" value="details" @click="loadTabData">Details</v-tab>
           <v-tab
-            v-if="canGetAllTasks && enabledAuthentication && enabledPermissions"
+            v-if="canGetAllTasks || !enabledAuthentication || !enabledPermissions"
             density="compact"
             value="tasks"
             @click="loadTabData">
@@ -376,11 +376,13 @@
                 <div class="text-subtitle-1 mt-2">Loading permissions...</div>
               </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canGetAllTasks && loaded" value="tasks">
+            <v-tabs-window-item v-if="(canGetAllTasks || !enabledAuthentication || !enabledPermissions) && loaded" value="tasks">
               <TaskManager
                 :warehouse-id="params.id"
                 entity-type="warehouse"
-                :can-control-tasks="canControlAllTasks" />
+                :can-control-tasks="canControlAllTasks"
+                :enabled-authentication="enabledAuthentication"
+                :enabled-permissions="enabledPermissions" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>

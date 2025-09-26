@@ -35,7 +35,7 @@
             Permissions
           </v-tab>
           <v-tab
-            v-if="canGetTasks && enabledAuthentication && enabledPermissions"
+            v-if="canGetTasks || !enabledAuthentication || !enabledPermissions"
             value="tasks"
             @click="loadTabData">
             tasks
@@ -115,13 +115,15 @@
                 <div class="text-subtitle-1 mt-2">Loading permissions...</div>
               </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canGetTasks" value="tasks">
+            <v-tabs-window-item v-if="canGetTasks || !enabledAuthentication || !enabledPermissions" value="tasks">
               <TaskManager
                 v-if="loaded && tableId"
                 :warehouse-id="warehouseId"
                 :table-id="tableId"
                 entity-type="table"
-                :can-control-tasks="canControlTasks" />
+                :can-control-tasks="canControlTasks"
+                :enabled-authentication="enabledAuthentication"
+                :enabled-permissions="enabledPermissions" />
               <div v-else class="text-center pa-8">
                 <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
                 <div class="text-subtitle-1 mt-2">Loading table information...</div>

@@ -223,21 +223,21 @@
               variant="text"
               @click="viewTaskDetails(item)"></v-btn>
             <v-btn
-              v-if="item.status === 'RUNNING' && props.canControlTasks"
+              v-if="item.status === 'RUNNING' && canShowControls"
               icon="mdi-stop"
               size="small"
               variant="text"
               color="warning"
               @click="stopTask(item)"></v-btn>
             <v-btn
-              v-if="['SCHEDULED', 'RUNNING'].includes(item.status) && props.canControlTasks"
+              v-if="['SCHEDULED', 'RUNNING'].includes(item.status) && canShowControls"
               icon="mdi-cancel"
               size="small"
               variant="text"
               color="error"
               @click="cancelTask(item)"></v-btn>
             <v-btn
-              v-if="item.status === 'SCHEDULED' && props.canControlTasks"
+              v-if="item.status === 'SCHEDULED' && canShowControls"
               icon="mdi-play"
               size="small"
               variant="text"
@@ -439,11 +439,19 @@ const props = defineProps<{
   viewId?: string;
   entityType?: 'warehouse' | 'table' | 'view';
   canControlTasks?: boolean;
+  enabledAuthentication?: boolean;
+  enabledPermissions?: boolean;
 }>();
 
 // Composables
 const functions = useFunctions();
 const visual = useVisualStore();
+
+// Computed property to determine if task controls should be shown
+const canShowControls = computed(() => {
+  // Show controls if user has permission OR if authentication/permissions are disabled
+  return props.canControlTasks || !props.enabledAuthentication || !props.enabledPermissions;
+});
 
 // Helper functions to handle entity type differences
 const getEntityId = () => {
