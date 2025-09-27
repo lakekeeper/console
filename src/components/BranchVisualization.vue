@@ -1234,7 +1234,8 @@ function getSchemaInfo(schemaId: number | undefined) {
 
 // Helper functions to get effective schema (fallback to table's current schema if snapshot doesn't have one)
 function getEffectiveSchemaId(snapshot: Snapshot): number | undefined {
-  return snapshot['schema-id'] || props.table.metadata['current-schema-id'];
+  const snapshotSchemaId = snapshot['schema-id'];
+  return snapshotSchemaId ?? props.table.metadata['current-schema-id'];
 }
 
 function getEffectiveSchemaInfo(snapshot: Snapshot) {
