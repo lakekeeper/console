@@ -62,7 +62,7 @@
           </v-tab>
           <v-tab density="compact" value="details" @click="loadTabData">Details</v-tab>
           <v-tab
-            v-if="canModifyWarehouse && enabledAuthentication && enabledPermissions"
+            v-if="canGetAllTasks || !enabledAuthentication || !enabledPermissions"
             density="compact"
             value="tasks"
             @click="loadTabData">
@@ -371,9 +371,20 @@
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
                 @permissions="assign" />
+              <div v-else class="text-center pa-8">
+                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                <div class="text-subtitle-1 mt-2">Loading permissions...</div>
+              </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canModifyWarehouse && loaded" value="tasks">
-              <TaskManager :warehouse-id="params.id" entity-type="warehouse" />
+            <v-tabs-window-item
+              v-if="(canGetAllTasks || !enabledAuthentication || !enabledPermissions) && loaded"
+              value="tasks">
+              <TaskManager
+                :warehouse-id="params.id"
+                entity-type="warehouse"
+                :can-control-tasks="canControlAllTasks"
+                :enabled-authentication="enabledAuthentication"
+                :enabled-permissions="enabledPermissions" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
@@ -461,6 +472,8 @@ const myAccess = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 const relationId = ref('');
 const canReadPermissions = ref(false);
 const canModifyWarehouse = ref(false);
+const canGetAllTasks = ref(false);
+const canControlAllTasks = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
@@ -493,32 +506,20 @@ async function loadWarehouse() {
   }
 }
 async function loadPermissionsData() {
+  if (!canReadPermissions.value) return;
+
   try {
     loaded.value = false;
-
-    myAccess.splice(0, myAccess.length);
-    namespaceId.value = '';
-    relationId.value = params.value.id;
     existingPermissions.splice(0, existingPermissions.length);
-
-    Object.assign(myAccess, await functions.getWarehouseAccessById(params.value.id));
-
-    canReadPermissions.value = !!myAccess.includes('read_assignments');
-    canModifyWarehouse.value = !!(
-      (myAccess as WarehouseAction[]).includes('modify_storage') ||
-      (myAccess as WarehouseAction[]).includes('modify_storage_credential') ||
-      (myAccess as WarehouseAction[]).includes('rename') ||
-      (myAccess as WarehouseAction[]).includes('grant_create') ||
-      (myAccess as WarehouseAction[]).includes('grant_modify')
-    );
 
     Object.assign(
       existingPermissions,
-      canReadPermissions.value ? await functions.getWarehouseAssignmentsById(params.value.id) : [],
+      await functions.getWarehouseAssignmentsById(params.value.id),
     );
     loaded.value = true;
   } catch (error) {
-    console.error(error);
+    console.error('Failed to load permissions data:', error);
+    loaded.value = true;
   }
 }
 
@@ -558,6 +559,8 @@ async function init() {
       (myAccess as WarehouseAction[]).includes('grant_create') ||
       (myAccess as WarehouseAction[]).includes('grant_modify')
     );
+    canGetAllTasks.value = !!(myAccess as WarehouseAction[]).includes('get_all_tasks');
+    canControlAllTasks.value = !!(myAccess as WarehouseAction[]).includes('control_all_tasks');
 
     // Only load permissions data if we're on the permissions tab
     if (tab.value === 'permissions') {

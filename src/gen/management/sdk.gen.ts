@@ -54,18 +54,6 @@ import type {
   GetServerAssignmentsResponse2,
   UpdateServerAssignmentsData,
   UpdateServerAssignmentsResponse,
-  GetTableAccessByIdDeprecatedData,
-  GetTableAccessByIdDeprecatedResponse,
-  GetTableAssignmentsByIdDeprecatedData,
-  GetTableAssignmentsByIdDeprecatedResponse,
-  UpdateTableAssignmentsByIdDeprecatedData,
-  UpdateTableAssignmentsByIdDeprecatedResponse,
-  GetViewAccessByIdDeprecatedData,
-  GetViewAccessByIdDeprecatedResponse,
-  GetViewAssignmentsByIdDeprecatedData,
-  GetViewAssignmentsByIdDeprecatedResponse,
-  UpdateViewAssignmentsByIdDeprecatedData,
-  UpdateViewAssignmentsByIdDeprecatedResponse,
   GetWarehouseByIdData,
   GetWarehouseByIdResponse,
   GetWarehouseAccessByIdData,
@@ -743,9 +731,6 @@ export const getRoleAssignmentsById = <ThrowOnError extends boolean = false>(
   });
 };
 
-/**
- * Update permissions for a role
- */
 export const updateRoleAssignmentsById = <ThrowOnError extends boolean = false>(
   options: Options<UpdateRoleAssignmentsByIdData, ThrowOnError>,
 ) => {
@@ -827,158 +812,6 @@ export const updateServerAssignments = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/management/v1/permissions/server/assignments',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * @deprecated
- * Get my access to a table
- * This endpoint is deprecated and will be removed in a future version.
- */
-export const getTableAccessByIdDeprecated = <ThrowOnError extends boolean = false>(
-  options: Options<GetTableAccessByIdDeprecatedData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetTableAccessByIdDeprecatedResponse,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/permissions/table/{table_id}/access',
-    ...options,
-  });
-};
-
-/**
- * @deprecated
- * Get user and role assignments for a table
- * This endpoint is deprecated and will be removed in a future version.
- */
-export const getTableAssignmentsByIdDeprecated = <ThrowOnError extends boolean = false>(
-  options: Options<GetTableAssignmentsByIdDeprecatedData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetTableAssignmentsByIdDeprecatedResponse,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/permissions/table/{table_id}/assignments',
-    ...options,
-  });
-};
-
-/**
- * @deprecated
- * Update permissions for a table
- * This endpoint is deprecated and will be removed in a future version.
- */
-export const updateTableAssignmentsByIdDeprecated = <ThrowOnError extends boolean = false>(
-  options: Options<UpdateTableAssignmentsByIdDeprecatedData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    UpdateTableAssignmentsByIdDeprecatedResponse,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/permissions/table/{table_id}/assignments',
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * @deprecated
- * Get my access to a view
- * This endpoint is deprecated and will be removed in a future version.
- */
-export const getViewAccessByIdDeprecated = <ThrowOnError extends boolean = false>(
-  options: Options<GetViewAccessByIdDeprecatedData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetViewAccessByIdDeprecatedResponse,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/permissions/view/{view_id}/access',
-    ...options,
-  });
-};
-
-/**
- * @deprecated
- * Get user and role assignments for a view
- * This endpoint is deprecated and will be removed in a future version.
- */
-export const getViewAssignmentsByIdDeprecated = <ThrowOnError extends boolean = false>(
-  options: Options<GetViewAssignmentsByIdDeprecatedData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetViewAssignmentsByIdDeprecatedResponse,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/permissions/view/{view_id}/assignments',
-    ...options,
-  });
-};
-
-/**
- * @deprecated
- * Update permissions for a view
- * This endpoint is deprecated and will be removed in a future version.
- */
-export const updateViewAssignmentsByIdDeprecated = <ThrowOnError extends boolean = false>(
-  options: Options<UpdateViewAssignmentsByIdDeprecatedData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    UpdateViewAssignmentsByIdDeprecatedResponse,
-    unknown,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: 'bearer',
-        type: 'http',
-      },
-    ],
-    url: '/management/v1/permissions/view/{view_id}/assignments',
     ...options,
     headers: {
       'Content-Type': 'application/json',

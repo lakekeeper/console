@@ -35,7 +35,7 @@
             Permissions
           </v-tab>
           <v-tab
-            v-if="canModifyTable && enabledAuthentication && enabledPermissions"
+            v-if="canGetTasks || !enabledAuthentication || !enabledPermissions"
             value="tasks"
             @click="loadTabData">
             tasks
@@ -110,13 +110,22 @@
                 :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
                 @permissions="assign" />
+              <div v-else class="text-center pa-8">
+                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                <div class="text-subtitle-1 mt-2">Loading permissions...</div>
+              </div>
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canModifyTable" value="tasks">
+            <v-tabs-window-item
+              v-if="canGetTasks || !enabledAuthentication || !enabledPermissions"
+              value="tasks">
               <TaskManager
                 v-if="loaded && tableId"
                 :warehouse-id="warehouseId"
                 :table-id="tableId"
-                entity-type="table" />
+                entity-type="table"
+                :can-control-tasks="canControlTasks"
+                :enabled-authentication="enabledAuthentication"
+                :enabled-permissions="enabledPermissions" />
               <div v-else class="text-center pa-8">
                 <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
                 <div class="text-subtitle-1 mt-2">Loading table information...</div>
@@ -143,6 +152,7 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 import BranchVisualization from '@/components/BranchVisualization.vue';
 import TableDetails from '@/components/TableDetails.vue';
+import type { Snapshot } from '../../gen/iceberg/types.gen';
 const depthRawRepresentation = ref(3);
 const depthRawRepresentationMax = ref(1000);
 
@@ -158,6 +168,8 @@ const loading = ref(true);
 const myAccess = reactive<TableAction[]>([]);
 const canReadPermissions = ref(false);
 const canModifyTable = ref(false);
+const canGetTasks = ref(false);
+const canControlTasks = ref(false);
 const warehouseId = (route.params as { id: string }).id;
 const namespaceId = (route.params as { nsid: string }).nsid;
 const tableName = (route.params as { tid: string }).tid;
@@ -185,7 +197,7 @@ const themeText = computed(() => {
 
 const existingPermissions = reactive<TableAssignment[]>([]);
 const loaded = ref(false);
-const snapshotHistory = reactive<any[]>([]);
+const snapshotHistory = reactive<Snapshot[]>([]);
 
 async function init() {
   loaded.value = false;
@@ -196,15 +208,26 @@ async function init() {
 
   tableId.value = table.metadata['table-uuid'];
 
+  // Only proceed with permission checks if we have a valid table ID
+  if (!tableId.value) {
+    console.warn('Table UUID is missing from table metadata');
+    loaded.value = true;
+    return;
+  }
+
   permissionObject.id = tableId.value;
   permissionObject.name = tableName;
   if (serverInfo['authz-backend'] != 'allow-all') {
     Object.assign(myAccess, await functions.getTableAccessById(tableId.value, warehouseId));
-    await getProtection();
+    if (tableId.value) {
+      await getProtection();
+    }
     canReadPermissions.value = !!myAccess.includes('read_assignments');
     canModifyTable.value = !!(
       myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
     );
+    canGetTasks.value = !!(myAccess as TableAction[]).includes('get_tasks');
+    canControlTasks.value = !!(myAccess as TableAction[]).includes('control_tasks');
 
     // Only load permissions data if we're on the permissions tab
     if (tab.value === 'permissions' && canReadPermissions.value) {
@@ -301,13 +324,16 @@ async function loadPermissionsData() {
   if (!canReadPermissions.value) return;
 
   try {
+    loaded.value = false;
     existingPermissions.splice(0, existingPermissions.length);
     Object.assign(
       existingPermissions,
       await functions.getTableAssignmentsById(tableId.value, warehouseId),
     );
+    loaded.value = true;
   } catch (error) {
     console.error('Failed to load permissions data:', error);
+    loaded.value = true;
   }
 }
 

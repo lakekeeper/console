@@ -246,6 +246,14 @@ export type Snapshot = {
    * Location of the snapshot's manifest list file
    */
   'manifest-list': string;
+  /**
+   * The first _row_id assigned to the first row in the first data file in the first manifest
+   */
+  'first-row-id'?: number;
+  /**
+   * The upper bound of the number of rows with assigned row IDs
+   */
+  'added-rows'?: number;
   summary: {
     operation: 'append' | 'replace' | 'overwrite' | 'delete';
     [key: string]: string | ('append' | 'replace' | 'overwrite' | 'delete');
@@ -280,6 +288,10 @@ export type TableMetadataReadable = {
   'table-uuid': string;
   location?: string;
   'last-updated-ms'?: number;
+  /**
+   * A long higher than all assigned row IDs; the next snapshot's first-row-id.
+   */
+  'next-row-id'?: number;
   properties?: {
     [key: string]: string;
   };
@@ -291,7 +303,7 @@ export type TableMetadataReadable = {
   'last-partition-id'?: number;
   'sort-orders'?: Array<SortOrderReadable>;
   'default-sort-order-id'?: number;
-  'encryption-keys'?: unknown;
+  'encryption-keys'?: Array<EncryptedKey>;
   snapshots?: Array<Snapshot>;
   refs?: SnapshotReferences;
   'current-snapshot-id'?: number;
@@ -307,6 +319,10 @@ export type TableMetadataWritable = {
   'table-uuid': string;
   location?: string;
   'last-updated-ms'?: number;
+  /**
+   * A long higher than all assigned row IDs; the next snapshot's first-row-id.
+   */
+  'next-row-id'?: number;
   properties?: {
     [key: string]: string;
   };
@@ -318,7 +334,7 @@ export type TableMetadataWritable = {
   'last-partition-id'?: number;
   'sort-orders'?: Array<SortOrderWritable>;
   'default-sort-order-id'?: number;
-  'encryption-keys'?: unknown;
+  'encryption-keys'?: Array<EncryptedKey>;
   snapshots?: Array<Snapshot>;
   refs?: SnapshotReferences;
   'current-snapshot-id'?: number;
@@ -707,7 +723,10 @@ export type AssertTableUuid = TableRequirement & {
 };
 
 /**
- * The table branch or tag identified by the requirement's `ref` must reference the requirement's `snapshot-id`; if `snapshot-id` is `null` or missing, the ref must not already exist
+ * The table branch or tag identified by the requirement's `ref` must reference the requirement's `snapshot-id`.
+ * The `snapshot-id` field is required in this object, but in the case of a `null`
+ * the ref must not already exist.
+ *
  */
 export type AssertRefSnapshotId = TableRequirement & {
   type: 'assert-ref-snapshot-id';
@@ -953,7 +972,7 @@ export type FetchPlanningResult =
       status?: 'failed';
     } & FailedPlanningResult)
   | ({
-      status?: 'submitted' | 'cancelled';
+      status?: 'submitted';
     } & EmptyPlanningResult);
 
 /**
@@ -1514,6 +1533,10 @@ export type DataFile = ContentFile & {
 } & {
   content: 'data';
   /**
+   * The first row ID assigned to the first row in the data file
+   */
+  'first-row-id'?: number;
+  /**
    * Map of column id to total count, including null and NaN
    */
   'column-sizes'?: CountMap;
@@ -1711,9 +1734,8 @@ export type GetConfigErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -1818,9 +1840,8 @@ export type ListNamespacesErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -1878,9 +1899,8 @@ export type CreateNamespaceErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -1955,9 +1975,8 @@ export type DropNamespaceErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2020,9 +2039,8 @@ export type LoadNamespaceMetadataErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2082,9 +2100,8 @@ export type NamespaceExistsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2150,9 +2167,8 @@ export type UpdatePropertiesErrors = {
    */
   422: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2224,9 +2240,8 @@ export type ListTablesErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2297,9 +2312,8 @@ export type CreateTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2365,9 +2379,8 @@ export type PlanTableScanErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2433,9 +2446,8 @@ export type CancelPlanningErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2501,9 +2513,8 @@ export type FetchPlanningResultErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2566,9 +2577,8 @@ export type FetchScanTasksErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2630,9 +2640,8 @@ export type RegisterTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2703,9 +2712,8 @@ export type DropTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2786,9 +2794,8 @@ export type LoadTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2850,9 +2857,8 @@ export type TableExistsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2926,9 +2932,8 @@ export type UpdateTableErrors = {
    */
   502: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -2995,9 +3000,8 @@ export type LoadCredentialsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3062,9 +3066,8 @@ export type RenameTableErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3129,9 +3132,8 @@ export type ReportMetricsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3203,9 +3205,8 @@ export type CommitTransactionErrors = {
    */
   502: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3282,9 +3283,8 @@ export type ListViewsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3346,9 +3346,8 @@ export type CreateViewErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3415,9 +3414,8 @@ export type DropViewErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3479,9 +3477,8 @@ export type LoadViewErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3539,9 +3536,8 @@ export type ViewExistsErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3615,9 +3611,8 @@ export type ReplaceViewErrors = {
    */
   502: ErrorModel;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**
@@ -3686,9 +3681,8 @@ export type RenameViewErrors = {
    */
   419: IcebergErrorResponse;
   /**
-   * The service is not ready to handle the request. The client should wait and retry.
-   *
-   * The service may additionally send a Retry-After header to indicate when to retry.
+   * The service is not ready to handle the request, request could have been partially processed.
+   * The service may additionally send a Retry-After header to indicate when to retry, a non idempotent request should only be retried by the client when the Retry-After header is present.
    */
   503: IcebergErrorResponse;
   /**

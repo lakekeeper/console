@@ -10,6 +10,12 @@ This project provides a user interface for the Lakekeeper REST catalog, designed
 <img src="src/assets/homepage.png" alt="Lakekeeper UI" width="400px">
 <br>
 <img src="src/assets/warehouse.png" alt="Lakekeeper UI" width="400px">
+<br>
+<img src="src/assets/branch_table.png" alt="Lakekeeper UI" width="400px">
+<br>
+<img src="src/assets/view_history.png" alt="Lakekeeper UI" width="400px">
+<br>
+<img src="src/assets/tasks_wh.png" alt="Lakekeeper UI" width="400px">
 
 ## Table of Contents
 

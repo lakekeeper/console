@@ -197,7 +197,7 @@ import { computed } from 'vue';
 import { useFunctions } from '../plugins/functions';
 import SnapshotDetails from './SnapshotDetails.vue';
 import { transformFields } from '../common/schemaUtils';
-import type { LoadTableResultReadable } from '../gen/iceberg/types.gen';
+import type { LoadTableResultReadable, Snapshot } from '../gen/iceberg/types.gen';
 
 // Props
 interface Props {
@@ -223,14 +223,17 @@ const formatTimestamp = (timestampMs: number): string => {
 const getCurrentSchema = () => {
   if (!props.table.metadata.schemas || props.table.metadata.schemas.length === 0) return null;
   return props.table.metadata.schemas.find(
-    (schema: any) => schema['schema-id'] === props.table.metadata['current-schema-id'],
+    (schema) => schema['schema-id'] === props.table.metadata['current-schema-id'],
   );
 };
 
-const getCurrentSnapshot = () => {
+const getCurrentSnapshot = (): Snapshot | null => {
   if (!props.table.metadata.snapshots || props.table.metadata.snapshots.length === 0) return null;
-  return props.table.metadata.snapshots.find(
-    (snapshot: any) => snapshot['snapshot-id'] === props.table.metadata['current-snapshot-id'],
+  return (
+    props.table.metadata.snapshots.find(
+      (snapshot: Snapshot) =>
+        snapshot['snapshot-id'] === props.table.metadata['current-snapshot-id'],
+    ) || null
   );
 };
 

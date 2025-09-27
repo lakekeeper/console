@@ -126,10 +126,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useFunctions } from '../plugins/functions';
+import type { Snapshot } from '../gen/iceberg/types.gen';
 
 // Props
 interface Props {
-  snapshot?: any;
+  snapshot?: Snapshot;
   title?: string;
   showSummary?: boolean;
 }

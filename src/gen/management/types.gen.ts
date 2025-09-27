@@ -1188,7 +1188,9 @@ export type TableAction =
   | 'grant_describe'
   | 'grant_select'
   | 'grant_modify'
-  | 'change_ownership';
+  | 'change_ownership'
+  | 'get_tasks'
+  | 'control_tasks';
 
 export type TableAssignment =
   | (UserOrRole & {
@@ -1366,11 +1368,17 @@ export type TaskAttempt = {
   status: TaskStatus;
 };
 
-export type TaskEntity = {
-  'table-id': string;
-  type: 'table';
-  'warehouse-id': string;
-};
+export type TaskEntity =
+  | {
+      'table-id': string;
+      type: 'table';
+      'warehouse-id': string;
+    }
+  | {
+      type: 'view';
+      'view-id': string;
+      'warehouse-id': string;
+    };
 
 export type TaskStatus = 'RUNNING' | 'SCHEDULED' | 'STOPPING' | 'CANCELLED' | 'SUCCESS' | 'FAILED';
 
@@ -1549,7 +1557,9 @@ export type ViewAction =
   | 'grant_manage_grants'
   | 'grant_describe'
   | 'grant_modify'
-  | 'change_ownership';
+  | 'change_ownership'
+  | 'get_tasks'
+  | 'control_tasks';
 
 export type ViewAssignment =
   | (UserOrRole & {
@@ -1590,7 +1600,9 @@ export type WarehouseAction =
   | 'grant_select'
   | 'grant_pass_grants'
   | 'grant_manage_grants'
-  | 'change_ownership';
+  | 'change_ownership'
+  | 'get_all_tasks'
+  | 'control_all_tasks';
 
 export type WarehouseAssignment =
   | (UserOrRole & {
@@ -2203,153 +2215,6 @@ export type UpdateServerAssignmentsResponses = {
 
 export type UpdateServerAssignmentsResponse =
   UpdateServerAssignmentsResponses[keyof UpdateServerAssignmentsResponses];
-
-export type GetTableAccessByIdDeprecatedData = {
-  body?: never;
-  path: {
-    /**
-     * Table ID
-     */
-    table_id: string;
-  };
-  query?: {
-    /**
-     * The user or role to show access for.
-     * If not specified, shows access for the current user.
-     */
-    principalUser?: string;
-    principalRole?: string;
-  };
-  url: '/management/v1/permissions/table/{table_id}/access';
-};
-
-export type GetTableAccessByIdDeprecatedResponses = {
-  /**
-   * Server Relations
-   */
-  200: GetTableAccessResponse;
-};
-
-export type GetTableAccessByIdDeprecatedResponse =
-  GetTableAccessByIdDeprecatedResponses[keyof GetTableAccessByIdDeprecatedResponses];
-
-export type GetTableAssignmentsByIdDeprecatedData = {
-  body?: never;
-  path: {
-    /**
-     * Table ID
-     */
-    table_id: string;
-  };
-  query?: {
-    /**
-     * Relations to be loaded. If not specified, all relations are returned.
-     */
-    relations?: Array<TableRelation>;
-  };
-  url: '/management/v1/permissions/table/{table_id}/assignments';
-};
-
-export type GetTableAssignmentsByIdDeprecatedResponses = {
-  200: GetTableAssignmentsResponse;
-};
-
-export type GetTableAssignmentsByIdDeprecatedResponse =
-  GetTableAssignmentsByIdDeprecatedResponses[keyof GetTableAssignmentsByIdDeprecatedResponses];
-
-export type UpdateTableAssignmentsByIdDeprecatedData = {
-  body: UpdateTableAssignmentsRequest;
-  path: {
-    /**
-     * Table ID
-     */
-    table_id: string;
-  };
-  query?: never;
-  url: '/management/v1/permissions/table/{table_id}/assignments';
-};
-
-export type UpdateTableAssignmentsByIdDeprecatedResponses = {
-  /**
-   * Permissions updated successfully
-   */
-  204: void;
-};
-
-export type UpdateTableAssignmentsByIdDeprecatedResponse =
-  UpdateTableAssignmentsByIdDeprecatedResponses[keyof UpdateTableAssignmentsByIdDeprecatedResponses];
-
-export type GetViewAccessByIdDeprecatedData = {
-  body?: never;
-  path: {
-    /**
-     * View ID
-     */
-    view_id: string;
-  };
-  query?: {
-    /**
-     * The user or role to show access for.
-     * If not specified, shows access for the current user.
-     */
-    principalUser?: string;
-    principalRole?: string;
-  };
-  url: '/management/v1/permissions/view/{view_id}/access';
-};
-
-export type GetViewAccessByIdDeprecatedResponses = {
-  200: GetViewAccessResponse;
-};
-
-export type GetViewAccessByIdDeprecatedResponse =
-  GetViewAccessByIdDeprecatedResponses[keyof GetViewAccessByIdDeprecatedResponses];
-
-export type GetViewAssignmentsByIdDeprecatedData = {
-  body?: never;
-  path: {
-    /**
-     * View ID
-     */
-    view_id: string;
-  };
-  query?: {
-    /**
-     * Relations to be loaded. If not specified, all relations are returned.
-     */
-    relations?: Array<ViewRelation>;
-  };
-  url: '/management/v1/permissions/view/{view_id}/assignments';
-};
-
-export type GetViewAssignmentsByIdDeprecatedResponses = {
-  200: GetViewAssignmentsResponse;
-};
-
-export type GetViewAssignmentsByIdDeprecatedResponse =
-  GetViewAssignmentsByIdDeprecatedResponses[keyof GetViewAssignmentsByIdDeprecatedResponses];
-
-export type UpdateViewAssignmentsByIdDeprecatedData = {
-  body: UpdateViewAssignmentsRequest;
-  path: {
-    /**
-     * View ID
-     */
-    view_id: string;
-  };
-  query?: never;
-  url: '/management/v1/permissions/view/{view_id}/assignments';
-};
-
-export type UpdateViewAssignmentsByIdDeprecatedResponses = {
-  /**
-   * Permissions updated successfully
-   */
-  204: void;
-};
-
-export type UpdateViewAssignmentsByIdDeprecatedResponse =
-  UpdateViewAssignmentsByIdDeprecatedResponses[keyof UpdateViewAssignmentsByIdDeprecatedResponses];
 
 export type GetWarehouseByIdData = {
   body?: never;
