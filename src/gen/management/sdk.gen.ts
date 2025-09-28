@@ -170,6 +170,9 @@ import type {
   SetWarehouseProtectionError,
   RenameWarehouseData,
   RenameWarehouseError,
+  SearchTabularData,
+  SearchTabularResponse2,
+  SearchTabularError,
   GetWarehouseStatisticsData,
   GetWarehouseStatisticsResponse,
   GetWarehouseStatisticsError,
@@ -1846,6 +1849,35 @@ export const renameWarehouse = <ThrowOnError extends boolean = false>(
       },
     ],
     url: '/management/v1/warehouse/{warehouse_id}/rename',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Search tabular
+ * Performs a fuzzy search for tabulars based on the provided criteria. If the search string
+ * can be parsed as uuid, it searches for that uuid. Returns results that are visible to the
+ * current user.
+ */
+export const searchTabular = <ThrowOnError extends boolean = false>(
+  options: Options<SearchTabularData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    SearchTabularResponse2,
+    SearchTabularError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/search-tabular',
     ...options,
     headers: {
       'Content-Type': 'application/json',

@@ -45,6 +45,8 @@ import {
   RoleAction,
   RoleAssignment,
   SearchRoleResponse,
+  SearchTabularRequest,
+  SearchTabularResponse,
   SearchUserResponse,
   ServerAction,
   ServerAssignment,
@@ -1614,6 +1616,32 @@ async function searchUser(search: string): Promise<User[]> {
   }
 }
 
+async function searchTabular(
+  warehouseId: string,
+  request: SearchTabularRequest,
+): Promise<SearchTabularResponse> {
+  try {
+    init();
+
+    const client = mngClient.client;
+
+    const { data, error } = await mng.searchTabular({
+      client,
+      path: {
+        warehouse_id: warehouseId,
+      },
+      body: request,
+    });
+
+    if (error) throw error;
+
+    return (data as SearchTabularResponse) ?? { tabulars: [] };
+  } catch (error: any) {
+    handleError(error, new Error());
+    throw error;
+  }
+}
+
 async function getUser(userId: string): Promise<User> {
   try {
     init();
@@ -2349,6 +2377,7 @@ export function useFunctions() {
     getWarehouseAssignmentsById,
     updateWarehouseAssignmentsById,
     searchRole,
+    searchTabular,
     listRoles,
     deleteRole,
     getRole,

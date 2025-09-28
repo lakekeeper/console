@@ -30,6 +30,7 @@ declare module 'vue' {
     RoleDialog: typeof import('./components/roleDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SearchTabular: typeof import('./components/SearchTabular.vue')['default']
     SnackbarMessage: typeof import('./components/SnackbarMessage.vue')['default']
     SnapshotDetails: typeof import('./components/SnapshotDetails.vue')['default']
     StatisticsDialog: typeof import('./components/StatisticsDialog.vue')['default']

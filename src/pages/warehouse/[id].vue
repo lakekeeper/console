@@ -35,6 +35,11 @@
             <v-icon>mdi-database</v-icon>
           </template>
           <v-spacer></v-spacer>
+          <v-btn
+            icon="mdi-magnify"
+            variant="text"
+            @click="openSearchDialog"
+            aria-label="Search tables and views"></v-btn>
           <WarehouseActionsMenu
             :process-status="processStatus"
             :warehouse="selectedWarehouse"
@@ -390,6 +395,9 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Search Modal -->
+    <SearchTabular v-model="showSearchDialog" :warehouse-id="params.id" />
   </span>
 </template>
 
@@ -397,6 +405,7 @@
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import TaskManager from '../../components/TaskManager.vue';
+import SearchTabular from '../../components/SearchTabular.vue';
 import {
   AssignmentCollection,
   Header,
@@ -437,6 +446,7 @@ const headers: readonly Header[] = Object.freeze([
 
 const loaded = ref(true);
 const searchNamespace = ref('');
+const showSearchDialog = ref(false);
 
 const storageProfile = reactive<StorageProfile>({
   type: 's3',
@@ -721,6 +731,10 @@ async function renameWarehouse(name: string) {
     renaming.value = false;
     console.error(`Failed to rename warehouse-${name}  - `, error);
   }
+}
+
+function openSearchDialog() {
+  showSearchDialog.value = true;
 }
 
 async function updateCredentials(credentials: StorageCredential) {
