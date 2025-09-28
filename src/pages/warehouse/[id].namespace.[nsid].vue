@@ -29,10 +29,14 @@
           </template>
           <v-spacer></v-spacer>
           <v-btn
-            icon="mdi-magnify"
-            variant="text"
+            prepend-icon="mdi-magnify"
+            class="mr-2"
+            size="small"
+            variant="outlined"
             @click="openSearchDialog"
-            aria-label="Search tables and views"></v-btn>
+            aria-label="Search tables and views">
+            Search warehouse
+          </v-btn>
           <addNamespaceDialog
             v-if="
               myAccess.includes('create_namespace') ||
@@ -87,12 +91,11 @@
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="searchNamespace"
-                      label="Search"
-                      prepend-inner-icon="mdi-magnify"
+                      label="Filter results"
+                      prepend-inner-icon="mdi-filter"
                       variant="underlined"
                       hide-details
-                      clearable
-                      single-line></v-text-field>
+                      clearable></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.name="{ item }">
@@ -139,12 +142,11 @@
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="searchTbl"
-                      label="Search"
-                      prepend-inner-icon="mdi-magnify"
+                      label="Filter results"
+                      prepend-inner-icon="mdi-filter"
                       variant="underlined"
                       hide-details
-                      clearable
-                      single-line></v-text-field>
+                      clearable></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.name="{ item }">
@@ -197,12 +199,11 @@
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="searchView"
-                      label="Search"
-                      prepend-inner-icon="mdi-magnify"
+                      label="Filter results"
+                      prepend-inner-icon="mdi-filter"
                       variant="underlined"
                       hide-details
-                      clearable
-                      single-line></v-text-field>
+                      clearable></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.actions="{ item }">

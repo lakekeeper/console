@@ -4,7 +4,7 @@
       <v-card-title class="d-flex align-center justify-space-between">
         <div class="d-flex align-center">
           <v-icon class="mr-2">mdi-magnify</v-icon>
-          Search Tables & Views
+          Search Warehouse
         </div>
         <v-btn icon="mdi-close" variant="text" @click="closeDialog"></v-btn>
       </v-card-title>

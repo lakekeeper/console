@@ -35,11 +35,7 @@
             <v-icon>mdi-database</v-icon>
           </template>
           <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-magnify"
-            variant="text"
-            @click="openSearchDialog"
-            aria-label="Search tables and views"></v-btn>
+
           <WarehouseActionsMenu
             :process-status="processStatus"
             :warehouse="selectedWarehouse"
@@ -48,7 +44,15 @@
             @update-credentials="updateCredentials"
             @update-delprofile="updateDelProfile"
             @update-profile="updateProfile" />
-
+          <v-btn
+            prepend-icon="mdi-magnify"
+            class="mr-2"
+            size="small"
+            variant="outlined"
+            @click="openSearchDialog"
+            aria-label="Search tables and views">
+            Search Warhouse
+          </v-btn>
           <addNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
             :parent-path="''"
@@ -106,12 +110,11 @@
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="searchNamespace"
-                      label="Search"
-                      prepend-inner-icon="mdi-magnify"
+                      label="Filter results"
+                      prepend-inner-icon="mdi-filter"
                       variant="underlined"
                       hide-details
-                      clearable
-                      single-line></v-text-field>
+                      clearable></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.name="{ item }">
