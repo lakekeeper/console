@@ -39,7 +39,14 @@
         <div v-if="hasSearched && !searching">
           <v-divider class="mb-4"></v-divider>
 
-          <div v-if="searchResults.length === 0" class="text-center py-8">
+          <div v-if="errorMessage" class="text-center py-8">
+            <v-icon size="64" color="error">mdi-alert-circle-outline</v-icon>
+            <div class="text-h6 mt-2 text-error">{{ errorMessage }}</div>
+            <div class="text-body-1 text-grey-lighten-1">
+              Try again or adjust your search query.
+            </div>
+          </div>
+          <div v-else-if="searchResults.length === 0" class="text-center py-8">
             <v-icon size="64" color="grey-lighten-1">mdi-table-search</v-icon>
             <div class="text-h6 mt-2 text-grey-lighten-1">No results found</div>
             <div class="text-body-1 text-grey-lighten-1">
