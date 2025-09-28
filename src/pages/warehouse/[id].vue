@@ -35,6 +35,7 @@
             <v-icon>mdi-database</v-icon>
           </template>
           <v-spacer></v-spacer>
+
           <WarehouseActionsMenu
             :process-status="processStatus"
             :warehouse="selectedWarehouse"
@@ -43,7 +44,15 @@
             @update-credentials="updateCredentials"
             @update-delprofile="updateDelProfile"
             @update-profile="updateProfile" />
-
+          <v-btn
+            prepend-icon="mdi-magnify"
+            class="mr-2"
+            size="small"
+            variant="outlined"
+            @click="openSearchDialog"
+            aria-label="Search tables and views">
+            Search Warehouse
+          </v-btn>
           <addNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
             :parent-path="''"
@@ -101,12 +110,11 @@
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="searchNamespace"
-                      label="Search"
-                      prepend-inner-icon="mdi-magnify"
+                      label="Filter results"
+                      prepend-inner-icon="mdi-filter"
                       variant="underlined"
                       hide-details
-                      clearable
-                      single-line></v-text-field>
+                      clearable></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.name="{ item }">
@@ -390,6 +398,9 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Search Modal -->
+    <SearchTabular v-model="showSearchDialog" :warehouse-id="params.id" />
   </span>
 </template>
 
@@ -397,6 +408,7 @@
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import TaskManager from '../../components/TaskManager.vue';
+import SearchTabular from '../../components/SearchTabular.vue';
 import {
   AssignmentCollection,
   Header,
@@ -437,6 +449,7 @@ const headers: readonly Header[] = Object.freeze([
 
 const loaded = ref(true);
 const searchNamespace = ref('');
+const showSearchDialog = ref(false);
 
 const storageProfile = reactive<StorageProfile>({
   type: 's3',
@@ -721,6 +734,10 @@ async function renameWarehouse(name: string) {
     renaming.value = false;
     console.error(`Failed to rename warehouse-${name}  - `, error);
   }
+}
+
+function openSearchDialog() {
+  showSearchDialog.value = true;
 }
 
 async function updateCredentials(credentials: StorageCredential) {

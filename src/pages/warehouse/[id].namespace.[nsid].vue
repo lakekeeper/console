@@ -28,7 +28,15 @@
             <v-icon>mdi-folder-open</v-icon>
           </template>
           <v-spacer></v-spacer>
-
+          <v-btn
+            prepend-icon="mdi-magnify"
+            class="mr-2"
+            size="small"
+            variant="outlined"
+            @click="openSearchDialog"
+            aria-label="Search tables and views">
+            Search warehouse
+          </v-btn>
           <addNamespaceDialog
             v-if="
               myAccess.includes('create_namespace') ||
@@ -83,12 +91,11 @@
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="searchNamespace"
-                      label="Search"
-                      prepend-inner-icon="mdi-magnify"
+                      label="Filter results"
+                      prepend-inner-icon="mdi-filter"
                       variant="underlined"
                       hide-details
-                      clearable
-                      single-line></v-text-field>
+                      clearable></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.name="{ item }">
@@ -135,12 +142,11 @@
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="searchTbl"
-                      label="Search"
-                      prepend-inner-icon="mdi-magnify"
+                      label="Filter results"
+                      prepend-inner-icon="mdi-filter"
                       variant="underlined"
                       hide-details
-                      clearable
-                      single-line></v-text-field>
+                      clearable></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.name="{ item }">
@@ -193,12 +199,11 @@
                     <v-spacer></v-spacer>
                     <v-text-field
                       v-model="searchView"
-                      label="Search"
-                      prepend-inner-icon="mdi-magnify"
+                      label="Filter results"
+                      prepend-inner-icon="mdi-filter"
                       variant="underlined"
                       hide-details
-                      clearable
-                      single-line></v-text-field>
+                      clearable></v-text-field>
                   </v-toolbar>
                 </template>
                 <template #item.actions="{ item }">
@@ -275,12 +280,16 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Search Modal -->
+    <SearchTabular v-model="showSearchDialog" :warehouse-id="whid" />
   </span>
 </template>
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'; // Import the useRoute function from vue-router
 import { useVisualStore } from '../../stores/visual';
 import { useFunctions } from '../../plugins/functions';
+import SearchTabular from '../../components/SearchTabular.vue';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import router from '../../router';
 import { AssignmentCollection, Header, Item, Options, RelationType } from '../../common/interfaces';
@@ -307,6 +316,7 @@ const addNamespaceStatus = ref(StatusIntent.INACTIVE);
 const searchNamespace = ref('');
 const searchTbl = ref('');
 const searchView = ref('');
+const showSearchDialog = ref(false);
 
 const paginationTokenTbl = ref('');
 const paginationTokenView = ref('');
@@ -719,6 +729,10 @@ async function setProtection() {
   } catch (error) {
     console.error(error);
   }
+}
+
+function openSearchDialog() {
+  showSearchDialog.value = true;
 }
 </script>
 

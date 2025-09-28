@@ -170,6 +170,9 @@ import type {
   SetWarehouseProtectionError,
   RenameWarehouseData,
   RenameWarehouseError,
+  SearchTabularData,
+  SearchTabularResponse2,
+  SearchTabularError,
   GetWarehouseStatisticsData,
   GetWarehouseStatisticsResponse,
   GetWarehouseStatisticsError,
@@ -365,19 +368,15 @@ export const renameDefaultProjectDeprecated = <ThrowOnError extends boolean = fa
  *
  * Example:
  * - 00:00:00-00:16:32: no activity
- * - timestamps: []
+ * - `timestamps: []`
  * - 00:16:32: warehouse created:
- * - timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null}]]
+ * `{timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null}]]}`
  * - 00:30:00: table created:
- * - timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null},
- * {"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": null}]]
+ * - `timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null}, {"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": null}]]`
  * - 00:45:00: table created:
- * - timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null},
- * {"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": "00:45:00"}]]
+ * - `timestamps: ["01:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null}, {"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": "00:45:00"}]]`
  * - 01:00:36: table deleted:
- * - timestamps: ["01:00:00","02:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null},
- * {"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": "00:45:00"}],
- * [{"count": 1, "http_route": "DELETE /catalog/v1/{prefix}/namespaces/{namespace}/tables/{table}", "status_code": 200, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "01:00:36", "updated_at": "null"}]]
+ * - `timestamps: ["01:00:00","02:00:00"], called_endpoints: [[{"count": 1, "http_route": "POST /management/v1/warehouse", "status_code": 201, "warehouse_id": null, "warehouse_name": null, "created_at": "00:16:32", "updated_at": null},{"count": 1, "http_route": "POST /catalog/v1/{prefix}/namespaces/{namespace}/tables", "status_code": 201, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "00:30:00", "updated_at": "00:45:00"}],[{"count": 1, "http_route": "DELETE /catalog/v1/{prefix}/namespaces/{namespace}/tables/{table}", "status_code": 200, "warehouse_id": "ff17f1d0-90ad-4e7d-bf02-be718b78c2ee", "warehouse_name": "staging", "created_at": "01:00:36", "updated_at": "null"}]]`
  */
 export const getEndpointStatistics = <ThrowOnError extends boolean = false>(
   options: Options<GetEndpointStatisticsData, ThrowOnError>,
@@ -403,7 +402,7 @@ export const getEndpointStatistics = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * ServerInfo
+ * Get Server Info
  * Returns basic information about the server configuration and status.
  */
 export const getServerInfo = <ThrowOnError extends boolean = false>(
@@ -1859,24 +1858,52 @@ export const renameWarehouse = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * Search Tabulars
+ * Performs a fuzzy search for tabulars based on the provided criteria. If the search string
+ * can be parsed as uuid, Namespaces or Tables with this UUID are returned.
+ */
+export const searchTabular = <ThrowOnError extends boolean = false>(
+  options: Options<SearchTabularData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    SearchTabularResponse2,
+    SearchTabularError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: 'bearer',
+        type: 'http',
+      },
+    ],
+    url: '/management/v1/warehouse/{warehouse_id}/search-tabular',
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+};
+
+/**
  * Get Warehouse Statistics
  * Retrieves statistical data about a warehouse's usage and resources over time.
  * Statistics are aggregated hourly when changes occur.
  *
  * We lazily create a new statistics entry every hour, in between hours, the existing entry is
- * being updated. If there's a change at created_at + 1 hour, a new entry is created.
+ * being updated. If there's a change at `created_at + 1 hour`, a new entry is created.
  * If there's been no change, no new entry is created, meaning there may be gaps.
  *
  * Example:
  * - 00:16:32: warehouse created:
- * - timestamp: 01:00:00, created_at: 00:16:32, updated_at: null, 0 tables, 0 views
+ * - `timestamp: 01:00:00, created_at: 00:16:32, updated_at: null, 0 tables, 0 views`
  * - 00:30:00: table created:
- * - timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:30:00, 1 table, 0 views
+ * - `timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:30:00, 1 table, 0 views`
  * - 00:45:00: view created:
- * - timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view
+ * - `timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view`
  * - 01:00:36: table deleted:
- * - timestamp: 02:00:00, created_at: 01:00:36, updated_at: null, 0 tables, 1 view
- * - timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view
+ * - `timestamp: 02:00:00, created_at: 01:00:36, updated_at: null, 0 tables, 1 view`
+ * - `timestamp: 01:00:00, created_at: 00:16:32, updated_at: 00:45:00, 1 table, 1 view`
  */
 export const getWarehouseStatistics = <ThrowOnError extends boolean = false>(
   options: Options<GetWarehouseStatisticsData, ThrowOnError>,

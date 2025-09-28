@@ -1034,6 +1034,43 @@ export type SearchRoleResponse = {
   roles: Array<Role>;
 };
 
+export type SearchTabular = {
+  /**
+   * Better matches have a lower distance
+   */
+  distance?: number | null;
+  /**
+   * Namespace name
+   */
+  'namespace-name': Array<string>;
+  /**
+   * ID of the tabular
+   */
+  'tabular-id': TabularIdentUuid;
+  /**
+   * Tabular name
+   */
+  'tabular-name': string;
+};
+
+export type SearchTabularRequest = {
+  /**
+   * Search string for fuzzy search.
+   * Length is truncated to 64 characters.
+   */
+  search: string;
+};
+
+/**
+ * Search result for tabulars
+ */
+export type SearchTabularResponse = {
+  /**
+   * List of tabulars matching the search criteria
+   */
+  tabulars: Array<SearchTabular>;
+};
+
 export type SearchUser = {
   /**
    * Email of the user. If id is not specified, the email is extracted
@@ -3363,6 +3400,30 @@ export type RenameWarehouseResponses = {
    */
   200: unknown;
 };
+
+export type SearchTabularData = {
+  body: SearchTabularRequest;
+  path: {
+    warehouse_id: string;
+  };
+  query?: never;
+  url: '/management/v1/warehouse/{warehouse_id}/search-tabular';
+};
+
+export type SearchTabularErrors = {
+  '4XX': IcebergErrorResponse;
+};
+
+export type SearchTabularError = SearchTabularErrors[keyof SearchTabularErrors];
+
+export type SearchTabularResponses = {
+  /**
+   * List of tabulars
+   */
+  200: SearchTabularResponse;
+};
+
+export type SearchTabularResponse2 = SearchTabularResponses[keyof SearchTabularResponses];
 
 export type GetWarehouseStatisticsData = {
   body?: never;
