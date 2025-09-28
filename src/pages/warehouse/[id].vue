@@ -51,7 +51,7 @@
             variant="outlined"
             @click="openSearchDialog"
             aria-label="Search tables and views">
-            Search Warhouse
+            Search Warehouse
           </v-btn>
           <addNamespaceDialog
             v-if="myAccess.includes('create_namespace')"
