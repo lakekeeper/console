@@ -28,7 +28,11 @@
             <v-icon>mdi-folder-open</v-icon>
           </template>
           <v-spacer></v-spacer>
-
+          <v-btn
+            icon="mdi-magnify"
+            variant="text"
+            @click="openSearchDialog"
+            aria-label="Search tables and views"></v-btn>
           <addNamespaceDialog
             v-if="
               myAccess.includes('create_namespace') ||
@@ -275,12 +279,16 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Search Modal -->
+    <SearchTabular v-model="showSearchDialog" :warehouse-id="whid" />
   </span>
 </template>
 <script lang="ts" setup>
 import { useRoute } from 'vue-router'; // Import the useRoute function from vue-router
 import { useVisualStore } from '../../stores/visual';
 import { useFunctions } from '../../plugins/functions';
+import SearchTabular from '../../components/SearchTabular.vue';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import router from '../../router';
 import { AssignmentCollection, Header, Item, Options, RelationType } from '../../common/interfaces';
@@ -307,6 +315,7 @@ const addNamespaceStatus = ref(StatusIntent.INACTIVE);
 const searchNamespace = ref('');
 const searchTbl = ref('');
 const searchView = ref('');
+const showSearchDialog = ref(false);
 
 const paginationTokenTbl = ref('');
 const paginationTokenView = ref('');
@@ -719,6 +728,10 @@ async function setProtection() {
   } catch (error) {
     console.error(error);
   }
+}
+
+function openSearchDialog() {
+  showSearchDialog.value = true;
 }
 </script>
 

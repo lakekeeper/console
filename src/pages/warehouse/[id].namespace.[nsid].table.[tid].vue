@@ -23,6 +23,12 @@
           <template #prepend>
             <v-icon>mdi-table</v-icon>
           </template>
+          <v-spacer></v-spacer>
+          <v-btn
+            icon="mdi-magnify"
+            variant="text"
+            @click="openSearchDialog"
+            aria-label="Search tables and views"></v-btn>
         </v-toolbar>
         <v-tabs v-model="tab">
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
@@ -135,6 +141,9 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Search Modal -->
+    <SearchTabular v-model="showSearchDialog" :warehouse-id="warehouseId" />
   </span>
 </template>
 <script lang="ts" setup>
@@ -144,6 +153,7 @@ import { onMounted, reactive, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import TaskManager from '../../components/TaskManager.vue';
+import SearchTabular from '../../components/SearchTabular.vue';
 import { LoadTableResultReadable } from '../../gen/iceberg/types.gen';
 import { TableAction, TableAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
@@ -165,6 +175,7 @@ const route = useRoute();
 const tab = ref('overview');
 const namespacePath = ref('');
 const loading = ref(true);
+const showSearchDialog = ref(false);
 const myAccess = reactive<TableAction[]>([]);
 const canReadPermissions = ref(false);
 const canModifyTable = ref(false);
@@ -367,6 +378,10 @@ function copyTableJson() {
   } catch (error) {
     console.error('Failed to copy table JSON:', error);
   }
+}
+
+function openSearchDialog() {
+  showSearchDialog.value = true;
 }
 </script>
 

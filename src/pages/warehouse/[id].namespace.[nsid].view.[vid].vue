@@ -23,6 +23,12 @@
           <template #prepend>
             <v-icon>mdi-table</v-icon>
           </template>
+          <v-spacer></v-spacer>
+          <v-btn
+            icon="mdi-magnify"
+            variant="text"
+            @click="openSearchDialog"
+            aria-label="Search tables and views"></v-btn>
         </v-toolbar>
         <v-tabs v-model="tab">
           <v-tab value="overview" @click="loadTabData">overview</v-tab>
@@ -137,6 +143,9 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Search Modal -->
+    <SearchTabular v-model="showSearchDialog" :warehouse-id="warehouseId" />
   </span>
 </template>
 <script lang="ts" setup>
@@ -148,6 +157,7 @@ import { useFunctions } from '../../plugins/functions';
 import TaskManager from '../../components/TaskManager.vue';
 import ViewDetails from '../../components/ViewDetails.vue';
 import ViewHistory from '../../components/ViewHistory.vue';
+import SearchTabular from '../../components/SearchTabular.vue';
 import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
 import { ViewAction, ViewAssignment } from '../../gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '../../common/interfaces';
@@ -207,6 +217,7 @@ const canModifyView = ref(false);
 const canGetTasks = ref(false);
 const canControlTasks = ref(false);
 const recursiveDeleteProtection = ref(false);
+const showSearchDialog = ref(false);
 
 const currentVersionId = ref(0);
 const sqlStatement = ref('');
@@ -380,6 +391,10 @@ function copyViewJson() {
   } catch (error) {
     console.error('Failed to copy view JSON:', error);
   }
+}
+
+function openSearchDialog() {
+  showSearchDialog.value = true;
 }
 </script>
 
