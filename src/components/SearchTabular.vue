@@ -251,7 +251,9 @@ function getTabularTypeIcon(type: string): string {
 function getTabularRoute(item: any) {
   // Match the exact same pattern as the router: ${env.baseUrlPrefix}/ui/
   const routerBase = `${baseUrlPrefix}/ui/`;
-  const baseRoute = `${routerBase}warehouse/${props.warehouseId}/namespace/${encodeURIComponent(item.namespace)}`;
+  // Convert namespace dots to the special separator character (0x1F) and encode it
+  const namespaceWithSeparator = item.namespace.replace(/\./g, String.fromCharCode(0x1f));
+  const baseRoute = `${routerBase}warehouse/${props.warehouseId}/namespace/${encodeURIComponent(namespaceWithSeparator)}`;
   return `${baseRoute}/${item.type}/${encodeURIComponent(item.name)}`;
 }
 
