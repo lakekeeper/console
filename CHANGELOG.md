@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.10.0](https://github.com/lakekeeper/console/compare/v0.9.0...v0.10.0) (2025-09-28)
+
+
+### Features
+
+* add Task Manager with filtering, pagination, and task actions ([761e842](https://github.com/lakekeeper/console/commit/761e8422082c80b060b5524ad53c700258574c8b))
+* **insights:** add Table Details and Branch Visualization ([761e842](https://github.com/lakekeeper/console/commit/761e8422082c80b060b5524ad53c700258574c8b))
+* **insights:** add View Details and View History with rich timelines ([761e842](https://github.com/lakekeeper/console/commit/761e8422082c80b060b5524ad53c700258574c8b))
+* search tables and vie inside warehouse ([#161](https://github.com/lakekeeper/console/issues/161)) ([481a201](https://github.com/lakekeeper/console/commit/481a201cd52f4f6abefdd1879ce191a81960cc0e))
+* **tasks:** add task tabs to warehouse, table, and view pages ([761e842](https://github.com/lakekeeper/console/commit/761e8422082c80b060b5524ad53c700258574c8b))
+* **tasks:** implement per-warehouse queue configuration with friendly naming ([761e842](https://github.com/lakekeeper/console/commit/761e8422082c80b060b5524ad53c700258574c8b))
+* **ui:** add copy-to-clipboard for JSON data in tables and views ([761e842](https://github.com/lakekeeper/console/commit/761e8422082c80b060b5524ad53c700258574c8b))
+* **warehouse:** add STS Session Tags editor for S3 configuration ([761e842](https://github.com/lakekeeper/console/commit/761e8422082c80b060b5524ad53c700258574c8b))
+
+
+### Bug Fixes
+
+* **console-rs:** correct path to node build artifacts ([#155](https://github.com/lakekeeper/console/issues/155)) ([64dc2e6](https://github.com/lakekeeper/console/commit/64dc2e632ab3762517064c4dc925c1699d5392f7))
+* tasks access ([#156](https://github.com/lakekeeper/console/issues/156)) ([be83bfa](https://github.com/lakekeeper/console/commit/be83bfa3493099ffd14652f50414d8536e77f4ca))
+* **ui:** improve gesture handling to prevent accidental navigation on macOS/Safari ([761e842](https://github.com/lakekeeper/console/commit/761e8422082c80b060b5524ad53c700258574c8b))
+
 ## [0.9.0](https://github.com/lakekeeper/console/compare/v0.8.0...v0.9.0) (2025-08-06)
 
 
