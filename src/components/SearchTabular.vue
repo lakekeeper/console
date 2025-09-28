@@ -73,9 +73,7 @@
             </template>
 
             <template #item.namespace="{ item }">
-              <v-chip size="small" color="secondary" variant="outlined">
-                {{ item.namespace }}
-              </v-chip>
+              {{ item.namespace }}
             </template>
 
             <template #item.distance="{ item }">
