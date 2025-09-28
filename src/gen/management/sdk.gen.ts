@@ -1858,10 +1858,9 @@ export const renameWarehouse = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Search tabular
+ * Search Tabulars
  * Performs a fuzzy search for tabulars based on the provided criteria. If the search string
- * can be parsed as uuid, it searches for that uuid. Returns results that are visible to the
- * current user.
+ * can be parsed as uuid, Namespaces or Tables with this UUID are returned.
  */
 export const searchTabular = <ThrowOnError extends boolean = false>(
   options: Options<SearchTabularData, ThrowOnError>,
