@@ -55,6 +55,7 @@
             :items-per-page-options="[10, 25, 50]"
             hover
             density="compact"
+            hide-default-footer
             class="mt-4">
             <template #item.name="{ item }">
               <div class="d-flex align-center">
