@@ -120,6 +120,7 @@ import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
 import type { SearchTabular, SearchTabularRequest } from '@/gen/management/types.gen';
 import { Type } from '@/common/interfaces';
+import { baseUrlPrefix } from '@/app.config';
 
 // Props
 const props = defineProps<{
@@ -250,7 +251,9 @@ function getTabularTypeIcon(type: string): string {
 }
 
 function getTabularRoute(item: any) {
-  const baseRoute = `/warehouse/${props.warehouseId}/namespace/${encodeURIComponent(item.namespace)}`;
+  // Match the exact same pattern as the router: ${env.baseUrlPrefix}/ui/
+  const routerBase = `${baseUrlPrefix}/ui/`;
+  const baseRoute = `${routerBase}warehouse/${props.warehouseId}/namespace/${encodeURIComponent(item.namespace)}`;
   return `${baseRoute}/${item.type}/${encodeURIComponent(item.name)}`;
 }
 
