@@ -178,6 +178,15 @@
           fixed-header
           :height="showFilters ? '40vh' : '60vh'"
           @update:options="handlePaginationUpdate">
+          <template #item.entity-name="{ item }">
+            <span>
+              {{
+                Array.isArray(item['entity-name'])
+                  ? item['entity-name'].join('.')
+                  : item['entity-name']
+              }}
+            </span>
+          </template>
           <template #item.status="{ item }">
             <v-chip :color="getStatusColor(item.status)" size="small" variant="flat">
               {{ item.status }}
@@ -497,6 +506,7 @@ const queueManager = useQueueConfig();
 // Table headers
 const taskHeaders = Object.freeze([
   { title: 'Task ID', key: 'task-id', align: 'start' as const, sortable: false },
+  { title: 'Entity Name', key: 'entity-name', align: 'start' as const, sortable: false },
   { title: 'Status', key: 'status', align: 'start' as const, sortable: false },
   { title: 'Progress', key: 'progress', align: 'start' as const, sortable: false },
   { title: 'Queue', key: 'queue-name', align: 'start' as const, sortable: false },
