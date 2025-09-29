@@ -179,7 +179,16 @@
           :height="showFilters ? '40vh' : '60vh'"
           @update:options="handlePaginationUpdate">
           <template #item.entity-name="{ item }">
-            <span>
+            <span
+              class="text-wrap"
+              style="
+                word-break: break-all;
+                white-space: normal;
+                line-height: 1.2;
+                max-width: 120px;
+                display: inline-block;
+                overflow-wrap: anywhere;
+              ">
               {{
                 Array.isArray(item['entity-name'])
                   ? item['entity-name'].join('.')
