@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1](https://github.com/lakekeeper/console/compare/v0.10.0...v0.10.1) (2025-09-29)
+
+
+### Bug Fixes
+
+* UI added entity name ([#162](https://github.com/lakekeeper/console/issues/162)) ([b72f1bf](https://github.com/lakekeeper/console/commit/b72f1bf0a44cb78539db338856394e7128a2a828))
+
 ## [0.10.0](https://github.com/lakekeeper/console/compare/v0.9.0...v0.10.0) (2025-09-28)
 
 
