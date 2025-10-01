@@ -5,8 +5,7 @@
     fixed-header
     :headers="headers"
     hover
-    :items="loadedUsers"
-    :search="searchUsers"
+    :items="searchResults"
     :sort-by="[{ key: 'name', order: 'asc' }]"
     :items-per-page-options="[
       { title: '25 items', value: 25 },
@@ -19,12 +18,13 @@
         <v-spacer></v-spacer>
         <v-text-field
           v-model="searchUsers"
-          label="Filter loaded users"
-          prepend-inner-icon="mdi-filter"
-          placeholder="Type to filter loaded users"
+          label="Search users"
+          prepend-inner-icon="mdi-magnify"
+          placeholder="Type to search users"
           variant="underlined"
           hide-details
-          clearable></v-text-field>
+          clearable
+          @update:model-value="searchUser"></v-text-field>
       </v-toolbar>
     </template>
     <template #item.actions="{ item }">
@@ -104,6 +104,7 @@ const emit = defineEmits<{
 
 // Internal state for pagination
 const loadedUsers: (User & { actions: string[] })[] = reactive([]);
+const searchResults: (User & { actions: string[] })[] = reactive([]);
 const paginationTokenUser = ref('');
 const loading = ref(false);
 const searchUsers = ref('');
@@ -148,7 +149,38 @@ async function loadUsers() {
   }
 }
 
+async function searchUser(search: string) {
+  try {
+    searchResults.splice(0, searchResults.length);
+    if (search === '') {
+      // If search is empty, show the loaded users
+      searchResults.push(...loadedUsers);
+      return;
+    }
+
+    loading.value = true;
+    const userSearchOutput = await functions.searchUser(search);
+
+    // Add actions to search results
+    const searchUsersWithActions = userSearchOutput.map((user: User) => ({
+      ...user,
+      actions: user['user-type'] === 'application' ? ['rename', 'delete'] : ['delete'],
+    })) as (User & { actions: string[] })[];
+
+    searchResults.push(...searchUsersWithActions);
+  } catch (error) {
+    console.error('Error searching users:', error);
+  } finally {
+    loading.value = false;
+  }
+}
+
 async function paginationCheck(option: any) {
+  // If there's a search query, don't do pagination - search handles its own results
+  if (searchUsers.value !== '') {
+    return;
+  }
+
   if (loadedUsers.length >= 10000) return;
 
   // Always stay ahead by loading more data when we're getting close to the end
@@ -195,6 +227,12 @@ async function paginationCheck(option: any) {
       });
 
       loadedUsers.push(...loadedUsersTmp);
+
+      // If no search is active, also update search results
+      if (searchUsers.value === '') {
+        searchResults.push(...loadedUsersTmp);
+      }
+
       console.log('Total users now:', loadedUsers.length);
     } catch (error) {
       console.error('Error in pagination:', error);
@@ -213,10 +251,15 @@ async function deleteUser(user: User) {
   try {
     await functions.deleteUser(user.id);
 
-    // Remove the deleted user from the loaded users array to preserve pagination
-    const index = loadedUsers.findIndex((u) => u.id === user.id);
-    if (index !== -1) {
-      loadedUsers.splice(index, 1);
+    // Remove the deleted user from both loaded users and search results arrays
+    const loadedIndex = loadedUsers.findIndex((u) => u.id === user.id);
+    if (loadedIndex !== -1) {
+      loadedUsers.splice(loadedIndex, 1);
+    }
+
+    const searchIndex = searchResults.findIndex((u) => u.id === user.id);
+    if (searchIndex !== -1) {
+      searchResults.splice(searchIndex, 1);
     }
 
     emit('deletedUser', user);
@@ -231,10 +274,15 @@ async function renameUser(user: { name: string; id: string }) {
     await functions.updateUserById(user.name, user.id);
     renameStatus.value = StatusIntent.SUCCESS;
 
-    // Update the user in the loaded users array to reflect the name change
-    const userIndex = loadedUsers.findIndex((u) => u.id === user.id);
-    if (userIndex !== -1) {
-      loadedUsers[userIndex].name = user.name;
+    // Update the user in both loaded users and search results arrays
+    const loadedUserIndex = loadedUsers.findIndex((u) => u.id === user.id);
+    if (loadedUserIndex !== -1) {
+      loadedUsers[loadedUserIndex].name = user.name;
+    }
+
+    const searchUserIndex = searchResults.findIndex((u) => u.id === user.id);
+    if (searchUserIndex !== -1) {
+      searchResults[searchUserIndex].name = user.name;
     }
   } catch (error) {
     console.error(error);
@@ -243,9 +291,11 @@ async function renameUser(user: { name: string; id: string }) {
 }
 
 // Load users when component mounts
-onMounted(() => {
+onMounted(async () => {
   if (props.canListUsers) {
-    loadUsers();
+    await loadUsers();
+    // Initialize search results with loaded users
+    searchResults.push(...loadedUsers);
   }
 });
 
