@@ -1,10 +1,17 @@
 <template>
   <v-data-table
+    height="75vh"
+    items-per-page="50"
     fixed-header
     :headers="headers"
     hover
-    :items="users"
-    :sort-by="[{ key: 'name', order: 'asc' }]">
+    :items="loadedUsers"
+    :sort-by="[{ key: 'name', order: 'asc' }]"
+    :items-per-page-options="[
+      { title: '25 items', value: 25 },
+      { title: '50 items', value: 50 },
+    ]"
+    @update:options="$emit('paginationCheck', $event)">
     <template #item.actions="{ item }">
       <span v-for="(action, i) in item.actions" :key="i" class="mr-2">
         <user-rename-dialog
@@ -48,13 +55,12 @@
     </template>
 
     <template #no-data>
-      <div>No deleted tabulars in this namespace</div>
+      <div>No users found</div>
     </template>
   </v-data-table>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, watch } from 'vue';
 import { User } from '@/gen/management/types.gen';
 
 import { Header } from '@/common/interfaces';
@@ -70,54 +76,28 @@ const headers: readonly Header[] = Object.freeze([
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
-const users: (User & { actions: any })[] = reactive([]);
-
 const props = defineProps<{
-  loadedUsers: User[];
+  loadedUsers: (User & { actions: string[] })[];
   canDeleteUsers: boolean;
   status: StatusIntent;
 }>();
 
 const emit = defineEmits<{
-  (e: 'deletedUser'): void;
+  (e: 'deletedUser', user: User): void;
   (e: 'renameUserName', user: { name: string; id: string }): void;
+  (e: 'paginationCheck', options: any): void;
 }>();
-
-async function init() {
-  users.splice(0, users.length);
-  Object.assign(users, props.loadedUsers);
-
-  for (const user of users) {
-    user.actions = [];
-
-    if (user['user-type'] === 'application') {
-      user.actions.push('rename');
-    }
-    user.actions.push('delete');
-  }
-}
 
 async function deleteUser(user: User) {
   try {
     await functions.deleteUser(user.id);
-    emit('deletedUser');
+    emit('deletedUser', user);
   } catch (error) {
     console.error(error);
   }
 }
 
-watch(
-  () => props.loadedUsers,
-  async () => {
-    await init();
-  },
-);
-
-onMounted(async () => {
-  await init();
-});
-
 function renameUser(user: { name: string; id: string }) {
-  emit('renameUserName', { name: user.name, id: user.id });
+  emit('renameUserName', user);
 }
 </script>
