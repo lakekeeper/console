@@ -62,20 +62,10 @@
         </v-tabs-window-item>
         <v-tabs-window-item v-if="canListUsers && enabledAuthentication" value="users">
           <v-card>
-            <v-row v-if="users.length === 0" justify="center">
-              <v-progress-circular
-                class="mt-4"
-                color="info"
-                indeterminate
-                :size="126"></v-progress-circular>
-            </v-row>
             <UserManager
-              v-else
               :can-delete-users="canDeleteUsers"
-              :loaded-users="users"
-              :status="status"
-              @deleted-user="listUser"
-              @rename-user-name="renameUser" />
+              :can-list-users="canListUsers"
+              :status="status" />
           </v-card>
         </v-tabs-window-item>
       </v-tabs-window>
@@ -87,10 +77,11 @@
 import { useVisualStore } from '@/stores/visual';
 import { useFunctions } from '@/plugins/functions';
 import { computed, onMounted, reactive, ref } from 'vue';
-import { ServerAction, ServerAssignment, User } from '@/gen/management/types.gen';
+import { ServerAction, ServerAssignment } from '@/gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '@/common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
+import UserManager from '@/components/UserManager.vue';
 
 const tab = ref('overview');
 const visual = useVisualStore();
@@ -115,7 +106,10 @@ const canProvisionUsers = ref(false);
 const canUpdateUsers = ref(false);
 const assignStatus = ref(StatusIntent.INACTIVE);
 
-const users = reactive<User[]>([]);
+const projectInfo = computed(() => {
+  return visual.getServerInfo();
+});
+
 const assignments = reactive<
   { id: string; name: string; email: string; type: string; kind: string }[]
 >([]);
@@ -123,13 +117,13 @@ const assignments = reactive<
 const existingAssignments = reactive<ServerAssignment[]>([]);
 
 async function init() {
-  permissionObject.id = visual.getServerInfo()['server-id'];
-
   await functions.getServerInfo();
+  permissionObject.id = projectInfo.value['server-id'];
 
   await getMyAccess();
 
-  await Promise.all([listUser(), getServerAccess()]);
+  // Only load server access, not users - users will be loaded when tab is clicked
+  await getServerAccess();
 }
 
 async function getMyAccess() {
@@ -151,17 +145,6 @@ function checkPermission() {
   canGrantAdmin.value = !!myAccess.includes('grant_admin');
   canProvisionUsers.value = !!myAccess.includes('provision_users');
   canUpdateUsers.value = !!myAccess.includes('update_users');
-}
-
-async function listUser() {
-  try {
-    if (!canListUsers.value) return;
-    users.splice(0, users.length);
-
-    Object.assign(users, await functions.listUser());
-  } catch (error) {
-    console.error(error);
-  }
 }
 
 async function getServerAccess() {
@@ -234,20 +217,4 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
 onMounted(async () => {
   await init();
 });
-
-const projectInfo = computed(() => {
-  return visual.getServerInfo();
-});
-
-async function renameUser(user: { name: string; id: string }) {
-  try {
-    status.value = StatusIntent.STARTING;
-
-    await functions.updateUserById(user.name, user.id);
-    await listUser();
-    status.value = StatusIntent.SUCCESS;
-  } catch (error) {
-    console.error(error);
-  }
-}
 </script>

@@ -1686,7 +1686,10 @@ async function deleteUser(userId: string): Promise<boolean> {
   }
 }
 
-async function listUser(): Promise<User[]> {
+async function listUser(
+  pageToken?: string,
+  pageSize?: number,
+): Promise<{ users: User[]; 'next-page-token'?: string }> {
   try {
     init();
 
@@ -1694,11 +1697,18 @@ async function listUser(): Promise<User[]> {
 
     const { data, error } = await mng.listUser({
       client,
+      query: {
+        pageToken: pageToken || undefined,
+        pageSize: pageSize || 50,
+      },
     });
 
     if (error) throw error;
 
-    return data?.users as User[];
+    return {
+      users: data?.users as User[],
+      'next-page-token': data?.['next-page-token'] || undefined,
+    };
   } catch (error: any) {
     handleError(error, new Error());
     throw error;
