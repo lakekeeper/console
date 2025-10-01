@@ -32,7 +32,7 @@
           v-if="action == 'rename'"
           :id="item.id"
           :name="item.name"
-          :status="props.status"
+          :status="renameStatus"
           @rename-user-name="renameUser"></user-rename-dialog>
         <DialogDeleteConfirm
           v-else-if="action === 'delete'"
@@ -99,7 +99,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'deletedUser', user: User): void;
-  (e: 'renameUserName', user: { name: string; id: string }): void;
 }>();
 
 // Internal state for pagination
@@ -107,6 +106,7 @@ const loadedUsers: (User & { actions: string[] })[] = reactive([]);
 const paginationTokenUser = ref('');
 const loading = ref(false);
 const searchUsers = ref('');
+const renameStatus = ref(StatusIntent.INACTIVE);
 
 async function loadUsers() {
   if (!props.canListUsers) return;
@@ -224,8 +224,21 @@ async function deleteUser(user: User) {
   }
 }
 
-function renameUser(user: { name: string; id: string }) {
-  emit('renameUserName', user);
+async function renameUser(user: { name: string; id: string }) {
+  try {
+    renameStatus.value = StatusIntent.STARTING;
+    await functions.updateUserById(user.name, user.id);
+    renameStatus.value = StatusIntent.SUCCESS;
+
+    // Update the user in the loaded users array to reflect the name change
+    const userIndex = loadedUsers.findIndex((u) => u.id === user.id);
+    if (userIndex !== -1) {
+      loadedUsers[userIndex].name = user.name;
+    }
+  } catch (error) {
+    console.error(error);
+    renameStatus.value = StatusIntent.FAILURE;
+  }
 }
 
 // Load users when component mounts

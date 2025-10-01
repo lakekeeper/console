@@ -65,9 +65,7 @@
             <UserManager
               :can-delete-users="canDeleteUsers"
               :can-list-users="canListUsers"
-              :status="status"
-              @deleted-user="handleUserDeleted"
-              @rename-user-name="renameUser" />
+              :status="status" />
           </v-card>
         </v-tabs-window-item>
       </v-tabs-window>
@@ -108,6 +106,10 @@ const canProvisionUsers = ref(false);
 const canUpdateUsers = ref(false);
 const assignStatus = ref(StatusIntent.INACTIVE);
 
+const projectInfo = computed(() => {
+  return visual.getServerInfo();
+});
+
 const assignments = reactive<
   { id: string; name: string; email: string; type: string; kind: string }[]
 >([]);
@@ -115,7 +117,7 @@ const assignments = reactive<
 const existingAssignments = reactive<ServerAssignment[]>([]);
 
 async function init() {
-  permissionObject.id = visual.getServerInfo()['server-id'];
+  permissionObject.id = projectInfo.value['server-id'];
 
   await functions.getServerInfo();
 
@@ -216,19 +218,4 @@ async function assign(item: { del: AssignmentCollection; writes: AssignmentColle
 onMounted(async () => {
   await init();
 });
-
-const projectInfo = computed(() => {
-  return visual.getServerInfo();
-});
-
-async function renameUser(user: { name: string; id: string }) {
-  try {
-    status.value = StatusIntent.STARTING;
-    await functions.updateUserById(user.name, user.id);
-    status.value = StatusIntent.SUCCESS;
-  } catch (error) {
-    console.error(error);
-    status.value = StatusIntent.FAILURE;
-  }
-}
 </script>
