@@ -117,9 +117,8 @@ const assignments = reactive<
 const existingAssignments = reactive<ServerAssignment[]>([]);
 
 async function init() {
-  permissionObject.id = projectInfo.value['server-id'];
-
   await functions.getServerInfo();
+  permissionObject.id = projectInfo.value['server-id'];
 
   await getMyAccess();
 
