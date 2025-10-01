@@ -19,8 +19,9 @@
         <v-spacer></v-spacer>
         <v-text-field
           v-model="searchUsers"
-          label="Filter users"
+          label="Filter loaded users"
           prepend-inner-icon="mdi-filter"
+          placeholder="Type to filter loaded users"
           variant="underlined"
           hide-details
           clearable></v-text-field>
