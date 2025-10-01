@@ -6,6 +6,7 @@
     :headers="headers"
     hover
     :items="loadedUsers"
+    :search="searchUsers"
     :sort-by="[{ key: 'name', order: 'asc' }]"
     :items-per-page-options="[
       { title: '25 items', value: 25 },
@@ -13,6 +14,18 @@
     ]"
     :loading="loading"
     @update:options="paginationCheck">
+    <template #top>
+      <v-toolbar color="transparent" density="compact" flat>
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="searchUsers"
+          label="Filter users"
+          prepend-inner-icon="mdi-filter"
+          variant="underlined"
+          hide-details
+          clearable></v-text-field>
+      </v-toolbar>
+    </template>
     <template #item.actions="{ item }">
       <span v-for="(action, i) in item.actions" :key="i" class="mr-2">
         <user-rename-dialog
@@ -93,6 +106,7 @@ const emit = defineEmits<{
 const loadedUsers: (User & { actions: string[] })[] = reactive([]);
 const paginationTokenUser = ref('');
 const loading = ref(false);
+const searchUsers = ref('');
 
 async function loadUsers() {
   if (!props.canListUsers) return;
