@@ -217,11 +217,6 @@ onMounted(async () => {
   await init();
 });
 
-async function handleUserDeleted(deletedUser: any) {
-  // UserManager handles its own user deletion, this is just for any additional cleanup
-  console.log('User deleted:', deletedUser.name);
-}
-
 const projectInfo = computed(() => {
   return visual.getServerInfo();
 });
