@@ -62,15 +62,12 @@
         </v-tabs-window-item>
         <v-tabs-window-item v-if="canListUsers && enabledAuthentication" value="users">
           <v-card>
-            <v-progress-linear v-if="tab === 'users' && !usersLoaded" indeterminate />
             <UserManager
-              v-if="usersLoaded"
               :can-delete-users="canDeleteUsers"
-              :loaded-users="loadedUsers"
+              :can-list-users="canListUsers"
               :status="status"
               @deleted-user="handleUserDeleted"
-              @rename-user-name="renameUser"
-              @pagination-check="paginationCheckUsers" />
+              @rename-user-name="renameUser" />
           </v-card>
         </v-tabs-window-item>
       </v-tabs-window>
@@ -81,11 +78,12 @@
 <script lang="ts" setup>
 import { useVisualStore } from '@/stores/visual';
 import { useFunctions } from '@/plugins/functions';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
-import { ServerAction, ServerAssignment, User } from '@/gen/management/types.gen';
+import { computed, onMounted, reactive, ref } from 'vue';
+import { ServerAction, ServerAssignment } from '@/gen/management/types.gen';
 import { AssignmentCollection, RelationType } from '@/common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
+import UserManager from '@/components/UserManager.vue';
 
 const tab = ref('overview');
 const visual = useVisualStore();
@@ -94,7 +92,6 @@ const serverAssignments = reactive<ServerAssignment[]>([]);
 const loaded = ref(true);
 const permissionType = ref<RelationType>('server');
 const status = ref(StatusIntent.INACTIVE);
-const usersLoaded = ref(false);
 
 const permissionObject = reactive<any>({
   id: '',
@@ -110,9 +107,6 @@ const canGrantAdmin = ref(false);
 const canProvisionUsers = ref(false);
 const canUpdateUsers = ref(false);
 const assignStatus = ref(StatusIntent.INACTIVE);
-
-const loadedUsers: (User & { actions: string[] })[] = reactive([]);
-const paginationTokenUser = ref('');
 
 const assignments = reactive<
   { id: string; name: string; email: string; type: string; kind: string }[]
@@ -150,71 +144,6 @@ function checkPermission() {
   canGrantAdmin.value = !!myAccess.includes('grant_admin');
   canProvisionUsers.value = !!myAccess.includes('provision_users');
   canUpdateUsers.value = !!myAccess.includes('update_users');
-}
-
-async function handleUserDeleted(deletedUser: User) {
-  // Remove the deleted user from the loaded users array to preserve pagination
-  const index = loadedUsers.findIndex((user) => user.id === deletedUser.id);
-  if (index !== -1) {
-    loadedUsers.splice(index, 1);
-  }
-}
-
-async function paginationCheckUsers(option: any) {
-  if (loadedUsers.length >= 10000) return;
-
-  // Check if we're at or near the end of loaded data and have more data to load
-  const currentlyDisplayed = option.page * option.itemsPerPage;
-  const isNearEnd = currentlyDisplayed >= loadedUsers.length - option.itemsPerPage;
-
-  if (isNearEnd && paginationTokenUser.value != '') {
-    const data = await functions.listUser(paginationTokenUser.value);
-
-    // Directly assign the users array and cast to the proper type
-    const loadedUsersTmp: (User & { actions: string[] })[] = (data.users || []) as (User & {
-      actions: string[];
-    })[];
-    paginationTokenUser.value = data['next-page-token'] || '';
-
-    loadedUsersTmp.forEach((user) => {
-      user.actions = [];
-      if (user['user-type'] === 'application') {
-        user.actions.push('rename');
-      }
-      user.actions.push('delete');
-    });
-
-    loadedUsers.push(...loadedUsersTmp);
-  }
-}
-
-async function listUsers() {
-  try {
-    if (!canListUsers.value) return;
-    loadedUsers.splice(0, loadedUsers.length);
-
-    const data = await functions.listUser();
-
-    // Directly assign the users array instead of using Object.assign
-    const initialUsers = (data.users || []) as (User & { actions: string[] })[];
-    loadedUsers.push(...initialUsers);
-
-    if (data['next-page-token']) {
-      paginationTokenUser.value = data['next-page-token'];
-    } else {
-      paginationTokenUser.value = '';
-    }
-
-    loadedUsers.forEach((user) => {
-      user.actions = [];
-      if (user['user-type'] === 'application') {
-        user.actions.push('rename');
-      }
-      user.actions.push('delete');
-    });
-  } catch (error) {
-    console.error('Error in listUsers:', error);
-  }
 }
 
 async function getServerAccess() {
@@ -288,13 +217,10 @@ onMounted(async () => {
   await init();
 });
 
-// Watch for tab changes and load users when users tab is selected
-watch(tab, async (newTab) => {
-  if (newTab === 'users' && !usersLoaded.value && canListUsers.value) {
-    await listUsers();
-    usersLoaded.value = true;
-  }
-});
+async function handleUserDeleted(deletedUser: any) {
+  // UserManager handles its own user deletion, this is just for any additional cleanup
+  console.log('User deleted:', deletedUser.name);
+}
 
 const projectInfo = computed(() => {
   return visual.getServerInfo();
@@ -303,13 +229,11 @@ const projectInfo = computed(() => {
 async function renameUser(user: { name: string; id: string }) {
   try {
     status.value = StatusIntent.STARTING;
-
     await functions.updateUserById(user.name, user.id);
-    // Refresh the user list after rename
-    await listUsers();
     status.value = StatusIntent.SUCCESS;
   } catch (error) {
     console.error(error);
+    status.value = StatusIntent.FAILURE;
   }
 }
 </script>
