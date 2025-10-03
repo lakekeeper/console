@@ -372,9 +372,7 @@
               </v-card-text>
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
-              <PermissionManager
-                :assignable-obj="permissionObject"
-                :relation-type="permissionType" />
+              <PermissionManager :object-id="params.id" :relation-type="permissionType" />
             </v-tabs-window-item>
             <v-tabs-window-item
               v-if="(canGetAllTasks || !enabledAuthentication || !enabledPermissions) && loaded"
@@ -413,7 +411,6 @@ import {
   StorageProfile,
   TabularDeleteProfile,
   WarehouseAction,
-  WarehouseAssignment,
   WarehouseStatistics,
 } from '@/gen/management/types.gen';
 
@@ -461,7 +458,6 @@ const selectedWarehouse = reactive<GetWarehouseResponse>({
 
 const loadedWarehouseItems: Item[] = reactive([]);
 const permissionType = ref<RelationType>('warehouse');
-const existingPermissions = reactive<WarehouseAssignment[]>([]);
 const namespaceId = ref('');
 const myAccess = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 // const myAccessParent = reactive<WarehouseAction[] | NamespaceAction[]>([]);
@@ -482,11 +478,6 @@ const stats = reactive<WarehouseStatistics[]>([
   },
 ]);
 const paginationTokenNamespace = ref('');
-const permissionObject = reactive<any>({
-  id: '',
-  description: '',
-  name: '',
-});
 
 const params = computed(() => route.params as { id: string });
 const renaming = ref(false);
@@ -494,38 +485,18 @@ async function loadWarehouse() {
   const whResponse = await functions.getWarehouse(params.value.id);
   recursiveDeleteProtection.value = whResponse.protected;
   if (whResponse) {
-    permissionObject.id = whResponse.id;
-    permissionObject.name = whResponse.name;
     visual.wahrehouseName = whResponse.name;
     visual.whId = whResponse.id;
     Object.assign(selectedWarehouse, whResponse);
   }
 }
-async function loadPermissionsData() {
-  if (!canReadPermissions.value) return;
-
-  try {
-    loaded.value = false;
-    existingPermissions.splice(0, existingPermissions.length);
-
-    Object.assign(
-      existingPermissions,
-      await functions.getWarehouseAssignmentsById(params.value.id),
-    );
-    loaded.value = true;
-  } catch (error) {
-    console.error('Failed to load permissions data:', error);
-    loaded.value = true;
-  }
-}
-
 async function loadTabData() {
   switch (tab.value) {
     case 'namespaces':
       await listNamespaces();
       break;
     case 'permissions':
-      await loadPermissionsData();
+      // Permissions are loaded by PermissionManager component
       break;
     case 'details':
       await loadWarehouse();
@@ -542,7 +513,6 @@ async function init() {
     myAccess.splice(0, myAccess.length);
     namespaceId.value = '';
     relationId.value = params.value.id;
-    existingPermissions.splice(0, existingPermissions.length);
     loadedWarehouseItems.splice(0, loadedWarehouseItems.length);
 
     Object.assign(myAccess, await functions.getWarehouseAccessById(params.value.id));
@@ -558,15 +528,7 @@ async function init() {
     canGetAllTasks.value = !!(myAccess as WarehouseAction[]).includes('get_all_tasks');
     canControlAllTasks.value = !!(myAccess as WarehouseAction[]).includes('control_all_tasks');
 
-    // Only load permissions data if we're on the permissions tab
-    if (tab.value === 'permissions') {
-      Object.assign(
-        existingPermissions,
-        canReadPermissions.value
-          ? await functions.getWarehouseAssignmentsById(params.value.id)
-          : [],
-      );
-    }
+    // Permissions are loaded by PermissionManager component when tab is active
 
     loaded.value = true;
     await Promise.all([loadWarehouse(), listNamespaces(), getWarehouseStatistics()]);

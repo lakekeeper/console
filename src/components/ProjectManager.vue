@@ -108,7 +108,10 @@
         <v-tabs-window-item
           v-if="canReadAssignments && userStorage.isAuthenticated"
           value="permissions">
-          <PermissionManager :assignable-obj="permissionObject" :relation-type="permissionType" />
+          <PermissionManager
+            v-if="project['project-id']"
+            :object-id="project['project-id']"
+            :relation-type="permissionType" />
         </v-tabs-window-item>
 
         <v-tabs-window-item value="statistics">
@@ -179,17 +182,9 @@ const project = computed(() => {
   return visual.projectSelected;
 });
 
-const permissionObject = reactive<any>({
-  id: '',
-  description: '',
-  name: 'Project',
-});
-
 async function init() {
   try {
     loaded.value = false;
-    permissionObject.id = project.value['project-id'];
-    permissionObject.name = project.value['project-name'];
 
     await loadProjects();
     myAccess.splice(0, myAccess.length);

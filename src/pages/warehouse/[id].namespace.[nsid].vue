@@ -269,7 +269,8 @@
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
-                :assignable-obj="permissionObject"
+                v-if="namespaceId"
+                :object-id="namespaceId"
                 :relation-type="permissionType" />
             </v-tabs-window-item>
           </v-tabs-window>
@@ -290,11 +291,7 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import router from '../../router';
 import { Header, Item, Options, RelationType } from '../../common/interfaces';
 
-import {
-  DeletedTabularResponse,
-  NamespaceAction,
-  WarehouseAssignment,
-} from '../../gen/management/types.gen';
+import { DeletedTabularResponse, NamespaceAction } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -318,7 +315,6 @@ const paginationTokenView = ref('');
 const paginationTokenNamespace = ref('');
 const items: Item[] = reactive([]);
 const permissionType = ref<RelationType>('namespace');
-const existingPermissions = reactive<WarehouseAssignment[]>([]);
 // const namespaceId = ref<string>("");
 
 const headers: readonly Header[] = Object.freeze([
@@ -371,11 +367,6 @@ const namespace = reactive<GetNamespaceResponse>({
   namespace: [],
 });
 const namespaceId = computed(() => namespace.properties?.namespace_id);
-const permissionObject = reactive<any>({
-  id: '',
-  description: '',
-  name: '',
-});
 
 onMounted(async () => {
   await init();
@@ -439,7 +430,6 @@ async function init() {
   try {
     const serverInfo = await functions.getServerInfo();
     loaded.value = false;
-    existingPermissions.splice(0, existingPermissions.length);
 
     Object.assign(
       namespace,
@@ -450,8 +440,6 @@ async function init() {
 
     selectedNamespace.value = namespace.namespace[namespace.namespace.length - 1];
 
-    permissionObject.id = namespace.properties?.namespace_id || '';
-
     if (serverInfo['authz-backend'] != 'allow-all') {
       Object.assign(
         myAccess,
@@ -459,12 +447,7 @@ async function init() {
       );
       canReadPermissions.value = !!myAccess.includes('read_assignments');
 
-      Object.assign(
-        existingPermissions,
-        canReadPermissions.value
-          ? await functions.getNamespaceAssignmentsById(namespace.properties?.namespace_id || '')
-          : [],
-      );
+      // Permissions are loaded by PermissionManager component when tab is active
     }
     loaded.value = true;
     await Promise.all([listNamespaces(), listTables(), listViews(), listDeletedTabulars()]);

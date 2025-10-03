@@ -1,5 +1,17 @@
 <template>
   <v-card>
+    <v-card-title>Role: {{ role.name }}</v-card-title>
+
+    <v-card-subtitle v-if="role.id">
+      <div v-if="role['created-at']">Created At: {{ role['created-at'] }}</div>
+      ID: {{ role.id }}
+      <v-btn
+        icon="mdi-content-copy"
+        size="small"
+        variant="flat"
+        @click="functions.copyToClipboard(role.id)"></v-btn>
+    </v-card-subtitle>
+
     <v-card-text>
       <v-row>
         <v-col>

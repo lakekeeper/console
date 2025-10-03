@@ -110,7 +110,8 @@
 
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
-                :assignable-obj="permissionObject"
+                v-if="tableId"
+                :object-id="tableId"
                 :relation-type="permissionType"
                 :warehouse-id="warehouseId" />
             </v-tabs-window-item>
@@ -148,7 +149,7 @@ import { useFunctions } from '../../plugins/functions';
 import TaskManager from '../../components/TaskManager.vue';
 import SearchTabular from '../../components/SearchTabular.vue';
 import { LoadTableResultReadable } from '../../gen/iceberg/types.gen';
-import { TableAction, TableAssignment } from '../../gen/management/types.gen';
+import { TableAction } from '../../gen/management/types.gen';
 import { RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -182,11 +183,6 @@ const table = reactive<LoadTableResultReadable>({
   },
 });
 const permissionType = ref<RelationType>('table');
-const permissionObject = reactive<any>({
-  id: '',
-  description: '',
-  name: '',
-});
 
 const visual = useVisualStore();
 const themeLight = computed(() => {
@@ -196,7 +192,6 @@ const themeText = computed(() => {
   return themeLight.value ? 'light' : 'dark';
 });
 
-const existingPermissions = reactive<TableAssignment[]>([]);
 const loaded = ref(false);
 const snapshotHistory = reactive<Snapshot[]>([]);
 
@@ -216,8 +211,6 @@ async function init() {
     return;
   }
 
-  permissionObject.id = tableId.value;
-  permissionObject.name = tableName;
   if (serverInfo['authz-backend'] != 'allow-all') {
     Object.assign(myAccess, await functions.getTableAccessById(tableId.value, warehouseId));
     if (tableId.value) {
@@ -230,14 +223,7 @@ async function init() {
     canGetTasks.value = !!(myAccess as TableAction[]).includes('get_tasks');
     canControlTasks.value = !!(myAccess as TableAction[]).includes('control_tasks');
 
-    // Only load permissions data if we're on the permissions tab
-    if (tab.value === 'permissions' && canReadPermissions.value) {
-      existingPermissions.splice(0, existingPermissions.length);
-      Object.assign(
-        existingPermissions,
-        await functions.getTableAssignmentsById(tableId.value, warehouseId),
-      );
-    }
+    // Permissions are loaded by PermissionManager component when tab is active
   }
   loaded.value = true;
 
@@ -282,7 +268,7 @@ async function loadTabData() {
   // Load fresh data specific to the current tab
   switch (tab.value) {
     case 'permissions':
-      await loadPermissionsData();
+      // Permissions are loaded by PermissionManager component
       break;
     case 'tasks':
       // Tasks are loaded by TaskManager component - it handles its own refresh
@@ -298,23 +284,6 @@ async function loadTabData() {
       );
       depthRawRepresentationMax.value = getMaxDepth(table);
       break;
-  }
-}
-
-async function loadPermissionsData() {
-  if (!canReadPermissions.value) return;
-
-  try {
-    loaded.value = false;
-    existingPermissions.splice(0, existingPermissions.length);
-    Object.assign(
-      existingPermissions,
-      await functions.getTableAssignmentsById(tableId.value, warehouseId),
-    );
-    loaded.value = true;
-  } catch (error) {
-    console.error('Failed to load permissions data:', error);
-    loaded.value = true;
   }
 }
 

@@ -112,7 +112,8 @@
 
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
-                :assignable-obj="permissionObject"
+                v-if="viewId"
+                :object-id="viewId"
                 :relation-type="permissionType"
                 :warehouse-id="warehouseId" />
             </v-tabs-window-item>
@@ -152,7 +153,7 @@ import ViewDetails from '../../components/ViewDetails.vue';
 import ViewHistory from '../../components/ViewHistory.vue';
 import SearchTabular from '../../components/SearchTabular.vue';
 import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
-import { ViewAction, ViewAssignment } from '../../gen/management/types.gen';
+import { ViewAction } from '../../gen/management/types.gen';
 import { RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -169,12 +170,6 @@ const depthRawRepresentationMax = ref(1000);
 const myAccess = reactive<ViewAction[]>([]);
 
 const permissionType = ref<RelationType>('view');
-
-const permissionObject = reactive<any>({
-  id: '',
-  description: '',
-  name: '',
-});
 
 const visual = useVisualStore();
 const themeLight = computed(() => {
@@ -202,7 +197,6 @@ const view = reactive<LoadViewResultReadable>({
   },
 });
 const loaded = ref(false);
-const existingPermissions = reactive<ViewAssignment[]>([]);
 const canReadPermissions = ref(false);
 const canModifyView = ref(false);
 const canGetTasks = ref(false);
@@ -216,7 +210,7 @@ async function loadTabData() {
   // Load fresh data specific to the current tab
   switch (tab.value) {
     case 'permissions':
-      await loadPermissionsData();
+      // Permissions are loaded by PermissionManager component
       break;
     case 'tasks':
       // Tasks are loaded by TaskManager component - it handles its own refresh
@@ -240,28 +234,10 @@ async function loadTabData() {
   }
 }
 
-async function loadPermissionsData() {
-  if (!canReadPermissions.value) return;
-
-  try {
-    loaded.value = false;
-    existingPermissions.splice(0, existingPermissions.length);
-    Object.assign(
-      existingPermissions,
-      await functions.getViewAssignmentsById(viewId.value, warehouseId),
-    );
-    loaded.value = true;
-  } catch (error) {
-    console.error('Failed to load permissions data:', error);
-    loaded.value = true;
-  }
-}
-
 async function init() {
   const serverInfo = await functions.getServerInfo();
 
   loaded.value = false;
-  existingPermissions.splice(0, existingPermissions.length);
 
   crumbPath.value = `${namespaceId}${String.fromCharCode(0x1f)}${viewName}`;
 
@@ -282,8 +258,6 @@ async function init() {
       sqlStatement.value = version.representations[0].sql;
     }
   });
-  permissionObject.id = viewId.value;
-  permissionObject.name = viewName;
   if (serverInfo['authz-backend'] != 'allow-all') {
     Object.assign(myAccess, await functions.getViewAccessById(viewId.value, warehouseId));
     if (viewId.value) {
@@ -298,12 +272,7 @@ async function init() {
     canGetTasks.value = !!(myAccess as ViewAction[]).includes('get_tasks');
     canControlTasks.value = !!(myAccess as ViewAction[]).includes('control_tasks');
 
-    Object.assign(
-      existingPermissions,
-      canReadPermissions.value && tab.value === 'permissions'
-        ? await functions.getViewAssignmentsById(viewId.value, warehouseId)
-        : [],
-    );
+    // Permissions are loaded by PermissionManager component when tab is active
   }
 
   depthRawRepresentationMax.value = getMaxDepth(view);

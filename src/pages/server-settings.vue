@@ -9,7 +9,7 @@
       <ServerOverview />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
-      <PermissionManager :assignable-obj="permissionObject" :relation-type="permissionType" />
+      <PermissionManager :object-id="serverId" :relation-type="permissionType" />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showUsersTab" value="users">
       <UserManager :can-delete-users="canDeleteUsers" :can-list-users="canListUsers" />
@@ -27,13 +27,7 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 const tab = ref('overview');
 const functions = useFunctions();
 
-const permissionObject = reactive<{
-  id: string;
-  name: string;
-}>({
-  id: '',
-  name: 'Server',
-});
+const serverId = ref('');
 
 const myAccess = reactive<ServerAction[]>([]);
 const canReadAssignments = ref(false);
@@ -51,7 +45,7 @@ const showUsersTab = computed(() => canListUsers.value && enabledAuthentication)
 
 async function init() {
   const serverInfo = await functions.getServerInfo();
-  permissionObject.id = serverInfo['server-id'];
+  serverId.value = serverInfo['server-id'];
   await getMyAccess();
 }
 

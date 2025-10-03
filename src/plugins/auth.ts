@@ -78,8 +78,30 @@ async function refreshToken(): Promise<User | undefined> {
     useUserStore().setUser(newUser);
     return newUser;
   } catch (error: any) {
-    console.error('Token refresh failed', error);
-    await userManager.signinRedirect(); // Redirect on true failure
+    console.error('Token refresh failed, attempting silent login', error);
+
+    // Try silent login first before redirecting
+    try {
+      const user = await userManager.signinSilent();
+
+      const newUser: User = {
+        access_token:
+          env.idpTokenType == TokenType.ID_TOKEN ? user?.id_token || '' : user?.access_token || '',
+        id_token: user?.id_token || '',
+        refresh_token: user?.refresh_token || '',
+        token_expires_at: user?.profile.exp || 0,
+        email: user?.profile.email || '',
+        preferred_username: user?.profile.preferred_username || '',
+        family_name: user?.profile.family_name || '',
+        given_name: user?.profile.given_name || '',
+      };
+      useUserStore().setUser(newUser);
+      console.log('Silent login successful');
+      return newUser;
+    } catch (silentError: any) {
+      console.error('Silent login failed, redirecting to login', silentError);
+      await userManager.signinRedirect(); // Redirect on true failure
+    }
   }
 }
 
