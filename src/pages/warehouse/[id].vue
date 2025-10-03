@@ -61,318 +61,38 @@
         </v-toolbar>
 
         <v-tabs v-model="tab" density="compact">
-          <v-tab density="compact" value="namespaces" @click="loadTabData">namespaces</v-tab>
+          <v-tab density="compact" value="namespaces">namespaces</v-tab>
           <v-tab
             v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
             density="compact"
-            value="permissions"
-            @click="loadTabData">
+            value="permissions">
             permissions
           </v-tab>
-          <v-tab density="compact" value="details" @click="loadTabData">Details</v-tab>
+          <v-tab density="compact" value="details">Details</v-tab>
           <v-tab
             v-if="canGetAllTasks || !enabledAuthentication || !enabledPermissions"
             density="compact"
-            value="tasks"
-            @click="loadTabData">
+            value="tasks">
             Tasks
           </v-tab>
         </v-tabs>
         <v-card>
           <v-tabs-window v-model="tab">
             <v-tabs-window-item value="namespaces">
-              <v-data-table
-                height="60vh"
-                :search="searchNamespace"
-                fixed-header
-                :headers="headers"
-                hover
-                items-per-page="50"
-                :items="loadedWarehouseItems"
-                :sort-by="[{ key: 'name', order: 'asc' }]"
-                :items-per-page-options="[
-                  { title: '50 items', value: 50 },
-                  { title: '100 items', value: 100 },
-                ]"
-                @update:options="paginationCheckNamespace($event)">
-                <template #top>
-                  <v-toolbar color="transparent" density="compact" flat>
-                    <v-switch
-                      v-model="recursiveDeleteProtection"
-                      class="ml-4 mt-4"
-                      color="info"
-                      :label="
-                        !selectedWarehouse.protected
-                          ? 'Recursive Delete Protection disabled'
-                          : 'Recursive Delete Protection enabled'
-                      "
-                      @click="setProtection"></v-switch>
-                    <v-spacer></v-spacer>
-                    <v-text-field
-                      v-model="searchNamespace"
-                      label="Filter results"
-                      prepend-inner-icon="mdi-filter"
-                      variant="underlined"
-                      hide-details
-                      clearable></v-text-field>
-                  </v-toolbar>
-                </template>
-                <template #item.name="{ item }">
-                  <td class="pointer-cursor" @click="routeToNamespace(item)">
-                    <span class="icon-text">
-                      <v-icon class="mr-2">mdi-folder</v-icon>
-                      {{ item.name }}
-                    </span>
-                  </td>
-                </template>
-
-                <template #item.actions="{ item }">
-                  <DialogDelete
-                    v-if="item.type === 'namespace' && canDelete"
-                    :type="item.type"
-                    :name="item.name"
-                    @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
-                </template>
-
-                <template #no-data>
-                  <addNamespaceDialog
-                    v-if="canCreateNamespace"
-                    :parent-path="''"
-                    :status-intent="createNamespaceStatus"
-                    @add-namespace="addNamespace" />
-                </template>
-              </v-data-table>
+              <WarehouseNamespaces
+                ref="namespacesComponent"
+                :warehouse-id="params.id"
+                :protected="selectedWarehouse.protected"
+                :can-create-namespace="canCreateNamespace"
+                :can-delete="canDelete"
+                @update:protected="selectedWarehouse.protected = $event"
+                @namespace-updated="handleNamespaceUpdated" />
             </v-tabs-window-item>
             <v-tabs-window-item value="details">
-              <v-card-text>
-                <v-row>
-                  <v-col cols="10">
-                    <!--S3 Details-->
-                    <v-list v-if="selectedWarehouse['storage-profile'].type === 's3'" dense>
-                      <v-list-item>
-                        <v-list-item-title>ID</v-list-item-title>
-                        <v-list-item-subtitle>{{ selectedWarehouse.id }}</v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Project ID</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['project-id'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>
-                          Recursive Delete Protection is
-                          {{ selectedWarehouse.protected ? 'ON' : 'OFF' }}
-                        </v-list-item-title>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Storage Type</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].type }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Bucket</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].bucket }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Key Prefix</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['key-prefix'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Assume Role ARN</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['assume-role-arn'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item v-if="selectedWarehouse['storage-profile'].type === 's3'">
-                        <v-list-item-title>Endpoint</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].endpoint }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Region</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].region }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Path Style Access</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['path-style-access'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>STS Role ARN</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['sts-role-arn'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>STS Enabled</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['sts-enabled'] ? 'Yes' : 'No' }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Flavor</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].flavor }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Status</v-list-item-title>
-                        <v-list-item-subtitle>{{ selectedWarehouse.status }}</v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Allow Alternative Protocols (s3a)</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['allow-alternative-protocols'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Deletion Profile</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['delete-profile'].type }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item v-if="selectedWarehouse['delete-profile'].type == 'soft'">
-                        <v-list-item-title>Expiration Seconds</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['delete-profile']['expiration-seconds'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                    </v-list>
-                    <!--Azure Details-->
-                    <v-list v-if="selectedWarehouse['storage-profile'].type === 'adls'" dense>
-                      <v-list-item>
-                        <v-list-item-title>ID</v-list-item-title>
-                        <v-list-item-subtitle>{{ selectedWarehouse.id }}</v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Project ID</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['project-id'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Recursive Delete Protection is</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse.protected ? 'on' : 'off' }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Storage Type</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].type }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Account Name</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['account-name'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Filesystem</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].filesystem }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Key Prefix</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['key-prefix'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Status</v-list-item-title>
-                        <v-list-item-subtitle>{{ selectedWarehouse.status }}</v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Deletion Profile</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['delete-profile'].type }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item v-if="selectedWarehouse['delete-profile'].type == 'soft'">
-                        <v-list-item-title>Expiration Seconds</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['delete-profile']['expiration-seconds'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                    </v-list>
-
-                    <!--GCS Details-->
-                    <v-list v-if="selectedWarehouse['storage-profile'].type === 'gcs'" dense>
-                      <v-list-item>
-                        <v-list-item-title>ID</v-list-item-title>
-                        <v-list-item-subtitle>{{ selectedWarehouse.id }}</v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Project ID</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['project-id'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Storage Type</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].type }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-list-item-title>Bucket</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile'].bucket }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Key-prefix</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['storage-profile']['key-prefix'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Status</v-list-item-title>
-                        <v-list-item-subtitle>{{ selectedWarehouse.status }}</v-list-item-subtitle>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>Deletion Profile</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['delete-profile'].type }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                      <v-list-item v-if="selectedWarehouse['delete-profile'].type == 'soft'">
-                        <v-list-item-title>Expiration Seconds</v-list-item-title>
-                        <v-list-item-subtitle>
-                          {{ selectedWarehouse['delete-profile']['expiration-seconds'] }}
-                        </v-list-item-subtitle>
-                      </v-list-item>
-                    </v-list>
-                  </v-col>
-                </v-row>
-              </v-card-text>
+              <WarehouseDetails :warehouse="selectedWarehouse" />
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
-              <PermissionManager :object-id="params.id" :relation-type="permissionType" />
+              <PermissionManager :object-id="params.id" :relation-type="RelationType.Warehouse" />
             </v-tabs-window-item>
             <v-tabs-window-item
               v-if="(canGetAllTasks || !enabledAuthentication || !enabledPermissions) && loaded"
@@ -400,35 +120,30 @@ import { useFunctions } from '../../plugins/functions';
 import { useWarehousePermissions } from '@/composables/usePermissions';
 import TaskManager from '../../components/TaskManager.vue';
 import SearchTabular from '../../components/SearchTabular.vue';
-import { Header, Item, Options, RelationType, Type } from '../../common/interfaces';
+import WarehouseNamespaces from '../../components/WarehouseNamespaces.vue';
+import WarehouseDetails from '../../components/WarehouseDetails.vue';
+import addNamespaceDialog from '../../components/addNamespaceDialog.vue';
+import { Type, RelationType } from '../../common/interfaces';
+import { StatusIntent } from '../../common/enums';
 import { useVisualStore } from '../../stores/visual';
-import { computed, onMounted, reactive, ref } from 'vue';
-import router from '../../router';
+import { computed, onMounted, ref } from 'vue';
 import {
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
   StorageCredential,
   StorageProfile,
   TabularDeleteProfile,
-  WarehouseStatistics,
 } from '@/gen/management/types.gen';
 
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
-import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 const route = useRoute();
 
-const recursiveDeleteProtection = ref(false);
 const tab = ref('overview');
 const loading = ref(true);
-const headers: readonly Header[] = Object.freeze([
-  { title: 'Name', key: 'name', align: 'start' },
-  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
-]);
-
 const loaded = ref(true);
-const searchNamespace = ref('');
 const showSearchDialog = ref(false);
+const namespacesComponent = ref<InstanceType<typeof WarehouseNamespaces>>();
 
 const storageProfile = reactive<StorageProfile>({
   type: 's3',
@@ -452,25 +167,20 @@ const selectedWarehouse = reactive<GetWarehouseResponse>({
   'project-id': '',
   status: 'active',
   'storage-profile': storageProfile,
-  protected: false, // Added the missing 'protected' property
+  protected: false,
 });
 
-const loadedWarehouseItems: Item[] = reactive([]);
-const permissionType = RelationType.Warehouse;
-const namespaceId = ref('');
-const relationId = ref('');
 const visual = useVisualStore();
-const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
-const stats = reactive<WarehouseStatistics[]>([
+const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
+const stats = reactive([
   {
-    'number-of-tables': 3,
+    'number-of-tables': 0,
     'number-of-views': 0,
     timestamp: '1900-01-01T00:00:00Z',
     'updated-at': '1900-01-01T00:00:00.000000Z',
   },
 ]);
-const paginationTokenNamespace = ref('');
 
 const params = computed(() => route.params as { id: string });
 
@@ -486,73 +196,32 @@ const {
 const canDelete = computed(() => hasPermission('delete'));
 
 const renaming = ref(false);
+
 async function loadWarehouse() {
   const whResponse = await functions.getWarehouse(params.value.id);
-  recursiveDeleteProtection.value = whResponse.protected;
   if (whResponse) {
     visual.wahrehouseName = whResponse.name;
     visual.whId = whResponse.id;
     Object.assign(selectedWarehouse, whResponse);
   }
 }
-async function loadTabData() {
-  switch (tab.value) {
-    case 'namespaces':
-      await listNamespaces();
-      break;
-    case 'permissions':
-      // Permissions are loaded by PermissionManager component
-      break;
-    case 'details':
-      await loadWarehouse();
-      break;
-    case 'tasks':
-      // Tasks are handled by the TaskManager component
-      break;
-  }
-}
+
 async function init() {
   try {
     loaded.value = false;
-
-    namespaceId.value = '';
-    relationId.value = params.value.id;
-    loadedWarehouseItems.splice(0, loadedWarehouseItems.length);
-
-    // Permissions are loaded by the composable automatically
-
     loaded.value = true;
-    await Promise.all([loadWarehouse(), listNamespaces(), getWarehouseStatistics()]);
+    await Promise.all([loadWarehouse(), getWarehouseStatistics()]);
     loading.value = false;
   } catch (error) {
     console.error(error);
   }
 }
 
-async function paginationCheckNamespace(option: Options) {
-  if (loadedWarehouseItems.length >= 10000) return;
-
-  if (
-    option.page * option.itemsPerPage == loadedWarehouseItems.length &&
-    paginationTokenNamespace.value != ''
-  ) {
-    const { namespaces, ['next-page-token']: nextPageToken } = await functions.listNamespaces(
-      visual.whId,
-      undefined,
-      paginationTokenNamespace.value,
-    );
-
-    paginationTokenNamespace.value = nextPageToken || '';
-    if (namespaces) {
-      const mappedItems: Item[] = namespaces.map((nsArray) => ({
-        name: nsArray[nsArray.length - 1],
-        type: 'namespace',
-        parentPath: [...nsArray],
-        actions: ['delete'],
-      }));
-
-      loadedWarehouseItems.push(...mappedItems.flat());
-    }
+async function handleNamespaceUpdated() {
+  await Promise.all([loadWarehouse(), getWarehouseStatistics()]);
+  // Also reload namespaces in the component
+  if (namespacesComponent.value) {
+    await namespacesComponent.value.loadNamespaces();
   }
 }
 
@@ -563,65 +232,9 @@ async function addNamespace(namespace: string[]) {
     if (res.error) throw res.error;
     createNamespaceStatus.value = StatusIntent.SUCCESS;
 
-    await init();
+    await handleNamespaceUpdated();
   } catch (error) {
     createNamespaceStatus.value = StatusIntent.FAILURE;
-
-    console.error(error);
-  }
-}
-
-async function setProtection() {
-  try {
-    await functions.setWarehouseProtection(selectedWarehouse.id, !recursiveDeleteProtection.value);
-
-    await loadWarehouse();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function deleteNamespaceWithOptions(e: any, item: Item) {
-  try {
-    const res = await functions.dropNamespace(
-      params.value.id,
-      item.parentPath.join(String.fromCharCode(0x1f)),
-      e,
-    );
-    if (res.error) throw res.error;
-
-    await listNamespaces();
-  } catch (error: any) {
-    console.error(`Failed to drop namespace-${item.name}  - `, error);
-  }
-}
-
-async function routeToNamespace(item: Item) {
-  const namespacePath = item.parentPath.join(String.fromCharCode(0x1f));
-  router.push(`/warehouse/${params.value.id}/namespace/${namespacePath}`);
-}
-
-async function listNamespaces(item?: Item, parent?: string) {
-  try {
-    const { namespaces, ['next-page-token']: nextPageToken } = await functions.listNamespaces(
-      params.value.id,
-      parent,
-    );
-
-    paginationTokenNamespace.value = nextPageToken || '';
-
-    if (namespaces) {
-      const mappedItems: Item[] = namespaces.map((nsArray) => ({
-        name: nsArray[nsArray.length - 1],
-        type: 'namespace',
-        parentPath: [...nsArray],
-        actions: ['delete'],
-      }));
-
-      loadedWarehouseItems.splice(0, loadedWarehouseItems.length);
-      Object.assign(loadedWarehouseItems, mappedItems);
-    }
-  } catch (error) {
     console.error(error);
   }
 }
