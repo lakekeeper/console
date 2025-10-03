@@ -1766,7 +1766,7 @@ async function searchRole(search: string): Promise<Role[]> {
   }
 }
 
-async function listRoles(pageSize?: number, pageToken?: string): Promise<Role[]> {
+async function listRoles(pageSize?: number, pageToken?: string): Promise<ListRolesResponse> {
   try {
     init();
 
@@ -1782,7 +1782,7 @@ async function listRoles(pageSize?: number, pageToken?: string): Promise<Role[]>
 
     if (error) throw error;
 
-    return ((data as ListRolesResponse) ?? []).roles as Role[];
+    return (data as ListRolesResponse) ?? { roles: [] };
   } catch (error: any) {
     handleError(error, new Error());
     throw error;

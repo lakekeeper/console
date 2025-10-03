@@ -34,7 +34,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="info" size="small" to="/roles" variant="outlined">Back</v-btn>
-          <roleDialog
+          <RoleDialog
             v-if="role.name != ''"
             :action-type="'edit'"
             :role="role"
