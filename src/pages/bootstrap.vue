@@ -150,6 +150,7 @@ async function bootstrap() {
   try {
     await functions.bootstrapServer();
   } catch (error) {
+    console.error('Error during bootstrap:', error);
   } finally {
     console.log('Fetching server info after bootstrap');
     await getServerInfo();

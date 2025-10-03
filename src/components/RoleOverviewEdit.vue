@@ -27,7 +27,7 @@
     <v-card-actions>
       <v-btn color="info" size="small" to="/roles" variant="outlined">Back</v-btn>
       <RoleDialog
-        v-if="role.name"
+        v-if="role.name && canUpdate"
         :action-type="'edit'"
         :role="role as any"
         @role-input="editRole" />
@@ -38,6 +38,7 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue';
 import { useFunctions } from '@/plugins/functions';
+import { useRolePermissions } from '@/composables/usePermissions';
 
 const props = defineProps<{
   roleId: string;
@@ -48,6 +49,9 @@ const emit = defineEmits<{
 }>();
 
 const functions = useFunctions();
+
+// Use the role permissions composable
+const { canUpdate } = useRolePermissions(props.roleId);
 
 const role = reactive<any>({
   id: '',

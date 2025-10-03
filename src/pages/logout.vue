@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { useUserStore } from '../stores/user';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useVisualStore } from '../stores/visual';
 const visual = useVisualStore();
