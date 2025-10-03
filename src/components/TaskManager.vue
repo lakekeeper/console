@@ -241,21 +241,21 @@
               variant="text"
               @click="viewTaskDetails(item)"></v-btn>
             <v-btn
-              v-if="item.status === 'RUNNING' && canShowControls"
+              v-if="item.status === 'RUNNING' && canControlAllTasks"
               icon="mdi-stop"
               size="small"
               variant="text"
               color="warning"
               @click="stopTask(item)"></v-btn>
             <v-btn
-              v-if="['SCHEDULED', 'RUNNING'].includes(item.status) && canShowControls"
+              v-if="['SCHEDULED', 'RUNNING'].includes(item.status) && canControlAllTasks"
               icon="mdi-cancel"
               size="small"
               variant="text"
               color="error"
               @click="cancelTask(item)"></v-btn>
             <v-btn
-              v-if="item.status === 'SCHEDULED' && canShowControls"
+              v-if="item.status === 'SCHEDULED' && canControlAllTasks"
               icon="mdi-play"
               size="small"
               variant="text"
@@ -457,8 +457,6 @@ const props = defineProps<{
   tableId?: string;
   viewId?: string;
   entityType?: 'warehouse' | 'table' | 'view';
-  enabledAuthentication?: boolean;
-  enabledPermissions?: boolean;
 }>();
 
 // Composables
@@ -467,16 +465,6 @@ const visual = useVisualStore();
 
 // Use warehouse permissions composable
 const { canControlAllTasks } = useWarehousePermissions(props.warehouseId);
-
-// Computed property to determine if task controls should be shown
-const canShowControls = computed(() => {
-  // Show controls if the caller explicitly grants control or explicitly disables gating
-  return (
-    canControlAllTasks.value === true ||
-    props.enabledAuthentication === false ||
-    props.enabledPermissions === false
-  );
-});
 
 // Helper functions to handle entity type differences
 const getEntityId = () => {

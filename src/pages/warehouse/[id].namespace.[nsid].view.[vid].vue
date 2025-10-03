@@ -51,10 +51,7 @@
               v-if="viewId"
               :warehouse-id="params.id"
               :view-id="viewId"
-              entity-type="view"
-              :can-control-tasks="canControlTasks"
-              :enabled-authentication="enabledAuthentication"
-              :enabled-permissions="enabledPermissions" />
+              entity-type="view" />
             <div v-else class="text-center pa-8">
               <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
               <div class="text-subtitle-1 mt-2">Loading view information...</div>
@@ -69,7 +66,6 @@
 import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
-import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { RelationType } from '../../common/interfaces';
 import { useViewPermissions } from '@/composables/usePermissions';
 import ViewHeader from '@/components/ViewHeader.vue';
@@ -92,10 +88,7 @@ const params = computed(() => ({
 }));
 
 // Use composable for view permissions
-const { canControlTasks, showPermissionsTab, showTasksTab } = useViewPermissions(
-  viewId,
-  params.value.id,
-);
+const { showPermissionsTab, showTasksTab } = useViewPermissions(viewId, params.value.id);
 
 // Load view metadata on mount
 onMounted(async () => {
