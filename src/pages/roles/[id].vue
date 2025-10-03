@@ -20,26 +20,7 @@
     </v-card-subtitle>
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="overview">
-        <v-card-text>
-          <v-row>
-            <v-col>
-              <v-textarea
-                v-model="role.description"
-                label="Role description"
-                placeholder="my role description"
-                readonly
-                style="max-width: 500px"></v-textarea>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="info" size="small" to="/roles" variant="outlined">Back</v-btn>
-          <RoleDialog
-            v-if="role.name != ''"
-            :action-type="'edit'"
-            :role="role"
-            @role-input="editRole" />
-        </v-card-actions>
+        <RoleOverviewEdit :role-id="params.id" @role-loaded="handleRoleLoaded" />
       </v-tabs-window-item>
       <v-tabs-window-item value="permissions">
         <PermissionManager :assignable-obj="role" :relation-type="type" />
@@ -48,9 +29,8 @@
   </v-card>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { RoleAssignment } from '../../gen/management/types.gen';
 import { useFunctions } from '../../plugins/functions';
 import { RelationType } from '../../common/interfaces';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -61,75 +41,14 @@ const params = computed(() => route.params as { id: string });
 const tab = ref('overview');
 const type = ref<RelationType>('role');
 
-const permissions = reactive<
-  { id: string; name: string; email: string; type: string[]; kind: string }[]
->([]);
-
-const existingPermissions = reactive<RoleAssignment[]>([]);
-
 const role = reactive<any>({
   id: '',
   description: '',
   name: '',
+  'created-at': '',
 });
 
-onMounted(async () => {
-  await init();
-});
-
-const rolePermissions = reactive<RoleAssignment[]>([]);
-async function init() {
-  rolePermissions.splice(0, rolePermissions.length);
-  permissions.splice(0, permissions.length);
-  Object.assign(role, await functions.getRole(params.value.id));
-  Object.assign(rolePermissions, await functions.getRoleAssignmentsById(params.value.id));
-
-  existingPermissions.splice(0, existingPermissions.length);
-
-  Object.assign(existingPermissions, rolePermissions);
-
-  for (const permission of rolePermissions) {
-    const serachUser: any = permission;
-
-    if (serachUser.user) {
-      const user = await functions.getUser(serachUser.user);
-      const idx = permissions.findIndex((a) => a.id === user.id);
-      if (user) {
-        if (idx === -1) {
-          permissions.push({
-            id: user.id,
-            name: user.name,
-            email: user.email ?? '',
-            type: [permission.type],
-            kind: 'user',
-          });
-        } else {
-          permissions[idx].type.push(permission.type);
-        }
-      }
-    } else {
-      const fetchedRole = await functions.getRole(serachUser.role);
-      const idx = permissions.findIndex((a) => a.id === fetchedRole.id);
-
-      if (fetchedRole) {
-        if (idx === -1) {
-          permissions.push({
-            id: fetchedRole.id,
-            name: fetchedRole.name,
-            email: '',
-            type: [permission.type],
-            kind: 'role',
-          });
-        } else {
-          permissions[idx].type.push(permission.type);
-        }
-      }
-    }
-  }
-}
-
-async function editRole(roleIn: { name: string; description: string }) {
-  await functions.updateRole(role.id, roleIn.name, roleIn.description);
-  await init();
+function handleRoleLoaded(loadedRole: any) {
+  Object.assign(role, loadedRole);
 }
 </script>
