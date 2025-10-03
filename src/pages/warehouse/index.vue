@@ -34,11 +34,31 @@
         </v-toolbar>
         <v-data-table
           v-if="myAccess.includes('list_warehouses')"
+          height="60vh"
+          :search="searchWarehouse"
           fixed-header
           :headers="headers"
           hover
+          items-per-page="50"
           :items="whResponse"
-          :sort-by="[{ key: 'name', order: 'asc' }]">
+          :sort-by="[{ key: 'name', order: 'asc' }]"
+          :items-per-page-options="[
+            { title: '50 items', value: 50 },
+            { title: '100 items', value: 100 },
+          ]"
+          @update:options="paginationCheckWarehouse($event)">
+          <template #top>
+            <v-toolbar color="transparent" density="compact" flat>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="searchWarehouse"
+                label="Filter results"
+                prepend-inner-icon="mdi-filter"
+                variant="underlined"
+                hide-details
+                clearable></v-text-field>
+            </v-toolbar>
+          </template>
           <template #item.name="{ item }">
             <td class="pointer-cursor" @click="navigateToWarehouse(item)">
               <span class="icon-text">
@@ -127,11 +147,12 @@ import { GetWarehouseResponse, ProjectAction } from '../../gen/management/types.
 import router from '../../router';
 import { useFunctions } from '../../plugins/functions';
 import { useVisualStore } from '../../stores/visual';
-import { Header } from '../../common/interfaces';
+import { Header, Options } from '../../common/interfaces';
 
 const functions = useFunctions();
 const missAccessPermission = ref(true);
 const loading = ref(true);
+const searchWarehouse = ref('');
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
@@ -164,6 +185,15 @@ onMounted(async () => {
     console.error('Failed to load data:', err);
   }
 });
+
+async function paginationCheckWarehouse(option: Options) {
+  // Note: Currently listWarehouses doesn't support pagination tokens
+  // This function is here for consistency and future pagination support
+  if (whResponse.length >= 10000) return;
+
+  // Pagination logic would go here when API supports it
+  // For now, all warehouses are loaded at once
+}
 
 async function listWarehouse() {
   try {
