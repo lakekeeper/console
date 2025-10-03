@@ -1,4 +1,4 @@
-<template><div /></template>
+<template></template>
 
 <script lang="ts" setup>
 import { UserManager } from 'oidc-client-ts';
