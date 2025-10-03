@@ -15,11 +15,29 @@
 
   <v-data-table
     v-if="canListWarehouses"
+    height="60vh"
     fixed-header
     :headers="headers"
     hover
-    :items="whResponse"
-    :sort-by="sortBy">
+    items-per-page="50"
+    :items="filteredWarehouses"
+    :sort-by="sortBy"
+    :items-per-page-options="[
+      { title: '50 items', value: 50 },
+      { title: '100 items', value: 100 },
+    ]">
+    <template #top>
+      <v-toolbar color="transparent" density="compact" flat>
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="searchWarehouse"
+          label="Filter results"
+          prepend-inner-icon="mdi-filter"
+          variant="underlined"
+          hide-details
+          clearable></v-text-field>
+      </v-toolbar>
+    </template>
     <template #item.name="{ item }">
       <td class="pointer-cursor" @click="navigateToWarehouse(item)">
         <span class="icon-text">
@@ -48,7 +66,7 @@
 </template>
 
 <script lang="ts" setup>
-import { h, onMounted, reactive } from 'vue';
+import { h, onMounted, reactive, ref, computed } from 'vue';
 import { Intent, ObjectType } from '@/common/enums';
 import { GetWarehouseResponse } from '@/gen/management/types.gen';
 import router from '@/router';
@@ -66,6 +84,8 @@ const props = defineProps<{
 const functions = useFunctions();
 const visual = useVisualStore();
 const permissionStore = usePermissionStore();
+
+const searchWarehouse = ref('');
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
@@ -90,6 +110,26 @@ type GetWarehouseResponseExtended = GetWarehouseResponse & {
 };
 
 const whResponse = reactive<GetWarehouseResponseExtended[]>([]);
+
+const filteredWarehouses = computed(() => {
+  if (!searchWarehouse.value) {
+    return whResponse; // Returns the full list if the search is empty
+  }
+
+  const searchLower = searchWarehouse.value.toLowerCase();
+
+  return whResponse.filter((warehouse) => {
+    // Matches if 'name' contains the search term
+    const nameMatches = warehouse.name ? warehouse.name.toLowerCase().includes(searchLower) : false;
+
+    // Matches if 'id' contains the search term (only if search term has UUID semantic)
+    const hasUuidSemantic = /^[0-9a-f-]+$/.test(searchLower);
+    const idMatches =
+      warehouse.id && hasUuidSemantic ? warehouse.id.toLowerCase().includes(searchLower) : false;
+
+    return nameMatches || idMatches;
+  });
+});
 
 // Helper function to determine storage icon
 function getStorageIcon(item: GetWarehouseResponseExtended) {
