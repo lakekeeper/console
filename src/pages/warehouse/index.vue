@@ -34,11 +34,29 @@
         </v-toolbar>
         <v-data-table
           v-if="myAccess.includes('list_warehouses')"
+          height="60vh"
           fixed-header
           :headers="headers"
           hover
-          :items="whResponse"
-          :sort-by="[{ key: 'name', order: 'asc' }]">
+          items-per-page="50"
+          :items="filteredWarehouses"
+          :sort-by="[{ key: 'name', order: 'asc' }]"
+          :items-per-page-options="[
+            { title: '50 items', value: 50 },
+            { title: '100 items', value: 100 },
+          ]">
+          <template #top>
+            <v-toolbar color="transparent" density="compact" flat>
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="searchWarehouse"
+                label="Filter results"
+                prepend-inner-icon="mdi-filter"
+                variant="underlined"
+                hide-details
+                clearable></v-text-field>
+            </v-toolbar>
+          </template>
           <template #item.name="{ item }">
             <td class="pointer-cursor" @click="navigateToWarehouse(item)">
               <span class="icon-text">
@@ -119,7 +137,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, onUnmounted } from 'vue';
+import { onMounted, reactive, ref, onUnmounted, computed } from 'vue';
 import { Intent, ObjectType } from '../../common/enums';
 
 import { GetWarehouseResponse, ProjectAction } from '../../gen/management/types.gen';
@@ -132,6 +150,7 @@ import { Header } from '../../common/interfaces';
 const functions = useFunctions();
 const missAccessPermission = ref(true);
 const loading = ref(true);
+const searchWarehouse = ref('');
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
@@ -148,6 +167,26 @@ type GetWarehouseResponseExtended = GetWarehouseResponse & {
 };
 const whResponse = reactive<GetWarehouseResponseExtended[]>([]);
 const visual = useVisualStore();
+
+const filteredWarehouses = computed(() => {
+  if (!searchWarehouse.value) {
+    return whResponse; // Returns the full list if the search is empty
+  }
+
+  const searchLower = searchWarehouse.value.toLowerCase();
+
+  return whResponse.filter((warehouse) => {
+    // Matches if 'name' contains the search term
+    const nameMatches = warehouse.name ? warehouse.name.toLowerCase().includes(searchLower) : false;
+
+    // Matches if 'id' contains the search term (only if search term has UUID semantic)
+    const hasUuidSemantic = /^[0-9a-f-]+$/.test(searchLower);
+    const idMatches =
+      warehouse.id && hasUuidSemantic ? warehouse.id.toLowerCase().includes(searchLower) : false;
+
+    return nameMatches || idMatches;
+  });
+});
 
 onMounted(async () => {
   try {
