@@ -20,7 +20,7 @@
           class="ml-4 mt-4"
           color="info"
           :label="
-            !protected
+            !recursiveDeleteProtection
               ? 'Recursive Delete Protection disabled'
               : 'Recursive Delete Protection enabled'
           "
@@ -33,6 +33,11 @@
           variant="underlined"
           hide-details
           clearable></v-text-field>
+        <addNamespaceDialog
+          v-if="canCreateNamespace"
+          :parent-path="''"
+          :status-intent="createNamespaceStatus"
+          @add-namespace="addNamespace" />
       </v-toolbar>
     </template>
     <template #item.name="{ item }">
@@ -58,45 +63,75 @@
 import { reactive, ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFunctions } from '@/plugins/functions';
+import { useWarehousePermissions } from '@/composables/usePermissions';
 import type { Header, Item, Options } from '@/common/interfaces';
+import { StatusIntent } from '@/common/enums';
 
 const props = defineProps<{
   warehouseId: string;
-  protected: boolean;
-  canCreateNamespace: boolean;
-  canDelete: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'update:protected', value: boolean): void;
   (e: 'namespace-updated'): void;
 }>();
 
 const router = useRouter();
 const functions = useFunctions();
 
+// Use warehouse permissions composable
+const { canDelete, canCreateNamespace } = useWarehousePermissions(props.warehouseId);
+
 const searchNamespace = ref('');
-const recursiveDeleteProtection = ref(props.protected);
+const recursiveDeleteProtection = ref(false);
+const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const loadedWarehouseItems: Item[] = reactive([]);
 const paginationTokenNamespace = ref('');
 
-// Watch for prop changes to sync with local state
-watch(
-  () => props.protected,
-  (newValue) => {
-    recursiveDeleteProtection.value = newValue;
-  },
-);
-
-// Load namespaces on mount
+// Load namespaces and warehouse protection status on mount
 onMounted(() => {
+  loadWarehouse();
   loadNamespaces();
 });
+
+// Reload when warehouse ID changes
+watch(
+  () => props.warehouseId,
+  () => {
+    loadWarehouse();
+    loadNamespaces();
+  },
+);
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
+
+async function addNamespace(namespace: string[]) {
+  createNamespaceStatus.value = StatusIntent.STARTING;
+  try {
+    const res = await functions.createNamespace(props.warehouseId, namespace);
+    if (res.error) throw res.error;
+
+    createNamespaceStatus.value = StatusIntent.SUCCESS;
+    await loadNamespaces();
+    emit('namespace-updated');
+  } catch (error) {
+    createNamespaceStatus.value = StatusIntent.FAILURE;
+    console.error('Failed to create namespace:', error);
+  }
+}
+
+async function loadWarehouse() {
+  try {
+    const whResponse = await functions.getWarehouse(props.warehouseId);
+    if (whResponse) {
+      recursiveDeleteProtection.value = whResponse.protected;
+    }
+  } catch (error) {
+    console.error('Failed to load warehouse:', error);
+  }
+}
 
 async function loadNamespaces(parent?: string) {
   try {
@@ -153,7 +188,7 @@ async function paginationCheckNamespace(option: Options) {
 async function setProtection() {
   try {
     await functions.setWarehouseProtection(props.warehouseId, !recursiveDeleteProtection.value);
-    emit('update:protected', !recursiveDeleteProtection.value);
+    recursiveDeleteProtection.value = !recursiveDeleteProtection.value;
     emit('namespace-updated');
   } catch (error) {
     console.error(error);

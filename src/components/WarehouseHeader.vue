@@ -1,54 +1,55 @@
 <template>
-  <v-toolbar color="transparent" density="compact" flat>
-    <v-toolbar-title>
-      <span class="text-subtitle-1">
-        {{ warehouse.name }}
+  <div>
+    <v-toolbar color="transparent" density="compact" flat>
+      <v-toolbar-title>
+        <span class="text-subtitle-1">
+          {{ warehouse.name }}
 
-        <v-chip size="small" color="secondary" label class="ma-2">
-          <v-icon icon="mdi-table" start></v-icon>
-          number of tables: {{ stats['number-of-tables'] }}
-        </v-chip>
-        <v-chip size="small" color="primary" label class="ma-2">
-          <v-icon icon="mdi-view-grid-outline" start></v-icon>
-          number of views: {{ stats['number-of-views'] }}
-        </v-chip>
-        <StatisticsDialog :stats="[stats]"></StatisticsDialog>
-      </span>
-    </v-toolbar-title>
-    <template #prepend>
-      <v-icon>mdi-database</v-icon>
-    </template>
-    <v-spacer></v-spacer>
+          <v-chip size="small" color="secondary" label class="ma-2">
+            <v-icon icon="mdi-table" start></v-icon>
+            number of tables: {{ stats['number-of-tables'] }}
+          </v-chip>
+          <v-chip size="small" color="primary" label class="ma-2">
+            <v-icon icon="mdi-view-grid-outline" start></v-icon>
+            number of views: {{ stats['number-of-views'] }}
+          </v-chip>
+          <StatisticsDialog :stats="[stats]"></StatisticsDialog>
+        </span>
+      </v-toolbar-title>
+      <template #prepend>
+        <v-icon>mdi-database</v-icon>
+      </template>
+      <v-spacer></v-spacer>
 
-    <WarehouseActionsMenu
-      :process-status="processStatus"
-      :warehouse="warehouse"
-      @close="processStatus = 'starting'"
-      @rename-warehouse="renameWarehouse"
-      @update-credentials="updateCredentials"
-      @update-delprofile="updateDelProfile"
-      @update-profile="updateProfile" />
-    <v-btn
-      prepend-icon="mdi-magnify"
-      class="mr-2"
-      size="small"
-      variant="outlined"
-      @click="$emit('open-search')"
-      aria-label="Search tables and views">
-      Search Warehouse
-    </v-btn>
-    <addNamespaceDialog
-      v-if="canCreateNamespace"
-      :parent-path="''"
-      :status-intent="createNamespaceStatus"
-      @add-namespace="addNamespace" />
-  </v-toolbar>
+      <WarehouseActionsMenu
+        :process-status="processStatus"
+        :warehouse="warehouse"
+        @close="processStatus = 'starting'"
+        @rename-warehouse="renameWarehouse"
+        @update-credentials="updateCredentials"
+        @update-delprofile="updateDelProfile"
+        @update-profile="updateProfile" />
+      <v-btn
+        prepend-icon="mdi-magnify"
+        class="mr-2"
+        size="small"
+        variant="outlined"
+        @click="showSearchDialog = true"
+        aria-label="Search tables and views">
+        Search Warehouse
+      </v-btn>
+    </v-toolbar>
+
+    <!-- Search Modal -->
+    <SearchTabular v-model="showSearchDialog" :warehouse-id="warehouse.id" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
+import SearchTabular from './SearchTabular.vue';
 import type {
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
@@ -56,23 +57,37 @@ import type {
   StorageProfile,
   TabularDeleteProfile,
 } from '@/gen/management/types.gen';
-import { StatusIntent } from '@/common/enums';
 import { Type } from '@/common/interfaces';
 
 const props = defineProps<{
-  warehouse: GetWarehouseResponse;
-  canCreateNamespace: boolean;
-}>();
-
-const emit = defineEmits<{
-  (e: 'warehouse-updated'): void;
-  (e: 'open-search'): void;
+  warehouseId: string;
 }>();
 
 const functions = useFunctions();
 const visual = useVisualStore();
-const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
+const showSearchDialog = ref(false);
+
+const warehouse = reactive<GetWarehouseResponse>({
+  'delete-profile': { type: 'hard' },
+  id: '',
+  name: '',
+  'project-id': '',
+  status: 'active',
+  'storage-profile': {
+    type: 's3',
+    bucket: '',
+    'key-prefix': '',
+    'assume-role-arn': '',
+    endpoint: '',
+    region: '',
+    'path-style-access': null,
+    'sts-role-arn': '',
+    'sts-enabled': false,
+    flavor: undefined,
+  },
+  protected: false,
+});
 
 const stats = reactive({
   'number-of-tables': 0,
@@ -81,64 +96,48 @@ const stats = reactive({
   'updated-at': '1900-01-01T00:00:00.000000Z',
 });
 
-async function loadStatistics() {
+async function loadWarehouse() {
   try {
-    const stat: GetWarehouseStatisticsResponse = await functions.getWarehouseStatistics(
-      props.warehouse.id,
-    );
-    Object.assign(stats, stat.stats[0]);
-  } catch (error: any) {
-    console.error(`Failed to get warehouse-statistics  - `, error);
+    const whResponse = await functions.getWarehouse(props.warehouseId);
+    if (whResponse) {
+      Object.assign(warehouse, whResponse);
+      visual.wahrehouseName = whResponse.name;
+      visual.whId = whResponse.id;
+    }
+  } catch (error) {
+    console.error('Failed to load warehouse:', error);
   }
 }
 
-// Load statistics when component mounts
-onMounted(() => {
-  loadStatistics();
-});
-
-// Reload statistics when warehouse ID changes
-watch(
-  () => props.warehouse.id,
-  () => {
-    loadStatistics();
-  },
-);
-
-async function addNamespace(namespace: string[]) {
+async function loadStatistics() {
   try {
-    createNamespaceStatus.value = StatusIntent.STARTING;
-    const res = await functions.createNamespace(props.warehouse.id, namespace);
-    if (res.error) throw res.error;
-    createNamespaceStatus.value = StatusIntent.SUCCESS;
-
-    // Reload statistics and emit update
-    await loadStatistics();
-    emit('warehouse-updated');
+    const stat: GetWarehouseStatisticsResponse = await functions.getWarehouseStatistics(
+      props.warehouseId,
+    );
+    Object.assign(stats, stat.stats[0]);
   } catch (error) {
-    createNamespaceStatus.value = StatusIntent.FAILURE;
-    console.error(error);
+    console.error('Failed to load warehouse statistics:', error);
   }
 }
 
 async function renameWarehouse(name: string) {
   try {
-    await functions.renameWarehouse(props.warehouse.id, name);
-    emit('warehouse-updated');
-  } catch (error: any) {
-    console.error(`Failed to rename warehouse-${name}  - `, error);
+    await functions.renameWarehouse(props.warehouseId, name);
+    await loadWarehouse();
+  } catch (error) {
+    console.error('Failed to rename warehouse:', error);
   }
 }
 
 async function updateCredentials(credentials: StorageCredential) {
+  processStatus.value = 'running';
   try {
-    processStatus.value = 'running';
-    await functions.updateStorageCredential(props.warehouse.id, credentials);
-    emit('warehouse-updated');
+    await functions.updateStorageCredential(props.warehouseId, credentials);
     processStatus.value = 'success';
-  } catch (error: any) {
+    await loadWarehouse();
+  } catch (error) {
     processStatus.value = 'error';
-    console.error(`Failed to update credentials for warehouse-${props.warehouse.id}  - `, error);
+    console.error('Failed to update credentials:', error);
   }
 }
 
@@ -146,25 +145,25 @@ async function updateProfile(newProfile: {
   profile: StorageProfile;
   credentials: StorageCredential;
 }) {
+  processStatus.value = 'running';
   try {
-    processStatus.value = 'running';
     await functions.updateStorageProfile(
-      props.warehouse.id,
+      props.warehouseId,
       newProfile.credentials,
       newProfile.profile,
     );
-    emit('warehouse-updated');
     processStatus.value = 'success';
-  } catch (error: any) {
+    await loadWarehouse();
+  } catch (error) {
     processStatus.value = 'error';
-    console.error(`Failed to update profile for warehouse-${props.warehouse.id}  - `, error);
+    console.error('Failed to update storage profile:', error);
   }
 }
 
 async function updateDelProfile(profile: TabularDeleteProfile) {
   try {
-    await functions.updateWarehouseDeleteProfile(props.warehouse.id, profile);
-    emit('warehouse-updated');
+    await functions.updateWarehouseDeleteProfile(props.warehouseId, profile);
+    await loadWarehouse();
     visual.setSnackbarMsg({
       function: 'updateDelProfile',
       text: 'Deletion profile updated successfully',
@@ -172,11 +171,21 @@ async function updateDelProfile(profile: TabularDeleteProfile) {
       ts: Date.now(),
       type: Type.SUCCESS,
     });
-  } catch (error: any) {
-    console.error(
-      `Failed to update deletion profile for warehouse-${props.warehouse.id}  - `,
-      error,
-    );
+  } catch (error) {
+    console.error('Failed to update deletion profile:', error);
   }
 }
+
+// Load warehouse and statistics on mount and when warehouse ID changes
+onMounted(() => {
+  loadWarehouse();
+  loadStatistics();
+});
+watch(
+  () => props.warehouseId,
+  () => {
+    loadWarehouse();
+    loadStatistics();
+  },
+);
 </script>

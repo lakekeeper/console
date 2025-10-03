@@ -248,14 +248,54 @@
 </template>
 
 <script setup lang="ts">
+import { reactive, watch, onMounted } from 'vue';
 import type { GetWarehouseResponse } from '@/gen/management/types.gen';
 import { useFunctions } from '@/plugins/functions';
+import { useVisualStore } from '@/stores/visual';
 
-defineProps<{
-  warehouse: GetWarehouseResponse;
+const props = defineProps<{
+  warehouseId: string;
 }>();
 
 const functions = useFunctions();
+const visual = useVisualStore();
+
+const warehouse = reactive<GetWarehouseResponse>({
+  'delete-profile': { type: 'hard' },
+  id: '',
+  name: '',
+  'project-id': '',
+  status: 'active',
+  'storage-profile': {
+    type: 's3',
+    bucket: '',
+    'key-prefix': '',
+    'assume-role-arn': '',
+    endpoint: '',
+    region: '',
+    'path-style-access': null,
+    'sts-role-arn': '',
+    'sts-enabled': false,
+    flavor: undefined,
+  },
+  protected: false,
+});
+
+async function loadWarehouse() {
+  try {
+    const whResponse = await functions.getWarehouse(props.warehouseId);
+    if (whResponse) {
+      Object.assign(warehouse, whResponse);
+      visual.wahrehouseName = whResponse.name;
+      visual.whId = whResponse.id;
+    }
+  } catch (error) {
+    console.error('Failed to load warehouse:', error);
+  }
+}
+
+onMounted(loadWarehouse);
+watch(() => props.warehouseId, loadWarehouse);
 
 function copyToClipboard(text: string) {
   functions.copyToClipboard(text);

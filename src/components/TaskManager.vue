@@ -436,6 +436,7 @@
 <script setup lang="ts">
 import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
+import { useWarehousePermissions } from '@/composables/usePermissions';
 import { Type } from '@/common/interfaces';
 import { useQueueConfig, type QueueOption } from '@/common/queueConfig';
 import { reactive, ref, onMounted, computed } from 'vue';
@@ -456,7 +457,6 @@ const props = defineProps<{
   tableId?: string;
   viewId?: string;
   entityType?: 'warehouse' | 'table' | 'view';
-  canControlTasks?: boolean;
   enabledAuthentication?: boolean;
   enabledPermissions?: boolean;
 }>();
@@ -465,11 +465,14 @@ const props = defineProps<{
 const functions = useFunctions();
 const visual = useVisualStore();
 
+// Use warehouse permissions composable
+const { canControlAllTasks } = useWarehousePermissions(props.warehouseId);
+
 // Computed property to determine if task controls should be shown
 const canShowControls = computed(() => {
   // Show controls if the caller explicitly grants control or explicitly disables gating
   return (
-    props.canControlTasks === true ||
+    canControlAllTasks.value === true ||
     props.enabledAuthentication === false ||
     props.enabledPermissions === false
   );
