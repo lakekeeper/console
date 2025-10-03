@@ -15,41 +15,48 @@
       <v-col>
         <v-breadcrumbs :items="['warehouses']"></v-breadcrumbs>
         <WarehouseManager
-          :can-create-warehouse="myAccess.includes('create_warehouse')"
-          :can-list-warehouses="myAccess.includes('list_warehouses')" />
+          :can-create-warehouse="canCreateWarehouse"
+          :can-list-warehouses="canListWarehouses" />
       </v-col>
     </v-row>
   </span>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, onUnmounted } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 import { ProjectAction } from '@/gen/management/types.gen';
 import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 const functions = useFunctions();
-const loading = ref(true);
-const myAccess = reactive<ProjectAction[]>([]);
 const visual = useVisualStore();
 
-onMounted(async () => {
-  try {
-    visual.whId = '';
-    visual.wahrehouseName = '';
-    Object.assign(
-      myAccess,
-      await functions.getProjectAccessById(visual.projectSelected['project-id']),
-    );
-    loading.value = false;
-  } catch (err: any) {
-    console.error('Failed to load data:', err);
-  }
-});
+const loading = ref(true);
+const myAccess = reactive<ProjectAction[]>([]);
 
-onUnmounted(() => {
-  visual.whId = '';
-  visual.wahrehouseName = '';
-  loading.value = true;
+const canCreateWarehouse = computed(
+  () => !enabledAuthentication || !enabledPermissions || myAccess.includes('create_warehouse'),
+);
+const canListWarehouses = computed(
+  () => !enabledAuthentication || !enabledPermissions || myAccess.includes('list_warehouses'),
+);
+
+onMounted(async () => {
+  if (!enabledAuthentication || !enabledPermissions) {
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const projectAccess = await functions.getProjectAccessById(
+      visual.projectSelected['project-id'],
+    );
+    Object.assign(myAccess, projectAccess);
+  } catch (err) {
+    console.error('Failed to load warehouse permissions:', err);
+  } finally {
+    loading.value = false;
+  }
 });
 </script>
