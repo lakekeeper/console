@@ -18,10 +18,10 @@
         <v-spacer></v-spacer>
         <span class="icon-text">
           <AssignToRoleDialogSingle
-            :status="props.status"
+            :status="assignStatus"
             :action-type="'grant'"
             :assignee="''"
-            :assignments="props.existingPermissionsFromObj"
+            :assignments="existingAssignments"
             class="mr-2"
             :obj="props.assignableObj"
             :relation="props.relationType"
@@ -48,10 +48,10 @@
     </template-->
     <template #item.type="{ item }">
       <AssignToRoleDialogSingle
-        :status="props.status"
+        :status="assignStatus"
         :action-type="'edit'"
         :assignee="item.id"
-        :assignments="props.existingPermissionsFromObj"
+        :assignments="existingAssignments"
         :obj="props.assignableObj"
         :relation="props.relationType"
         @assignments="assign" />
@@ -59,10 +59,10 @@
     </template>
     <template #no-data>
       <AssignToRoleDialogSingle
-        :status="props.status"
+        :status="assignStatus"
         :action-type="'assign'"
         :assignee="''"
-        :assignments="props.existingPermissionsFromObj"
+        :assignments="existingAssignments"
         :obj="props.assignableObj"
         :relation="props.relationType"
         @assignments="assign" />
@@ -109,25 +109,60 @@ const managedAccess = computed(() => {
   }
 });
 
-const props = defineProps<{
-  status: StatusIntent;
-  assignableObj: {
-    id: string;
-    name: string;
-  };
-  relationType: RelationType;
-  existingPermissionsFromObj: AssignmentCollection;
-}>();
+const props = withDefaults(
+  defineProps<{
+    assignableObj: {
+      id: string;
+      name: string;
+    };
+    relationType: RelationType;
+    warehouseId?: string; // Required for table and view assignments
+    status?: StatusIntent;
+  }>(),
+  {
+    status: StatusIntent.INACTIVE,
+  },
+);
 
 const emit = defineEmits<{
-  (
-    e: 'permissions',
-    permissions: {
-      del: AssignmentCollection;
-      writes: AssignmentCollection;
-    },
-  ): void;
+  (e: 'statusUpdate', status: StatusIntent): void;
 }>();
+
+// Internal state management
+const loaded = ref(false);
+const assignStatus = ref(StatusIntent.INACTIVE);
+const existingAssignments = reactive<any[]>([]);
+
+async function fetchAssignments() {
+  try {
+    let assignments: any[] = [];
+
+    if (props.relationType === 'server') {
+      assignments = await functions.getServerAssignments();
+    } else if (props.relationType === 'warehouse') {
+      assignments = await functions.getWarehouseAssignmentsById(props.assignableObj.id);
+    } else if (props.relationType === 'namespace') {
+      assignments = await functions.getNamespaceAssignmentsById(props.assignableObj.id);
+    } else if (props.relationType === 'table' && props.warehouseId) {
+      assignments = await functions.getTableAssignmentsById(
+        props.assignableObj.id,
+        props.warehouseId,
+      );
+    } else if (props.relationType === 'view' && props.warehouseId) {
+      assignments = await functions.getViewAssignmentsById(
+        props.assignableObj.id,
+        props.warehouseId,
+      );
+    }
+
+    existingAssignments.splice(0, existingAssignments.length);
+    Object.assign(existingAssignments, assignments);
+    return assignments;
+  } catch (error) {
+    console.error('Error fetching assignments:', error);
+    return [];
+  }
+}
 
 async function switchManagedAccess() {
   try {
@@ -159,14 +194,19 @@ async function loadManagedAccess() {
 }
 
 async function init() {
+  console.log('PermissionManager: init called for', props.relationType, props.assignableObj.id);
+  loaded.value = false;
   permissionRows.splice(0, permissionRows.length);
   await loadManagedAccess();
 
-  for (const permission of props.existingPermissionsFromObj) {
-    const serachUser: any = permission;
+  const assignments = await fetchAssignments();
+  console.log('PermissionManager: fetched assignments:', assignments);
 
-    if (serachUser.user) {
-      const user = await functions.getUser(serachUser.user);
+  for (const permission of assignments) {
+    const searchUser: any = permission;
+
+    if (searchUser.user) {
+      const user = await functions.getUser(searchUser.user);
       const idx = permissionRows.findIndex((a) => a.id === user.id);
       if (user) {
         if (idx === -1) {
@@ -182,7 +222,7 @@ async function init() {
         }
       }
     } else {
-      const role = await functions.getRole(serachUser.role);
+      const role = await functions.getRole(searchUser.role);
       const idx = permissionRows.findIndex((a) => a.id === role.id);
 
       if (role) {
@@ -200,16 +240,66 @@ async function init() {
       }
     }
   }
+
+  loaded.value = true;
 }
 
 async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
+  console.log('PermissionManager: assign called', { permissions });
   try {
-    emit('permissions', {
-      del: permissions.del,
-      writes: permissions.writes,
-    });
+    loaded.value = false;
+    assignStatus.value = StatusIntent.STARTING;
+    emit('statusUpdate', StatusIntent.STARTING);
+
+    // Handle different relation types
+    if (props.relationType === 'server') {
+      const del = permissions.del as any[];
+      const writes = permissions.writes as any[];
+      await functions.updateServerAssignments(del, writes);
+    } else if (props.relationType === 'warehouse') {
+      const del = permissions.del as any[];
+      const writes = permissions.writes as any[];
+      await functions.updateWarehouseAssignmentsById(props.assignableObj.id, del, writes);
+    } else if (props.relationType === 'namespace') {
+      const del = permissions.del as any[];
+      const writes = permissions.writes as any[];
+      await functions.updateNamespaceAssignmentsById(props.assignableObj.id, del, writes);
+    } else if (props.relationType === 'table') {
+      const del = permissions.del as any[];
+      const writes = permissions.writes as any[];
+      if (!props.warehouseId) {
+        throw new Error('warehouseId is required for table assignments');
+      }
+      await functions.updateTableAssignmentsById(
+        props.assignableObj.id,
+        del,
+        writes,
+        props.warehouseId,
+      );
+    } else if (props.relationType === 'view') {
+      const del = permissions.del as any[];
+      const writes = permissions.writes as any[];
+      if (!props.warehouseId) {
+        throw new Error('warehouseId is required for view assignments');
+      }
+      await functions.updateViewAssignmentsById(
+        props.assignableObj.id,
+        del,
+        writes,
+        props.warehouseId,
+      );
+    }
+
+    console.log('PermissionManager: assignment successful, reloading data');
+    assignStatus.value = StatusIntent.SUCCESS;
+    emit('statusUpdate', StatusIntent.SUCCESS);
+    await init(); // Reload the data
   } catch (error) {
     console.error(error);
+    assignStatus.value = StatusIntent.FAILURE;
+    emit('statusUpdate', StatusIntent.FAILURE);
+  } finally {
+    loaded.value = true;
   }
 }
 

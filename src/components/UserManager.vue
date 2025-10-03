@@ -92,11 +92,16 @@ const headers: readonly Header[] = Object.freeze([
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
-const props = defineProps<{
-  canDeleteUsers: boolean;
-  status: StatusIntent;
-  canListUsers: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    canDeleteUsers: boolean;
+    status?: StatusIntent;
+    canListUsers: boolean;
+  }>(),
+  {
+    status: StatusIntent.INACTIVE,
+  },
+);
 
 const emit = defineEmits<{
   (e: 'deletedUser', user: User): void;
