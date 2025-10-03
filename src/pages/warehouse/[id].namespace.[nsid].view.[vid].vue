@@ -1,342 +1,124 @@
 <template>
-  <v-container v-if="loading" class="fill-height">
-    <v-responsive class="align-centerfill-height mx-auto" max-width="900">
-      <v-row justify="center">
-        <v-progress-circular
-          class="mt-4"
-          color="info"
-          indeterminate
-          :size="126"></v-progress-circular>
-      </v-row>
-    </v-responsive>
-  </v-container>
-  <span v-else>
-    <v-row class="ml-1">
-      <v-col>
-        <BreadcrumbsFromUrl />
-        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
-          <v-toolbar-title>
-            <span class="text-subtitle-1">
-              {{ namespaceId.split(String.fromCharCode(0x1f)).join('.') }}.{{ viewName }}
-            </span>
-          </v-toolbar-title>
-          <template #prepend>
-            <v-icon>mdi-table</v-icon>
-          </template>
-          <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-magnify"
-            variant="text"
-            @click="openSearchDialog"
-            aria-label="Search tables and views"></v-btn>
-        </v-toolbar>
-        <v-tabs v-model="tab">
-          <v-tab value="overview" @click="loadTabData">overview</v-tab>
-          <v-tab value="raw" @click="loadTabData">raw</v-tab>
-          <v-tab value="history" @click="loadTabData">history</v-tab>
-          <v-tab
-            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
-            value="permissions"
-            @click="loadTabData">
-            Permissions
-          </v-tab>
-          <v-tab
-            v-if="canGetTasks || !enabledAuthentication || !enabledPermissions"
-            value="tasks"
-            @click="loadTabData">
-            tasks
-          </v-tab>
-        </v-tabs>
-        <v-card style="max-height: 80vh; overflow: auto; min-height: 55vh">
-          <v-tabs-window v-model="tab">
-            <v-tabs-window-item value="overview">
-              <v-toolbar color="transparent" density="compact" flat>
-                <v-switch
-                  v-model="recursiveDeleteProtection"
-                  class="ml-4 mt-4"
-                  color="info"
-                  :label="
-                    recursiveDeleteProtection
-                      ? 'Recursive Delete Protection enabled'
-                      : 'Recursive Delete Protection disabled'
-                  "
-                  @click="setProtection"></v-switch>
-              </v-toolbar>
-              <v-card-text>
-                <!-- View Details -->
-                <ViewDetails v-if="loaded" :view="view" />
-              </v-card-text>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="raw">
-              <div class="mb-4 mt-4">
-                <v-btn
-                  size="small"
-                  variant="outlined"
-                  color="info"
-                  class="mr-8 ml-4"
-                  @click="depthRawRepresentation = 1"
-                  append-icon="mdi-collapse-all">
-                  Collapse
-                </v-btn>
-                <v-btn
-                  size="small"
-                  variant="outlined"
-                  color="success"
-                  class="mr-8"
-                  @click="depthRawRepresentation = depthRawRepresentationMax"
-                  append-icon="mdi-expand-all">
-                  Expand
-                </v-btn>
-                <v-btn
-                  size="small"
-                  variant="outlined"
-                  color="primary"
-                  @click="copyViewJson"
-                  prepend-icon="mdi-content-copy">
-                  Copy JSON
-                </v-btn>
-              </div>
-              <div style="height: 65vh; overflow: auto">
-                <vue-json-pretty
-                  :data="view"
-                  :deep="depthRawRepresentation"
-                  :theme="themeText"
-                  :showLineNumber="true"
-                  :virtual="false" />
-              </div>
-            </v-tabs-window-item>
+  <v-row class="ml-1">
+    <v-col>
+      <BreadcrumbsFromUrl />
 
-            <v-tabs-window-item value="history">
-              <ViewHistory v-if="loaded" :view="view" />
-            </v-tabs-window-item>
+      <ViewHeader :warehouse-id="params.id" :namespace-id="params.nsid" :view-name="params.vid" />
 
-            <v-tabs-window-item v-if="canReadPermissions" value="permissions">
-              <PermissionManager
-                v-if="viewId"
-                :object-id="viewId"
-                :relation-type="permissionType"
-                :warehouse-id="warehouseId" />
-            </v-tabs-window-item>
-            <v-tabs-window-item
-              v-if="canGetTasks || !enabledAuthentication || !enabledPermissions"
-              value="tasks">
-              <TaskManager
-                v-if="loaded && viewId"
-                :warehouse-id="warehouseId"
-                :view-id="viewId"
-                entity-type="view"
-                :can-control-tasks="canControlTasks"
-                :enabled-authentication="enabledAuthentication"
-                :enabled-permissions="enabledPermissions" />
-              <div v-else class="text-center pa-8">
-                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
-                <div class="text-subtitle-1 mt-2">Loading view information...</div>
-              </div>
-            </v-tabs-window-item>
-          </v-tabs-window>
-        </v-card>
-      </v-col>
-    </v-row>
+      <v-tabs v-model="tab">
+        <v-tab value="overview">overview</v-tab>
+        <v-tab value="raw">raw</v-tab>
+        <v-tab value="history">history</v-tab>
+        <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
+        <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
+      </v-tabs>
 
-    <!-- Search Modal -->
-    <SearchTabular v-model="showSearchDialog" :warehouse-id="warehouseId" />
-  </span>
+      <v-card style="max-height: 80vh; overflow: auto; min-height: 55vh">
+        <v-tabs-window v-model="tab">
+          <v-tabs-window-item value="overview">
+            <ViewOverview
+              v-if="tab === 'overview'"
+              :warehouse-id="params.id"
+              :namespace-id="params.nsid"
+              :view-name="params.vid" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item value="raw">
+            <ViewRaw
+              v-if="tab === 'raw'"
+              :warehouse-id="params.id"
+              :namespace-id="params.nsid"
+              :view-name="params.vid" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item value="history">
+            <ViewHistoryTab
+              v-if="tab === 'history'"
+              :warehouse-id="params.id"
+              :namespace-id="params.nsid"
+              :view-name="params.vid" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
+            <PermissionManager
+              :object-id="viewId"
+              :relation-type="RelationType.View"
+              :warehouse-id="params.id" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item v-if="showTasksTab" value="tasks">
+            <TaskManager
+              v-if="viewId"
+              :warehouse-id="params.id"
+              :view-id="viewId"
+              entity-type="view"
+              :can-control-tasks="canControlTasks"
+              :enabled-authentication="enabledAuthentication"
+              :enabled-permissions="enabledPermissions" />
+            <div v-else class="text-center pa-8">
+              <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+              <div class="text-subtitle-1 mt-2">Loading view information...</div>
+            </div>
+          </v-tabs-window-item>
+        </v-tabs-window>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 <script lang="ts" setup>
-import VueJsonPretty from 'vue-json-pretty';
-import 'vue-json-pretty/lib/styles.css';
-import { onMounted, reactive, ref, computed } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
-import TaskManager from '../../components/TaskManager.vue';
-import ViewDetails from '../../components/ViewDetails.vue';
-import ViewHistory from '../../components/ViewHistory.vue';
-import SearchTabular from '../../components/SearchTabular.vue';
-import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
-import { ViewAction } from '../../gen/management/types.gen';
-import { RelationType } from '../../common/interfaces';
-import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
+import { RelationType } from '../../common/interfaces';
+import type { ViewAction } from '../../gen/management/types.gen';
+import ViewHeader from '@/components/ViewHeader.vue';
+import ViewOverview from '@/components/ViewOverview.vue';
+import ViewRaw from '@/components/ViewRaw.vue';
+import ViewHistoryTab from '@/components/ViewHistoryTab.vue';
+import TaskManager from '@/components/TaskManager.vue';
+import PermissionManager from '@/components/PermissionManager.vue';
+import BreadcrumbsFromUrl from '@/components/BreadcrumbsFromUrl.vue';
 
 const functions = useFunctions();
 const route = useRoute();
 const tab = ref('overview');
-const crumbPath = ref('');
-const loading = ref(true);
-
-const depthRawRepresentation = ref(3);
-const depthRawRepresentationMax = ref(1000);
-
-const myAccess = reactive<ViewAction[]>([]);
-
-const permissionType = RelationType.View;
-
-const visual = useVisualStore();
-const themeLight = computed(() => {
-  return visual.themeLight;
-});
-
-const themeText = computed(() => {
-  return themeLight.value ? 'light' : 'dark';
-});
-
-const warehouseId = (route.params as { id: string }).id;
-const namespaceId = (route.params as { nsid: string }).nsid;
-const viewName = (route.params as { vid: string }).vid;
 const viewId = ref('');
-const view = reactive<LoadViewResultReadable>({
-  'metadata-location': '',
-  metadata: {
-    'view-uuid': '',
-    'format-version': 0,
-    location: '',
-    'current-version-id': 0,
-    versions: [],
-    'version-log': [],
-    schemas: [],
-  },
-});
-const loaded = ref(false);
-const canReadPermissions = ref(false);
-const canModifyView = ref(false);
-const canGetTasks = ref(false);
-const canControlTasks = ref(false);
-const recursiveDeleteProtection = ref(false);
-const showSearchDialog = ref(false);
+const myAccess = ref<ViewAction[]>([]);
 
-const currentVersionId = ref(0);
-const sqlStatement = ref('');
-async function loadTabData() {
-  // Load fresh data specific to the current tab
-  switch (tab.value) {
-    case 'permissions':
-      // Permissions are loaded by PermissionManager component
-      break;
-    case 'tasks':
-      // Tasks are loaded by TaskManager component - it handles its own refresh
-      break;
-    case 'overview':
-    case 'raw':
-    case 'history':
-    default:
-      // Refresh view data for these tabs
-      Object.assign(view, await functions.loadView(warehouseId, namespaceId, viewName));
-      depthRawRepresentationMax.value = getMaxDepth(view);
+const params = computed(() => ({
+  id: (route.params as { id: string }).id,
+  nsid: (route.params as { nsid: string }).nsid,
+  vid: (route.params as { vid: string }).vid,
+}));
 
-      // Update version-specific data for overview tab
-      currentVersionId.value = view.metadata['current-version-id'] || 0;
-      view.metadata.versions.forEach((version) => {
-        if (version['version-id'] === currentVersionId.value) {
-          sqlStatement.value = version.representations[0].sql;
-        }
-      });
-      break;
-  }
-}
+const canReadPermissions = computed(() => myAccess.value.includes('read_assignments'));
+const canGetTasks = computed(() => myAccess.value.includes('get_tasks'));
+const canControlTasks = computed(() => myAccess.value.includes('control_tasks'));
 
-async function init() {
-  const serverInfo = await functions.getServerInfo();
+const showPermissionsTab = computed(
+  () => canReadPermissions.value && enabledAuthentication && enabledPermissions,
+);
+const showTasksTab = computed(
+  () => canGetTasks.value || !enabledAuthentication || !enabledPermissions,
+);
 
-  loaded.value = false;
-
-  crumbPath.value = `${namespaceId}${String.fromCharCode(0x1f)}${viewName}`;
-
-  Object.assign(view, await functions.loadView(warehouseId, namespaceId, viewName));
-
-  viewId.value = view.metadata['view-uuid'];
-
-  // Only proceed with permission checks if we have a valid view ID
-  if (!viewId.value) {
-    console.warn('View UUID is missing from view metadata');
-    loaded.value = true;
-    return;
-  }
-
-  currentVersionId.value = view.metadata['current-version-id'] || 0;
-  view.metadata.versions.forEach((version) => {
-    if (version['version-id'] === currentVersionId.value) {
-      sqlStatement.value = version.representations[0].sql;
-    }
-  });
-  if (serverInfo['authz-backend'] != 'allow-all') {
-    Object.assign(myAccess, await functions.getViewAccessById(viewId.value, warehouseId));
-    if (viewId.value) {
-      await getProtection();
-    }
-
-    canReadPermissions.value = !!myAccess.includes('read_assignments');
-    canModifyView.value = !!(
-      myAccess.includes('grant_modify') || myAccess.includes('change_ownership')
-    );
-
-    canGetTasks.value = !!(myAccess as ViewAction[]).includes('get_tasks');
-    canControlTasks.value = !!(myAccess as ViewAction[]).includes('control_tasks');
-
-    // Permissions are loaded by PermissionManager component when tab is active
-  }
-
-  depthRawRepresentationMax.value = getMaxDepth(view);
-
-  loaded.value = true;
-}
-
+// Load view metadata and permissions on mount
 onMounted(async () => {
-  await init();
-  loading.value = false;
-});
+  try {
+    const view = await functions.loadView(params.value.id, params.value.nsid, params.value.vid);
+    viewId.value = view.metadata['view-uuid'] || '';
 
-function getMaxDepth(obj: any): number {
-  let maxDepth = 0;
-
-  function findDepth(obj: any, depth: number) {
-    if (typeof obj === 'object' && obj !== null) {
-      depth++;
-      if (depth > maxDepth) {
-        maxDepth = depth;
-      }
-      for (const key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          findDepth(obj[key], depth);
-        }
+    if (viewId.value) {
+      const serverInfo = await functions.getServerInfo();
+      if (serverInfo['authz-backend'] !== 'allow-all') {
+        myAccess.value = await functions.getViewAccessById(viewId.value, params.value.id);
       }
     }
-  }
-
-  findDepth(obj, 0);
-  return maxDepth;
-}
-
-async function getProtection() {
-  try {
-    recursiveDeleteProtection.value = (
-      await functions.getViewProtection(warehouseId, viewId.value)
-    ).protected;
   } catch (error) {
-    console.error(error);
+    console.error('Failed to load view metadata:', error);
   }
-}
-
-async function setProtection() {
-  try {
-    await functions.setViewProtection(warehouseId, viewId.value, !recursiveDeleteProtection.value);
-    await getProtection();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function copyViewJson() {
-  try {
-    const jsonString = JSON.stringify(view, null, 2);
-    functions.copyToClipboard(jsonString);
-  } catch (error) {
-    console.error('Failed to copy view JSON:', error);
-  }
-}
-
-function openSearchDialog() {
-  showSearchDialog.value = true;
-}
+});
 </script>
 
 <style scoped>
