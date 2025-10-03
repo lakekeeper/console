@@ -23,11 +23,11 @@
     <WarehouseActionsMenu
       :process-status="processStatus"
       :warehouse="warehouse"
-      @close="$emit('close')"
-      @rename-warehouse="$emit('rename-warehouse', $event)"
-      @update-credentials="$emit('update-credentials', $event)"
-      @update-delprofile="$emit('update-delprofile', $event)"
-      @update-profile="$emit('update-profile', $event)" />
+      @close="processStatus = 'starting'"
+      @rename-warehouse="renameWarehouse"
+      @update-credentials="updateCredentials"
+      @update-delprofile="updateDelProfile"
+      @update-profile="updateProfile" />
     <v-btn
       prepend-icon="mdi-magnify"
       class="mr-2"
@@ -46,35 +46,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive, watch, onMounted } from 'vue';
 import { useFunctions } from '@/plugins/functions';
-import type { GetWarehouseResponse } from '@/gen/management/types.gen';
+import { useVisualStore } from '@/stores/visual';
+import type {
+  GetWarehouseResponse,
+  GetWarehouseStatisticsResponse,
+  StorageCredential,
+  StorageProfile,
+  TabularDeleteProfile,
+} from '@/gen/management/types.gen';
 import { StatusIntent } from '@/common/enums';
+import { Type } from '@/common/interfaces';
 
 const props = defineProps<{
   warehouse: GetWarehouseResponse;
-  stats: {
-    'number-of-tables': number;
-    'number-of-views': number;
-    timestamp: string;
-    'updated-at': string;
-  };
-  processStatus: string;
   canCreateNamespace: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: 'close'): void;
-  (e: 'rename-warehouse', name: string): void;
-  (e: 'update-credentials', credentials: any): void;
-  (e: 'update-delprofile', profile: any): void;
-  (e: 'update-profile', profile: any): void;
+  (e: 'warehouse-updated'): void;
   (e: 'open-search'): void;
-  (e: 'namespace-created'): void;
 }>();
 
 const functions = useFunctions();
+const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
+const processStatus = ref('starting');
+
+const stats = reactive({
+  'number-of-tables': 0,
+  'number-of-views': 0,
+  timestamp: '1900-01-01T00:00:00Z',
+  'updated-at': '1900-01-01T00:00:00.000000Z',
+});
+
+async function loadStatistics() {
+  try {
+    const stat: GetWarehouseStatisticsResponse = await functions.getWarehouseStatistics(
+      props.warehouse.id,
+    );
+    Object.assign(stats, stat.stats[0]);
+  } catch (error: any) {
+    console.error(`Failed to get warehouse-statistics  - `, error);
+  }
+}
+
+// Load statistics when component mounts
+onMounted(() => {
+  loadStatistics();
+});
+
+// Reload statistics when warehouse ID changes
+watch(
+  () => props.warehouse.id,
+  () => {
+    loadStatistics();
+  },
+);
 
 async function addNamespace(namespace: string[]) {
   try {
@@ -83,11 +112,71 @@ async function addNamespace(namespace: string[]) {
     if (res.error) throw res.error;
     createNamespaceStatus.value = StatusIntent.SUCCESS;
 
-    // Emit event to parent to trigger refresh
-    emit('namespace-created');
+    // Reload statistics and emit update
+    await loadStatistics();
+    emit('warehouse-updated');
   } catch (error) {
     createNamespaceStatus.value = StatusIntent.FAILURE;
     console.error(error);
+  }
+}
+
+async function renameWarehouse(name: string) {
+  try {
+    await functions.renameWarehouse(props.warehouse.id, name);
+    emit('warehouse-updated');
+  } catch (error: any) {
+    console.error(`Failed to rename warehouse-${name}  - `, error);
+  }
+}
+
+async function updateCredentials(credentials: StorageCredential) {
+  try {
+    processStatus.value = 'running';
+    await functions.updateStorageCredential(props.warehouse.id, credentials);
+    emit('warehouse-updated');
+    processStatus.value = 'success';
+  } catch (error: any) {
+    processStatus.value = 'error';
+    console.error(`Failed to update credentials for warehouse-${props.warehouse.id}  - `, error);
+  }
+}
+
+async function updateProfile(newProfile: {
+  profile: StorageProfile;
+  credentials: StorageCredential;
+}) {
+  try {
+    processStatus.value = 'running';
+    await functions.updateStorageProfile(
+      props.warehouse.id,
+      newProfile.credentials,
+      newProfile.profile,
+    );
+    emit('warehouse-updated');
+    processStatus.value = 'success';
+  } catch (error: any) {
+    processStatus.value = 'error';
+    console.error(`Failed to update profile for warehouse-${props.warehouse.id}  - `, error);
+  }
+}
+
+async function updateDelProfile(profile: TabularDeleteProfile) {
+  try {
+    await functions.updateWarehouseDeleteProfile(props.warehouse.id, profile);
+    emit('warehouse-updated');
+    visual.setSnackbarMsg({
+      function: 'updateDelProfile',
+      text: 'Deletion profile updated successfully',
+      ttl: 3000,
+      ts: Date.now(),
+      type: Type.SUCCESS,
+    });
+  } catch (error: any) {
+    console.error(
+      `Failed to update deletion profile for warehouse-${props.warehouse.id}  - `,
+      error,
+    );
   }
 }
 </script>

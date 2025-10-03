@@ -280,6 +280,7 @@ export function useWarehousePermissions(warehouseId: Ref<string> | string) {
 
   // Specific permission checks
   const canCreateNamespace = computed(() => hasPermission('create_namespace'));
+  const canDelete = computed(() => hasPermission('delete'));
   const canReadPermissions = computed(() => hasPermission('read_assignments'));
   const canModifyWarehouse = computed(() =>
     hasAnyPermission(
@@ -295,6 +296,14 @@ export function useWarehousePermissions(warehouseId: Ref<string> | string) {
   const canModifyStorage = computed(() => hasPermission('modify_storage'));
   const canModifyCredentials = computed(() => hasPermission('modify_storage_credential'));
   const canRename = computed(() => hasPermission('rename'));
+
+  // UI visibility helpers that include auth checks
+  const showPermissionsTab = computed(
+    () => canReadPermissions.value && enabledAuthentication && enabledPermissions,
+  );
+  const showTasksTab = computed(
+    () => canGetAllTasks.value || !enabledAuthentication || !enabledPermissions,
+  );
 
   // Auto-load on mount
   onMounted(() => {
@@ -317,6 +326,7 @@ export function useWarehousePermissions(warehouseId: Ref<string> | string) {
     hasAnyPermission,
     hasAllPermissions,
     canCreateNamespace,
+    canDelete,
     canReadPermissions,
     canModifyWarehouse,
     canGetAllTasks,
@@ -324,6 +334,8 @@ export function useWarehousePermissions(warehouseId: Ref<string> | string) {
     canModifyStorage,
     canModifyCredentials,
     canRename,
+    showPermissionsTab,
+    showTasksTab,
     refresh: loadPermissions,
   };
 }

@@ -32,8 +32,13 @@ async function loadBreadcrumbs(url: string) {
 
       let title = segment;
       if (index === 1) {
-        const response = await functions.getWarehouse(paths[1]);
-        title = response.name;
+        // Use warehouse name from visual store if available, otherwise fetch
+        if (visual.wahrehouseName && paths[1] === visual.whId) {
+          title = visual.wahrehouseName;
+        } else {
+          const response = await functions.getWarehouse(paths[1]);
+          title = response.name;
+        }
         breadcrumbs.push({
           title,
           href: currentPath,
@@ -77,5 +82,15 @@ watch(
     loadBreadcrumbs(newVal);
   },
   { immediate: true },
+);
+
+// Watch for warehouse name changes to update breadcrumbs
+watch(
+  () => visual.wahrehouseName,
+  () => {
+    if (visual.currentUrl) {
+      loadBreadcrumbs(visual.currentUrl);
+    }
+  },
 );
 </script>

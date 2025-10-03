@@ -13,36 +13,19 @@
   <span v-else>
     <v-row class="ml-1">
       <v-col>
-        <BreadcrumbsFromUrl v-if="!renaming" />
+        <BreadcrumbsFromUrl />
 
         <WarehouseHeader
           :warehouse="selectedWarehouse"
-          :stats="stats[0]"
-          :process-status="processStatus"
           :can-create-namespace="canCreateNamespace"
-          @close="processStatus = 'starting'"
-          @rename-warehouse="renameWarehouse"
-          @update-credentials="updateCredentials"
-          @update-delprofile="updateDelProfile"
-          @update-profile="updateProfile"
-          @open-search="openSearchDialog"
-          @namespace-created="handleNamespaceUpdated" />
+          @warehouse-updated="handleWarehouseUpdated"
+          @open-search="showSearchDialog = true" />
 
         <v-tabs v-model="tab" density="compact">
           <v-tab density="compact" value="namespaces">namespaces</v-tab>
-          <v-tab
-            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
-            density="compact"
-            value="permissions">
-            permissions
-          </v-tab>
+          <v-tab v-if="showPermissionsTab" density="compact" value="permissions">permissions</v-tab>
           <v-tab density="compact" value="details">Details</v-tab>
-          <v-tab
-            v-if="canGetAllTasks || !enabledAuthentication || !enabledPermissions"
-            density="compact"
-            value="tasks">
-            Tasks
-          </v-tab>
+          <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
         </v-tabs>
         <v-card>
           <v-tabs-window v-model="tab">
@@ -54,23 +37,19 @@
                 :can-create-namespace="canCreateNamespace"
                 :can-delete="canDelete"
                 @update:protected="selectedWarehouse.protected = $event"
-                @namespace-updated="handleNamespaceUpdated" />
+                @namespace-updated="handleWarehouseUpdated" />
             </v-tabs-window-item>
             <v-tabs-window-item value="details">
               <WarehouseDetails :warehouse="selectedWarehouse" />
             </v-tabs-window-item>
-            <v-tabs-window-item v-if="canReadPermissions" value="permissions">
+            <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
               <PermissionManager :object-id="params.id" :relation-type="RelationType.Warehouse" />
             </v-tabs-window-item>
-            <v-tabs-window-item
-              v-if="(canGetAllTasks || !enabledAuthentication || !enabledPermissions) && loaded"
-              value="tasks">
+            <v-tabs-window-item v-if="showTasksTab" value="tasks">
               <TaskManager
                 :warehouse-id="params.id"
                 entity-type="warehouse"
-                :can-control-tasks="canControlAllTasks"
-                :enabled-authentication="enabledAuthentication"
-                :enabled-permissions="enabledPermissions" />
+                :can-control-tasks="canControlAllTasks" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
@@ -91,195 +70,69 @@ import SearchTabular from '../../components/SearchTabular.vue';
 import WarehouseNamespaces from '../../components/WarehouseNamespaces.vue';
 import WarehouseDetails from '../../components/WarehouseDetails.vue';
 import WarehouseHeader from '../../components/WarehouseHeader.vue';
-import { Type, RelationType } from '../../common/interfaces';
+import { RelationType } from '../../common/interfaces';
+import { computed, onMounted, ref, reactive } from 'vue';
+import type { GetWarehouseResponse } from '@/gen/management/types.gen';
 import { useVisualStore } from '../../stores/visual';
-import { computed, onMounted, ref } from 'vue';
-import {
-  GetWarehouseResponse,
-  GetWarehouseStatisticsResponse,
-  StorageCredential,
-  StorageProfile,
-  TabularDeleteProfile,
-} from '@/gen/management/types.gen';
 
-import { enabledAuthentication, enabledPermissions } from '@/app.config';
 const functions = useFunctions();
 const route = useRoute();
+const visual = useVisualStore();
 
-const tab = ref('overview');
+const tab = ref('namespaces');
 const loading = ref(true);
-const loaded = ref(true);
 const showSearchDialog = ref(false);
 const namespacesComponent = ref<InstanceType<typeof WarehouseNamespaces>>();
 
-const storageProfile = reactive<StorageProfile>({
-  type: 's3',
-  bucket: '',
-  'key-prefix': '',
-  'assume-role-arn': '',
-  endpoint: '',
-  region: '',
-  'path-style-access': null,
-  'sts-role-arn': '',
-  'sts-enabled': false,
-  flavor: undefined,
-});
-
 const selectedWarehouse = reactive<GetWarehouseResponse>({
-  'delete-profile': {
-    type: 'hard',
-  },
+  'delete-profile': { type: 'hard' },
   id: '',
   name: '',
   'project-id': '',
   status: 'active',
-  'storage-profile': storageProfile,
+  'storage-profile': {
+    type: 's3',
+    bucket: '',
+    'key-prefix': '',
+    'assume-role-arn': '',
+    endpoint: '',
+    region: '',
+    'path-style-access': null,
+    'sts-role-arn': '',
+    'sts-enabled': false,
+    flavor: undefined,
+  },
   protected: false,
 });
-
-const visual = useVisualStore();
-const processStatus = ref('starting');
-const stats = reactive([
-  {
-    'number-of-tables': 0,
-    'number-of-views': 0,
-    timestamp: '1900-01-01T00:00:00Z',
-    'updated-at': '1900-01-01T00:00:00.000000Z',
-  },
-]);
 
 const params = computed(() => route.params as { id: string });
 
 // Use warehouse permissions composable
-const {
-  hasPermission,
-  canCreateNamespace,
-  canReadPermissions,
-  canGetAllTasks,
-  canControlAllTasks,
-} = useWarehousePermissions(params.value.id);
-
-const canDelete = computed(() => hasPermission('delete'));
-
-const renaming = ref(false);
+const { canCreateNamespace, canDelete, canControlAllTasks, showPermissionsTab, showTasksTab } =
+  useWarehousePermissions(params.value.id);
 
 async function loadWarehouse() {
   const whResponse = await functions.getWarehouse(params.value.id);
   if (whResponse) {
+    Object.assign(selectedWarehouse, whResponse);
     visual.wahrehouseName = whResponse.name;
     visual.whId = whResponse.id;
-    Object.assign(selectedWarehouse, whResponse);
   }
 }
 
-async function init() {
+async function handleWarehouseUpdated() {
+  await loadWarehouse();
+  namespacesComponent.value?.loadNamespaces();
+}
+
+onMounted(async () => {
+  loading.value = true;
   try {
-    loaded.value = false;
-    loaded.value = true;
-    await Promise.all([loadWarehouse(), getWarehouseStatistics()]);
-    loading.value = false;
+    await loadWarehouse();
   } catch (error) {
-    console.error(error);
+    console.error('Failed to load warehouse:', error);
+  } finally {
+    loading.value = false;
   }
-}
-
-async function handleNamespaceUpdated() {
-  await Promise.all([loadWarehouse(), getWarehouseStatistics()]);
-  // Also reload namespaces in the component
-  if (namespacesComponent.value) {
-    await namespacesComponent.value.loadNamespaces();
-  }
-}
-
-onMounted(init);
-
-async function getWarehouseStatistics() {
-  try {
-    const stat: GetWarehouseStatisticsResponse = await functions.getWarehouseStatistics(
-      params.value.id,
-    );
-
-    // stats.splice(0, stats.length);
-    Object.assign(stats, stat.stats);
-  } catch (error: any) {
-    console.error(`Failed to get warehouse-statistics  - `, error);
-  }
-}
-
-async function renameWarehouse(name: string) {
-  try {
-    renaming.value = true;
-    await functions.renameWarehouse(params.value.id, name);
-
-    await loadWarehouse();
-    renaming.value = false;
-  } catch (error: any) {
-    renaming.value = false;
-    console.error(`Failed to rename warehouse-${name}  - `, error);
-  }
-}
-
-function openSearchDialog() {
-  showSearchDialog.value = true;
-}
-
-async function updateCredentials(credentials: StorageCredential) {
-  try {
-    processStatus.value = 'running';
-
-    await functions.updateStorageCredential(params.value.id, credentials);
-    await loadWarehouse();
-    processStatus.value = 'success';
-  } catch (error: any) {
-    processStatus.value = 'error';
-
-    console.error(`Failed to update credentials for warehouse-${params.value.id}  - `, error);
-  }
-}
-
-async function updateProfile(newPprofile: {
-  profile: StorageProfile;
-  credentials: StorageCredential;
-}) {
-  try {
-    processStatus.value = 'running';
-    await functions.updateStorageProfile(
-      params.value.id,
-      newPprofile.credentials,
-      newPprofile.profile,
-    );
-
-    await loadWarehouse();
-    processStatus.value = 'success';
-  } catch (error: any) {
-    processStatus.value = 'error';
-    console.error(`Failed to update profile for warehouse-${params.value.id}  - `, error);
-  }
-}
-async function updateDelProfile(profile: TabularDeleteProfile) {
-  try {
-    await functions.updateWarehouseDeleteProfile(params.value.id, profile);
-    await loadWarehouse();
-    visual.setSnackbarMsg({
-      function: 'updateDelProfile',
-      text: 'Deletion profile updated successfully',
-      ttl: 3000,
-      ts: Date.now(),
-      type: Type.SUCCESS,
-    });
-  } catch (error: any) {
-    console.error(`Failed to update deletion profile for warehouse-${params.value.id}  - `, error);
-  }
-}
+});
 </script>
-
-<style scoped>
-.pointer-cursor {
-  cursor: pointer;
-}
-
-.icon-text {
-  display: flex;
-  align-items: center;
-}
-</style>
