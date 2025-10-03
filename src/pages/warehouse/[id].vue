@@ -20,14 +20,13 @@
           :stats="stats[0]"
           :process-status="processStatus"
           :can-create-namespace="canCreateNamespace"
-          :create-namespace-status="createNamespaceStatus"
           @close="processStatus = 'starting'"
           @rename-warehouse="renameWarehouse"
           @update-credentials="updateCredentials"
           @update-delprofile="updateDelProfile"
           @update-profile="updateProfile"
           @open-search="openSearchDialog"
-          @add-namespace="addNamespace" />
+          @namespace-created="handleNamespaceUpdated" />
 
         <v-tabs v-model="tab" density="compact">
           <v-tab density="compact" value="namespaces">namespaces</v-tab>
@@ -93,7 +92,6 @@ import WarehouseNamespaces from '../../components/WarehouseNamespaces.vue';
 import WarehouseDetails from '../../components/WarehouseDetails.vue';
 import WarehouseHeader from '../../components/WarehouseHeader.vue';
 import { Type, RelationType } from '../../common/interfaces';
-import { StatusIntent } from '../../common/enums';
 import { useVisualStore } from '../../stores/visual';
 import { computed, onMounted, ref } from 'vue';
 import {
@@ -141,7 +139,6 @@ const selectedWarehouse = reactive<GetWarehouseResponse>({
 
 const visual = useVisualStore();
 const processStatus = ref('starting');
-const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const stats = reactive([
   {
     'number-of-tables': 0,
@@ -191,20 +188,6 @@ async function handleNamespaceUpdated() {
   // Also reload namespaces in the component
   if (namespacesComponent.value) {
     await namespacesComponent.value.loadNamespaces();
-  }
-}
-
-async function addNamespace(namespace: string[]) {
-  try {
-    createNamespaceStatus.value = StatusIntent.STARTING;
-    const res = await functions.createNamespace(params.value.id, namespace);
-    if (res.error) throw res.error;
-    createNamespaceStatus.value = StatusIntent.SUCCESS;
-
-    await handleNamespaceUpdated();
-  } catch (error) {
-    createNamespaceStatus.value = StatusIntent.FAILURE;
-    console.error(error);
   }
 }
 

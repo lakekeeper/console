@@ -41,15 +41,17 @@
       v-if="canCreateNamespace"
       :parent-path="''"
       :status-intent="createNamespaceStatus"
-      @add-namespace="$emit('add-namespace', $event)" />
+      @add-namespace="addNamespace" />
   </v-toolbar>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import { useFunctions } from '@/plugins/functions';
 import type { GetWarehouseResponse } from '@/gen/management/types.gen';
-import type { StatusIntent } from '@/common/enums';
+import { StatusIntent } from '@/common/enums';
 
-defineProps<{
+const props = defineProps<{
   warehouse: GetWarehouseResponse;
   stats: {
     'number-of-tables': number;
@@ -59,16 +61,33 @@ defineProps<{
   };
   processStatus: string;
   canCreateNamespace: boolean;
-  createNamespaceStatus: StatusIntent;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'close'): void;
   (e: 'rename-warehouse', name: string): void;
   (e: 'update-credentials', credentials: any): void;
   (e: 'update-delprofile', profile: any): void;
   (e: 'update-profile', profile: any): void;
   (e: 'open-search'): void;
-  (e: 'add-namespace', namespace: string[]): void;
+  (e: 'namespace-created'): void;
 }>();
+
+const functions = useFunctions();
+const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
+
+async function addNamespace(namespace: string[]) {
+  try {
+    createNamespaceStatus.value = StatusIntent.STARTING;
+    const res = await functions.createNamespace(props.warehouse.id, namespace);
+    if (res.error) throw res.error;
+    createNamespaceStatus.value = StatusIntent.SUCCESS;
+
+    // Emit event to parent to trigger refresh
+    emit('namespace-created');
+  } catch (error) {
+    createNamespaceStatus.value = StatusIntent.FAILURE;
+    console.error(error);
+  }
+}
 </script>
