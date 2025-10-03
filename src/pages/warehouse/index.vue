@@ -35,18 +35,16 @@
         <v-data-table
           v-if="myAccess.includes('list_warehouses')"
           height="60vh"
-          :search="searchWarehouse"
           fixed-header
           :headers="headers"
           hover
           items-per-page="50"
-          :items="whResponse"
+          :items="filteredWarehouses"
           :sort-by="[{ key: 'name', order: 'asc' }]"
           :items-per-page-options="[
             { title: '50 items', value: 50 },
             { title: '100 items', value: 100 },
-          ]"
-          @update:options="paginationCheckWarehouse($event)">
+          ]">
           <template #top>
             <v-toolbar color="transparent" density="compact" flat>
               <v-spacer></v-spacer>
@@ -139,7 +137,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, onUnmounted } from 'vue';
+import { onMounted, reactive, ref, onUnmounted, computed } from 'vue';
 import { Intent, ObjectType } from '../../common/enums';
 
 import { GetWarehouseResponse, ProjectAction } from '../../gen/management/types.gen';
@@ -147,7 +145,7 @@ import { GetWarehouseResponse, ProjectAction } from '../../gen/management/types.
 import router from '../../router';
 import { useFunctions } from '../../plugins/functions';
 import { useVisualStore } from '../../stores/visual';
-import { Header, Options } from '../../common/interfaces';
+import { Header } from '../../common/interfaces';
 
 const functions = useFunctions();
 const missAccessPermission = ref(true);
@@ -170,6 +168,26 @@ type GetWarehouseResponseExtended = GetWarehouseResponse & {
 const whResponse = reactive<GetWarehouseResponseExtended[]>([]);
 const visual = useVisualStore();
 
+const filteredWarehouses = computed(() => {
+  if (!searchWarehouse.value) {
+    return whResponse; // Returns the full list if the search is empty
+  }
+
+  const searchLower = searchWarehouse.value.toLowerCase();
+
+  return whResponse.filter((warehouse) => {
+    // Only matches if 'name' ends with the search term
+    const nameEndsWith = warehouse.name
+      ? warehouse.name.toLowerCase().endsWith(searchLower)
+      : false;
+
+    // Only matches if 'id' ends with the search term
+    const idEndsWith = warehouse.id ? warehouse.id.toLowerCase().endsWith(searchLower) : false;
+
+    return nameEndsWith || idEndsWith;
+  });
+});
+
 onMounted(async () => {
   try {
     visual.whId = '';
@@ -185,15 +203,6 @@ onMounted(async () => {
     console.error('Failed to load data:', err);
   }
 });
-
-async function paginationCheckWarehouse(option: Options) {
-  // Note: Currently listWarehouses doesn't support pagination tokens
-  // This function is here for consistency and future pagination support
-  if (whResponse.length >= 10000) return;
-
-  // Pagination logic would go here when API supports it
-  // For now, all warehouses are loaded at once
-}
 
 async function listWarehouse() {
   try {
