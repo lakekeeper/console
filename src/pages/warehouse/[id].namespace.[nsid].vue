@@ -310,7 +310,7 @@ const paginationTokenTbl = ref('');
 const paginationTokenView = ref('');
 const paginationTokenNamespace = ref('');
 const items: Item[] = reactive([]);
-const permissionType = ref<RelationType>('namespace');
+const permissionType = RelationType.Namespace;
 // const namespaceId = ref<string>("");
 
 const headers: readonly Header[] = Object.freeze([

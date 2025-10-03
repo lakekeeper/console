@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
-import type { ProjectAction, WarehouseAction, NamespaceAction } from '@/gen/management/types.gen';
+import type {
+  ProjectAction,
+  WarehouseAction,
+  NamespaceAction,
+  ServerAction,
+} from '@/gen/management/types.gen';
 import { useFunctions } from '@/plugins/functions';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
@@ -20,6 +25,7 @@ export const usePermissionStore = defineStore('permissions', () => {
   const projectPermissions = reactive<Map<string, PermissionCache<ProjectAction>>>(new Map());
   const warehousePermissions = reactive<Map<string, PermissionCache<WarehouseAction>>>(new Map());
   const namespacePermissions = reactive<Map<string, PermissionCache<NamespaceAction>>>(new Map());
+  const serverPermissions = reactive<Map<string, PermissionCache<ServerAction>>>(new Map());
 
   // Check if auth/permissions are enabled
   const isAuthEnabled = () => enabledAuthentication && enabledPermissions;
@@ -30,6 +36,57 @@ export const usePermissionStore = defineStore('permissions', () => {
     const now = Date.now();
     return now - cache.timestamp < CACHE_TTL;
   };
+
+  // Server Permissions
+  async function getServerPermissions(serverId: string): Promise<ServerAction[]> {
+    // If auth is disabled, return all permissions
+    if (!isAuthEnabled()) {
+      return [
+        'create_project',
+        'update_users',
+        'delete_users',
+        'list_users',
+        'grant_admin',
+        'provision_users',
+        'read_assignments',
+      ] as ServerAction[];
+    }
+
+    const cached = serverPermissions.get(serverId);
+    if (cached && isCacheValid(cached) && !cached.loading) {
+      return cached.data;
+    }
+
+    // Set loading state
+    if (!cached) {
+      serverPermissions.set(serverId, {
+        data: [],
+        timestamp: 0,
+        loading: true,
+        error: null,
+      });
+    } else {
+      cached.loading = true;
+      cached.error = null;
+    }
+
+    try {
+      const permissions = await functions.getServerAccess();
+      serverPermissions.set(serverId, {
+        data: permissions,
+        timestamp: Date.now(),
+        loading: false,
+        error: null,
+      });
+      return permissions;
+    } catch (error) {
+      const cache = serverPermissions.get(serverId)!;
+      cache.loading = false;
+      cache.error = error as Error;
+      console.error(`Failed to load server permissions for ${serverId}:`, error);
+      return [];
+    }
+  }
 
   // Project Permissions
   async function getProjectPermissions(projectId: string): Promise<ProjectAction[]> {
@@ -183,6 +240,10 @@ export const usePermissionStore = defineStore('permissions', () => {
   }
 
   // Invalidate cache functions
+  function invalidateServerPermissions(serverId: string) {
+    serverPermissions.delete(serverId);
+  }
+
   function invalidateProjectPermissions(projectId: string) {
     projectPermissions.delete(projectId);
   }
@@ -196,12 +257,17 @@ export const usePermissionStore = defineStore('permissions', () => {
   }
 
   function invalidateAllPermissions() {
+    serverPermissions.clear();
     projectPermissions.clear();
     warehousePermissions.clear();
     namespacePermissions.clear();
   }
 
   // Get loading state
+  function isServerLoading(serverId: string): boolean {
+    return serverPermissions.get(serverId)?.loading ?? false;
+  }
+
   function isProjectLoading(projectId: string): boolean {
     return projectPermissions.get(projectId)?.loading ?? false;
   }
@@ -216,17 +282,20 @@ export const usePermissionStore = defineStore('permissions', () => {
 
   return {
     // Getters
+    getServerPermissions,
     getProjectPermissions,
     getWarehousePermissions,
     getNamespacePermissions,
 
     // Invalidation
+    invalidateServerPermissions,
     invalidateProjectPermissions,
     invalidateWarehousePermissions,
     invalidateNamespacePermissions,
     invalidateAllPermissions,
 
     // Loading state
+    isServerLoading,
     isProjectLoading,
     isWarehouseLoading,
     isNamespaceLoading,

@@ -149,7 +149,7 @@ const visual = useVisualStore();
 const functions = useFunctions();
 const permissionStore = usePermissionStore();
 
-const permissionType = ref<RelationType>('project');
+const permissionType = RelationType.Project;
 const myAccess = reactive<ProjectAction[]>([]);
 const canReadAssignments = ref(false);
 const canDeleteProject = ref(false);

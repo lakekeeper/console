@@ -1,7 +1,94 @@
 import { ref, computed, onMounted, watch } from 'vue';
-import type { ProjectAction, WarehouseAction, NamespaceAction } from '@/gen/management/types.gen';
+import type {
+  ProjectAction,
+  WarehouseAction,
+  NamespaceAction,
+  ServerAction,
+} from '@/gen/management/types.gen';
 import { usePermissionStore } from '@/stores/permissions';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import type { Ref } from 'vue';
+
+/**
+ * Composable for managing server permissions
+ * @param serverId - The server ID (can be a ref or static string)
+ * @returns Reactive permission state and helper functions
+ */
+export function useServerPermissions(serverId: Ref<string> | string) {
+  const permissionStore = usePermissionStore();
+  const loading = ref(false);
+  const permissions = ref<ServerAction[]>([]);
+
+  const serverIdRef = computed(() => (typeof serverId === 'string' ? serverId : serverId.value));
+
+  async function loadPermissions() {
+    loading.value = true;
+    try {
+      permissions.value = await permissionStore.getServerPermissions(serverIdRef.value);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function hasPermission(action: ServerAction): boolean {
+    return permissions.value.includes(action);
+  }
+
+  function hasAnyPermission(...actions: ServerAction[]): boolean {
+    return actions.some((action) => permissions.value.includes(action));
+  }
+
+  function hasAllPermissions(...actions: ServerAction[]): boolean {
+    return actions.every((action) => permissions.value.includes(action));
+  }
+
+  // Specific permission checks
+  const canCreateProject = computed(() => hasPermission('create_project'));
+  const canUpdateUsers = computed(() => hasPermission('update_users'));
+  const canDeleteUsers = computed(() => hasPermission('delete_users'));
+  const canListUsers = computed(() => hasPermission('list_users'));
+  const canGrantAdmin = computed(() => hasPermission('grant_admin'));
+  const canProvisionUsers = computed(() => hasPermission('provision_users'));
+  const canReadAssignments = computed(() => hasPermission('read_assignments'));
+
+  // UI visibility helpers that include auth checks
+  const showPermissionsTab = computed(
+    () => canReadAssignments.value && enabledAuthentication && enabledPermissions,
+  );
+  const showUsersTab = computed(() => canListUsers.value && enabledAuthentication);
+
+  // Auto-load on mount
+  onMounted(() => {
+    if (serverIdRef.value) {
+      loadPermissions();
+    }
+  });
+
+  // Watch for ID changes
+  watch(serverIdRef, (newId) => {
+    if (newId) {
+      loadPermissions();
+    }
+  });
+
+  return {
+    loading,
+    permissions,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    canCreateProject,
+    canUpdateUsers,
+    canDeleteUsers,
+    canListUsers,
+    canGrantAdmin,
+    canProvisionUsers,
+    canReadAssignments,
+    showPermissionsTab,
+    showUsersTab,
+    refresh: loadPermissions,
+  };
+}
 
 /**
  * Composable for managing project permissions

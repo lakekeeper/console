@@ -112,14 +112,15 @@ export interface NamespaceResponse {
   'next-page-token'?: PageToken;
 }
 
-export type RelationType =
-  | 'role'
-  | 'project'
-  | 'server'
-  | 'warehouse'
-  | 'namespace'
-  | 'view'
-  | 'table';
+export enum RelationType {
+  Role = 'role',
+  Project = 'project',
+  Server = 'server',
+  Warehouse = 'warehouse',
+  Namespace = 'namespace',
+  View = 'view',
+  Table = 'table',
+}
 
 export type AssignmentCollection =
   | RoleAssignment[]

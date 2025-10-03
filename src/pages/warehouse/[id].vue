@@ -456,7 +456,7 @@ const selectedWarehouse = reactive<GetWarehouseResponse>({
 });
 
 const loadedWarehouseItems: Item[] = reactive([]);
-const permissionType = ref<RelationType>('warehouse');
+const permissionType = RelationType.Warehouse;
 const namespaceId = ref('');
 const relationId = ref('');
 const visual = useVisualStore();

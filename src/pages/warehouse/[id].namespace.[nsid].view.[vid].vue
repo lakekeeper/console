@@ -169,7 +169,7 @@ const depthRawRepresentationMax = ref(1000);
 
 const myAccess = reactive<ViewAction[]>([]);
 
-const permissionType = ref<RelationType>('view');
+const permissionType = RelationType.View;
 
 const visual = useVisualStore();
 const themeLight = computed(() => {

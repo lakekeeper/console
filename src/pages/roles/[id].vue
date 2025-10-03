@@ -24,5 +24,5 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 const route = useRoute();
 const params = computed(() => route.params as { id: string });
 const tab = ref('overview');
-const type = ref<RelationType>('role');
+const type = RelationType.Role;
 </script>

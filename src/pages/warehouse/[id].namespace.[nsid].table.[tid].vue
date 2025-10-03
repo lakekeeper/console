@@ -182,7 +182,7 @@ const table = reactive<LoadTableResultReadable>({
     'table-uuid': '',
   },
 });
-const permissionType = ref<RelationType>('table');
+const permissionType = RelationType.Table;
 
 const visual = useVisualStore();
 const themeLight = computed(() => {

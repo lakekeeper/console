@@ -8,7 +8,10 @@
     <template #top>
       <v-toolbar color="transparent" density="compact" flat>
         <v-switch
-          v-if="props.relationType === 'warehouse' || props.relationType === 'namespace'"
+          v-if="
+            props.relationType === RelationType.Warehouse ||
+            props.relationType === RelationType.Namespace
+          "
           v-model="isManagedAccess"
           class="ml-4 mt-4"
           color="info"
@@ -96,13 +99,13 @@ const permissionRows = reactive<
 // false, false -> "Managed access disabled"-->
 
 const managedAccess = computed(() => {
-  if (props.relationType === 'namespace') {
+  if (props.relationType === RelationType.Namespace) {
     return isManagedAccess.value && isManagedAccessInherited.value
       ? 'Managed access enabled'
       : !isManagedAccess.value && isManagedAccessInherited.value
         ? 'Managed access enabled by parent'
         : 'Managed access disabled';
-  } else if (props.relationType === 'warehouse') {
+  } else if (props.relationType === RelationType.Warehouse) {
     return isManagedAccess.value ? 'Managed access enabled' : 'Managed access disabled';
   } else {
     return 'Managed access not applicable';
@@ -139,31 +142,31 @@ async function loadObjectData() {
   try {
     let objData: any = null;
 
-    if (props.relationType === 'server') {
+    if (props.relationType === RelationType.Server) {
       objData = await functions.getServerInfo();
       assignableObj.id = objData['server-id'];
       assignableObj.name = 'Server';
-    } else if (props.relationType === 'warehouse') {
+    } else if (props.relationType === RelationType.Warehouse) {
       objData = await functions.getWarehouse(props.objectId);
       assignableObj.id = objData.id;
       assignableObj.name = objData.name;
-    } else if (props.relationType === 'namespace') {
+    } else if (props.relationType === RelationType.Namespace) {
       // For namespace, we only have the ID, use it directly
       assignableObj.id = props.objectId;
       assignableObj.name = props.objectId; // Namespace display name is the ID
-    } else if (props.relationType === 'table') {
+    } else if (props.relationType === RelationType.Table) {
       // For tables, we get basic info from the table list
       assignableObj.id = props.objectId;
       assignableObj.name = props.objectId; // Tables don't have a separate get endpoint
-    } else if (props.relationType === 'view') {
+    } else if (props.relationType === RelationType.View) {
       // For views, we get basic info from the view list
       assignableObj.id = props.objectId;
       assignableObj.name = props.objectId; // Views don't have a separate get endpoint
-    } else if (props.relationType === 'project') {
+    } else if (props.relationType === RelationType.Project) {
       objData = await functions.getProjectById(props.objectId);
       assignableObj.id = objData['project-id'];
       assignableObj.name = objData['project-name'];
-    } else if (props.relationType === 'role') {
+    } else if (props.relationType === RelationType.Role) {
       objData = await functions.getRole(props.objectId);
       assignableObj.id = objData.id;
       assignableObj.name = objData.name;
@@ -179,19 +182,19 @@ async function fetchAssignments() {
   try {
     let assignments: any[] = [];
 
-    if (props.relationType === 'server') {
+    if (props.relationType === RelationType.Server) {
       assignments = await functions.getServerAssignments();
-    } else if (props.relationType === 'warehouse') {
+    } else if (props.relationType === RelationType.Warehouse) {
       assignments = await functions.getWarehouseAssignmentsById(assignableObj.id);
-    } else if (props.relationType === 'namespace') {
+    } else if (props.relationType === RelationType.Namespace) {
       assignments = await functions.getNamespaceAssignmentsById(assignableObj.id);
-    } else if (props.relationType === 'table' && props.warehouseId) {
+    } else if (props.relationType === RelationType.Table && props.warehouseId) {
       assignments = await functions.getTableAssignmentsById(assignableObj.id, props.warehouseId);
-    } else if (props.relationType === 'view' && props.warehouseId) {
+    } else if (props.relationType === RelationType.View && props.warehouseId) {
       assignments = await functions.getViewAssignmentsById(assignableObj.id, props.warehouseId);
-    } else if (props.relationType === 'project') {
+    } else if (props.relationType === RelationType.Project) {
       assignments = await functions.getProjectAssignments();
-    } else if (props.relationType === 'role') {
+    } else if (props.relationType === RelationType.Role) {
       assignments = await functions.getRoleAssignmentsById(assignableObj.id);
     }
 
@@ -206,11 +209,11 @@ async function fetchAssignments() {
 
 async function switchManagedAccess() {
   try {
-    if (props.relationType === 'warehouse') {
+    if (props.relationType === RelationType.Warehouse) {
       await functions.setWarehouseManagedAccess(assignableObj.id, !isManagedAccess.value);
     }
 
-    if (props.relationType === 'namespace') {
+    if (props.relationType === RelationType.Namespace) {
       await functions.setNamespaceManagedAccess(assignableObj.id, !isManagedAccess.value);
     }
   } catch (error) {
@@ -221,12 +224,12 @@ async function switchManagedAccess() {
 }
 
 async function loadManagedAccess() {
-  if (props.relationType === 'warehouse') {
+  if (props.relationType === RelationType.Warehouse) {
     const managedAccess = await functions.getWarehouseById(assignableObj.id);
     isManagedAccess.value = managedAccess;
   }
 
-  if (props.relationType === 'namespace') {
+  if (props.relationType === RelationType.Namespace) {
     const isManaged = await functions.getNamespaceById(assignableObj.id);
 
     isManagedAccess.value = isManaged['managed-access'];
@@ -295,37 +298,37 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
     emit('statusUpdate', StatusIntent.STARTING);
 
     // Handle different relation types
-    if (props.relationType === 'server') {
+    if (props.relationType === RelationType.Server) {
       const del = permissions.del as any[];
       const writes = permissions.writes as any[];
       await functions.updateServerAssignments(del, writes);
-    } else if (props.relationType === 'warehouse') {
+    } else if (props.relationType === RelationType.Warehouse) {
       const del = permissions.del as any[];
       const writes = permissions.writes as any[];
       await functions.updateWarehouseAssignmentsById(assignableObj.id, del, writes);
-    } else if (props.relationType === 'namespace') {
+    } else if (props.relationType === RelationType.Namespace) {
       const del = permissions.del as any[];
       const writes = permissions.writes as any[];
       await functions.updateNamespaceAssignmentsById(assignableObj.id, del, writes);
-    } else if (props.relationType === 'table') {
+    } else if (props.relationType === RelationType.Table) {
       const del = permissions.del as any[];
       const writes = permissions.writes as any[];
       if (!props.warehouseId) {
         throw new Error('warehouseId is required for table assignments');
       }
       await functions.updateTableAssignmentsById(assignableObj.id, del, writes, props.warehouseId);
-    } else if (props.relationType === 'view') {
+    } else if (props.relationType === RelationType.View) {
       const del = permissions.del as any[];
       const writes = permissions.writes as any[];
       if (!props.warehouseId) {
         throw new Error('warehouseId is required for view assignments');
       }
       await functions.updateViewAssignmentsById(assignableObj.id, del, writes, props.warehouseId);
-    } else if (props.relationType === 'project') {
+    } else if (props.relationType === RelationType.Project) {
       const del = permissions.del as any[];
       const writes = permissions.writes as any[];
       await functions.updateProjectAssignments(del, writes);
-    } else if (props.relationType === 'role') {
+    } else if (props.relationType === RelationType.Role) {
       const del = permissions.del as any[];
       const writes = permissions.writes as any[];
       await functions.updateRoleAssignmentsById(assignableObj.id, del, writes);
