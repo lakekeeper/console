@@ -1,707 +1,100 @@
 <template>
-  <v-container v-if="loading" class="fill-height">
-    <v-responsive class="align-centerfill-height mx-auto" max-width="900">
-      <v-row justify="center">
-        <v-progress-circular
-          class="mt-4"
-          color="info"
-          indeterminate
-          :size="126"></v-progress-circular>
-      </v-row>
-    </v-responsive>
-  </v-container>
-  <span v-else>
-    <v-row class="ml-1">
-      <v-col>
-        <BreadcrumbsFromUrl />
-        <v-toolbar class="mb-4" color="transparent" density="compact" flat>
-          <v-toolbar-title>
-            <span class="text-subtitle-1">
-              {{
-                namespacePath.length > 0
-                  ? namespacePath.split(String.fromCharCode(0x1f)).join('.')
-                  : selectedNamespace
-              }}
-            </span>
-          </v-toolbar-title>
-          <template #prepend>
-            <v-icon>mdi-folder-open</v-icon>
-          </template>
-          <v-spacer></v-spacer>
-          <v-btn
-            prepend-icon="mdi-magnify"
-            class="mr-2"
-            size="small"
-            variant="outlined"
-            @click="openSearchDialog"
-            aria-label="Search tables and views">
-            Search warehouse
-          </v-btn>
-          <addNamespaceDialog
-            v-if="canCreateNamespace || !enabledAuthentication || !enabledPermissions"
-            :parent-path="namespacePath"
-            :status-intent="addNamespaceStatus"
-            @add-namespace="addNamespace" />
-        </v-toolbar>
-        <v-tabs v-model="tab">
-          <v-tab value="namespaces" @click="loadTabData">namespaces</v-tab>
-          <v-tab value="tables" @click="loadTabData">tables</v-tab>
-          <v-tab value="views" @click="loadTabData">views</v-tab>
-          <v-tab value="deleted" @click="loadTabData">deleted</v-tab>
-          <v-tab
-            v-if="canReadPermissions && enabledAuthentication && enabledPermissions"
-            value="permissions">
-            Permissions
-          </v-tab>
-          <v-tab value="details">Details</v-tab>
-        </v-tabs>
-        <v-card>
-          <v-tabs-window v-model="tab">
-            <v-tabs-window-item value="namespaces">
-              <v-data-table
-                height="65vh"
-                items-per-page="50"
-                :search="searchNamespace"
-                fixed-header
-                :headers="headers"
-                hover
-                :items="loadedNamespaces"
-                :sort-by="[{ key: 'name', order: 'asc' }]"
-                :items-per-page-options="[
-                  { title: '50 items', value: 50 },
-                  { title: '100 items', value: 100 },
-                ]"
-                @update:options="paginationCheckNamespace($event)">
-                <template #top>
-                  <v-toolbar color="transparent" density="compact" flat>
-                    <v-switch
-                      v-model="recursiveDeleteProtection"
-                      class="ml-4 mt-4"
-                      color="info"
-                      :label="
-                        recursiveDeleteProtection
-                          ? 'Recursive Delete Protection enabled'
-                          : 'Recursive Delete Protection disabled'
-                      "
-                      @click="setProtection"></v-switch>
-                    <v-spacer></v-spacer>
-                    <v-text-field
-                      v-model="searchNamespace"
-                      label="Filter results"
-                      prepend-inner-icon="mdi-filter"
-                      variant="underlined"
-                      hide-details
-                      clearable></v-text-field>
-                  </v-toolbar>
-                </template>
-                <template #item.name="{ item }">
-                  <td class="pointer-cursor" @click="routeToNamespace(item)">
-                    <span class="icon-text">
-                      <v-icon class="mr-2">mdi-folder</v-icon>
-                      {{ item.name }}
-                    </span>
-                  </td>
-                </template>
-                <template #item.actions="{ item }">
-                  <DialogDelete
-                    v-if="item.type === 'namespace'"
-                    :type="item.type"
-                    :name="item.name"
-                    @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
-                </template>
-                <template #no-data>
-                  <addNamespaceDialog
-                    v-if="canCreateNamespace"
-                    :parent-path="namespacePath"
-                    :status-intent="StatusIntent.STARTING"
-                    @add-namespace="addNamespace" />
-                </template>
-              </v-data-table>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="tables">
-              <v-data-table
-                height="65vh"
-                items-per-page="50"
-                :search="searchTbl"
-                fixed-header
-                :items-per-page-options="[
-                  { title: '50 items', value: 50 },
-                  { title: '100 items', value: 100 },
-                ]"
-                @update:options="paginationCheckTables($event)"
-                :headers="headers"
-                hover
-                :items="loadedTables"
-                :sort-by="[{ key: 'name', order: 'asc' }]">
-                <template #top>
-                  <v-toolbar color="transparent" density="compact" flat>
-                    <v-spacer></v-spacer>
-                    <v-text-field
-                      v-model="searchTbl"
-                      label="Filter results"
-                      prepend-inner-icon="mdi-filter"
-                      variant="underlined"
-                      hide-details
-                      clearable></v-text-field>
-                  </v-toolbar>
-                </template>
-                <template #item.name="{ item }">
-                  <td class="pointer-cursor" @click="routeToTable(item)">
-                    <span class="icon-text">
-                      <v-icon class="mr-2">mdi-table</v-icon>
-                      {{ item.name }}
-                    </span>
-                  </td>
-                </template>
-                <template #item.actions="{ item }">
-                  <DialogDelete
-                    v-if="item.type === 'table'"
-                    :type="item.type"
-                    :name="item.name"
-                    @delete-table-with-options="
-                      deleteTableWithOptions($event, item)
-                    "></DialogDelete>
-                </template>
-                <template #no-data>
-                  <div>No tables in this namespace</div>
-                </template>
-              </v-data-table>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="views">
-              <v-data-table
-                items-per-page="50"
-                height="65vh"
-                :search="searchView"
-                fixed-header
-                :headers="headers"
-                hover
-                :items="loadedViews"
-                :sort-by="[{ key: 'name', order: 'asc' }]"
-                :items-per-page-options="[
-                  { title: '50 items', value: 50 },
-                  { title: '100 items', value: 100 },
-                ]"
-                @update:options="paginationCheckViews($event)">
-                <template #item.name="{ item }">
-                  <td class="pointer-cursor" @click="routeToView(item)">
-                    <span class="icon-text">
-                      <v-icon class="mr-2">mdi-view-grid-outline</v-icon>
-                      {{ item.name }}
-                    </span>
-                  </td>
-                </template>
-                <template #top>
-                  <v-toolbar color="transparent" density="compact" flat>
-                    <v-spacer></v-spacer>
-                    <v-text-field
-                      v-model="searchView"
-                      label="Filter results"
-                      prepend-inner-icon="mdi-filter"
-                      variant="underlined"
-                      hide-details
-                      clearable></v-text-field>
-                  </v-toolbar>
-                </template>
-                <template #item.actions="{ item }">
-                  <DialogDelete
-                    v-if="item.type === 'view'"
-                    :type="item.type"
-                    :name="item.name"
-                    @delete-view-with-options="deleteViewWithOptions($event, item)"></DialogDelete>
-                </template>
-                <template #no-data>
-                  <div>No views in this namespace</div>
-                </template>
-              </v-data-table>
-            </v-tabs-window-item>
-            <v-tabs-window-item value="deleted">
-              <v-data-table
-                height="65vh"
-                fixed-header
-                :headers="headersDeleted"
-                hover
-                :items="deletedTabulars"
-                :sort-by="[{ key: 'name', order: 'asc' }]">
-                <template #item.name="{ item }">
-                  <td class="pointer-cursor">
-                    <span class="icon-text">
-                      <v-icon v-if="item.type == 'view'" class="mr-2">mdi-view-grid-outline</v-icon>
-                      <v-icon v-else class="mr-2">mdi-table</v-icon>
-                      {{ item.name }} {{ item.type }}
-                    </span>
-                  </td>
-                </template>
-                <template #item.deleted-at="{ item }">
-                  <v-tooltip location="top">
-                    <template #activator="{ props }">
-                      <span v-bind="props">
-                        {{ formatDistanceToNow(parseISO(item['deleted-at']), { addSuffix: true }) }}
-                      </span>
-                    </template>
-                    {{ parseISO(item['deleted-at']) }}
-                  </v-tooltip>
-                </template>
-                <template #item.expiration-date="{ item }">
-                  <v-tooltip location="top">
-                    <template #activator="{ props }">
-                      <span v-bind="props">
-                        {{
-                          formatDistanceToNow(parseISO(item['expiration-date']), {
-                            addSuffix: true,
-                          })
-                        }}
-                      </span>
-                    </template>
-                    {{ parseISO(item['expiration-date']) }}
-                  </v-tooltip>
-                </template>
-                <template #item.actions="{ item }">
-                  <v-icon color="error" @click="undropTabular(item)">mdi-restore</v-icon>
-                </template>
-                <template #no-data>
-                  <div>No deleted tabulars in this namespace</div>
-                </template>
-              </v-data-table>
-            </v-tabs-window-item>
-            <v-tabs-window-item v-if="canReadPermissions" value="permissions">
-              <PermissionManager
-                v-if="namespaceId"
-                :object-id="namespaceId"
-                :relation-type="permissionType" />
-            </v-tabs-window-item>
-          </v-tabs-window>
-        </v-card>
-      </v-col>
-    </v-row>
+  <v-row class="ml-1">
+    <v-col>
+      <BreadcrumbsFromUrl />
 
-    <!-- Search Modal -->
-    <SearchTabular v-model="showSearchDialog" :warehouse-id="whid" />
-  </span>
+      <NamespaceHeader :warehouse-id="params.id" :namespace-path="params.nsid" />
+
+      <v-tabs v-model="tab">
+        <v-tab value="namespaces">namespaces</v-tab>
+        <v-tab value="tables">tables</v-tab>
+        <v-tab value="views">views</v-tab>
+        <v-tab value="deleted">deleted</v-tab>
+        <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
+      </v-tabs>
+
+      <v-card>
+        <v-tabs-window v-model="tab">
+          <v-tabs-window-item value="namespaces">
+            <NamespaceNamespaces
+              v-if="tab === 'namespaces'"
+              :warehouse-id="params.id"
+              :namespace-path="params.nsid" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item value="tables">
+            <NamespaceTables
+              v-if="tab === 'tables'"
+              :warehouse-id="params.id"
+              :namespace-path="params.nsid" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item value="views">
+            <NamespaceViews
+              v-if="tab === 'views'"
+              :warehouse-id="params.id"
+              :namespace-path="params.nsid" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item value="deleted">
+            <NamespaceDeleted
+              v-if="tab === 'deleted'"
+              :warehouse-id="params.id"
+              :namespace-path="params.nsid" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
+            <PermissionManager :object-id="namespaceId" :relation-type="RelationType.Namespace" />
+          </v-tabs-window-item>
+        </v-tabs-window>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 <script lang="ts" setup>
-import { useRoute } from 'vue-router'; // Import the useRoute function from vue-router
-import { useVisualStore } from '../../stores/visual';
-import { useFunctions } from '../../plugins/functions';
+import { computed, ref, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { useFunctions } from '@/plugins/functions';
 import { useNamespacePermissions } from '@/composables/usePermissions';
-import SearchTabular from '../../components/SearchTabular.vue';
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
-import router from '../../router';
-import { Header, Item, Options, RelationType } from '../../common/interfaces';
+import { RelationType } from '@/common/interfaces';
+import NamespaceHeader from '@/components/NamespaceHeader.vue';
+import NamespaceNamespaces from '@/components/NamespaceNamespaces.vue';
+import NamespaceTables from '@/components/NamespaceTables.vue';
+import NamespaceViews from '@/components/NamespaceViews.vue';
+import NamespaceDeleted from '@/components/NamespaceDeleted.vue';
+import PermissionManager from '@/components/PermissionManager.vue';
+import BreadcrumbsFromUrl from '@/components/BreadcrumbsFromUrl.vue';
 
-import { DeletedTabularResponse } from '../../gen/management/types.gen';
-import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
-import { formatDistanceToNow, parseISO } from 'date-fns';
-import { enabledAuthentication, enabledPermissions } from '@/app.config';
-import { StatusIntent } from '@/common/enums';
-
-const visual = useVisualStore();
 const route = useRoute();
 const functions = useFunctions();
-const loading = ref(true);
-const loaded = ref(false);
-const recursiveDeleteProtection = ref(false);
-const addNamespaceStatus = ref(StatusIntent.INACTIVE);
-const searchNamespace = ref('');
-const searchTbl = ref('');
-const searchView = ref('');
-const showSearchDialog = ref(false);
+const tab = ref('namespaces');
+const namespaceId = ref('');
 
-const paginationTokenTbl = ref('');
-const paginationTokenView = ref('');
-const paginationTokenNamespace = ref('');
-const items: Item[] = reactive([]);
-const permissionType = RelationType.Namespace;
-// const namespaceId = ref<string>("");
+const params = computed(() => ({
+  id: (route.params as { id: string }).id,
+  nsid: (route.params as { nsid: string }).nsid,
+}));
 
-const headers: readonly Header[] = Object.freeze([
-  { title: 'Name', key: 'name', align: 'start' },
-  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
-]);
+// Load namespace metadata on mount to get namespaceId for permissions
+onMounted(loadNamespaceId);
 
-const headersDeleted: readonly Header[] = Object.freeze([
-  { title: 'Name', key: 'name', align: 'start' },
-  {
-    title: 'Deleted',
-    key: 'deleted-at',
-    align: 'start',
-    value: (item: any) => formatDistanceToNow(parseISO(item['deleted-at']), { addSuffix: true }),
-  },
-  {
-    title: 'Expires',
-    key: 'expiration-date',
-    align: 'start',
-    value: (item: any) =>
-      formatDistanceToNow(parseISO(item['expiration-date']), { addSuffix: true }),
-  },
-  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
-]);
-
-const loadedNamespaces: Item[] = reactive([]);
-export type TableIdentifierExtended = TableIdentifier & {
-  actions: string[];
-  id: string;
-  type: string;
-};
-
-type DeletedTabularResponseExtended = DeletedTabularResponse & {
-  actions: string[];
-  type: string;
-};
-const loadedTables: TableIdentifierExtended[] = reactive([]);
-const loadedViews: TableIdentifierExtended[] = reactive([]);
-const deletedTabulars: DeletedTabularResponseExtended[] = reactive([]);
-
-const relationId = ref('');
-const selectedNamespace = ref('');
-const namespacePath = ref<string>((route.params as { nsid: string }).nsid);
-const watchedNamespacePath = computed(() => namespacePath.value);
-const whid = ref<string>((route.params as { id: string }).id);
-const tab = ref('overview');
-const namespace = reactive<GetNamespaceResponse>({
-  namespace: [],
-});
-const namespaceId = computed(() => namespace.properties?.namespace_id || '');
-
-// Use namespace permissions composable
-const { canReadPermissions, canCreateNamespace } = useNamespacePermissions(namespaceId);
-
-onMounted(async () => {
-  await init();
-  loading.value = false;
-});
-
-// Watch for route changes to reload namespace data
 watch(
-  () => (route.params as { nsid?: string }).nsid,
+  () => params.value.nsid,
   async (newNsid, oldNsid) => {
     if (newNsid && newNsid !== oldNsid) {
-      namespacePath.value = newNsid;
-      loading.value = true;
-      await init();
-      loading.value = false;
+      await loadNamespaceId();
     }
   },
 );
 
-onUnmounted(() => {
-  items.splice(0, items.length);
-});
-
-async function deleteTableWithOptions(e: any, item: TableIdentifierExtended) {
+async function loadNamespaceId() {
   try {
-    await functions.dropTable(visual.whId, namespacePath.value, item.name, e);
-
-    await listTables();
-  } catch (error: any) {
-    console.error(`Failed to drop table-${item.name}  - `, error);
-  }
-}
-
-async function deleteViewWithOptions(e: any, item: TableIdentifierExtended) {
-  try {
-    await functions.dropView(visual.whId, namespacePath.value, item.name, e);
-
-    await listViews();
-  } catch (error: any) {
-    console.error(`Failed to drop view-${item.name}  - `, error);
-  }
-}
-
-async function deleteNamespaceWithOptions(e: any, item: Item) {
-  try {
-    const res = await functions.dropNamespace(
-      whid.value,
-      item.parentPath.join(String.fromCharCode(0x1f)),
-      e,
-    );
-    if (res.error) throw res.error;
-
-    await listNamespaces();
-  } catch (error: any) {
-    console.error(`Failed to drop namespace-${item.name}  - `, error);
-  }
-}
-
-async function loadTabData() {
-  if (tab.value === 'namespaces') {
-    await listNamespaces();
-  } else if (tab.value === 'permissions') {
-    await init();
-  } else if (tab.value === 'tables') {
-    await listTables();
-  } else if (tab.value === 'views') {
-    await listViews();
-  } else if (tab.value === 'deleted') {
-    await listDeletedTabulars();
-  }
-}
-
-async function init() {
-  try {
-    loaded.value = false;
-
-    Object.assign(
-      namespace,
-      await functions.loadNamespaceMetadata(whid.value, namespacePath.value),
-    );
-    await getProtection();
-    relationId.value = namespace.properties?.namespace_id || '';
-
-    selectedNamespace.value = namespace.namespace[namespace.namespace.length - 1];
-
-    // Permissions are loaded by the composable automatically
-
-    loaded.value = true;
-    await Promise.all([listNamespaces(), listTables(), listViews(), listDeletedTabulars()]);
+    const namespace = await functions.loadNamespaceMetadata(params.value.id, params.value.nsid);
+    namespaceId.value = namespace.properties?.namespace_id || '';
   } catch (error) {
-    console.error(error);
+    console.error('Failed to load namespace metadata:', error);
   }
 }
 
-async function paginationCheckTables(option: Options) {
-  if (loadedTables.length >= 10000) return;
-
-  if (option.page * option.itemsPerPage == loadedTables.length && paginationTokenTbl.value != '') {
-    const loadedTablesTmp: TableIdentifierExtended[] = [];
-    const data = await functions.listTables(
-      visual.whId,
-      namespacePath.value,
-      paginationTokenTbl.value,
-    );
-    Object.assign(loadedTablesTmp, data.identifiers);
-    paginationTokenTbl.value = data['next-page-token'] || '';
-    loadedTablesTmp.forEach((table) => {
-      table.actions = ['delete'];
-      table.type = 'table';
-    });
-
-    loadedTables.push(...loadedTablesTmp.flat());
-  }
-}
-
-async function paginationCheckViews(option: Options) {
-  if (loadedViews.length >= 10000) return;
-
-  if (option.page * option.itemsPerPage == loadedViews.length && paginationTokenView.value != '') {
-    const loadedViewsTmp: TableIdentifierExtended[] = [];
-    const data = await functions.listViews(
-      visual.whId,
-      namespacePath.value,
-      paginationTokenView.value,
-    );
-    Object.assign(loadedViewsTmp, data.identifiers);
-    paginationTokenTbl.value = data['next-page-token'] || '';
-    loadedViewsTmp.forEach((table) => {
-      table.actions = ['delete'];
-      table.type = 'view';
-    });
-
-    loadedViews.push(...loadedViewsTmp.flat());
-  }
-}
-
-async function paginationCheckNamespace(option: Options) {
-  if (loadedNamespaces.length >= 10000) return;
-
-  if (
-    option.page * option.itemsPerPage == loadedNamespaces.length &&
-    paginationTokenNamespace.value != ''
-  ) {
-    const { namespaces, ['next-page-token']: nextPageToken } = await functions.listNamespaces(
-      visual.whId,
-      namespacePath.value,
-      paginationTokenNamespace.value,
-    );
-
-    paginationTokenNamespace.value = nextPageToken || '';
-    if (namespaces) {
-      const mappedItems: Item[] = namespaces.map((nsArray) => ({
-        name: nsArray[nsArray.length - 1],
-        type: 'namespace',
-        parentPath: [...nsArray],
-        actions: ['delete'],
-      }));
-
-      loadedNamespaces.push(...mappedItems.flat());
-    }
-  }
-}
-
-async function listNamespaces() {
-  try {
-    const { namespaces, ['next-page-token']: nextPageToken } = await functions.listNamespaces(
-      visual.whId,
-      namespacePath.value,
-    );
-
-    paginationTokenNamespace.value = nextPageToken || '';
-    if (namespaces) {
-      const mappedItems: Item[] = namespaces.map((nsArray) => ({
-        name: nsArray[nsArray.length - 1],
-        type: 'namespace',
-        parentPath: [...nsArray],
-        actions: ['delete'],
-      }));
-
-      loadedNamespaces.splice(0, loadedNamespaces.length);
-      Object.assign(loadedNamespaces, mappedItems);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function listTables() {
-  try {
-    loadedTables.splice(0, loadedTables.length);
-    const data = await functions.listTables(visual.whId, namespacePath.value);
-
-    Object.assign(loadedTables, data.identifiers);
-
-    if (data['next-page-token']) {
-      paginationTokenTbl.value = data['next-page-token'];
-    }
-    loadedTables.forEach((table) => {
-      table.actions = ['delete'];
-      table.type = 'table';
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function listViews() {
-  try {
-    loadedViews.splice(0, loadedViews.length);
-    const data = await functions.listViews(visual.whId, namespacePath.value);
-
-    Object.assign(loadedViews, data.identifiers);
-
-    if (data['next-page-token']) {
-      paginationTokenView.value = data['next-page-token'];
-    }
-    loadedViews.forEach((table) => {
-      table.actions = ['delete'];
-      table.type = 'view';
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function listDeletedTabulars() {
-  try {
-    deletedTabulars.splice(0, deletedTabulars.length);
-    const data = await functions.listDeletedTabulars(visual.whId, namespaceId.value || '');
-
-    Object.assign(deletedTabulars, data.tabulars);
-    deletedTabulars.forEach((table) => {
-      table.actions = ['delete'];
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function routeToNamespace(item: Item) {
-  if (item.type !== 'namespace') {
-    return;
-  }
-
-  namespacePath.value =
-    item.parentPath.length > 0 ? `${item.parentPath.join(String.fromCharCode(0x1f))}` : item.name;
-  visual.namespacePath = namespacePath.value;
-  router.push(`/warehouse/${visual.whId}/namespace/${namespacePath.value}`);
-}
-
-async function routeToTable(item: TableIdentifierExtended) {
-  router.push(
-    `/warehouse/${visual.whId}/namespace/${
-      namespacePath.value
-    }/table/${encodeURIComponent(item.name)}`,
-  );
-}
-
-async function routeToView(item: TableIdentifierExtended) {
-  router.push(
-    `/warehouse/${visual.whId}/namespace/${
-      namespacePath.value
-    }/view/${encodeURIComponent(item.name)}`,
-  );
-}
-
-async function addNamespace(namespaceIdent: string[]) {
-  try {
-    addNamespaceStatus.value = StatusIntent.STARTING;
-
-    const res = await functions.createNamespace(whid.value, namespaceIdent);
-    if (res.error) throw res.error;
-
-    await listNamespaces();
-    addNamespaceStatus.value = StatusIntent.SUCCESS;
-  } catch (error) {
-    addNamespaceStatus.value = StatusIntent.FAILURE;
-    console.error(error);
-  }
-}
-
-watch(
-  () => watchedNamespacePath.value,
-  async (newNsid) => {
-    namespacePath.value = newNsid;
-    relationId.value = namespace.properties?.namespace_id || '';
-
-    await init();
-  },
-);
-
-async function undropTabular(item: DeletedTabularResponseExtended) {
-  try {
-    loading.value = true;
-    await functions.undropTabular(visual.whId, item.id, item.typ);
-    loading.value = true;
-    await listDeletedTabulars();
-  } catch (error: any) {
-    console.error(`Failed to undrop table-${item.name}  - due to: `, error);
-  } finally {
-    loading.value = false;
-  }
-}
-async function getProtection() {
-  try {
-    recursiveDeleteProtection.value = (
-      await functions.getNamespaceProtection(whid.value, namespaceId.value || '')
-    ).protected;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function setProtection() {
-  try {
-    await functions.setNamespaceProtection(
-      whid.value,
-      namespaceId.value || '',
-      !recursiveDeleteProtection.value,
-    );
-    await getProtection();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-function openSearchDialog() {
-  showSearchDialog.value = true;
-}
+const { showPermissionsTab } = useNamespacePermissions(computed(() => namespaceId.value));
 </script>
-
-<style scoped>
-.pointer-cursor {
-  cursor: pointer;
-}
-
-.icon-text {
-  display: flex;
-  align-items: center;
-}
-</style>

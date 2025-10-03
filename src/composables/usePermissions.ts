@@ -382,6 +382,11 @@ export function useNamespacePermissions(namespaceId: Ref<string> | string) {
   const canCreateView = computed(() => hasPermission('create_view'));
   const canGetMetadata = computed(() => hasPermission('get_metadata'));
 
+  // UI helpers
+  const showPermissionsTab = computed(
+    () => canReadPermissions.value && enabledAuthentication && enabledPermissions,
+  );
+
   // Auto-load on mount
   onMounted(() => {
     if (namespaceIdRef.value) {
@@ -407,6 +412,7 @@ export function useNamespacePermissions(namespaceId: Ref<string> | string) {
     canReadPermissions,
     canCreateView,
     canGetMetadata,
+    showPermissionsTab,
     refresh: loadPermissions,
   };
 }
