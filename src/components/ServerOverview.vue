@@ -36,18 +36,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted } from 'vue';
-import { useVisualStore } from '@/stores/visual';
+import { onMounted, ref } from 'vue';
 import { useFunctions } from '@/plugins/functions';
 
-const visual = useVisualStore();
 const functions = useFunctions();
-
-const projectInfo = computed(() => {
-  return visual.getServerInfo();
-});
+const projectInfo = ref<any>({});
 
 onMounted(async () => {
-  await functions.getServerInfo();
+  projectInfo.value = await functions.getServerInfo();
 });
 </script>
