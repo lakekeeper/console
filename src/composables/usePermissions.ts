@@ -4,6 +4,7 @@ import type {
   WarehouseAction,
   NamespaceAction,
   ServerAction,
+  RoleAction,
 } from '@/gen/management/types.gen';
 import { usePermissionStore } from '@/stores/permissions';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -86,6 +87,85 @@ export function useServerPermissions(serverId: Ref<string> | string) {
     canReadAssignments,
     showPermissionsTab,
     showUsersTab,
+    refresh: loadPermissions,
+  };
+}
+
+/**
+ * Composable for managing role permissions
+ * @param roleId - The role ID (can be a ref or static string)
+ * @returns Reactive permission state and helper functions
+ */
+export function useRolePermissions(roleId: Ref<string> | string) {
+  const permissionStore = usePermissionStore();
+  const loading = ref(false);
+  const permissions = ref<RoleAction[]>([]);
+
+  const roleIdRef = computed(() => (typeof roleId === 'string' ? roleId : roleId.value));
+
+  async function loadPermissions() {
+    loading.value = true;
+    try {
+      permissions.value = await permissionStore.getRolePermissions(roleIdRef.value);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function hasPermission(action: RoleAction): boolean {
+    return permissions.value.includes(action);
+  }
+
+  function hasAnyPermission(...actions: RoleAction[]): boolean {
+    return actions.some((action) => permissions.value.includes(action));
+  }
+
+  function hasAllPermissions(...actions: RoleAction[]): boolean {
+    return actions.every((action) => permissions.value.includes(action));
+  }
+
+  // Specific permission checks
+  const canAssume = computed(() => hasPermission('assume'));
+  const canGrantAssignee = computed(() => hasPermission('can_grant_assignee'));
+  const canChangeOwnership = computed(() => hasPermission('can_change_ownership'));
+  const canDelete = computed(() => hasPermission('delete'));
+  const canUpdate = computed(() => hasPermission('update'));
+  const canRead = computed(() => hasPermission('read'));
+  const canReadAssignments = computed(() => hasPermission('read_assignments'));
+
+  // UI visibility helpers that include auth checks
+  const showPermissionsTab = computed(
+    () => canReadAssignments.value && enabledAuthentication && enabledPermissions,
+  );
+
+  // Auto-load on mount
+  onMounted(() => {
+    if (roleIdRef.value) {
+      loadPermissions();
+    }
+  });
+
+  // Watch for ID changes
+  watch(roleIdRef, (newId) => {
+    if (newId) {
+      loadPermissions();
+    }
+  });
+
+  return {
+    loading,
+    permissions,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    canAssume,
+    canGrantAssignee,
+    canChangeOwnership,
+    canDelete,
+    canUpdate,
+    canRead,
+    canReadAssignments,
+    showPermissionsTab,
     refresh: loadPermissions,
   };
 }

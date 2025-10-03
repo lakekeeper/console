@@ -5,6 +5,7 @@ import type {
   WarehouseAction,
   NamespaceAction,
   ServerAction,
+  RoleAction,
 } from '@/gen/management/types.gen';
 import { useFunctions } from '@/plugins/functions';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -26,6 +27,7 @@ export const usePermissionStore = defineStore('permissions', () => {
   const warehousePermissions = reactive<Map<string, PermissionCache<WarehouseAction>>>(new Map());
   const namespacePermissions = reactive<Map<string, PermissionCache<NamespaceAction>>>(new Map());
   const serverPermissions = reactive<Map<string, PermissionCache<ServerAction>>>(new Map());
+  const rolePermissions = reactive<Map<string, PermissionCache<RoleAction>>>(new Map());
 
   // Check if auth/permissions are enabled
   const isAuthEnabled = () => enabledAuthentication && enabledPermissions;
@@ -84,6 +86,57 @@ export const usePermissionStore = defineStore('permissions', () => {
       cache.loading = false;
       cache.error = error as Error;
       console.error(`Failed to load server permissions for ${serverId}:`, error);
+      return [];
+    }
+  }
+
+  // Role Permissions
+  async function getRolePermissions(roleId: string): Promise<RoleAction[]> {
+    // If auth is disabled, return all permissions
+    if (!isAuthEnabled()) {
+      return [
+        'assume',
+        'can_grant_assignee',
+        'can_change_ownership',
+        'delete',
+        'update',
+        'read',
+        'read_assignments',
+      ] as RoleAction[];
+    }
+
+    const cached = rolePermissions.get(roleId);
+    if (cached && isCacheValid(cached) && !cached.loading) {
+      return cached.data;
+    }
+
+    // Set loading state
+    if (!cached) {
+      rolePermissions.set(roleId, {
+        data: [],
+        timestamp: 0,
+        loading: true,
+        error: null,
+      });
+    } else {
+      cached.loading = true;
+      cached.error = null;
+    }
+
+    try {
+      const permissions = await functions.getRoleAccessById(roleId);
+      rolePermissions.set(roleId, {
+        data: permissions,
+        timestamp: Date.now(),
+        loading: false,
+        error: null,
+      });
+      return permissions;
+    } catch (error) {
+      const cache = rolePermissions.get(roleId)!;
+      cache.loading = false;
+      cache.error = error as Error;
+      console.error(`Failed to load role permissions for ${roleId}:`, error);
       return [];
     }
   }
@@ -244,6 +297,10 @@ export const usePermissionStore = defineStore('permissions', () => {
     serverPermissions.delete(serverId);
   }
 
+  function invalidateRolePermissions(roleId: string) {
+    rolePermissions.delete(roleId);
+  }
+
   function invalidateProjectPermissions(projectId: string) {
     projectPermissions.delete(projectId);
   }
@@ -258,6 +315,7 @@ export const usePermissionStore = defineStore('permissions', () => {
 
   function invalidateAllPermissions() {
     serverPermissions.clear();
+    rolePermissions.clear();
     projectPermissions.clear();
     warehousePermissions.clear();
     namespacePermissions.clear();
@@ -266,6 +324,10 @@ export const usePermissionStore = defineStore('permissions', () => {
   // Get loading state
   function isServerLoading(serverId: string): boolean {
     return serverPermissions.get(serverId)?.loading ?? false;
+  }
+
+  function isRoleLoading(roleId: string): boolean {
+    return rolePermissions.get(roleId)?.loading ?? false;
   }
 
   function isProjectLoading(projectId: string): boolean {
@@ -283,12 +345,14 @@ export const usePermissionStore = defineStore('permissions', () => {
   return {
     // Getters
     getServerPermissions,
+    getRolePermissions,
     getProjectPermissions,
     getWarehousePermissions,
     getNamespacePermissions,
 
     // Invalidation
     invalidateServerPermissions,
+    invalidateRolePermissions,
     invalidateProjectPermissions,
     invalidateWarehousePermissions,
     invalidateNamespacePermissions,
@@ -296,6 +360,7 @@ export const usePermissionStore = defineStore('permissions', () => {
 
     // Loading state
     isServerLoading,
+    isRoleLoading,
     isProjectLoading,
     isWarehouseLoading,
     isNamespaceLoading,

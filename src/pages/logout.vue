@@ -19,5 +19,9 @@ onMounted(() => {
   visual.projectSelected['project-name'] = 'None';
 
   router.push('/login');
+  visual.showAppOrNavBar = false;
+});
+onUnmounted(() => {
+  visual.showAppOrNavBar = true;
 });
 </script>
