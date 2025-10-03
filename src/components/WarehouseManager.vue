@@ -54,6 +54,7 @@ import { GetWarehouseResponse } from '@/gen/management/types.gen';
 import router from '@/router';
 import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
+import { usePermissionStore } from '@/stores/permissions';
 import { Header } from '@/common/interfaces';
 import { VIcon, VImg } from 'vuetify/components';
 
@@ -64,6 +65,7 @@ const props = defineProps<{
 
 const functions = useFunctions();
 const visual = useVisualStore();
+const permissionStore = usePermissionStore();
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
@@ -142,10 +144,10 @@ async function listWarehouse() {
 
     Object.assign(whResponse, wh.warehouses);
 
-    // Batch load permissions for all warehouses
+    // Batch load permissions for all warehouses using the store
     await Promise.all(
       whResponse.map(async (warehouse) => {
-        const warehouseAccess = await functions.getWarehouseAccessById(warehouse.id);
+        const warehouseAccess = await permissionStore.getWarehousePermissions(warehouse.id);
         warehouse.can_delete = warehouseAccess.includes('delete');
       }),
     );

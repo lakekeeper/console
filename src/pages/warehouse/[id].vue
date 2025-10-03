@@ -54,7 +54,7 @@
             Search Warehouse
           </v-btn>
           <addNamespaceDialog
-            v-if="myAccess.includes('create_namespace')"
+            v-if="canCreateNamespace"
             :parent-path="''"
             :status-intent="createNamespaceStatus"
             @add-namespace="addNamespace" />
@@ -128,7 +128,7 @@
 
                 <template #item.actions="{ item }">
                   <DialogDelete
-                    v-if="item.type === 'namespace' && myAccess.includes('delete')"
+                    v-if="item.type === 'namespace' && canDelete"
                     :type="item.type"
                     :name="item.name"
                     @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
@@ -136,7 +136,7 @@
 
                 <template #no-data>
                   <addNamespaceDialog
-                    v-if="myAccess.includes('create_namespace')"
+                    v-if="canCreateNamespace"
                     :parent-path="''"
                     :status-intent="createNamespaceStatus"
                     @add-namespace="addNamespace" />
@@ -397,6 +397,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
+import { useWarehousePermissions } from '@/composables/usePermissions';
 import TaskManager from '../../components/TaskManager.vue';
 import SearchTabular from '../../components/SearchTabular.vue';
 import { Header, Item, Options, RelationType, Type } from '../../common/interfaces';
@@ -406,11 +407,9 @@ import router from '../../router';
 import {
   GetWarehouseResponse,
   GetWarehouseStatisticsResponse,
-  NamespaceAction,
   StorageCredential,
   StorageProfile,
   TabularDeleteProfile,
-  WarehouseAction,
   WarehouseStatistics,
 } from '@/gen/management/types.gen';
 
@@ -459,13 +458,7 @@ const selectedWarehouse = reactive<GetWarehouseResponse>({
 const loadedWarehouseItems: Item[] = reactive([]);
 const permissionType = ref<RelationType>('warehouse');
 const namespaceId = ref('');
-const myAccess = reactive<WarehouseAction[] | NamespaceAction[]>([]);
-// const myAccessParent = reactive<WarehouseAction[] | NamespaceAction[]>([]);
 const relationId = ref('');
-const canReadPermissions = ref(false);
-const canModifyWarehouse = ref(false);
-const canGetAllTasks = ref(false);
-const canControlAllTasks = ref(false);
 const visual = useVisualStore();
 const createNamespaceStatus = ref<StatusIntent>(StatusIntent.INACTIVE);
 const processStatus = ref('starting');
@@ -480,6 +473,18 @@ const stats = reactive<WarehouseStatistics[]>([
 const paginationTokenNamespace = ref('');
 
 const params = computed(() => route.params as { id: string });
+
+// Use warehouse permissions composable
+const {
+  hasPermission,
+  canCreateNamespace,
+  canReadPermissions,
+  canGetAllTasks,
+  canControlAllTasks,
+} = useWarehousePermissions(params.value.id);
+
+const canDelete = computed(() => hasPermission('delete'));
+
 const renaming = ref(false);
 async function loadWarehouse() {
   const whResponse = await functions.getWarehouse(params.value.id);
@@ -510,25 +515,11 @@ async function init() {
   try {
     loaded.value = false;
 
-    myAccess.splice(0, myAccess.length);
     namespaceId.value = '';
     relationId.value = params.value.id;
     loadedWarehouseItems.splice(0, loadedWarehouseItems.length);
 
-    Object.assign(myAccess, await functions.getWarehouseAccessById(params.value.id));
-
-    canReadPermissions.value = !!myAccess.includes('read_assignments');
-    canModifyWarehouse.value = !!(
-      (myAccess as WarehouseAction[]).includes('modify_storage') ||
-      (myAccess as WarehouseAction[]).includes('modify_storage_credential') ||
-      (myAccess as WarehouseAction[]).includes('rename') ||
-      (myAccess as WarehouseAction[]).includes('grant_create') ||
-      (myAccess as WarehouseAction[]).includes('grant_modify')
-    );
-    canGetAllTasks.value = !!(myAccess as WarehouseAction[]).includes('get_all_tasks');
-    canControlAllTasks.value = !!(myAccess as WarehouseAction[]).includes('control_all_tasks');
-
-    // Permissions are loaded by PermissionManager component when tab is active
+    // Permissions are loaded by the composable automatically
 
     loaded.value = true;
     await Promise.all([loadWarehouse(), listNamespaces(), getWarehouseStatistics()]);
@@ -606,7 +597,8 @@ async function deleteNamespaceWithOptions(e: any, item: Item) {
 }
 
 async function routeToNamespace(item: Item) {
-  router.push(`/warehouse/${params.value.id}/namespace/${item.name}`);
+  const namespacePath = item.parentPath.join(String.fromCharCode(0x1f));
+  router.push(`/warehouse/${params.value.id}/namespace/${namespacePath}`);
 }
 
 async function listNamespaces(item?: Item, parent?: string) {

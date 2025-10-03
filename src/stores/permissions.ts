@@ -1,0 +1,237 @@
+import { defineStore } from 'pinia';
+import { reactive } from 'vue';
+import type { ProjectAction, WarehouseAction, NamespaceAction } from '@/gen/management/types.gen';
+import { useFunctions } from '@/plugins/functions';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
+
+interface PermissionCache<T> {
+  data: T[];
+  timestamp: number;
+  loading: boolean;
+  error: Error | null;
+}
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache
+
+export const usePermissionStore = defineStore('permissions', () => {
+  const functions = useFunctions();
+
+  // Cache storage
+  const projectPermissions = reactive<Map<string, PermissionCache<ProjectAction>>>(new Map());
+  const warehousePermissions = reactive<Map<string, PermissionCache<WarehouseAction>>>(new Map());
+  const namespacePermissions = reactive<Map<string, PermissionCache<NamespaceAction>>>(new Map());
+
+  // Check if auth/permissions are enabled
+  const isAuthEnabled = () => enabledAuthentication && enabledPermissions;
+
+  // Check if cache is valid
+  const isCacheValid = <T>(cache: PermissionCache<T> | undefined): boolean => {
+    if (!cache) return false;
+    const now = Date.now();
+    return now - cache.timestamp < CACHE_TTL;
+  };
+
+  // Project Permissions
+  async function getProjectPermissions(projectId: string): Promise<ProjectAction[]> {
+    // If auth is disabled, return all permissions
+    if (!isAuthEnabled()) {
+      return [
+        'create_warehouse',
+        'list_warehouses',
+        'create_role',
+        'list_roles',
+        'update_project',
+      ] as ProjectAction[];
+    }
+
+    const cached = projectPermissions.get(projectId);
+    if (cached && isCacheValid(cached) && !cached.loading) {
+      return cached.data;
+    }
+
+    // Set loading state
+    if (!cached) {
+      projectPermissions.set(projectId, {
+        data: [],
+        timestamp: 0,
+        loading: true,
+        error: null,
+      });
+    } else {
+      cached.loading = true;
+      cached.error = null;
+    }
+
+    try {
+      const permissions = await functions.getProjectAccessById(projectId);
+      projectPermissions.set(projectId, {
+        data: permissions,
+        timestamp: Date.now(),
+        loading: false,
+        error: null,
+      });
+      return permissions;
+    } catch (error) {
+      const cache = projectPermissions.get(projectId)!;
+      cache.loading = false;
+      cache.error = error as Error;
+      console.error(`Failed to load project permissions for ${projectId}:`, error);
+      return [];
+    }
+  }
+
+  // Warehouse Permissions
+  async function getWarehousePermissions(warehouseId: string): Promise<WarehouseAction[]> {
+    // If auth is disabled, return all permissions
+    if (!isAuthEnabled()) {
+      return [
+        'create_namespace',
+        'read_assignments',
+        'modify_storage',
+        'modify_storage_credential',
+        'rename',
+        'grant_create',
+        'grant_modify',
+        'get_all_tasks',
+        'control_all_tasks',
+      ] as WarehouseAction[];
+    }
+
+    const cached = warehousePermissions.get(warehouseId);
+    if (cached && isCacheValid(cached) && !cached.loading) {
+      return cached.data;
+    }
+
+    // Set loading state
+    if (!cached) {
+      warehousePermissions.set(warehouseId, {
+        data: [],
+        timestamp: 0,
+        loading: true,
+        error: null,
+      });
+    } else {
+      cached.loading = true;
+      cached.error = null;
+    }
+
+    try {
+      const permissions = await functions.getWarehouseAccessById(warehouseId);
+      warehousePermissions.set(warehouseId, {
+        data: permissions,
+        timestamp: Date.now(),
+        loading: false,
+        error: null,
+      });
+      return permissions;
+    } catch (error) {
+      const cache = warehousePermissions.get(warehouseId)!;
+      cache.loading = false;
+      cache.error = error as Error;
+      console.error(`Failed to load warehouse permissions for ${warehouseId}:`, error);
+      return [];
+    }
+  }
+
+  // Namespace Permissions
+  async function getNamespacePermissions(namespaceId: string): Promise<NamespaceAction[]> {
+    // If auth is disabled, return all permissions
+    if (!isAuthEnabled()) {
+      return [
+        'create_table',
+        'create_namespace',
+        'read_assignments',
+        'get_all_tasks',
+        'control_all_tasks',
+      ] as NamespaceAction[];
+    }
+
+    const cached = namespacePermissions.get(namespaceId);
+    if (cached && isCacheValid(cached) && !cached.loading) {
+      return cached.data;
+    }
+
+    // Set loading state
+    if (!cached) {
+      namespacePermissions.set(namespaceId, {
+        data: [],
+        timestamp: 0,
+        loading: true,
+        error: null,
+      });
+    } else {
+      cached.loading = true;
+      cached.error = null;
+    }
+
+    try {
+      const permissions = await functions.getNamespaceAccessById(namespaceId);
+      namespacePermissions.set(namespaceId, {
+        data: permissions,
+        timestamp: Date.now(),
+        loading: false,
+        error: null,
+      });
+      return permissions;
+    } catch (error) {
+      const cache = namespacePermissions.get(namespaceId)!;
+      cache.loading = false;
+      cache.error = error as Error;
+      console.error(`Failed to load namespace permissions for ${namespaceId}:`, error);
+      return [];
+    }
+  }
+
+  // Invalidate cache functions
+  function invalidateProjectPermissions(projectId: string) {
+    projectPermissions.delete(projectId);
+  }
+
+  function invalidateWarehousePermissions(warehouseId: string) {
+    warehousePermissions.delete(warehouseId);
+  }
+
+  function invalidateNamespacePermissions(namespaceId: string) {
+    namespacePermissions.delete(namespaceId);
+  }
+
+  function invalidateAllPermissions() {
+    projectPermissions.clear();
+    warehousePermissions.clear();
+    namespacePermissions.clear();
+  }
+
+  // Get loading state
+  function isProjectLoading(projectId: string): boolean {
+    return projectPermissions.get(projectId)?.loading ?? false;
+  }
+
+  function isWarehouseLoading(warehouseId: string): boolean {
+    return warehousePermissions.get(warehouseId)?.loading ?? false;
+  }
+
+  function isNamespaceLoading(namespaceId: string): boolean {
+    return namespacePermissions.get(namespaceId)?.loading ?? false;
+  }
+
+  return {
+    // Getters
+    getProjectPermissions,
+    getWarehousePermissions,
+    getNamespacePermissions,
+
+    // Invalidation
+    invalidateProjectPermissions,
+    invalidateWarehousePermissions,
+    invalidateNamespacePermissions,
+    invalidateAllPermissions,
+
+    // Loading state
+    isProjectLoading,
+    isWarehouseLoading,
+    isNamespaceLoading,
+
+    // Auth check
+    isAuthEnabled,
+  };
+});

@@ -69,9 +69,11 @@ import { ProjectAction, Role } from '@/gen/management/types.gen';
 import router from '@/router';
 import { Header } from '@/common/interfaces';
 import { useVisualStore } from '@/stores/visual';
+import { usePermissionStore } from '@/stores/permissions';
 
 const functions = useFunctions();
 const visual = useVisualStore();
+const permissionStore = usePermissionStore();
 
 interface ExtendedRole extends Role {
   can_delete?: boolean;
@@ -110,10 +112,10 @@ async function loadPermissionsForRoles(roles: ExtendedRole[]): Promise<void> {
 
 onMounted(async () => {
   try {
-    Object.assign(
-      myAccess,
-      await functions.getProjectAccessById(visual.projectSelected['project-id']),
+    const permissions = await permissionStore.getProjectPermissions(
+      visual.projectSelected['project-id'],
     );
+    Object.assign(myAccess, permissions);
     if (canListRoles.value) {
       await loadRoles();
       searchResults.push(...loadedRoles);

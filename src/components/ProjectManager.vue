@@ -139,6 +139,7 @@ import {
 } from '../gen/management/types.gen';
 import { Header, RelationType } from '../common/interfaces';
 import router from '@/router';
+import { usePermissionStore } from '@/stores/permissions';
 
 const dialog = ref(false);
 const tab = ref('overview');
@@ -146,6 +147,7 @@ const userStorage = useUserStore();
 
 const visual = useVisualStore();
 const functions = useFunctions();
+const permissionStore = usePermissionStore();
 
 const permissionType = ref<RelationType>('project');
 const myAccess = reactive<ProjectAction[]>([]);
@@ -193,10 +195,10 @@ async function init() {
       visual.getServerInfo()['authz-backend'] !== 'allow-all' &&
       visual.projectSelected['project-id'] !== ''
     ) {
-      Object.assign(
-        myAccess,
-        await functions.getProjectAccessById(visual.projectSelected['project-id']),
+      const permissions = await permissionStore.getProjectPermissions(
+        visual.projectSelected['project-id'],
       );
+      Object.assign(myAccess, permissions);
     } else {
       Object.assign(myAccess, []);
     }
@@ -285,7 +287,7 @@ async function loadProjects() {
 
       p.actions = [];
 
-      const access = await functions.getProjectAccessById(p['project-id']);
+      const access = await permissionStore.getProjectPermissions(p['project-id']);
       p.actions.push(...access);
     });
 

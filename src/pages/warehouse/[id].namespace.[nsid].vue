@@ -38,11 +38,7 @@
             Search warehouse
           </v-btn>
           <addNamespaceDialog
-            v-if="
-              myAccess.includes('create_namespace') ||
-              enabledAuthentication == false ||
-              enabledPermissions == false
-            "
+            v-if="canCreateNamespace || !enabledAuthentication || !enabledPermissions"
             :parent-path="namespacePath"
             :status-intent="addNamespaceStatus"
             @add-namespace="addNamespace" />
@@ -115,7 +111,7 @@
                 </template>
                 <template #no-data>
                   <addNamespaceDialog
-                    v-if="myAccess.includes('create_namespace')"
+                    v-if="canCreateNamespace"
                     :parent-path="namespacePath"
                     :status-intent="StatusIntent.STARTING"
                     @add-namespace="addNamespace" />
@@ -286,12 +282,13 @@
 import { useRoute } from 'vue-router'; // Import the useRoute function from vue-router
 import { useVisualStore } from '../../stores/visual';
 import { useFunctions } from '../../plugins/functions';
+import { useNamespacePermissions } from '@/composables/usePermissions';
 import SearchTabular from '../../components/SearchTabular.vue';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import router from '../../router';
 import { Header, Item, Options, RelationType } from '../../common/interfaces';
 
-import { DeletedTabularResponse, NamespaceAction } from '../../gen/management/types.gen';
+import { DeletedTabularResponse } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -302,7 +299,6 @@ const route = useRoute();
 const functions = useFunctions();
 const loading = ref(true);
 const loaded = ref(false);
-const canReadPermissions = ref(false);
 const recursiveDeleteProtection = ref(false);
 const addNamespaceStatus = ref(StatusIntent.INACTIVE);
 const searchNamespace = ref('');
@@ -361,17 +357,31 @@ const namespacePath = ref<string>((route.params as { nsid: string }).nsid);
 const watchedNamespacePath = computed(() => namespacePath.value);
 const whid = ref<string>((route.params as { id: string }).id);
 const tab = ref('overview');
-const myAccess = reactive<NamespaceAction[]>([]);
-// const myAccessParent = reactive<NamespaceAction[]>([]);
 const namespace = reactive<GetNamespaceResponse>({
   namespace: [],
 });
-const namespaceId = computed(() => namespace.properties?.namespace_id);
+const namespaceId = computed(() => namespace.properties?.namespace_id || '');
+
+// Use namespace permissions composable
+const { canReadPermissions, canCreateNamespace } = useNamespacePermissions(namespaceId);
 
 onMounted(async () => {
   await init();
   loading.value = false;
 });
+
+// Watch for route changes to reload namespace data
+watch(
+  () => (route.params as { nsid?: string }).nsid,
+  async (newNsid, oldNsid) => {
+    if (newNsid && newNsid !== oldNsid) {
+      namespacePath.value = newNsid;
+      loading.value = true;
+      await init();
+      loading.value = false;
+    }
+  },
+);
 
 onUnmounted(() => {
   items.splice(0, items.length);
@@ -428,7 +438,6 @@ async function loadTabData() {
 
 async function init() {
   try {
-    const serverInfo = await functions.getServerInfo();
     loaded.value = false;
 
     Object.assign(
@@ -440,15 +449,8 @@ async function init() {
 
     selectedNamespace.value = namespace.namespace[namespace.namespace.length - 1];
 
-    if (serverInfo['authz-backend'] != 'allow-all') {
-      Object.assign(
-        myAccess,
-        await functions.getNamespaceAccessById(namespace.properties?.namespace_id || ''),
-      );
-      canReadPermissions.value = !!myAccess.includes('read_assignments');
+    // Permissions are loaded by the composable automatically
 
-      // Permissions are loaded by PermissionManager component when tab is active
-    }
     loaded.value = true;
     await Promise.all([listNamespaces(), listTables(), listViews(), listDeletedTabulars()]);
   } catch (error) {
