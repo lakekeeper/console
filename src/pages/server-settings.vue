@@ -1,7 +1,7 @@
 <template>
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
-    <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
+    <v-tab v-if="showPermissionsTab" value="permissions">permissions</v-tab>
     <v-tab v-if="showUsersTab" value="users">users</v-tab>
   </v-tabs>
   <v-tabs-window v-model="tab">
