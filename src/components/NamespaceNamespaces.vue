@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch, onMounted } from 'vue';
+import { reactive, ref, watch, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFunctions } from '@/plugins/functions';
 import { useNamespacePermissions } from '@/composables/usePermissions';

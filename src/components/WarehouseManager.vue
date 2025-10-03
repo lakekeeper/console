@@ -1,88 +1,107 @@
 <template>
-  <v-toolbar class="mb-4" color="transparent" density="compact" flat>
-    <v-toolbar-title>
-      <span class="text-subtitle-1">Warehouses</span>
-    </v-toolbar-title>
-    <template #prepend>
-      <v-icon>mdi-warehouse</v-icon>
-    </template>
-    <v-spacer></v-spacer>
-    <WarehouseAddDialog
-      v-if="canCreateWarehouse"
-      v-bind="addWarehouseProps"
-      @added-warehouse="listWarehouse" />
-  </v-toolbar>
-
-  <v-data-table
-    v-if="canListWarehouses"
-    height="60vh"
-    fixed-header
-    :headers="headers"
-    hover
-    items-per-page="50"
-    :items="filteredWarehouses"
-    :sort-by="sortBy"
-    :items-per-page-options="[
-      { title: '50 items', value: 50 },
-      { title: '100 items', value: 100 },
-    ]">
-    <template #top>
-      <v-toolbar color="transparent" density="compact" flat>
-        <v-spacer></v-spacer>
-        <v-text-field
-          v-model="searchWarehouse"
-          label="Filter results"
-          prepend-inner-icon="mdi-filter"
-          variant="underlined"
-          hide-details
-          clearable></v-text-field>
-      </v-toolbar>
-    </template>
-    <template #item.name="{ item }">
-      <td class="pointer-cursor" @click="navigateToWarehouse(item)">
-        <span class="icon-text">
-          <component :is="getStorageIcon(item)" />
-          <v-icon class="mr-2">mdi-database</v-icon>
-          {{ item.name }}
-        </span>
-      </td>
-    </template>
-    <template #item.actions="{ item }">
-      <DeleteConfirmDialog
-        v-if="item.can_delete"
-        type="warehouse"
-        :name="item.name"
-        @confirmed="deleteWarehouse(item.id)" />
-    </template>
-    <template #no-data>
+  <v-container v-if="loading" class="fill-height">
+    <v-responsive class="align-centerfill-height mx-auto" max-width="900">
+      <v-row justify="center">
+        <v-progress-circular
+          class="mt-4"
+          color="info"
+          indeterminate
+          :size="126"></v-progress-circular>
+      </v-row>
+    </v-responsive>
+  </v-container>
+  <span v-else>
+    <v-toolbar class="mb-4" color="transparent" density="compact" flat>
+      <v-toolbar-title>
+        <span class="text-subtitle-1">Warehouses</span>
+      </v-toolbar-title>
+      <template #prepend>
+        <v-icon>mdi-warehouse</v-icon>
+      </template>
+      <v-spacer></v-spacer>
       <WarehouseAddDialog
         v-if="canCreateWarehouse"
         v-bind="addWarehouseProps"
         @added-warehouse="listWarehouse" />
-    </template>
-  </v-data-table>
+    </v-toolbar>
 
-  <div v-else>You don't have permission to list warehouses</div>
+    <v-data-table
+      v-if="canListWarehouses"
+      height="60vh"
+      fixed-header
+      :headers="headers"
+      hover
+      items-per-page="50"
+      :items="filteredWarehouses"
+      :sort-by="sortBy"
+      :items-per-page-options="[
+        { title: '50 items', value: 50 },
+        { title: '100 items', value: 100 },
+      ]">
+      <template #top>
+        <v-toolbar color="transparent" density="compact" flat>
+          <v-spacer></v-spacer>
+          <v-text-field
+            v-model="searchWarehouse"
+            label="Filter results"
+            prepend-inner-icon="mdi-filter"
+            variant="underlined"
+            hide-details
+            clearable></v-text-field>
+        </v-toolbar>
+      </template>
+      <template #item.name="{ item }">
+        <td class="pointer-cursor" @click="navigateToWarehouse(item)">
+          <span class="icon-text">
+            <component :is="getStorageIcon(item)" />
+            <v-icon class="mr-2">mdi-database</v-icon>
+            {{ item.name }}
+          </span>
+        </td>
+      </template>
+      <template #item.actions="{ item }">
+        <DeleteConfirmDialog
+          v-if="item.can_delete"
+          type="warehouse"
+          :name="item.name"
+          @confirmed="deleteWarehouse(item.id)" />
+      </template>
+      <template #no-data>
+        <WarehouseAddDialog
+          v-if="canCreateWarehouse"
+          v-bind="addWarehouseProps"
+          @added-warehouse="listWarehouse" />
+      </template>
+    </v-data-table>
+
+    <div v-else>You don't have permission to list warehouses</div>
+  </span>
 </template>
 
 <script lang="ts" setup>
-import { h, onMounted, reactive, ref, computed } from 'vue';
+import { h, onMounted, reactive, ref, computed, watch } from 'vue';
 import { Intent, ObjectType } from '@/common/enums';
 import { GetWarehouseResponse } from '@/gen/management/types.gen';
 import router from '@/router';
 import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
 import { usePermissionStore } from '@/stores/permissions';
+import { useProjectPermissions } from '@/composables/usePermissions';
 import { Header } from '@/common/interfaces';
 import { VIcon, VImg } from 'vuetify/components';
 
-const props = defineProps<{
-  canCreateWarehouse: boolean;
-  canListWarehouses: boolean;
-}>();
-
 const functions = useFunctions();
 const visual = useVisualStore();
+
+const projectId = computed(() => visual.projectSelected['project-id']);
+const { loading, canCreateWarehouse, canListWarehouses, permissions } =
+  useProjectPermissions(projectId);
+
+console.log('WarehouseManager - projectId:', projectId.value);
+console.log('WarehouseManager - loading:', loading.value);
+console.log('WarehouseManager - permissions:', permissions.value);
+console.log('WarehouseManager - canListWarehouses:', canListWarehouses.value);
+console.log('WarehouseManager - canCreateWarehouse:', canCreateWarehouse.value);
 
 const searchWarehouse = ref('');
 
@@ -171,7 +190,14 @@ function getStorageIcon(item: GetWarehouseResponseExtended) {
 }
 
 onMounted(async () => {
-  if (props.canListWarehouses) {
+  if (canListWarehouses.value) {
+    await listWarehouse();
+  }
+});
+
+// Watch for permission changes and load warehouses when we get permission
+watch(canListWarehouses, async (newValue) => {
+  if (newValue) {
     await listWarehouse();
   }
 });
@@ -212,14 +238,3 @@ async function deleteWarehouse(id: string) {
   }
 }
 </script>
-
-<style scoped>
-.pointer-cursor {
-  cursor: pointer;
-}
-
-.icon-text {
-  display: flex;
-  align-items: center;
-}
-</style>
