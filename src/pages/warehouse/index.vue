@@ -176,15 +176,15 @@ const filteredWarehouses = computed(() => {
   const searchLower = searchWarehouse.value.toLowerCase();
 
   return whResponse.filter((warehouse) => {
-    // Only matches if 'name' ends with the search term
-    const nameEndsWith = warehouse.name
-      ? warehouse.name.toLowerCase().endsWith(searchLower)
-      : false;
+    // Matches if 'name' contains the search term
+    const nameMatches = warehouse.name ? warehouse.name.toLowerCase().includes(searchLower) : false;
 
-    // Only matches if 'id' ends with the search term
-    const idEndsWith = warehouse.id ? warehouse.id.toLowerCase().endsWith(searchLower) : false;
+    // Matches if 'id' contains the search term (only if search term has UUID semantic)
+    const hasUuidSemantic = /^[0-9a-f-]+$/.test(searchLower);
+    const idMatches =
+      warehouse.id && hasUuidSemantic ? warehouse.id.toLowerCase().includes(searchLower) : false;
 
-    return nameEndsWith || idEndsWith;
+    return nameMatches || idMatches;
   });
 });
 
