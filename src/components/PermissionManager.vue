@@ -19,7 +19,7 @@
           @click="switchManagedAccess"></v-switch>
 
         <v-spacer></v-spacer>
-        <span class="icon-text">
+        <span v-if="canManageGrants" class="icon-text">
           <AssignToRoleDialogSingle
             :status="assignStatus"
             :action-type="'grant'"
@@ -51,6 +51,7 @@
     </template-->
     <template #item.type="{ item }">
       <AssignToRoleDialogSingle
+        v-if="canManageGrants"
         :status="assignStatus"
         :action-type="'edit'"
         :assignee="item.id"
@@ -62,6 +63,7 @@
     </template>
     <template #no-data>
       <AssignToRoleDialogSingle
+        v-if="canManageGrants"
         :status="assignStatus"
         :action-type="'assign'"
         :assignee="''"
@@ -76,6 +78,13 @@
 <script lang="ts" setup>
 import { useFunctions } from '@/plugins/functions';
 import { onMounted, reactive, computed, ref } from 'vue';
+import {
+  useServerPermissions,
+  useWarehousePermissions,
+  useNamespacePermissions,
+  useProjectPermissions,
+  useRolePermissions,
+} from '@/composables/usePermissions';
 
 import { AssignmentCollection, Header, RelationType } from '@/common/interfaces';
 import { StatusIntent } from '@/common/enums';
@@ -136,6 +145,50 @@ const existingAssignments = reactive<any[]>([]);
 const assignableObj = reactive<{ id: string; name: string }>({
   id: '',
   name: '',
+});
+
+// Permission composables - create them once outside computed
+// These will automatically load permissions on mount and when objectId changes
+const objectIdRef = computed(() => props.objectId);
+const warehouseIdRef = computed(() => props.warehouseId || '');
+
+// Initialize permission composables based on relation type
+const serverPerms = useServerPermissions('server');
+const warehousePerms = useWarehousePermissions(objectIdRef);
+const namespacePerms = useNamespacePermissions(objectIdRef);
+const projectPerms = useProjectPermissions(objectIdRef);
+const rolePerms = useRolePermissions(objectIdRef);
+const warehousePermsForTableView = useWarehousePermissions(warehouseIdRef);
+
+// Computed property to check if user can manage grants
+// This will re-evaluate when permissions load or change
+const canManageGrants = computed(() => {
+  switch (props.relationType) {
+    case RelationType.Server:
+      return serverPerms.canReadAssignments.value;
+
+    case RelationType.Warehouse:
+      return warehousePerms.hasPermission('grant_manage_grants');
+
+    case RelationType.Namespace:
+      return namespacePerms.hasPermission('grant_manage_grants');
+
+    case RelationType.Project:
+      return projectPerms.canReadAssignments.value;
+
+    case RelationType.Role:
+      return rolePerms.canUpdate.value;
+
+    case RelationType.Table:
+    case RelationType.View:
+      if (!props.warehouseId) {
+        return false;
+      }
+      return warehousePermsForTableView.hasPermission('grant_manage_grants');
+
+    default:
+      return false;
+  }
 });
 
 async function loadObjectData() {

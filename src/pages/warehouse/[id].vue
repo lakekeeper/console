@@ -15,50 +15,19 @@
       <v-col>
         <BreadcrumbsFromUrl v-if="!renaming" />
 
-        <v-toolbar color="transparent" density="compact" flat>
-          <v-toolbar-title>
-            <span class="text-subtitle-1">
-              {{ selectedWarehouse.name }}
-
-              <v-chip size="small" color="secondary" label class="ma-2">
-                <v-icon icon="mdi-table" start></v-icon>
-                number of tables: {{ stats[0]['number-of-tables'] }}
-              </v-chip>
-              <v-chip size="small" color="primary" label class="ma-2">
-                <v-icon icon="mdi-view-grid-outline" start></v-icon>
-                number of views: {{ stats[0]['number-of-views'] }}
-              </v-chip>
-              <StatisticsDialog :stats="stats"></StatisticsDialog>
-            </span>
-          </v-toolbar-title>
-          <template #prepend>
-            <v-icon>mdi-database</v-icon>
-          </template>
-          <v-spacer></v-spacer>
-
-          <WarehouseActionsMenu
-            :process-status="processStatus"
-            :warehouse="selectedWarehouse"
-            @close="processStatus = 'starting'"
-            @rename-warehouse="renameWarehouse"
-            @update-credentials="updateCredentials"
-            @update-delprofile="updateDelProfile"
-            @update-profile="updateProfile" />
-          <v-btn
-            prepend-icon="mdi-magnify"
-            class="mr-2"
-            size="small"
-            variant="outlined"
-            @click="openSearchDialog"
-            aria-label="Search tables and views">
-            Search Warehouse
-          </v-btn>
-          <addNamespaceDialog
-            v-if="canCreateNamespace"
-            :parent-path="''"
-            :status-intent="createNamespaceStatus"
-            @add-namespace="addNamespace" />
-        </v-toolbar>
+        <WarehouseHeader
+          :warehouse="selectedWarehouse"
+          :stats="stats[0]"
+          :process-status="processStatus"
+          :can-create-namespace="canCreateNamespace"
+          :create-namespace-status="createNamespaceStatus"
+          @close="processStatus = 'starting'"
+          @rename-warehouse="renameWarehouse"
+          @update-credentials="updateCredentials"
+          @update-delprofile="updateDelProfile"
+          @update-profile="updateProfile"
+          @open-search="openSearchDialog"
+          @add-namespace="addNamespace" />
 
         <v-tabs v-model="tab" density="compact">
           <v-tab density="compact" value="namespaces">namespaces</v-tab>
@@ -122,7 +91,7 @@ import TaskManager from '../../components/TaskManager.vue';
 import SearchTabular from '../../components/SearchTabular.vue';
 import WarehouseNamespaces from '../../components/WarehouseNamespaces.vue';
 import WarehouseDetails from '../../components/WarehouseDetails.vue';
-import addNamespaceDialog from '../../components/addNamespaceDialog.vue';
+import WarehouseHeader from '../../components/WarehouseHeader.vue';
 import { Type, RelationType } from '../../common/interfaces';
 import { StatusIntent } from '../../common/enums';
 import { useVisualStore } from '../../stores/visual';
