@@ -5,6 +5,7 @@ import type {
   NamespaceAction,
   ServerAction,
   RoleAction,
+  TableAction,
 } from '@/gen/management/types.gen';
 import { usePermissionStore } from '@/stores/permissions';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -212,6 +213,12 @@ export function useProjectPermissions(projectId: Ref<string> | string) {
   const canListRoles = computed(() => hasPermission('list_roles'));
   const canSearchRoles = computed(() => hasPermission('search_roles'));
   const canReadAssignments = computed(() => hasPermission('read_assignments'));
+  const canDelete = computed(() => hasPermission('delete'));
+
+  // UI visibility helpers that include auth checks
+  const showPermissionsTab = computed(
+    () => canReadAssignments.value && enabledAuthentication && enabledPermissions,
+  );
 
   // Auto-load on mount
   onMounted(() => {
@@ -239,6 +246,8 @@ export function useProjectPermissions(projectId: Ref<string> | string) {
     canListRoles,
     canSearchRoles,
     canReadAssignments,
+    canDelete,
+    showPermissionsTab,
     refresh: loadPermissions,
   };
 }
@@ -413,6 +422,104 @@ export function useNamespacePermissions(namespaceId: Ref<string> | string) {
     canCreateView,
     canGetMetadata,
     showPermissionsTab,
+    refresh: loadPermissions,
+  };
+}
+
+/**
+ * Composable for managing table permissions
+ * @param tableId - The table ID (can be a ref or static string)
+ * @param warehouseId - The warehouse ID (can be a ref or static string)
+ * @returns Reactive permission state and helper functions
+ */
+export function useTablePermissions(
+  tableId: Ref<string> | string,
+  warehouseId: Ref<string> | string,
+) {
+  // Import useFunctions dynamically to avoid circular dependencies
+  let functions: any = null;
+
+  const loading = ref(false);
+  const permissions = ref<TableAction[]>([]);
+
+  const tableIdRef = computed(() => (typeof tableId === 'string' ? tableId : tableId.value));
+  const warehouseIdRef = computed(() =>
+    typeof warehouseId === 'string' ? warehouseId : warehouseId.value,
+  );
+
+  async function loadPermissions() {
+    if (!tableIdRef.value || !warehouseIdRef.value) return;
+
+    // Lazy load functions to avoid circular dependency
+    if (!functions) {
+      const { useFunctions } = await import('@/plugins/functions');
+      functions = useFunctions();
+    }
+
+    loading.value = true;
+    try {
+      const serverInfo = await functions.getServerInfo();
+      if (serverInfo['authz-backend'] !== 'allow-all') {
+        permissions.value = await functions.getTableAccessById(
+          tableIdRef.value,
+          warehouseIdRef.value,
+        );
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function hasPermission(action: TableAction): boolean {
+    return permissions.value.includes(action);
+  }
+
+  function hasAnyPermission(...actions: TableAction[]): boolean {
+    return actions.some((action) => permissions.value.includes(action));
+  }
+
+  function hasAllPermissions(...actions: TableAction[]): boolean {
+    return actions.every((action) => permissions.value.includes(action));
+  }
+
+  // Specific permission checks
+  const canReadPermissions = computed(() => hasPermission('read_assignments'));
+  const canGetTasks = computed(() => hasPermission('get_tasks'));
+  const canControlTasks = computed(() => hasPermission('control_tasks'));
+
+  // UI helpers
+  const showPermissionsTab = computed(
+    () => canReadPermissions.value && enabledAuthentication && enabledPermissions,
+  );
+  const showTasksTab = computed(
+    () => canGetTasks.value || !enabledAuthentication || !enabledPermissions,
+  );
+
+  // Auto-load on mount
+  onMounted(() => {
+    if (tableIdRef.value && warehouseIdRef.value) {
+      loadPermissions();
+    }
+  });
+
+  // Watch for ID changes
+  watch([tableIdRef, warehouseIdRef], ([newTableId, newWarehouseId]) => {
+    if (newTableId && newWarehouseId) {
+      loadPermissions();
+    }
+  });
+
+  return {
+    loading,
+    permissions,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    canReadPermissions,
+    canGetTasks,
+    canControlTasks,
+    showPermissionsTab,
+    showTasksTab,
     refresh: loadPermissions,
   };
 }

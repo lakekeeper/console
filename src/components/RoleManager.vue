@@ -65,15 +65,14 @@
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useFunctions } from '@/plugins/functions';
-import { ProjectAction, Role } from '@/gen/management/types.gen';
+import { Role } from '@/gen/management/types.gen';
 import router from '@/router';
 import { Header } from '@/common/interfaces';
 import { useVisualStore } from '@/stores/visual';
-import { usePermissionStore } from '@/stores/permissions';
+import { useProjectPermissions } from '@/composables/usePermissions';
 
 const functions = useFunctions();
 const visual = useVisualStore();
-const permissionStore = usePermissionStore();
 
 interface ExtendedRole extends Role {
   can_delete?: boolean;
@@ -96,9 +95,10 @@ const headers: readonly Header[] = Object.freeze([
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
 
-const myAccess = reactive<ProjectAction[]>([]);
-const canListRoles = computed(() => myAccess.includes('list_roles'));
-const canCreateRole = computed(() => myAccess.includes('create_role'));
+const projectId = computed(() => visual.projectSelected['project-id']);
+
+// Use composable for project permissions
+const { canListRoles, canCreateRole } = useProjectPermissions(projectId);
 
 // Helper function to batch-load permissions for roles
 async function loadPermissionsForRoles(roles: ExtendedRole[]): Promise<void> {
@@ -112,10 +112,6 @@ async function loadPermissionsForRoles(roles: ExtendedRole[]): Promise<void> {
 
 onMounted(async () => {
   try {
-    const permissions = await permissionStore.getProjectPermissions(
-      visual.projectSelected['project-id'],
-    );
-    Object.assign(myAccess, permissions);
     if (canListRoles.value) {
       await loadRoles();
       searchResults.push(...loadedRoles);

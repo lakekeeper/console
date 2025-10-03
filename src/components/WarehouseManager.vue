@@ -83,7 +83,6 @@ const props = defineProps<{
 
 const functions = useFunctions();
 const visual = useVisualStore();
-const permissionStore = usePermissionStore();
 
 const searchWarehouse = ref('');
 
@@ -184,7 +183,9 @@ async function listWarehouse() {
 
     Object.assign(whResponse, wh.warehouses);
 
-    // Batch load permissions for all warehouses using the store
+    const permissionStore = usePermissionStore();
+
+    // Batch load permissions for all warehouses in parallel
     await Promise.all(
       whResponse.map(async (warehouse) => {
         const warehouseAccess = await permissionStore.getWarehousePermissions(warehouse.id);

@@ -22,14 +22,7 @@
 
       <v-tabs v-model="tab">
         <v-tab value="overview" v-if="userStorage.isAuthenticated">overview</v-tab>
-        <v-tab
-          v-if="
-            canReadAssignments &&
-            enabledAuthentication &&
-            enabledPermissions &&
-            userStorage.isAuthenticated
-          "
-          value="permissions">
+        <v-tab v-if="showPermissionsTab && userStorage.isAuthenticated" value="permissions">
           Permissions
         </v-tab>
         <v-tab value="statistics" @click="getEndpointStatistcs">Statistics</v-tab>
@@ -76,12 +69,12 @@
                 selected
               </v-btn>
               <v-btn
-                v-if="item.info === 'switch'"
-                text="switch"
+                v-if="item.info === 'activate'"
+                text="activate"
                 color="blue"
                 size="small"
                 variant="flat"
-                @click="switchProject(item)"></v-btn>
+                @click="activateProject(item)"></v-btn>
             </template>
 
             <template #item.actions="{ item }">
@@ -106,7 +99,7 @@
           </v-data-table>
         </v-tabs-window-item>
         <v-tabs-window-item
-          v-if="canReadAssignments && userStorage.isAuthenticated"
+          v-if="showPermissionsTab && userStorage.isAuthenticated"
           value="permissions">
           <PermissionManager
             v-if="project['project-id']"
@@ -125,21 +118,19 @@
 <script lang="ts" setup>
 import { onMounted, ref, reactive, computed } from 'vue';
 import { useVisualStore } from '../stores/visual';
-import { enabledAuthentication, enabledPermissions } from '../app.config';
 import { useUserStore } from '../stores/user';
-
 import { useFunctions } from '../plugins/functions';
+import { useProjectPermissions, useServerPermissions } from '@/composables/usePermissions';
+import { usePermissionStore } from '@/stores/permissions';
 import {
   CreateProjectRequest,
   GetEndpointStatisticsResponse,
   GetProjectResponse,
-  ProjectAction,
   ProjectAssignment,
   RenameProjectRequest,
 } from '../gen/management/types.gen';
 import { Header, RelationType } from '../common/interfaces';
 import router from '@/router';
-import { usePermissionStore } from '@/stores/permissions';
 
 const dialog = ref(false);
 const tab = ref('overview');
@@ -147,13 +138,16 @@ const userStorage = useUserStore();
 
 const visual = useVisualStore();
 const functions = useFunctions();
-const permissionStore = usePermissionStore();
 
 const permissionType = RelationType.Project;
-const myAccess = reactive<ProjectAction[]>([]);
-const canReadAssignments = ref(false);
-const canDeleteProject = ref(false);
-const canCreateProject = ref(false);
+
+const project = computed(() => visual.projectSelected);
+const projectId = computed(() => project.value['project-id']);
+const serverId = computed(() => visual.getServerInfo()['server-id']);
+
+// Use composables for permissions
+const { canReadAssignments, showPermissionsTab } = useProjectPermissions(projectId);
+const { canCreateProject } = useServerPermissions(serverId);
 const projectAssignments = reactive<ProjectAssignment[]>([]);
 const existingAssignments = reactive<ProjectAssignment[]>([]);
 const loaded = ref(true);
@@ -180,34 +174,11 @@ const availableProjects = reactive<(GetProjectResponse & { actions: string[]; in
   [],
 );
 
-const project = computed(() => {
-  return visual.projectSelected;
-});
-
 async function init() {
   try {
     loaded.value = false;
 
     await loadProjects();
-    myAccess.splice(0, myAccess.length);
-
-    if (
-      visual.getServerInfo()['authz-backend'] !== 'allow-all' &&
-      visual.projectSelected['project-id'] !== ''
-    ) {
-      const permissions = await permissionStore.getProjectPermissions(
-        visual.projectSelected['project-id'],
-      );
-      Object.assign(myAccess, permissions);
-    } else {
-      Object.assign(myAccess, []);
-    }
-
-    canReadAssignments.value = !!myAccess.includes('read_assignments');
-
-    canDeleteProject.value = !!myAccess.includes('delete');
-
-    canCreateProject.value = (await functions.getServerAccess()).includes('create_project');
 
     projectAssignments.splice(0, projectAssignments.length);
     Object.assign(
@@ -278,26 +249,28 @@ async function loadProjects() {
 
     Object.assign(availableProjects, await functions.loadProjectList());
 
-    const accessPromises = availableProjects.map(async (p) => {
-      if (p['project-id'] === project.value['project-id']) {
-        p.info = 'selected';
-      } else {
-        p.info = 'switch';
-      }
+    const permissionStore = usePermissionStore();
 
-      p.actions = [];
+    // Load permissions for all projects in parallel
+    await Promise.all(
+      availableProjects.map(async (p) => {
+        if (p['project-id'] === project.value['project-id']) {
+          p.info = 'selected';
+        } else {
+          p.info = 'activate';
+        }
 
-      const access = await permissionStore.getProjectPermissions(p['project-id']);
-      p.actions.push(...access);
-    });
-
-    await Promise.all(accessPromises);
+        p.actions = [];
+        const access = await permissionStore.getProjectPermissions(p['project-id']);
+        p.actions.push(...access);
+      }),
+    );
   } catch (error) {
     console.error(error);
   }
 }
 
-async function switchProject(item: { 'project-id': string; 'project-name': string }) {
+async function activateProject(item: { 'project-id': string; 'project-name': string }) {
   loaded.value = false;
   try {
     visual.setProjectSelected(item);
