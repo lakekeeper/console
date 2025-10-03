@@ -34,11 +34,11 @@
       </td>
     </template>
     <template #item.actions="{ item }">
-      <DialogDelete
+      <DeleteDialog
         v-if="item.type === 'table'"
         :type="item.type"
         :name="item.name"
-        @delete-table-with-options="deleteTableWithOptions($event, item)"></DialogDelete>
+        @delete-table-with-options="deleteTableWithOptions($event, item)"></DeleteDialog>
     </template>
     <template #no-data>
       <div>No tables in this namespace</div>

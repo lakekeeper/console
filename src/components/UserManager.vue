@@ -35,7 +35,7 @@
           :name="item.name"
           :status="renameStatus"
           @rename-user-name="renameUser"></user-rename-dialog>
-        <DialogDeleteConfirm
+        <DeleteConfirmDialog
           v-else-if="action === 'delete'"
           type="user"
           :name="item.name"
@@ -81,7 +81,7 @@ import { reactive, ref, onMounted } from 'vue';
 import { Header } from '@/common/interfaces';
 import { useFunctions } from '@/plugins/functions';
 import { StatusIntent } from '@/common/enums';
-import DialogDeleteConfirm from '@/components/dialogDeleteConfirm.vue';
+import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import UserRenameDialog from '@/components/UserRenameDialog.vue';
 const functions = useFunctions();
 

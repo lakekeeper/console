@@ -13,7 +13,7 @@
             <v-icon icon="mdi-view-grid-outline" start></v-icon>
             number of views: {{ stats['number-of-views'] }}
           </v-chip>
-          <StatisticsDialog :stats="[stats]"></StatisticsDialog>
+          <WarehouseStatisticsDialog :stats="[stats]"></WarehouseStatisticsDialog>
         </span>
       </v-toolbar-title>
       <template #prepend>

@@ -33,7 +33,7 @@
           variant="underlined"
           hide-details
           clearable></v-text-field>
-        <addNamespaceDialog
+        <NamespaceAddDialog
           v-if="canCreateNamespace"
           :parent-path="''"
           :status-intent="createNamespaceStatus"
@@ -50,11 +50,11 @@
     </template>
 
     <template #item.actions="{ item }">
-      <DialogDelete
+      <DeleteDialog
         v-if="item.type === 'namespace' && canDelete"
         :type="item.type"
         :name="item.name"
-        @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
+        @delete-with-options="deleteNamespaceWithOptions($event, item)"></DeleteDialog>
     </template>
   </v-data-table>
 </template>

@@ -1,11 +1,11 @@
 <template>
-  <BranchVisualization :table="table" :snapshot-history="snapshotHistory" />
+  <TableBranchVisualization :table="table" :snapshot-history="snapshotHistory" />
 </template>
 
 <script setup lang="ts">
 import { reactive, onMounted, watch } from 'vue';
 import { useFunctions } from '@/plugins/functions';
-import BranchVisualization from './BranchVisualization.vue';
+import TableBranchVisualization from './TableBranchVisualization.vue';
 import type { LoadTableResultReadable, Snapshot } from '@/gen/iceberg/types.gen';
 
 const props = defineProps<{

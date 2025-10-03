@@ -85,11 +85,11 @@
                   :name="item['project-name']"
                   @emit-project-new-name="renameProject" />
 
-                <dialogDeleteConfirm
+                <DeleteConfirmDialog
                   v-if="item.actions?.includes('delete') && item.info !== 'selected'"
                   :type="'project'"
                   :name="item['project-name']"
-                  @confirmed="deleteProject(item)"></dialogDeleteConfirm>
+                  @confirmed="deleteProject(item)"></DeleteConfirmDialog>
               </div>
             </template>
 

@@ -48,7 +48,7 @@
       </td>
     </template>
     <template #item.actions="{ item }">
-      <DialogDeleteConfirm
+      <DeleteConfirmDialog
         v-if="item.can_delete"
         type="warehouse"
         :name="item.name"

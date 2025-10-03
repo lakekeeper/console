@@ -34,11 +34,11 @@
       </v-toolbar>
     </template>
     <template #item.actions="{ item }">
-      <DialogDelete
+      <DeleteDialog
         v-if="item.type === 'view'"
         :type="item.type"
         :name="item.name"
-        @delete-view-with-options="deleteViewWithOptions($event, item)"></DialogDelete>
+        @delete-view-with-options="deleteViewWithOptions($event, item)"></DeleteDialog>
     </template>
     <template #no-data>
       <div>No views in this namespace</div>

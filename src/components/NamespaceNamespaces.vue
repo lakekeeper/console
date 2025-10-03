@@ -33,7 +33,7 @@
           variant="underlined"
           hide-details
           clearable></v-text-field>
-        <addNamespaceDialog
+        <NamespaceAddDialog
           v-if="canCreateNamespace"
           :parent-path="namespacePath"
           :status-intent="addNamespaceStatus"
@@ -49,14 +49,14 @@
       </td>
     </template>
     <template #item.actions="{ item }">
-      <DialogDelete
+      <DeleteDialog
         v-if="item.type === 'namespace'"
         :type="item.type"
         :name="item.name"
-        @delete-with-options="deleteNamespaceWithOptions($event, item)"></DialogDelete>
+        @delete-with-options="deleteNamespaceWithOptions($event, item)"></DeleteDialog>
     </template>
     <template #no-data>
-      <addNamespaceDialog
+      <NamespaceAddDialog
         v-if="canCreateNamespace"
         :parent-path="namespacePath"
         :status-intent="StatusIntent.STARTING"

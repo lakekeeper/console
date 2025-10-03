@@ -186,7 +186,7 @@
     <!-- Current Snapshot Details -->
     <v-row v-if="currentSnapshot">
       <v-col cols="12">
-        <SnapshotDetails :snapshot="currentSnapshot" title="Current Snapshot Details" />
+        <TableSnapshotDetails :snapshot="currentSnapshot" title="Current Snapshot Details" />
       </v-col>
     </v-row>
   </v-card-text>
@@ -195,7 +195,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useFunctions } from '../plugins/functions';
-import SnapshotDetails from './SnapshotDetails.vue';
+import TableSnapshotDetails from './TableSnapshotDetails.vue';
 import { transformFields } from '../common/schemaUtils';
 import type { LoadTableResultReadable, Snapshot } from '../gen/iceberg/types.gen';
 
