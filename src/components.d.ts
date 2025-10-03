@@ -27,7 +27,7 @@ declare module 'vue' {
     ProjectManager: typeof import('./components/ProjectManager.vue')['default']
     ProjectStatistics: typeof import('./components/ProjectStatistics.vue')['default']
     RenameWarehouseDialog: typeof import('./components/RenameWarehouseDialog.vue')['default']
-    RoleDialog: typeof import('./components/roleDialog.vue')['default']
+    RoleDialog: typeof import('./components/RoleDialog.vue')['default']
     RoleManager: typeof import('./components/RoleManager.vue')['default']
     RoleOverview: typeof import('./components/RoleOverview.vue')['default']
     RoleOverviewEdit: typeof import('./components/RoleOverviewEdit.vue')['default']
