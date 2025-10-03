@@ -71,7 +71,7 @@ import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { RelationType } from '../../common/interfaces';
-import type { ViewAction } from '../../gen/management/types.gen';
+import { useViewPermissions } from '@/composables/usePermissions';
 import ViewHeader from '@/components/ViewHeader.vue';
 import ViewOverview from '@/components/ViewOverview.vue';
 import ViewRaw from '@/components/ViewRaw.vue';
@@ -84,7 +84,6 @@ const functions = useFunctions();
 const route = useRoute();
 const tab = ref('overview');
 const viewId = ref('');
-const myAccess = ref<ViewAction[]>([]);
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -92,53 +91,19 @@ const params = computed(() => ({
   vid: (route.params as { vid: string }).vid,
 }));
 
-const canReadPermissions = computed(() => myAccess.value.includes('read_assignments'));
-const canGetTasks = computed(() => myAccess.value.includes('get_tasks'));
-const canControlTasks = computed(() => myAccess.value.includes('control_tasks'));
-
-const showPermissionsTab = computed(
-  () => canReadPermissions.value && enabledAuthentication && enabledPermissions,
-);
-const showTasksTab = computed(
-  () => canGetTasks.value || !enabledAuthentication || !enabledPermissions,
+// Use composable for view permissions
+const { canControlTasks, showPermissionsTab, showTasksTab } = useViewPermissions(
+  viewId,
+  params.value.id,
 );
 
-// Load view metadata and permissions on mount
+// Load view metadata on mount
 onMounted(async () => {
   try {
     const view = await functions.loadView(params.value.id, params.value.nsid, params.value.vid);
     viewId.value = view.metadata['view-uuid'] || '';
-
-    if (viewId.value) {
-      const serverInfo = await functions.getServerInfo();
-      if (serverInfo['authz-backend'] !== 'allow-all') {
-        myAccess.value = await functions.getViewAccessById(viewId.value, params.value.id);
-      }
-    }
   } catch (error) {
     console.error('Failed to load view metadata:', error);
   }
 });
 </script>
-
-<style scoped>
-.pointer-cursor {
-  cursor: pointer;
-}
-
-.icon-text {
-  display: flex;
-  align-items: center;
-}
-
-.font-mono {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 0.875rem;
-}
-
-.text-wrap {
-  word-wrap: break-word;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-</style>

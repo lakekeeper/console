@@ -6,6 +6,7 @@ import type {
   ServerAction,
   RoleAction,
   TableAction,
+  ViewAction,
 } from '@/gen/management/types.gen';
 import { usePermissionStore } from '@/stores/permissions';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
@@ -505,6 +506,104 @@ export function useTablePermissions(
   // Watch for ID changes
   watch([tableIdRef, warehouseIdRef], ([newTableId, newWarehouseId]) => {
     if (newTableId && newWarehouseId) {
+      loadPermissions();
+    }
+  });
+
+  return {
+    loading,
+    permissions,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
+    canReadPermissions,
+    canGetTasks,
+    canControlTasks,
+    showPermissionsTab,
+    showTasksTab,
+    refresh: loadPermissions,
+  };
+}
+
+/**
+ * Composable for managing view permissions
+ * @param viewId - The view ID (can be a ref or static string)
+ * @param warehouseId - The warehouse ID (can be a ref or static string)
+ * @returns Reactive permission state and helper functions
+ */
+export function useViewPermissions(
+  viewId: Ref<string> | string,
+  warehouseId: Ref<string> | string,
+) {
+  // Import useFunctions dynamically to avoid circular dependencies
+  let functions: any = null;
+
+  const loading = ref(false);
+  const permissions = ref<ViewAction[]>([]);
+
+  const viewIdRef = computed(() => (typeof viewId === 'string' ? viewId : viewId.value));
+  const warehouseIdRef = computed(() =>
+    typeof warehouseId === 'string' ? warehouseId : warehouseId.value,
+  );
+
+  async function loadPermissions() {
+    if (!viewIdRef.value || !warehouseIdRef.value) return;
+
+    // Lazy load functions to avoid circular dependency
+    if (!functions) {
+      const { useFunctions } = await import('@/plugins/functions');
+      functions = useFunctions();
+    }
+
+    loading.value = true;
+    try {
+      const serverInfo = await functions.getServerInfo();
+      if (serverInfo['authz-backend'] !== 'allow-all') {
+        permissions.value = await functions.getViewAccessById(
+          viewIdRef.value,
+          warehouseIdRef.value,
+        );
+      }
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function hasPermission(action: ViewAction): boolean {
+    return permissions.value.includes(action);
+  }
+
+  function hasAnyPermission(...actions: ViewAction[]): boolean {
+    return actions.some((action) => permissions.value.includes(action));
+  }
+
+  function hasAllPermissions(...actions: ViewAction[]): boolean {
+    return actions.every((action) => permissions.value.includes(action));
+  }
+
+  // Specific permission checks
+  const canReadPermissions = computed(() => hasPermission('read_assignments'));
+  const canGetTasks = computed(() => hasPermission('get_tasks'));
+  const canControlTasks = computed(() => hasPermission('control_tasks'));
+
+  // UI helpers
+  const showPermissionsTab = computed(
+    () => canReadPermissions.value && enabledAuthentication && enabledPermissions,
+  );
+  const showTasksTab = computed(
+    () => canGetTasks.value || !enabledAuthentication || !enabledPermissions,
+  );
+
+  // Auto-load on mount
+  onMounted(() => {
+    if (viewIdRef.value && warehouseIdRef.value) {
+      loadPermissions();
+    }
+  });
+
+  // Watch for ID changes
+  watch([viewIdRef, warehouseIdRef], ([newViewId, newWarehouseId]) => {
+    if (newViewId && newWarehouseId) {
       loadPermissions();
     }
   });
