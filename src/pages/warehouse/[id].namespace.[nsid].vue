@@ -52,7 +52,7 @@
   </v-row>
 </template>
 <script lang="ts" setup>
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '@/plugins/functions';
 import { useNamespacePermissions } from '@/composables/usePermissions';
@@ -76,25 +76,14 @@ const params = computed(() => ({
 }));
 
 // Load namespace metadata on mount to get namespaceId for permissions
-onMounted(loadNamespaceId);
-
-watch(
-  () => params.value.nsid,
-  async (newNsid, oldNsid) => {
-    if (newNsid && newNsid !== oldNsid) {
-      await loadNamespaceId();
-    }
-  },
-);
-
-async function loadNamespaceId() {
+onMounted(async () => {
   try {
     const namespace = await functions.loadNamespaceMetadata(params.value.id, params.value.nsid);
     namespaceId.value = namespace.properties?.namespace_id || '';
   } catch (error) {
     console.error('Failed to load namespace metadata:', error);
   }
-}
+});
 
 const { showPermissionsTab } = useNamespacePermissions(computed(() => namespaceId.value));
 </script>
