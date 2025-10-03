@@ -7,15 +7,18 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddNamespaceDialog: typeof import('./components/addNamespaceDialog.vue')['default']
     AddOrEditProjectNameDialog: typeof import('./components/AddOrEditProjectNameDialog.vue')['default']
+    AddWarehouseDialog: typeof import('./components/addWarehouseDialog.vue')['default']
     AppBar: typeof import('./components/AppBar.vue')['default']
     AppFooter: typeof import('./components/AppFooter.vue')['default']
-    AssignToRoleDialogSingle: typeof import('./components/AssignToRoleDialogSingle.vue')['default']
+    AssignToRoleDialogSingle: typeof import('./components/assignToRoleDialogSingle.vue')['default']
     AuthenticationDisabledWarningBanner: typeof import('./components/AuthenticationDisabledWarningBanner.vue')['default']
     BreadcrumbsFromUrl: typeof import('./components/BreadcrumbsFromUrl.vue')['default']
     ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']
     DeleteConfirmDialog: typeof import('./components/DeleteConfirmDialog.vue')['default']
     DeleteDialog: typeof import('./components/DeleteDialog.vue')['default']
+    DialogDeleteConfirm: typeof import('./components/dialogDeleteConfirm.vue')['default']
     EULA: typeof import('./components/EULA.vue')['default']
     Home: typeof import('./components/Home.vue')['default']
     NamespaceAddDialog: typeof import('./components/NamespaceAddDialog.vue')['default']
@@ -66,5 +69,9 @@ declare module 'vue' {
     WarehouseRenameDialog: typeof import('./components/WarehouseRenameDialog.vue')['default']
     WarehouseS3: typeof import('./components/WarehouseS3.vue')['default']
     WarehouseStatisticsDialog: typeof import('./components/WarehouseStatisticsDialog.vue')['default']
+    WarehouseStorageAzure: typeof import('./components/WarehouseStorageAzure.vue')['default']
+    WarehouseStorageGCS: typeof import('./components/WarehouseStorageGCS.vue')['default']
+    WarehouseStorageJSON: typeof import('./components/WarehouseStorageJSON.vue')['default']
+    WarehouseStorageS3: typeof import('./components/WarehouseStorageS3.vue')['default']
   }
 }
