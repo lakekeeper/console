@@ -112,16 +112,9 @@
 
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
-                v-if="loaded"
-                :status="assignStatus"
                 :assignable-obj="permissionObject"
-                :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
-                @permissions="assign" />
-              <div v-else class="text-center pa-8">
-                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
-                <div class="text-subtitle-1 mt-2">Loading permissions...</div>
-              </div>
+                :warehouse-id="warehouseId" />
             </v-tabs-window-item>
             <v-tabs-window-item
               v-if="canGetTasks || !enabledAuthentication || !enabledPermissions"
@@ -160,17 +153,15 @@ import ViewHistory from '../../components/ViewHistory.vue';
 import SearchTabular from '../../components/SearchTabular.vue';
 import { LoadViewResultReadable } from '../../gen/iceberg/types.gen';
 import { ViewAction, ViewAssignment } from '../../gen/management/types.gen';
-import { AssignmentCollection, RelationType } from '../../common/interfaces';
+import { RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
-import { StatusIntent } from '@/common/enums';
 
 const functions = useFunctions();
 const route = useRoute();
 const tab = ref('overview');
 const crumbPath = ref('');
 const loading = ref(true);
-const assignStatus = ref(StatusIntent.INACTIVE);
 
 const depthRawRepresentation = ref(3);
 const depthRawRepresentationMax = ref(1000);
@@ -344,25 +335,6 @@ function getMaxDepth(obj: any): number {
 
   findDepth(obj, 0);
   return maxDepth;
-}
-
-async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
-  try {
-    loaded.value = false;
-    assignStatus.value = StatusIntent.STARTING;
-    const del = permissions.del as ViewAssignment[];
-    const writes = permissions.writes as ViewAssignment[];
-
-    await functions.updateViewAssignmentsById(viewId.value, del, writes, warehouseId);
-    assignStatus.value = StatusIntent.SUCCESS;
-    loaded.value = true;
-    await init();
-  } catch (error) {
-    assignStatus.value = StatusIntent.FAILURE;
-    console.error(error);
-
-    await init();
-  }
 }
 
 async function getProtection() {

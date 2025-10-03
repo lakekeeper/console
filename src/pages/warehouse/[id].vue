@@ -373,16 +373,8 @@
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
-                v-if="loaded"
-                :status="assignStatus"
                 :assignable-obj="permissionObject"
-                :existing-permissions-from-obj="existingPermissions"
-                :relation-type="permissionType"
-                @permissions="assign" />
-              <div v-else class="text-center pa-8">
-                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
-                <div class="text-subtitle-1 mt-2">Loading permissions...</div>
-              </div>
+                :relation-type="permissionType" />
             </v-tabs-window-item>
             <v-tabs-window-item
               v-if="(canGetAllTasks || !enabledAuthentication || !enabledPermissions) && loaded"
@@ -409,14 +401,7 @@ import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import TaskManager from '../../components/TaskManager.vue';
 import SearchTabular from '../../components/SearchTabular.vue';
-import {
-  AssignmentCollection,
-  Header,
-  Item,
-  Options,
-  RelationType,
-  Type,
-} from '../../common/interfaces';
+import { Header, Item, Options, RelationType, Type } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { computed, onMounted, reactive, ref } from 'vue';
 import router from '../../router';
@@ -436,8 +421,6 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 import { StatusIntent } from '@/common/enums';
 const functions = useFunctions();
 const route = useRoute();
-
-const assignStatus = ref(StatusIntent.INACTIVE);
 
 const recursiveDeleteProtection = ref(false);
 const tab = ref('overview');
@@ -690,25 +673,6 @@ async function listNamespaces(item?: Item, parent?: string) {
 }
 
 onMounted(init);
-
-async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
-  try {
-    assignStatus.value = StatusIntent.STARTING;
-    const del = permissions.del as WarehouseAssignment[]; // Define 'del' variable
-    const writes = permissions.writes as WarehouseAssignment[]; // Define 'del' variable
-
-    await functions.updateWarehouseAssignmentsById(relationId.value, del, writes);
-    assignStatus.value = StatusIntent.SUCCESS;
-
-    await init();
-  } catch (error) {
-    assignStatus.value = StatusIntent.FAILURE;
-
-    console.error(error);
-
-    await init();
-  }
-}
 
 async function getWarehouseStatistics() {
   try {

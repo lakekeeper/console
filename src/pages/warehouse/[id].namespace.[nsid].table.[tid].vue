@@ -110,16 +110,9 @@
 
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
-                v-if="loaded"
-                :status="assignStatus"
                 :assignable-obj="permissionObject"
-                :existing-permissions-from-obj="existingPermissions"
                 :relation-type="permissionType"
-                @permissions="assign" />
-              <div v-else class="text-center pa-8">
-                <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
-                <div class="text-subtitle-1 mt-2">Loading permissions...</div>
-              </div>
+                :warehouse-id="warehouseId" />
             </v-tabs-window-item>
             <v-tabs-window-item
               v-if="canGetTasks || !enabledAuthentication || !enabledPermissions"
@@ -156,10 +149,9 @@ import TaskManager from '../../components/TaskManager.vue';
 import SearchTabular from '../../components/SearchTabular.vue';
 import { LoadTableResultReadable } from '../../gen/iceberg/types.gen';
 import { TableAction, TableAssignment } from '../../gen/management/types.gen';
-import { AssignmentCollection, RelationType } from '../../common/interfaces';
+import { RelationType } from '../../common/interfaces';
 import { useVisualStore } from '../../stores/visual';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
-import { StatusIntent } from '@/common/enums';
 import BranchVisualization from '@/components/BranchVisualization.vue';
 import TableDetails from '@/components/TableDetails.vue';
 import type { Snapshot } from '../../gen/iceberg/types.gen';
@@ -167,8 +159,6 @@ const depthRawRepresentation = ref(3);
 const depthRawRepresentationMax = ref(1000);
 
 const recursiveDeleteProtection = ref(false);
-
-const assignStatus = ref(StatusIntent.INACTIVE);
 
 const functions = useFunctions();
 const route = useRoute();
@@ -286,26 +276,6 @@ function getMaxDepth(obj: any): number {
 
   findDepth(obj, 0);
   return maxDepth;
-}
-
-async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
-  try {
-    loaded.value = false;
-    assignStatus.value = StatusIntent.STARTING;
-    const del = permissions.del as TableAssignment[];
-    const writes = permissions.writes as TableAssignment[];
-
-    await functions.updateTableAssignmentsById(tableId.value, del, writes, warehouseId);
-    assignStatus.value = StatusIntent.SUCCESS;
-    loaded.value = true;
-    await init();
-  } catch (error) {
-    console.error(error);
-
-    assignStatus.value = StatusIntent.FAILURE;
-
-    await init();
-  }
 }
 
 async function loadTabData() {

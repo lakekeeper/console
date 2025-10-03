@@ -108,13 +108,7 @@
         <v-tabs-window-item
           v-if="canReadAssignments && userStorage.isAuthenticated"
           value="permissions">
-          <PermissionManager
-            v-if="loaded && enabledPermissions"
-            :status="assignStatus"
-            :assignable-obj="permissionObject"
-            :existing-permissions-from-obj="existingAssignments"
-            :relation-type="permissionType"
-            @permissions="assign" />
+          <PermissionManager :assignable-obj="permissionObject" :relation-type="permissionType" />
         </v-tabs-window-item>
 
         <v-tabs-window-item value="statistics">
@@ -140,14 +134,12 @@ import {
   ProjectAssignment,
   RenameProjectRequest,
 } from '../gen/management/types.gen';
-import { AssignmentCollection, Header, RelationType } from '../common/interfaces';
-import { StatusIntent } from '@/common/enums';
+import { Header, RelationType } from '../common/interfaces';
 import router from '@/router';
 
 const dialog = ref(false);
 const tab = ref('overview');
 const userStorage = useUserStore();
-const assignStatus = ref(StatusIntent.INACTIVE);
 
 const visual = useVisualStore();
 const functions = useFunctions();
@@ -305,29 +297,6 @@ async function loadProjects() {
     await Promise.all(accessPromises);
   } catch (error) {
     console.error(error);
-  }
-}
-
-async function assign(item: { del: AssignmentCollection; writes: AssignmentCollection }) {
-  try {
-    assignStatus.value = StatusIntent.STARTING;
-
-    loaded.value = false;
-    const del = item.del as ProjectAssignment[]; // Define 'del' variable
-    const writes = item.writes as ProjectAssignment[]; // Define 'del' variable
-
-    await functions.updateProjectAssignments(del, writes);
-    assignStatus.value = StatusIntent.SUCCESS;
-
-    await init();
-    loaded.value = true;
-  } catch (error) {
-    assignStatus.value = StatusIntent.FAILURE;
-
-    console.error(error);
-  } finally {
-    await init();
-    loaded.value = true;
   }
 }
 

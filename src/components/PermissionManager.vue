@@ -153,6 +153,10 @@ async function fetchAssignments() {
         props.assignableObj.id,
         props.warehouseId,
       );
+    } else if (props.relationType === 'project') {
+      assignments = await functions.getProjectAssignments();
+    } else if (props.relationType === 'role') {
+      assignments = await functions.getRoleAssignmentsById(props.assignableObj.id);
     }
 
     existingAssignments.splice(0, existingAssignments.length);
@@ -288,6 +292,14 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
         writes,
         props.warehouseId,
       );
+    } else if (props.relationType === 'project') {
+      const del = permissions.del as any[];
+      const writes = permissions.writes as any[];
+      await functions.updateProjectAssignments(del, writes);
+    } else if (props.relationType === 'role') {
+      const del = permissions.del as any[];
+      const writes = permissions.writes as any[];
+      await functions.updateRoleAssignmentsById(props.assignableObj.id, del, writes);
     }
 
     console.log('PermissionManager: assignment successful, reloading data');

@@ -269,12 +269,8 @@
             </v-tabs-window-item>
             <v-tabs-window-item v-if="canReadPermissions" value="permissions">
               <PermissionManager
-                v-if="loaded"
-                :status="assignStatus"
                 :assignable-obj="permissionObject"
-                :existing-permissions-from-obj="existingPermissions"
-                :relation-type="permissionType"
-                @permissions="assign" />
+                :relation-type="permissionType" />
             </v-tabs-window-item>
           </v-tabs-window>
         </v-card>
@@ -292,12 +288,11 @@ import { useFunctions } from '../../plugins/functions';
 import SearchTabular from '../../components/SearchTabular.vue';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import router from '../../router';
-import { AssignmentCollection, Header, Item, Options, RelationType } from '../../common/interfaces';
+import { Header, Item, Options, RelationType } from '../../common/interfaces';
 
 import {
   DeletedTabularResponse,
   NamespaceAction,
-  NamespaceAssignment,
   WarehouseAssignment,
 } from '../../gen/management/types.gen';
 import { GetNamespaceResponse, TableIdentifier } from '../../gen/iceberg/types.gen';
@@ -363,8 +358,6 @@ type DeletedTabularResponseExtended = DeletedTabularResponse & {
 const loadedTables: TableIdentifierExtended[] = reactive([]);
 const loadedViews: TableIdentifierExtended[] = reactive([]);
 const deletedTabulars: DeletedTabularResponseExtended[] = reactive([]);
-
-const assignStatus = ref(StatusIntent.INACTIVE);
 
 const relationId = ref('');
 const selectedNamespace = ref('');
@@ -676,25 +669,6 @@ watch(
     await init();
   },
 );
-
-async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
-  try {
-    loaded.value = false;
-    assignStatus.value = StatusIntent.STARTING;
-    const del = permissions.del as NamespaceAssignment[];
-    const writes = permissions.writes as NamespaceAssignment[];
-
-    await functions.updateNamespaceAssignmentsById(relationId.value, del, writes);
-    assignStatus.value = StatusIntent.SUCCESS;
-    loaded.value = true;
-    await init();
-  } catch (error) {
-    assignStatus.value = StatusIntent.FAILURE;
-    console.error(error);
-
-    await init();
-  }
-}
 
 async function undropTabular(item: DeletedTabularResponseExtended) {
   try {
