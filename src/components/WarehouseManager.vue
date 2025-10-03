@@ -7,7 +7,7 @@
       <v-icon>mdi-warehouse</v-icon>
     </template>
     <v-spacer></v-spacer>
-    <AddWarehouseDialog
+    <WarehouseAddDialog
       v-if="canCreateWarehouse"
       v-bind="addWarehouseProps"
       @added-warehouse="listWarehouse" />
@@ -55,7 +55,7 @@
         @confirmed="deleteWarehouse(item.id)" />
     </template>
     <template #no-data>
-      <AddWarehouseDialog
+      <WarehouseAddDialog
         v-if="canCreateWarehouse"
         v-bind="addWarehouseProps"
         @added-warehouse="listWarehouse" />

@@ -12,7 +12,7 @@ declare module 'vue' {
     AddWarehouseDialog: typeof import('./components/addWarehouseDialog.vue')['default']
     AppBar: typeof import('./components/AppBar.vue')['default']
     AppFooter: typeof import('./components/AppFooter.vue')['default']
-    AssignToRoleDialogSingle: typeof import('./components/assignToRoleDialogSingle.vue')['default']
+    AssignToRoleDialogSingle: typeof import('./components/AssignToRoleDialogSingle.vue')['default']
     AuthenticationDisabledWarningBanner: typeof import('./components/AuthenticationDisabledWarningBanner.vue')['default']
     BreadcrumbsFromUrl: typeof import('./components/BreadcrumbsFromUrl.vue')['default']
     ComputeConnectDialog: typeof import('./components/ComputeConnectDialog.vue')['default']

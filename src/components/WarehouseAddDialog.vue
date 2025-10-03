@@ -209,44 +209,44 @@
               ></v-select-->
 
               <div v-if="storageCredentialType === 'S3'">
-                <WarehouseS3
+                <WarehouseStorageS3
                   :credentials-only="emptyWarehouse"
                   :intent="intent"
                   :object-type="objectType"
                   :warehouse-object="warehouseObjectS3"
                   @submit="createWarehouse"
                   @update-credentials="newCredentials"
-                  @update-profile="newProfile"></WarehouseS3>
+                  @update-profile="newProfile"></WarehouseStorageS3>
               </div>
 
               <div v-if="storageCredentialType === 'AZURE'">
-                <WarehouseAzure
+                <WarehouseStorageAzure
                   :credentials-only="emptyWarehouse"
                   :intent="intent"
                   :object-type="objectType"
                   :warehouse-object="warehouseObjectAz"
                   @submit="createWarehouse"
                   @update-credentials="newCredentials"
-                  @update-profile="newProfile"></WarehouseAzure>
+                  @update-profile="newProfile"></WarehouseStorageAzure>
               </div>
 
               <div v-if="storageCredentialType === 'GCS'">
-                <WarehouseGCS
+                <WarehouseStorageGCS
                   :credentials-only="emptyWarehouse"
                   :intent="intent"
                   :object-type="objectType"
                   :warehouse-object="warehouseObjectGCS"
                   @submit="createWarehouse"
                   @update-credentials="newCredentials"
-                  @update-profile="newProfile"></WarehouseGCS>
+                  @update-profile="newProfile"></WarehouseStorageGCS>
               </div>
             </span>
           </v-form>
 
-          <WarehouseJSON
+          <WarehouseStorageJSON
             v-if="useFileInput"
             @submit="createWarehouseJSON"
-            @preload="preloadWarehouseJSON"></WarehouseJSON>
+            @preload="preloadWarehouseJSON"></WarehouseStorageJSON>
         </v-card-text>
         <v-card-actions>
           <v-btn
