@@ -9,11 +9,11 @@
 
 import '@mdi/font/css/materialdesignicons.css';
 import 'vuetify/styles';
-import { VTreeview } from 'vuetify/labs/VTreeview';
 
 // Composables
 import { createVuetify } from 'vuetify';
 import { VStepperVertical, VStepperVerticalItem } from 'vuetify/labs/VStepperVertical';
+import * as components from 'vuetify/components';
 
 const myCustomLightTheme = {
   dark: false,
@@ -56,7 +56,7 @@ const myCustomLightTheme = {
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
   components: {
-    VTreeview,
+    ...components,
     VStepperVertical,
     VStepperVerticalItem,
   },
