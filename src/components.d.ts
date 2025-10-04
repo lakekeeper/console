@@ -64,14 +64,9 @@ declare module 'vue' {
     WarehouseGCS: typeof import('./components/WarehouseGCS.vue')['default']
     WarehouseHeader: typeof import('./components/WarehouseHeader.vue')['default']
     WarehouseJSON: typeof import('./components/WarehouseJSON.vue')['default']
-    WarehouseManager: typeof import('./components/WarehouseManager.vue')['default']
     WarehouseNamespaces: typeof import('./components/WarehouseNamespaces.vue')['default']
     WarehouseRenameDialog: typeof import('./components/WarehouseRenameDialog.vue')['default']
     WarehouseS3: typeof import('./components/WarehouseS3.vue')['default']
     WarehouseStatisticsDialog: typeof import('./components/WarehouseStatisticsDialog.vue')['default']
-    WarehouseStorageAzure: typeof import('./components/WarehouseStorageAzure.vue')['default']
-    WarehouseStorageGCS: typeof import('./components/WarehouseStorageGCS.vue')['default']
-    WarehouseStorageJSON: typeof import('./components/WarehouseStorageJSON.vue')['default']
-    WarehouseStorageS3: typeof import('./components/WarehouseStorageS3.vue')['default']
   }
 }
