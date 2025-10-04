@@ -57,12 +57,6 @@ import { useRoute } from 'vue-router';
 import { useFunctions } from '@/plugins/functions';
 import { useNamespacePermissions } from '@lakekeeper/console-components';
 import { RelationType } from '@/common/interfaces';
-import NamespaceHeader from '@/components/NamespaceHeader.vue';
-import NamespaceNamespaces from '@/components/NamespaceNamespaces.vue';
-import NamespaceTables from '@/components/NamespaceTables.vue';
-import NamespaceViews from '@/components/NamespaceViews.vue';
-import NamespaceDeleted from '@/components/NamespaceDeleted.vue';
-import BreadcrumbsFromUrl from '@/components/BreadcrumbsFromUrl.vue';
 
 const route = useRoute();
 const functions = useFunctions();

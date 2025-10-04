@@ -68,12 +68,9 @@ import { useRoute } from 'vue-router';
 import { useFunctions } from '../../plugins/functions';
 import { RelationType } from '../../common/interfaces';
 import { useViewPermissions } from '@lakekeeper/console-components';
-import ViewHeader from '@/components/ViewHeader.vue';
 import ViewOverview from '@/components/ViewOverview.vue';
 import ViewRaw from '@/components/ViewRaw.vue';
 import ViewHistoryTab from '@/components/ViewHistoryTab.vue';
-import TaskManager from '@/components/TaskManager.vue';
-import BreadcrumbsFromUrl from '@/components/BreadcrumbsFromUrl.vue';
 
 const functions = useFunctions();
 const route = useRoute();
