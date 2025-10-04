@@ -13,6 +13,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#vk/adding-components",
     "@mdi/font": "7.4.47",
     "@wdns/vue-code-block": "^2.3.3",
     "chart.js": "^4.4.8",
