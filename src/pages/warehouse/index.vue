@@ -7,4 +7,6 @@
   </v-row>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { WarehouseManager } from '@lakekeeper/console-components';
+</script>
