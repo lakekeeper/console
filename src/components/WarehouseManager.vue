@@ -94,14 +94,7 @@ const functions = useFunctions();
 const visual = useVisualStore();
 
 const projectId = computed(() => visual.projectSelected['project-id']);
-const { loading, canCreateWarehouse, canListWarehouses, permissions } =
-  useProjectPermissions(projectId);
-
-console.log('WarehouseManager - projectId:', projectId.value);
-console.log('WarehouseManager - loading:', loading.value);
-console.log('WarehouseManager - permissions:', permissions.value);
-console.log('WarehouseManager - canListWarehouses:', canListWarehouses.value);
-console.log('WarehouseManager - canCreateWarehouse:', canCreateWarehouse.value);
+const { loading, canCreateWarehouse, canListWarehouses } = useProjectPermissions(projectId);
 
 const searchWarehouse = ref('');
 

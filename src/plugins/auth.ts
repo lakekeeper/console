@@ -96,7 +96,7 @@ async function refreshToken(): Promise<User | undefined> {
         given_name: user?.profile.given_name || '',
       };
       useUserStore().setUser(newUser);
-      console.log('Silent login successful');
+
       return newUser;
     } catch (silentError: any) {
       console.error('Silent login failed, redirecting to login', silentError);

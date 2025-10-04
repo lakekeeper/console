@@ -5,9 +5,9 @@
     </template>
 
     <v-list activatable>
-      <RenameWarehouseDialog :warehouse-name="warehouse.name" @rename-warehouse="emitRename" />
+      <WarehouseRenameDialog :warehouse-name="warehouse.name" @rename-warehouse="emitRename" />
 
-      <AddWarehouseDialog
+      <WarehouseAddDialog
         :intent="Intent.UPDATE"
         :object-type="ObjectType.STORAGE_CREDENTIAL"
         :process-status="processStatus"
@@ -16,7 +16,7 @@
         @close="$emit('close')"
         @update-credentials="updateStorageCredential" />
 
-      <AddWarehouseDialog
+      <WarehouseAddDialog
         :warehouse="warehouse"
         :processStatus="processStatus"
         :intent="Intent.UPDATE"
@@ -25,7 +25,7 @@
         @update-profile="updateStorageProfile"
         @cancel="menuOpen = false" />
 
-      <AddWarehouseDialog
+      <WarehouseAddDialog
         :intent="Intent.UPDATE"
         :object-type="ObjectType.DELETION_PROFILE"
         :process-status="processStatus"

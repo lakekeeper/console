@@ -152,7 +152,6 @@ async function bootstrap() {
   } catch (error) {
     console.error('Error during bootstrap:', error);
   } finally {
-    console.log('Fetching server info after bootstrap');
     await getServerInfo();
   }
 }

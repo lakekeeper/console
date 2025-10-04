@@ -117,7 +117,6 @@ async function loadUsers() {
     loading.value = true;
     loadedUsers.splice(0, loadedUsers.length);
 
-    console.log('Initial load starting...');
     // Load more than the default display amount to always stay ahead
     const data = await functions.listUser(undefined, 100);
 
@@ -127,10 +126,8 @@ async function loadUsers() {
 
     if (data['next-page-token']) {
       paginationTokenUser.value = data['next-page-token'];
-      console.log('Set initial pagination token:', data['next-page-token']);
     } else {
       paginationTokenUser.value = '';
-      console.log('No initial pagination token');
     }
 
     loadedUsers.forEach((user) => {
@@ -140,8 +137,6 @@ async function loadUsers() {
       }
       user.actions.push('delete');
     });
-
-    console.log('Initial load complete. Users loaded:', loadedUsers.length);
   } catch (error) {
     console.error('Error in loadUsers:', error);
   } finally {
@@ -189,20 +184,8 @@ async function paginationCheck(option: any) {
   const bufferSize = Math.max(option.itemsPerPage, 50); // Always maintain at least 50 item buffer
   const shouldLoadMore = itemsNeeded + bufferSize > loadedUsers.length;
 
-  console.log('Pagination check:', {
-    page: option.page,
-    itemsPerPage: option.itemsPerPage,
-    itemsNeeded,
-    bufferSize,
-    loadedUsersLength: loadedUsers.length,
-    shouldLoadMore,
-    hasToken: !!paginationTokenUser.value,
-    token: paginationTokenUser.value,
-  });
-
   if (shouldLoadMore && paginationTokenUser.value !== '') {
     try {
-      console.log('Loading more users...');
       const data = await functions.listUser(paginationTokenUser.value, 100);
 
       // Directly assign the users array and cast to the proper type
@@ -210,13 +193,6 @@ async function paginationCheck(option: any) {
         actions: string[];
       })[];
       paginationTokenUser.value = data['next-page-token'] || '';
-
-      console.log(
-        'Loaded',
-        loadedUsersTmp.length,
-        'more users. New token:',
-        paginationTokenUser.value,
-      );
 
       loadedUsersTmp.forEach((user) => {
         user.actions = [];
@@ -232,13 +208,11 @@ async function paginationCheck(option: any) {
       if (searchUsers.value === '') {
         searchResults.push(...loadedUsersTmp);
       }
-
-      console.log('Total users now:', loadedUsers.length);
     } catch (error) {
       console.error('Error in pagination:', error);
     }
   } else {
-    console.log(
+    console.info(
       'Pagination condition not met - shouldLoadMore:',
       shouldLoadMore,
       'hasToken:',

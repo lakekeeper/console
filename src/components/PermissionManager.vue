@@ -291,7 +291,6 @@ async function loadManagedAccess() {
 }
 
 async function init() {
-  console.log('PermissionManager: init called for', props.relationType, assignableObj.id);
   loaded.value = false;
   permissionRows.splice(0, permissionRows.length);
 
@@ -299,7 +298,6 @@ async function init() {
   await loadManagedAccess();
 
   const assignments = await fetchAssignments();
-  console.log('PermissionManager: fetched assignments:', assignments);
 
   for (const permission of assignments) {
     const searchUser: any = permission;
@@ -344,7 +342,6 @@ async function init() {
 }
 
 async function assign(permissions: { del: AssignmentCollection; writes: AssignmentCollection }) {
-  console.log('PermissionManager: assign called', { permissions });
   try {
     loaded.value = false;
     assignStatus.value = StatusIntent.STARTING;
@@ -387,7 +384,6 @@ async function assign(permissions: { del: AssignmentCollection; writes: Assignme
       await functions.updateRoleAssignmentsById(assignableObj.id, del, writes);
     }
 
-    console.log('PermissionManager: assignment successful, reloading data');
     assignStatus.value = StatusIntent.SUCCESS;
     emit('statusUpdate', StatusIntent.SUCCESS);
     await init(); // Reload the data

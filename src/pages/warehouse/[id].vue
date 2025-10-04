@@ -7,9 +7,9 @@
 
       <v-tabs v-model="tab" density="compact">
         <v-tab density="compact" value="namespaces">namespaces</v-tab>
-        <v-tab v-if="showPermissionsTab" density="compact" value="permissions">permissions</v-tab>
         <v-tab density="compact" value="details">Details</v-tab>
         <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
+        <v-tab v-if="showPermissionsTab" density="compact" value="permissions">permissions</v-tab>
       </v-tabs>
       <v-card>
         <v-tabs-window v-model="tab">
