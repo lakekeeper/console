@@ -8,8 +8,10 @@
       <v-tabs v-model="tab" density="compact">
         <v-tab density="compact" value="namespaces">namespaces</v-tab>
         <v-tab density="compact" value="details">Details</v-tab>
-        <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
-        <v-tab v-if="showPermissionsTab" density="compact" value="permissions">permissions</v-tab>
+        <v-tab v-if="permissions.showTasksTab" density="compact" value="tasks">Tasks</v-tab>
+        <v-tab v-if="permissions.showPermissionsTab" density="compact" value="permissions">
+          permissions
+        </v-tab>
       </v-tabs>
       <v-card>
         <v-tabs-window v-model="tab">
@@ -19,10 +21,10 @@
           <v-tabs-window-item value="details">
             <WarehouseDetails :warehouse-id="params.id" />
           </v-tabs-window-item>
-          <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
+          <v-tabs-window-item value="permissions">
             <PermissionManager :object-id="params.id" :relation-type="RelationType.Warehouse" />
           </v-tabs-window-item>
-          <v-tabs-window-item v-if="showTasksTab" value="tasks">
+          <v-tabs-window-item value="tasks">
             <TaskManager :warehouse-id="params.id" entity-type="warehouse" />
           </v-tabs-window-item>
         </v-tabs-window>
@@ -34,7 +36,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { useWarehousePermissions } from '@lakekeeper/console-components';
-import TaskManager from '../../components/TaskManager.vue';
 import WarehouseNamespaces from '../../components/WarehouseNamespaces.vue';
 import WarehouseHeader from '../../components/WarehouseHeader.vue';
 import { RelationType } from '../../common/interfaces';
@@ -45,5 +46,6 @@ const tab = ref('namespaces');
 const params = computed(() => route.params as { id: string });
 
 // Use warehouse permissions composable for UI visibility
-const { showPermissionsTab, showTasksTab } = useWarehousePermissions(params.value.id);
+const warehouseId = computed(() => params.value.id);
+const permissions = useWarehousePermissions(warehouseId);
 </script>

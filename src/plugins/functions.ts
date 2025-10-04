@@ -2463,7 +2463,9 @@ export function useFunctions() {
 export default {
   install: (app: App) => {
     const functions = useFunctions();
+    const visual = useVisualStore();
     app.provide('functions', functions);
+    app.provide('visual', visual);
     app.config.globalProperties.$functions = functions;
   },
 };
