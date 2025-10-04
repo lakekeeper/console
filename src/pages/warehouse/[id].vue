@@ -36,7 +36,6 @@ import { useRoute } from 'vue-router';
 import { useWarehousePermissions } from '@lakekeeper/console-components';
 import TaskManager from '../../components/TaskManager.vue';
 import WarehouseNamespaces from '../../components/WarehouseNamespaces.vue';
-import WarehouseDetails from '../../components/WarehouseDetails.vue';
 import WarehouseHeader from '../../components/WarehouseHeader.vue';
 import { RelationType } from '../../common/interfaces';
 import { computed, ref } from 'vue';
