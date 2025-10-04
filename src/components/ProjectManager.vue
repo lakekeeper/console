@@ -120,7 +120,7 @@ import { onMounted, ref, reactive, computed } from 'vue';
 import { useVisualStore } from '../stores/visual';
 import { useUserStore } from '../stores/user';
 import { useFunctions } from '../plugins/functions';
-import { useProjectPermissions, useServerPermissions } from '@/composables/usePermissions';
+import { useProjectPermissions, useServerPermissions } from '@lakekeeper/console-components';
 import { usePermissionStore } from '@/stores/permissions';
 import {
   CreateProjectRequest,

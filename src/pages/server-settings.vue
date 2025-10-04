@@ -9,7 +9,7 @@
       <ServerOverview />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
-      <PermissionManager :object-id="serverId" :relation-type="permissionType" />
+      <PermissionManager v-if="serverId" :object-id="serverId" :relation-type="permissionType" />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showUsersTab" value="users">
       <UserManager />
@@ -21,7 +21,7 @@
 import { useFunctions } from '@/plugins/functions';
 import { onMounted, ref } from 'vue';
 import { RelationType } from '@/common/interfaces';
-import { useServerPermissions } from '@/composables/usePermissions';
+import { useServerPermissions } from '@lakekeeper/console-components';
 
 const tab = ref('overview');
 const functions = useFunctions();

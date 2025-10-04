@@ -67,13 +67,12 @@ import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions } from '@/plugins/functions';
 import { RelationType } from '@/common/interfaces';
-import { useTablePermissions } from '@/composables/usePermissions';
+import { useTablePermissions } from '@lakekeeper/console-components';
 import TableHeader from '@/components/TableHeader.vue';
 import TableOverview from '@/components/TableOverview.vue';
 import TableRaw from '@/components/TableRaw.vue';
 import TableBranch from '@/components/TableBranch.vue';
 import TaskManager from '@/components/TaskManager.vue';
-import PermissionManager from '@/components/PermissionManager.vue';
 import BreadcrumbsFromUrl from '@/components/BreadcrumbsFromUrl.vue';
 
 const route = useRoute();

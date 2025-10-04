@@ -49,6 +49,7 @@ declare module 'vue' {
     TaskConfigDialog: typeof import('./components/TaskConfigDialog.vue')['default']
     TaskDetails: typeof import('./components/TaskDetails.vue')['default']
     TaskManager: typeof import('./components/TaskManager.vue')['default']
+    UserManager: typeof import('./components/UserManager.vue')['default']
     UserRenameDialog: typeof import('./components/UserRenameDialog.vue')['default']
     ViewDetails: typeof import('./components/ViewDetails.vue')['default']
     ViewHeader: typeof import('./components/ViewHeader.vue')['default']

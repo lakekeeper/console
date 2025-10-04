@@ -436,7 +436,7 @@
 <script setup lang="ts">
 import { useFunctions } from '@/plugins/functions';
 import { useVisualStore } from '@/stores/visual';
-import { useWarehousePermissions } from '@/composables/usePermissions';
+import { useWarehousePermissions } from '@lakekeeper/console-components';
 import { Type } from '@/common/interfaces';
 import { useQueueConfig, type QueueOption } from '@/common/queueConfig';
 import { reactive, ref, onMounted, computed } from 'vue';

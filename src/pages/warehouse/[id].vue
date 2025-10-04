@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { useWarehousePermissions } from '@/composables/usePermissions';
+import { useWarehousePermissions } from '@lakekeeper/console-components';
 import TaskManager from '../../components/TaskManager.vue';
 import WarehouseNamespaces from '../../components/WarehouseNamespaces.vue';
 import WarehouseDetails from '../../components/WarehouseDetails.vue';

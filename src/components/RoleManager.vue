@@ -69,7 +69,7 @@ import { Role } from '@/gen/management/types.gen';
 import router from '@/router';
 import { Header } from '@/common/interfaces';
 import { useVisualStore } from '@/stores/visual';
-import { useProjectPermissions } from '@/composables/usePermissions';
+import { useProjectPermissions } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const visual = useVisualStore();

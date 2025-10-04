@@ -14,8 +14,15 @@ import App from './App.vue';
 // Composables
 import { createApp } from 'vue';
 
+// Config
+import * as appConfig from '@/app.config';
+
 const app = createApp(App);
 
+// Provide runtime config for shared library composables
+app.provide('appConfig', appConfig);
+
+// Register plugins (includes pinia, then functions, then shared components)
 registerPlugins(app);
 
 app.use(auth);

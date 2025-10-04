@@ -69,7 +69,7 @@
 import { reactive, ref, watch, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFunctions } from '@/plugins/functions';
-import { useNamespacePermissions } from '@/composables/usePermissions';
+import { useNamespacePermissions } from '@lakekeeper/console-components';
 import type { Header, Item, Options } from '@/common/interfaces';
 import { StatusIntent } from '@/common/enums';
 
