@@ -39,7 +39,7 @@
           v-else-if="action === 'delete'"
           type="user"
           :name="item.name"
-          :disabled="!props.canDeleteUsers"
+          :disabled="!canDeleteUsers"
           @confirmed="deleteUser(item)" />
       </span>
     </template>
@@ -77,13 +77,19 @@
 
 <script lang="ts" setup>
 import { User } from '@/gen/management/types.gen';
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, onMounted, watch } from 'vue';
 import { Header } from '@/common/interfaces';
 import { useFunctions } from '@/plugins/functions';
 import { StatusIntent } from '@/common/enums';
+import { useServerPermissions } from '@/composables/usePermissions';
 import DeleteConfirmDialog from '@/components/DeleteConfirmDialog.vue';
 import UserRenameDialog from '@/components/UserRenameDialog.vue';
+
 const functions = useFunctions();
+
+// Get server ID and permissions
+const serverId = ref('');
+const { canDeleteUsers, canListUsers } = useServerPermissions(serverId);
 
 const headers: readonly Header[] = Object.freeze([
   { title: 'Name', key: 'name', align: 'start' },
@@ -91,17 +97,6 @@ const headers: readonly Header[] = Object.freeze([
   { title: 'Id', key: 'id', align: 'start' },
   { title: 'Actions', key: 'actions', align: 'end', sortable: false },
 ]);
-
-const props = withDefaults(
-  defineProps<{
-    canDeleteUsers: boolean;
-    status?: StatusIntent;
-    canListUsers: boolean;
-  }>(),
-  {
-    status: StatusIntent.INACTIVE,
-  },
-);
 
 const emit = defineEmits<{
   (e: 'deletedUser', user: User): void;
@@ -116,7 +111,7 @@ const searchUsers = ref('');
 const renameStatus = ref(StatusIntent.INACTIVE);
 
 async function loadUsers() {
-  if (!props.canListUsers) return;
+  if (!canListUsers.value) return;
 
   try {
     loading.value = true;
@@ -295,9 +290,15 @@ async function renameUser(user: { name: string; id: string }) {
   }
 }
 
-// Load users when component mounts
+// Load users when component mounts and server ID is loaded
 onMounted(async () => {
-  if (props.canListUsers) {
+  const serverInfo = await functions.getServerInfo();
+  serverId.value = serverInfo['server-id'];
+});
+
+// Watch for permission changes and load users when we get permission
+watch(canListUsers, async (newValue) => {
+  if (newValue) {
     await loadUsers();
     // Initialize search results with loaded users
     searchResults.push(...loadedUsers);

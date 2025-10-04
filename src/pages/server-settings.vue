@@ -12,7 +12,7 @@
       <PermissionManager :object-id="serverId" :relation-type="permissionType" />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showUsersTab" value="users">
-      <UserManager :can-delete-users="canDeleteUsers" :can-list-users="canListUsers" />
+      <UserManager />
     </v-tabs-window-item>
   </v-tabs-window>
 </template>
@@ -29,8 +29,7 @@ const functions = useFunctions();
 const serverId = ref('');
 
 // Use the server permissions composable
-const { canListUsers, canDeleteUsers, showPermissionsTab, showUsersTab } =
-  useServerPermissions(serverId);
+const { showPermissionsTab, showUsersTab } = useServerPermissions(serverId);
 
 const permissionType = RelationType.Server;
 
