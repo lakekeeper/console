@@ -32,7 +32,6 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useFunctions } from '@/plugins/functions';
 import type { GetNamespaceResponse } from '@/gen/iceberg/types.gen';
-import SearchTabular from './SearchTabular.vue';
 
 const props = defineProps<{
   warehouseId: string;

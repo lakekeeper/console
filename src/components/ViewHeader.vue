@@ -20,7 +20,6 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
-import SearchTabular from './SearchTabular.vue';
 
 const props = defineProps<{
   warehouseId: string;

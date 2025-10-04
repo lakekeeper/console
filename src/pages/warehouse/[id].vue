@@ -36,8 +36,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { useWarehousePermissions } from '@lakekeeper/console-components';
-import WarehouseNamespaces from '../../components/WarehouseNamespaces.vue';
-import WarehouseHeader from '../../components/WarehouseHeader.vue';
 import { RelationType } from '../../common/interfaces';
 import { computed, ref } from 'vue';
 
