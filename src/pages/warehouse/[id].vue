@@ -35,8 +35,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { useWarehousePermissions } from '@lakekeeper/console-components';
-import { RelationType } from '../../common/interfaces';
+import { useWarehousePermissions, RelationType } from '@lakekeeper/console-components';
 import { computed, ref } from 'vue';
 
 const route = useRoute();

@@ -1,5 +1,5 @@
 // Utilities
-import { User } from '@/common/interfaces';
+import type { User } from '@lakekeeper/console-components/common/interfaces';
 import { defineStore } from 'pinia';
 
 export const useUserStore = defineStore(

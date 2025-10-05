@@ -1,6 +1,7 @@
 // Utilities
 import { defineStore } from 'pinia';
-import { Project, SnackbarMsg, Type } from '@/common/interfaces';
+import type { Project, SnackbarMsg } from '@lakekeeper/console-components';
+import { Type } from '@lakekeeper/console-components';
 import { ServerInfo } from '@/gen//management/types.gen';
 import { enabledPermissions } from '@/app.config';
 

@@ -1,9 +1,9 @@
 import { App, ref } from 'vue';
 import { UserManager, UserManagerSettings, WebStorageStateStore } from 'oidc-client-ts';
 import { useUserStore } from '@/stores/user';
-import { User } from '@/common/interfaces';
+import type { User } from '@lakekeeper/console-components';
+import { TokenType } from '@lakekeeper/console-components';
 import * as env from '../app.config';
-import { TokenType } from '@/common/enums';
 
 // OIDC Configuration
 

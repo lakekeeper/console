@@ -189,7 +189,7 @@ import { onMounted, onUnmounted, reactive, ref } from 'vue';
 
 import router from '@/router';
 import { useAuth } from '../plugins/auth';
-import { Type } from '@/common/interfaces';
+import { Type } from '@lakekeeper/console-components';
 import { User } from '@/gen/management/types.gen';
 
 const hover = ref(false);

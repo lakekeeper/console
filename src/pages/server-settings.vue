@@ -18,10 +18,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useFunctions } from '@lakekeeper/console-components';
+import { useFunctions, RelationType, useServerPermissions } from '@lakekeeper/console-components';
 import { onMounted, ref } from 'vue';
-import { RelationType } from '@/common/interfaces';
-import { useServerPermissions } from '@lakekeeper/console-components';
 
 const tab = ref('overview');
 const functions = useFunctions();

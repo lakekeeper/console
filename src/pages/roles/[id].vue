@@ -42,8 +42,7 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { RelationType } from '../../common/interfaces';
-import { useRolePermissions } from '@lakekeeper/console-components';
+import { RelationType, useRolePermissions } from '@lakekeeper/console-components';
 
 const route = useRoute();
 const params = computed(() => route.params as { id: string });
