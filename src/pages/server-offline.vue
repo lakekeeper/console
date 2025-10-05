@@ -15,7 +15,7 @@ import { useFunctions } from '@lakekeeper/console-components';
 import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useVisualStore } from '@lakekeeper/console-components';
-import router from '../router';
+const router = useRouter();
 
 const visual = useVisualStore();
 const functions = useFunctions();
