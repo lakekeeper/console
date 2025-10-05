@@ -23,11 +23,12 @@
           </v-tabs-window-item>
           <v-tabs-window-item value="permissions">
             <PermissionManager
-              v-if="warehouseId"
+              v-if="warehouseId && tab === 'permissions'"
+              :key="`perm-${warehouseId}-${tab}`"
               :objectId="warehouseId"
               :relationType="RelationType.Warehouse"
               :warehouseId="warehouseId" />
-            <div v-else class="text-center pa-8">
+            <div v-else-if="!warehouseId" class="text-center pa-8">
               <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
               <div class="text-subtitle-1 mt-2">Loading warehouse information...</div>
             </div>
