@@ -13,7 +13,8 @@
 <script lang="ts" setup>
 import { useFunctions } from '@lakekeeper/console-components';
 import { onMounted, onUnmounted } from 'vue';
-import { useVisualStore } from '../stores/visual';
+import { useRouter } from 'vue-router';
+import { useVisualStore } from '@lakekeeper/console-components';
 import router from '../router';
 
 const visual = useVisualStore();

@@ -16,6 +16,6 @@
 //
 
 import { enabledAuthentication } from '@/app.config';
-import { useVisualStore } from '@/stores/visual';
+import { useVisualStore } from '@lakekeeper/console-components';
 const visual = useVisualStore();
 </script>

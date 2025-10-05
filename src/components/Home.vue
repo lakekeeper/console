@@ -182,9 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import { useFunctions } from '@lakekeeper/console-components';
-import { useUserStore } from '@/stores/user';
-import { useVisualStore } from '@/stores/visual';
+import { useFunctions, useUserStore, useVisualStore } from '@lakekeeper/console-components';
 import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
 
 import router from '@/router';

@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
 import { routes } from 'vue-router/auto-routes';
-import { useUserStore } from '../stores/user';
-import { useVisualStore } from '../stores/visual';
+import { useUserStore, useVisualStore } from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
 import NotFound from '@/pages/notfound.vue';

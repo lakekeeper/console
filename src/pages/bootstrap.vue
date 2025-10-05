@@ -69,8 +69,7 @@
 import { onBeforeMount, onUnmounted, onMounted, ref, computed, watch, nextTick } from 'vue';
 import '@lakekeeper/console-components/style.css';
 import EULA from '@/components/EULA.vue';
-import { useUserStore } from '../stores/user';
-import { useVisualStore } from '../stores/visual';
+import { useUserStore, useVisualStore } from '@lakekeeper/console-components';
 import { ServerInfo } from '@/gen/management/types.gen';
 import router from '../router';
 import { useFunctions } from '@lakekeeper/console-components';

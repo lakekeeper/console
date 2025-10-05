@@ -6,7 +6,11 @@
 
 // Plugins
 import { registerPlugins } from '@/plugins';
-import { createAuth, useFunctionsImplementation, useVisualStore } from '@lakekeeper/console-components';
+import {
+  createAuth,
+  useFunctionsImplementation,
+  useVisualStore,
+} from '@lakekeeper/console-components';
 
 // Components
 import App from './App.vue';

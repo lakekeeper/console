@@ -27,7 +27,8 @@
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue';
 import { User } from '@/gen/management/types.gen';
-import { useUserStore } from '../stores/user';
+import { VCard, VCardText } from 'vuetify/components';
+import { useUserStore } from '@lakekeeper/console-components';
 import { useFunctions } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
