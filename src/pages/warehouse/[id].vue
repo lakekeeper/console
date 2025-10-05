@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { RelationType, useWarehousePermissions } from '@lakekeeper/console-components';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const route = useRoute();
 const tab = ref('namespaces');
@@ -55,4 +55,11 @@ const warehouseId = computed(() => params.value.id);
 
 // Use warehouse permissions composable
 const permissions = useWarehousePermissions(warehouseId);
+
+// Refresh permissions when switching to permissions tab
+watch(tab, (newTab) => {
+  if (newTab === 'permissions' && permissions.refresh) {
+    permissions.refresh();
+  }
+});
 </script>
