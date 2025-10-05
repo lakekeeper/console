@@ -73,7 +73,7 @@ import { useUserStore } from '../stores/user';
 import { useVisualStore } from '../stores/visual';
 import { ServerInfo } from '@/gen/management/types.gen';
 import router from '../router';
-import { useFunctions } from '../plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const userStore = useUserStore();

@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFunctions } from '../plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 import { onMounted, onUnmounted } from 'vue';
 import { useVisualStore } from '../stores/visual';
 import router from '../router';

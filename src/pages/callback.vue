@@ -6,7 +6,7 @@ import { useUserStore } from '../stores/user';
 import { User } from '@/common/interfaces';
 import router from '@/router';
 import { useAuth } from '../plugins/auth';
-import { useFunctions } from '../plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 import { onMounted, onUnmounted } from 'vue';
 import { useVisualStore } from '../stores/visual';
 import * as env from '../app.config';
