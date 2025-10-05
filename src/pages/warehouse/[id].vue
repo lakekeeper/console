@@ -23,9 +23,14 @@
           </v-tabs-window-item>
           <v-tabs-window-item value="permissions">
             <PermissionManager
-              :objectId="params.id"
+              v-if="warehouseId"
+              :objectId="warehouseId"
               :relationType="RelationType.Warehouse"
-              :warehouseId="params.id" />
+              :warehouseId="warehouseId" />
+            <div v-else class="text-center pa-8">
+              <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+              <div class="text-subtitle-1 mt-2">Loading warehouse information...</div>
+            </div>
           </v-tabs-window-item>
           <v-tabs-window-item value="tasks">
             <TaskManager :warehouse-id="params.id" entity-type="warehouse" />
