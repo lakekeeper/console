@@ -7,18 +7,20 @@
 
 This project provides a user interface for the Lakekeeper REST catalog, designed to manage Apache Iceberg tables. It offers an intuitive and efficient way to interact with the catalog, simplifying the management of large datasets and supporting various data operations. The interface also facilitates fine-grained authorization, enabling users and roles to access system objects such as projects, warehouses, namespaces, tables, and views.
 
-## Assets
-
-This console app maintains minimal assets:
-- `src/assets/bear.png` - Used in Home.vue and 404 page
-
-Most UI assets (icons for Spark, Python, Trino, S3, CloudFlare) are provided by the shared `@lakekeeper/console-components` package.
+<img src="src/assets/homepage.png" alt="Lakekeeper UI" width="400px">
+<br>
+<img src="src/assets/warehouse.png" alt="Lakekeeper UI" width="400px">
+<br>
+<img src="src/assets/branch_table.png" alt="Lakekeeper UI" width="400px">
+<br>
+<img src="src/assets/view_history.png" alt="Lakekeeper UI" width="400px">
+<br>
+<img src="src/assets/tasks_wh.png" alt="Lakekeeper UI" width="400px">
 
 ## Table of Contents
 
 - [Lakekeeper Console: A UI for Lakekeeper](#lakekeeper-console-a-ui-for-lakekeeper)
   - [Description](#description)
-  - [Assets](#assets)
   - [Table of Contents](#table-of-contents)
   - [Prerequites](#prerequites)
   - [Installation UI](#installation-ui)
