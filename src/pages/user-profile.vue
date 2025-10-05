@@ -26,7 +26,6 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive } from 'vue';
-import { User } from '@/gen/management/types.gen';
 import { VCard, VCardText } from 'vuetify/components';
 import { useUserStore } from '@lakekeeper/console-components';
 import { useFunctions } from '@lakekeeper/console-components';
@@ -35,7 +34,7 @@ const functions = useFunctions();
 const userStore = useUserStore();
 const user = userStore.getUser();
 
-const userCatalog = reactive<User | { id: string }>({ id: '' });
+const userCatalog = reactive<{ id: string }>({ id: '' });
 
 onMounted(async () => {
   Object.assign(userCatalog, await functions.whoAmI());

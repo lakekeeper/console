@@ -187,7 +187,6 @@ import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
 
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
-import { User } from '@/gen/management/types.gen';
 
 const hover = ref(false);
 const hoverRoles = ref(false);
@@ -199,7 +198,7 @@ const functions = useFunctions();
 const userStorage = useUserStore();
 const visual = useVisualStore();
 
-const user = reactive<User>({
+const user = reactive({
   'created-at': '',
   id: '',
   'last-updated-with': 'create-endpoint',

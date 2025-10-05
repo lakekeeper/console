@@ -70,7 +70,6 @@ import { onBeforeMount, onUnmounted, onMounted, ref, computed, watch, nextTick }
 import '@lakekeeper/console-components/style.css';
 import EULA from '@/components/EULA.vue';
 import { useUserStore, useVisualStore } from '@lakekeeper/console-components';
-import { ServerInfo } from '@/gen/management/types.gen';
 import router from '../router';
 import { useFunctions } from '@lakekeeper/console-components';
 
@@ -166,7 +165,7 @@ onUnmounted(() => {
 
 async function getServerInfo() {
   try {
-    const data: ServerInfo = await functions.getServerInfo();
+    const data = await functions.getServerInfo();
     visual.setServerInfo(data);
     if (visual.getServerInfo().bootstrapped) router.push('/');
   } catch (error) {
