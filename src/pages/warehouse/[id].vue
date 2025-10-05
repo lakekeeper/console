@@ -38,19 +38,16 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { RelationType } from '@lakekeeper/console-components';
+import { RelationType, useWarehousePermissions } from '@lakekeeper/console-components';
 import { computed, ref } from 'vue';
 
 const route = useRoute();
 const tab = ref('namespaces');
 const params = computed(() => route.params as { id: string });
 
-// Always show tabs for now - proper permission composable needs to be created
-const showPermissionsTab = ref(true);
-const showTasksTab = ref(true);
+// Use warehouse ID as a computed ref
+const warehouseId = computed(() => params.value.id);
 
-const permissions = computed(() => ({
-  showPermissionsTab: showPermissionsTab.value,
-  showTasksTab: showTasksTab.value,
-}));
+// Use warehouse permissions composable
+const permissions = useWarehousePermissions(warehouseId);
 </script>
