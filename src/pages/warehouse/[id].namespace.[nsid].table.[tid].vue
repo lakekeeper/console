@@ -42,9 +42,9 @@
           <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
             <PermissionManager
               v-if="tableId"
-              :object-id="tableId"
-              :relation-type="RelationType.Table"
-              :warehouse-id="params.id" />
+              :objectId="tableId"
+              :relationType="RelationType.Table"
+              :warehouseId="params.id" />
             <div v-else class="text-center pa-8">
               <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
               <div class="text-subtitle-1 mt-2">Loading table information...</div>

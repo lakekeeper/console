@@ -34,7 +34,7 @@
         <RoleOverviewEdit :role-id="roleId" />
       </v-tabs-window-item>
       <v-tabs-window-item value="permissions">
-        <PermissionManager :object-id="roleId" :relation-type="type" />
+        <PermissionManager :objectId="roleId" :relationType="type" />
       </v-tabs-window-item>
     </v-tabs-window>
   </div>

@@ -9,7 +9,7 @@
       <ServerOverview />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
-      <PermissionManager v-if="serverId" :object-id="serverId" :relation-type="permissionType" />
+      <PermissionManager v-if="serverId" :objectId="serverId" :relationType="permissionType" />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showUsersTab" value="users">
       <UserManager />

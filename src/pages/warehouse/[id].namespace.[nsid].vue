@@ -46,8 +46,8 @@
           <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
             <PermissionManager
               v-if="namespaceId"
-              :object-id="namespaceId"
-              :relation-type="RelationType.Namespace" />
+              :objectId="namespaceId"
+              :relationType="RelationType.Namespace" />
             <div v-else class="text-center pa-8">
               <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
               <div class="text-subtitle-1 mt-2">Loading namespace information...</div>

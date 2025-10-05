@@ -42,9 +42,9 @@
           <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
             <PermissionManager
               v-if="viewId"
-              :object-id="viewId"
-              :relation-type="RelationType.View"
-              :warehouse-id="params.id" />
+              :objectId="viewId"
+              :relationType="RelationType.View"
+              :warehouseId="params.id" />
             <div v-else class="text-center pa-8">
               <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
               <div class="text-subtitle-1 mt-2">Loading view information...</div>
