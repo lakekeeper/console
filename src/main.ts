@@ -6,8 +6,7 @@
 
 // Plugins
 import { registerPlugins } from '@/plugins';
-import auth from '@/plugins/auth';
-import { useFunctionsImplementation } from '@lakekeeper/console-components';
+import { createAuth, useFunctionsImplementation } from '@lakekeeper/console-components';
 
 // Components
 import App from './App.vue';
@@ -33,7 +32,7 @@ import {
 const app = createApp(App);
 
 // Provide runtime config for shared library composables as a plain object
-app.provide('appConfig', {
+const appConfigObject = {
   icebergCatalogUrl,
   idpAuthority,
   idpClientId,
@@ -45,13 +44,30 @@ app.provide('appConfig', {
   enabledAuthentication,
   enabledPermissions,
   baseUrlPrefix,
-});
+};
+
+app.provide('appConfig', appConfigObject);
 
 // Register plugins (includes pinia, then shared components)
 registerPlugins(app);
 
-// Provide functions for shared components (using 'functions' key to match shared components expectations)
-app.provide('functions', useFunctionsImplementation());
+// Create and install auth plugin with runtime config
+const auth = createAuth({
+  idpAuthority,
+  idpClientId,
+  idpRedirectPath,
+  idpScope,
+  idpResource,
+  idpLogoutRedirectPath,
+  idpTokenType,
+  baseUrlPrefix,
+  enabledAuthentication,
+});
 
 app.use(auth);
+
+// Provide functions for shared components (using 'functions' key to match shared components expectations)
+// Pass config to functions so they can use the runtime config
+app.provide('functions', useFunctionsImplementation(appConfigObject));
+
 app.mount('#app');
