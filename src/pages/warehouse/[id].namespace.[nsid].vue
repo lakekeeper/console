@@ -54,7 +54,11 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useFunctions, useNamespacePermissions, RelationType } from '@lakekeeper/console-components';
+import {
+  useFunctions,
+  useNamespacePermissions,
+  RelationType,
+} from '@lakekeeper/console-components';
 
 const route = useRoute();
 const functions = useFunctions();
