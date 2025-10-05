@@ -185,17 +185,16 @@
 import { useFunctions } from '@lakekeeper/console-components';
 import { useUserStore } from '@/stores/user';
 import { useVisualStore } from '@/stores/visual';
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
 
 import router from '@/router';
-import { useAuth } from '../plugins/auth';
 import { Type } from '@lakekeeper/console-components';
 import { User } from '@/gen/management/types.gen';
 
 const hover = ref(false);
 const hoverRoles = ref(false);
 const hoverDocs = ref(false);
-const auth = useAuth();
+const auth = inject<any>('auth', null);
 const assignedToProjects = ref(false);
 const functions = useFunctions();
 
@@ -231,7 +230,9 @@ const logout = () => {
   userStorage.unsetUser();
   visual.projectSelected['project-id'] = '';
   visual.projectSelected['project-name'] = 'None';
-  auth.signOut();
+  if (auth) {
+    auth.signOut();
+  }
   router.push('/login');
 };
 
