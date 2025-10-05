@@ -22,7 +22,10 @@
             <WarehouseDetails :warehouse-id="params.id" />
           </v-tabs-window-item>
           <v-tabs-window-item value="permissions">
-            <PermissionManager :object-id="params.id" :relation-type="RelationType.Warehouse" />
+            <PermissionManager
+              :object-id="params.id"
+              :relation-type="RelationType.Warehouse"
+              :warehouse-id="params.id" />
           </v-tabs-window-item>
           <v-tabs-window-item value="tasks">
             <TaskManager :warehouse-id="params.id" entity-type="warehouse" />
