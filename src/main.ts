@@ -16,12 +16,36 @@ import App from './App.vue';
 import { createApp } from 'vue';
 
 // Config
-import * as appConfig from '@/app.config';
+import {
+  icebergCatalogUrl,
+  idpAuthority,
+  idpClientId,
+  idpRedirectPath,
+  idpScope,
+  idpResource,
+  idpTokenType,
+  idpLogoutRedirectPath,
+  enabledAuthentication,
+  enabledPermissions,
+  baseUrlPrefix,
+} from '@/app.config';
 
 const app = createApp(App);
 
-// Provide runtime config for shared library composables
-app.provide('appConfig', appConfig);
+// Provide runtime config for shared library composables as a plain object
+app.provide('appConfig', {
+  icebergCatalogUrl,
+  idpAuthority,
+  idpClientId,
+  idpRedirectPath,
+  idpScope,
+  idpResource,
+  idpTokenType,
+  idpLogoutRedirectPath,
+  enabledAuthentication,
+  enabledPermissions,
+  baseUrlPrefix,
+});
 
 // Register plugins (includes pinia, then shared components)
 registerPlugins(app);
