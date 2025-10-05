@@ -3,7 +3,7 @@
 <script lang="ts" setup>
 import { UserManager } from 'oidc-client-ts';
 import { useUserStore } from '../stores/user';
-import type { User } from '@lakekeeper/console-components';
+import { User } from '@/common/interfaces';
 import { TokenType } from '@lakekeeper/console-components';
 import router from '@/router';
 import { useAuth } from '../plugins/auth';

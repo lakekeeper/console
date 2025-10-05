@@ -1,7 +1,7 @@
 import { App, ref } from 'vue';
 import { UserManager, UserManagerSettings, WebStorageStateStore } from 'oidc-client-ts';
 import { useUserStore } from '@/stores/user';
-import type { User } from '@lakekeeper/console-components';
+import { User } from '@/common/interfaces';
 import { TokenType } from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
