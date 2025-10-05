@@ -149,6 +149,8 @@ onBeforeMount(async () => {
 async function bootstrap() {
   try {
     await functions.bootstrapServer();
+    // Load projects after bootstrap to ensure visual store is updated
+    await functions.loadProjectList();
   } catch (error) {
     console.error('Error during bootstrap:', error);
   } finally {
