@@ -167,8 +167,10 @@ onUnmounted(() => {
 
 async function getServerInfo() {
   try {
+    console.log('Fetching server info...');
     const data = await functions.getServerInfo();
     visual.setServerInfo(data);
+    console.log('Bootstrapped:', visual.getServerInfo().bootstrapped);
     if (visual.getServerInfo().bootstrapped) router.push('/');
   } catch (error) {
     console.error(error);
