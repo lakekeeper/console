@@ -26,8 +26,8 @@ app.provide('appConfig', appConfig);
 // Register plugins (includes pinia, then shared components)
 registerPlugins(app);
 
-// Provide functions for shared components
-app.provide('appFunctions', useFunctionsImplementation());
+// Provide functions for shared components (using 'functions' key to match shared components expectations)
+app.provide('functions', useFunctionsImplementation());
 
 app.use(auth);
 app.mount('#app');
