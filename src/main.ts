@@ -7,7 +7,7 @@
 // Plugins
 import { registerPlugins } from '@/plugins';
 import auth from '@/plugins/auth';
-import { useFunctions } from '@/plugins/functions'; // Keep local import for providing to app
+import { useFunctionsImplementation } from '@lakekeeper/console-components';
 
 // Components
 import App from './App.vue';
@@ -23,11 +23,11 @@ const app = createApp(App);
 // Provide runtime config for shared library composables
 app.provide('appConfig', appConfig);
 
-// Register plugins (includes pinia, then functions, then shared components)
+// Register plugins (includes pinia, then shared components)
 registerPlugins(app);
 
 // Provide functions for shared components
-app.provide('appFunctions', useFunctions());
+app.provide('appFunctions', useFunctionsImplementation());
 
 app.use(auth);
 app.mount('#app');
