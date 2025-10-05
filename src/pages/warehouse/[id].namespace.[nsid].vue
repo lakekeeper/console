@@ -87,5 +87,5 @@ onMounted(async () => {
   }
 });
 
-const { showPermissionsTab } = useNamespacePermissions(computed(() => namespaceId.value));
+const { showPermissionsTab } = useNamespacePermissions(namespaceId);
 </script>
