@@ -41,26 +41,18 @@
 
           <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
             <PermissionManager
-              v-if="tableId"
+              v-if="tab == 'permissions' && tableId"
               :objectId="tableId"
               :relationType="RelationType.Table"
               :warehouseId="params.id" />
-            <div v-else class="text-center pa-8">
-              <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
-              <div class="text-subtitle-1 mt-2">Loading table information...</div>
-            </div>
           </v-tabs-window-item>
 
           <v-tabs-window-item v-if="showTasksTab" value="tasks">
             <TaskManager
-              v-if="tableId"
+              v-if="tab == 'tasks' && tableId"
               :warehouse-id="params.id"
               :table-id="tableId"
               entity-type="table" />
-            <div v-else class="text-center pa-8">
-              <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
-              <div class="text-subtitle-1 mt-2">Loading table information...</div>
-            </div>
           </v-tabs-window-item>
         </v-tabs-window>
       </v-card>

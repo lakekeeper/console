@@ -41,7 +41,7 @@
 
           <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
             <PermissionManager
-              v-if="viewId"
+              v-if="tab === 'permissions' && viewId"
               :objectId="viewId"
               :relationType="RelationType.View"
               :warehouseId="params.id" />

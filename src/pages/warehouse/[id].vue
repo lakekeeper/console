@@ -16,25 +16,20 @@
       <v-card>
         <v-tabs-window v-model="tab">
           <v-tabs-window-item value="namespaces">
-            <WarehouseNamespaces :warehouse-id="params.id" />
+            <WarehouseNamespaces v-if="tab === 'namespaces'" :warehouse-id="params.id" />
           </v-tabs-window-item>
           <v-tabs-window-item value="details">
-            <WarehouseDetails :warehouse-id="params.id" />
+            <WarehouseDetails v-if="tab === 'details'" :warehouse-id="params.id" />
           </v-tabs-window-item>
           <v-tabs-window-item value="permissions">
             <PermissionManager
-              v-if="warehouseId && tab === 'permissions'"
-              :key="`perm-${warehouseId}-${tab}`"
+              v-if="tab === 'permissions'"
               :objectId="warehouseId"
               :relationType="RelationType.Warehouse"
               :warehouseId="warehouseId" />
-            <div v-else-if="!warehouseId" class="text-center pa-8">
-              <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
-              <div class="text-subtitle-1 mt-2">Loading warehouse information...</div>
-            </div>
           </v-tabs-window-item>
           <v-tabs-window-item value="tasks">
-            <TaskManager :warehouse-id="params.id" entity-type="warehouse" />
+            <TaskManager v-if="tab === 'tasks'" :warehouse-id="params.id" entity-type="warehouse" />
           </v-tabs-window-item>
         </v-tabs-window>
       </v-card>
@@ -44,12 +39,12 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { RelationType, useWarehousePermissions, useUserStore } from '@lakekeeper/console-components';
-import { computed, ref, watch } from 'vue';
+import { RelationType, useWarehousePermissions } from '@lakekeeper/console-components';
+import { computed, ref } from 'vue';
 
 const route = useRoute();
 const tab = ref('namespaces');
-const userStore = useUserStore();
+// const userStore = useUserStore();
 const params = computed(() => route.params as { id: string });
 
 // Use warehouse ID as a computed ref
@@ -58,18 +53,15 @@ const warehouseId = computed(() => params.value.id);
 // Use warehouse permissions composable
 const permissions = useWarehousePermissions(warehouseId);
 
-// Refresh permissions when switching to permissions tab
-watch(tab, (newTab) => {
-  if (newTab === 'permissions' && permissions.refresh) {
-    permissions.refresh();
-  }
-});
-
-// Refresh permissions when user authentication state changes
-watch(() => userStore.getUser(), (newUser, oldUser) => {
-  // If user just logged in or token was renewed
-  if (newUser && (!oldUser || newUser.access_token !== oldUser?.access_token)) {
-    permissions.refresh();
-  }
-}, { deep: true });
+// // Refresh permissions when user logs in (not on token renewal)
+// watch(
+//   () => userStore.getUser(),
+//   (newUser, oldUser) => {
+//     // Only refresh on initial login (oldUser was null/undefined)
+//     // Don't refresh on token renewal (both exist but token changed)
+//     if (newUser && !oldUser) {
+//       permissions.refresh();
+//     }
+//   },
+// );
 </script>

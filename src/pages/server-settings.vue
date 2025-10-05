@@ -6,13 +6,16 @@
   </v-tabs>
   <v-tabs-window v-model="tab">
     <v-tabs-window-item value="overview">
-      <ServerOverview />
+      <ServerOverview v-if="tab === 'overview'" />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
-      <PermissionManager v-if="serverId" :objectId="serverId" :relationType="permissionType" />
+      <PermissionManager
+        v-if="tab === 'permissions' && serverId"
+        :objectId="serverId"
+        :relationType="permissionType" />
     </v-tabs-window-item>
     <v-tabs-window-item v-if="showUsersTab" value="users">
-      <UserManager />
+      <UserManager v-if="tab === 'users'" />
     </v-tabs-window-item>
   </v-tabs-window>
 </template>

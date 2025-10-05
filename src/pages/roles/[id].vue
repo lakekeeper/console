@@ -31,10 +31,10 @@
 
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="overview">
-        <RoleOverviewEdit :role-id="roleId" />
+        <RoleOverviewEdit :role-id="roleId" v-if="tab === 'overview'" />
       </v-tabs-window-item>
       <v-tabs-window-item value="permissions">
-        <PermissionManager :objectId="roleId" :relationType="type" />
+        <PermissionManager :objectId="roleId" :relationType="type" v-if="tab === 'permissions'" />
       </v-tabs-window-item>
     </v-tabs-window>
   </div>
