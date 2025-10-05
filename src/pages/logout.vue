@@ -17,7 +17,7 @@ import { useRouter } from 'vue-router';
 import { useAuth } from '../plugins/auth';
 import { useVisualStore } from '../stores/visual';
 import { useUserStore } from '../stores/user';
-import { useConfig } from '../composables/usePermissions';
+import { useConfig } from '@lakekeeper/console-components';
 
 const router = useRouter();
 const visual = useVisualStore();
