@@ -6,7 +6,7 @@
 
 // Plugins
 import { registerPlugins } from '@/plugins';
-import { createAuth, useFunctionsImplementation } from '@lakekeeper/console-components';
+import { createAuth, useFunctionsImplementation, useVisualStore } from '@lakekeeper/console-components';
 
 // Components
 import App from './App.vue';
@@ -50,6 +50,10 @@ app.provide('appConfig', appConfigObject);
 
 // Register plugins (includes pinia, then shared components)
 registerPlugins(app);
+
+// Provide visual store instance for shared components
+const visual = useVisualStore();
+app.provide('visual', visual);
 
 // Create and install auth plugin with runtime config
 const auth = createAuth({
