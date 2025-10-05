@@ -68,6 +68,7 @@
 <script lang="ts" setup>
 import { onBeforeMount, onUnmounted, onMounted, ref, computed, watch, nextTick } from 'vue';
 import '@lakekeeper/console-components/style.css';
+import EULA from '@/components/EULA.vue';
 import { useUserStore } from '../stores/user';
 import { useVisualStore } from '../stores/visual';
 import { ServerInfo } from '@/gen/management/types.gen';
