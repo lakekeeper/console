@@ -44,11 +44,12 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { RelationType, useWarehousePermissions } from '@lakekeeper/console-components';
+import { RelationType, useWarehousePermissions, useUserStore } from '@lakekeeper/console-components';
 import { computed, ref, watch } from 'vue';
 
 const route = useRoute();
 const tab = ref('namespaces');
+const userStore = useUserStore();
 const params = computed(() => route.params as { id: string });
 
 // Use warehouse ID as a computed ref
@@ -63,4 +64,12 @@ watch(tab, (newTab) => {
     permissions.refresh();
   }
 });
+
+// Refresh permissions when user authentication state changes
+watch(() => userStore.getUser(), (newUser, oldUser) => {
+  // If user just logged in or token was renewed
+  if (newUser && (!oldUser || newUser.access_token !== oldUser?.access_token)) {
+    permissions.refresh();
+  }
+}, { deep: true });
 </script>
