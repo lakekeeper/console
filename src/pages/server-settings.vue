@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFunctions } from '@/plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 import { onMounted, ref } from 'vue';
 import { RelationType } from '@/common/interfaces';
 import { useServerPermissions } from '@lakekeeper/console-components';

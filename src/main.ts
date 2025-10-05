@@ -7,7 +7,7 @@
 // Plugins
 import { registerPlugins } from '@/plugins';
 import auth from '@/plugins/auth';
-import { useFunctions } from '@/plugins/functions';
+import { useFunctions } from '@/plugins/functions'; // Keep local import for providing to app
 
 // Components
 import App from './App.vue';

@@ -54,7 +54,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useFunctions } from '@/plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 import { useNamespacePermissions } from '@lakekeeper/console-components';
 import { RelationType } from '@/common/interfaces';
 

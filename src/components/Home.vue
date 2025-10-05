@@ -182,7 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import { useFunctions } from '@/plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 import { useUserStore } from '@/stores/user';
 import { useVisualStore } from '@/stores/visual';
 import { onMounted, onUnmounted, reactive, ref } from 'vue';

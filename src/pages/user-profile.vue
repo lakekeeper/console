@@ -28,7 +28,7 @@
 import { onMounted, reactive } from 'vue';
 import { User } from '@/gen/management/types.gen';
 import { useUserStore } from '../stores/user';
-import { useFunctions } from '@/plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const userStore = useUserStore();

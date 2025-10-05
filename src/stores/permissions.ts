@@ -7,7 +7,7 @@ import type {
   ServerAction,
   RoleAction,
 } from '@/gen/management/types.gen';
-import { useFunctions } from '@/plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 interface PermissionCache<T> {
