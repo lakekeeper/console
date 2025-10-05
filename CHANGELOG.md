@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.10.1](https://github.com/lakekeeper/console/compare/v0.10.1...v0.10.1) (2025-10-03)
+
+
+### Features
+
+* filter warehouses ([#166](https://github.com/lakekeeper/console/issues/166)) ([1e1078c](https://github.com/lakekeeper/console/commit/1e1078cb81e748b997a76102ffd79bff210fc5a6))
+
+
+### Bug Fixes
+
+* user pagination and search ([#164](https://github.com/lakekeeper/console/issues/164)) ([4221f1c](https://github.com/lakekeeper/console/commit/4221f1c2e33eb8d803cd7d756242cb72413c90e0))
+
+
+### Miscellaneous Chores
+
+* release 0.10.1 ([600666c](https://github.com/lakekeeper/console/commit/600666cc6554918e9df128cabf47480e1863caa1))
+
 ## [0.10.1](https://github.com/lakekeeper/console/compare/v0.10.0...v0.10.1) (2025-09-29)
 
 
