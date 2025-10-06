@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!visual.getServerInfo().bootstrapped">
+  <div v-if="!bootstrapped">
     <v-row>
       <v-col cols="10" offset="1">
         <v-stepper v-model="currentStep" :items="['Global Admin', 'EULA', 'Submit']">
@@ -81,6 +81,7 @@ const visual = useVisualStore();
 const currentStep = ref(1);
 const eulaScrolledToEnd = ref(false);
 const eulaScrollContainer = ref<HTMLElement | null>(null);
+const bootstrapped = ref(false);
 
 const isNextDisabled = computed(() => {
   // Disable next button on step 2 (EULA) until it's been scrolled to the end
@@ -170,8 +171,9 @@ async function getServerInfo() {
     console.log('Fetching server info...');
     const data = await functions.getServerInfo();
     visual.setServerInfo(data);
-    console.log('Bootstrapped:', visual.getServerInfo().bootstrapped);
-    if (visual.getServerInfo().bootstrapped) router.push('/');
+    bootstrapped.value = data.bootstrapped;
+
+    if (bootstrapped.value) router.push('/');
   } catch (error) {
     console.error(error);
   }

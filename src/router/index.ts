@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
 import { routes } from 'vue-router/auto-routes';
-import { useUserStore, useVisualStore } from '@lakekeeper/console-components';
+import { useUserStore, useVisualStore, useFunctions } from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
 import NotFound from '@/pages/notfound.vue';
@@ -37,10 +37,31 @@ router.isReady().then(() => {
   localStorage.removeItem('vuetify:dynamic-reload');
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const userStorage = useUserStore();
   const visual = useVisualStore();
+  const functions = useFunctions();
+
+  const serverInfo = await functions.getServerInfo(); // Get from visual store directly
+
+  console.log(
+    'Navigating to:',
+    to.path,
+    serverInfo.bootstrapped,
+    await functions.getServerInfo().bootstrapped,
+    userStorage.isAuthenticated && !serverInfo.bootstrapped && to.path !== '/bootstrap',
+  );
+
   visual.currentUrl = to.path;
+  console.log(
+    'Router check - to.path:',
+    to.path,
+    'isAuthenticated:',
+    userStorage.isAuthenticated,
+    'bootstrapped:',
+    serverInfo.bootstrapped,
+  );
+
   if (to.name === '/notfound') {
     return next();
   }
@@ -48,11 +69,8 @@ router.beforeEach((to, from, next) => {
   if (env.enabledAuthentication) {
     // Check if the user is authenticated and project bootstrap is not done
 
-    if (
-      userStorage.isAuthenticated &&
-      !visual.getServerInfo().bootstrapped &&
-      to.path !== '/bootstrap'
-    ) {
+    if (userStorage.isAuthenticated && !serverInfo.bootstrapped && to.path !== '/bootstrap') {
+      console.log('Redirecting to bootstrap');
       return next('/bootstrap');
     }
 
@@ -71,7 +89,7 @@ router.beforeEach((to, from, next) => {
   } else {
     // For cases where enabledAuthentication is false
 
-    if (!visual.getServerInfo().bootstrapped && to.path !== '/bootstrap') {
+    if (!serverInfo.bootstrapped && to.path !== '/bootstrap') {
       return next('/bootstrap');
     }
 
