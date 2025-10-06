@@ -1,6 +1,6 @@
 <template>
   <v-container v-if="loading" class="fill-height">
-    <v-responsive class="align-centerfill-height mx-auto" max-width="900">
+    <v-responsive class="align-center fill-height mx-auto" max-width="900">
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
@@ -8,177 +8,309 @@
           indeterminate
           :size="126"></v-progress-circular>
       </v-row>
-
-      >
     </v-responsive>
   </v-container>
-  <span v-else>
-    <v-container v-if="assignedToProjects" class="fill-height">
-      <v-responsive class="align-centerfill-height mx-auto">
-        <div class="text-center">
-          <v-img class="mb-4" height="100" src="@/assets/bear.png" />
+  <div v-else>
+    <v-container v-if="assignedToProjects" class="home-container" fluid>
+      <!-- Hero Section -->
+      <v-row class="hero-section align-center justify-center">
+        <v-col cols="12" class="text-center">
+          <v-img
+            class="mb-6 mx-auto logo-fade-in"
+            max-width="400"
+            src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
+          <p class="text-h6 text-medium-emphasis mb-8 subtitle-fade-in">
+            Modern data catalog for Apache Iceberg
+          </p>
 
-          <div>
-            <span class="text-h2 font-weight-bold">Lakekeeper</span>
+          <!-- Stats Row -->
+          <v-row class="stats-row justify-center mb-8">
+            <v-col cols="12" md="auto">
+              <v-chip class="stat-chip" size="large" variant="flat">
+                <v-icon start>mdi-tag-outline</v-icon>
+                {{ version }}
+              </v-chip>
+            </v-col>
+            <v-col cols="12" md="auto" v-if="starCount > 0">
+              <v-chip class="stat-chip" size="large" variant="flat">
+                <v-icon start>mdi-star-outline</v-icon>
+                {{ starCount }} stars
+              </v-chip>
+            </v-col>
+            <v-col cols="12" md="auto" v-if="forksCount > 0">
+              <v-chip class="stat-chip" size="large" variant="flat">
+                <v-icon start>mdi-source-fork</v-icon>
+                {{ forksCount }} forks
+              </v-chip>
+            </v-col>
+          </v-row>
+
+          <!-- CTA Buttons -->
+          <div class="cta-buttons">
+            <v-btn
+              class="mr-4 mb-2 github-btn"
+              href="https://github.com/lakekeeper/lakekeeper"
+              prepend-icon="mdi-github"
+              size="large"
+              target="_blank"
+              variant="elevated">
+              Star on GitHub
+            </v-btn>
+            <v-btn
+              class="mb-2"
+              color="indigo"
+              href="https://discord.gg/jkAGG8p93B"
+              prepend-icon="mdi-discord"
+              size="large"
+              target="_blank"
+              variant="elevated">
+              Join Discord
+            </v-btn>
           </div>
-        </div>
+        </v-col>
+      </v-row>
 
-        <div class="py-4"></div>
+      <!-- Quick Access Section -->
+      <v-row class="quick-access-section mt-16">
+        <v-col cols="12" class="text-center mb-6">
+          <h2 class="text-h4 font-weight-bold mb-2">Quick Access</h2>
+          <p class="text-body-1 text-medium-emphasis">
+            Everything you need to manage your data catalog
+          </p>
+        </v-col>
+      </v-row>
 
-        <v-row class="d-flex align-center mb-4">
-          <v-col>
-            <div class="text-center mt-4">
-              <v-btn height="60" href="https://github.com/lakekeeper/lakekeeper" target="_blank">
-                <v-icon icon="mdi-github" size="40" />
-                <div class="text-center text-none ml-2 mb-2">
-                  <div class="text-h5">
-                    Give us a
-                    <v-icon color="yellow" icon="mdi-star" />
-                  </div>
-                  <div class="d-flex align-center" v-if="starCount > 0">
-                    <v-icon icon="mdi-tag-outline" />
-                    <span class="mr-2">{{ version }}</span>
-                    <v-icon icon="mdi-star-outline" />
-                    <span class="mr-2">{{ starCount }}</span>
-                    <v-icon icon="mdi-source-fork" />
-                    <span>{{ forksCount }}</span>
-                  </div>
-                </div>
-              </v-btn>
+      <!-- Feature Cards -->
+      <v-row class="feature-cards justify-center mb-12">
+        <!-- Warehouses Card -->
+        <v-col cols="12" md="4" sm="6">
+          <v-card class="feature-card h-100" elevation="0">
+            <div class="card-icon-wrapper primary">
+              <v-icon size="48">mdi-warehouse</v-icon>
             </div>
-          </v-col>
-          <v-col>
-            <div class="text-center">
-              <div class="text-h5">Join the community</div>
+            <v-card-title class="text-h5 font-weight-bold mt-4">Warehouses</v-card-title>
+            <v-card-text class="text-body-1">
+              Create and control your warehouses, tables, and access policies in one centralized
+              location.
+            </v-card-text>
+            <v-card-actions class="pa-4">
+              <v-btn block color="primary" size="large" to="/warehouse" variant="flat">
+                Manage Warehouses
+                <v-icon end>mdi-arrow-right</v-icon>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+
+        <!-- Roles Card -->
+        <v-col cols="12" md="4" sm="6">
+          <v-card class="feature-card h-100" elevation="0">
+            <div class="card-icon-wrapper success">
+              <v-icon size="48">mdi-shield-account</v-icon>
+            </div>
+            <v-card-title class="text-h5 font-weight-bold mt-4">Roles & Permissions</v-card-title>
+            <v-card-text class="text-body-1">
+              Define and control user roles to ensure secure and compliant data access across your
+              platform.
+            </v-card-text>
+            <v-card-actions class="pa-4">
+              <v-btn block color="success" size="large" to="/roles" variant="flat">
+                Manage Roles
+                <v-icon end>mdi-arrow-right</v-icon>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+
+        <!-- Documentation Card -->
+        <v-col cols="12" md="4" sm="6">
+          <v-card class="feature-card h-100" elevation="0">
+            <div class="card-icon-wrapper info">
+              <v-icon size="48">mdi-book-open-page-variant</v-icon>
+            </div>
+            <v-card-title class="text-h5 font-weight-bold mt-4">Documentation</v-card-title>
+            <v-card-text class="text-body-1">
+              Get step-by-step guidance, API references, and best practices for using Lakekeeper
+              effectively.
+            </v-card-text>
+            <v-card-actions class="pa-4">
               <v-btn
-                height="50"
-                href="https://discord.gg/jkAGG8p93B"
+                block
+                color="info"
+                href="https://docs.lakekeeper.io"
+                size="large"
                 target="_blank"
                 variant="flat">
-                <img
-                  alt="Discord"
-                  data-canonical-src="https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&amp;logo=discord&amp;logoColor=white"
-                  height="50"
-                  src="https://camo.githubusercontent.com/404c37b96536f6a6f4740fe538fbbd1a05885008f18efd46c127a6964d3fb9fc/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f446973636f72642d2532333538363546322e7376673f7374796c653d666f722d7468652d6261646765266c6f676f3d646973636f7264266c6f676f436f6c6f723d7768697465"
-                  style="max-width: 100%" />
+                View Docs
+                <v-icon end>mdi-open-in-new</v-icon>
               </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Quick Links Section -->
+      <v-row class="quick-links-section mt-8 mb-8">
+        <v-col cols="12" class="text-center mb-4">
+          <h3 class="text-h5 font-weight-medium">Quick Links</h3>
+        </v-col>
+        <v-col cols="12">
+          <div class="quick-links-grid">
+            <v-btn
+              class="quick-link-btn"
+              href="https://docs.lakekeeper.io"
+              prepend-icon="mdi-file-document"
+              target="_blank"
+              variant="text">
+              Documentation
+            </v-btn>
+            <v-btn
+              class="quick-link-btn"
+              href="https://github.com/lakekeeper/lakekeeper"
+              prepend-icon="mdi-github"
+              target="_blank"
+              variant="text">
+              GitHub
+            </v-btn>
+            <v-btn
+              class="quick-link-btn"
+              href="https://discord.gg/jkAGG8p93B"
+              prepend-icon="mdi-discord"
+              target="_blank"
+              variant="text">
+              Discord
+            </v-btn>
+            <v-btn
+              class="quick-link-btn"
+              href="https://lakekeeper.io"
+              prepend-icon="mdi-web"
+              target="_blank"
+              variant="text">
+              Website
+            </v-btn>
+            <v-btn
+              class="quick-link-btn"
+              href="https://docs.lakekeeper.io/getting-started"
+              prepend-icon="mdi-rocket-launch"
+              target="_blank"
+              variant="text">
+              Getting Started
+            </v-btn>
+            <v-btn
+              class="quick-link-btn"
+              href="https://docs.lakekeeper.io/api"
+              prepend-icon="mdi-api"
+              target="_blank"
+              variant="text">
+              API Reference
+            </v-btn>
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
+    <div v-else class="no-projects-wrapper">
+      <v-container class="fill-height">
+        <v-row class="fill-height" align="center" justify="center">
+          <v-col cols="12" sm="10" md="8" lg="6">
+            <div class="no-access-card">
+              <!-- Animated Icon -->
+              <div class="icon-container">
+                <v-icon class="rotating-icon" size="100" color="primary">
+                  mdi-lock-open-variant
+                </v-icon>
+              </div>
+
+              <!-- Title -->
+              <h1 class="text-h3 font-weight-bold mb-4 gradient-text">Access Pending</h1>
+
+              <!-- Description -->
+              <p class="text-h6 text-medium-emphasis mb-6">
+                You don't have any project assignments yet
+              </p>
+
+              <!-- User ID Section -->
+              <div class="user-id-section mb-8">
+                <p class="text-body-2 text-medium-emphasis mb-2">Your User ID:</p>
+                <v-chip
+                  class="user-id-chip"
+                  size="large"
+                  variant="outlined"
+                  @click="functions.copyToClipboard(user.id)">
+                  <v-icon start>mdi-account</v-icon>
+                  {{ user.id || 'Loading...' }}
+                  <v-icon end>mdi-content-copy</v-icon>
+                </v-chip>
+                <p class="text-caption text-medium-emphasis mt-2">
+                  Click to copy • Share with your administrator
+                </p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                <v-btn
+                  class="mb-3"
+                  color="primary"
+                  prepend-icon="mdi-refresh"
+                  size="large"
+                  variant="elevated"
+                  @click="checkAccessStatus">
+                  Check Status
+                </v-btn>
+
+                <v-btn
+                  class="mb-3"
+                  color="secondary"
+                  href="https://docs.lakekeeper.io"
+                  prepend-icon="mdi-book-open-variant"
+                  size="large"
+                  target="_blank"
+                  variant="tonal">
+                  View Documentation
+                </v-btn>
+
+                <v-btn
+                  class="text-medium-emphasis"
+                  prepend-icon="mdi-logout"
+                  size="large"
+                  variant="text"
+                  @click="logout">
+                  Logout
+                </v-btn>
+              </div>
+
+              <!-- Help Section -->
+              <v-divider class="my-8"></v-divider>
+
+              <div class="help-section">
+                <p class="text-body-2 text-medium-emphasis mb-3">
+                  <v-icon size="small" class="mr-1">mdi-information</v-icon>
+                  Need help getting started?
+                </p>
+                <div class="help-links">
+                  <v-btn
+                    href="https://discord.gg/jkAGG8p93B"
+                    prepend-icon="mdi-discord"
+                    size="small"
+                    target="_blank"
+                    variant="text">
+                    Join Discord
+                  </v-btn>
+                  <v-btn
+                    href="https://github.com/lakekeeper/lakekeeper/issues"
+                    prepend-icon="mdi-bug"
+                    size="small"
+                    target="_blank"
+                    variant="text">
+                    Report Issue
+                  </v-btn>
+                </div>
+              </div>
             </div>
           </v-col>
         </v-row>
-        <!-- QUICK ACCESS-->
-        <v-row class="mt-16 mb-6">
-          <v-col>
-            <div class="text-center text-h5">QUICK ACCESS</div>
-          </v-col>
-        </v-row>
-        <v-divider></v-divider>
-        <v-row class="mb-2 mt-2">
-          <!-- Warehouses Card -->
-          <v-col class="mx-auto">
-            <v-card
-              class="mx-auto hover-card"
-              :elevation="hover ? 10 : 2"
-              max-width="344"
-              outlined
-              @mouseleave="hover = false"
-              @mouseover="hover = true">
-              <v-list-item three-line>
-                <div class="text-overline text-primary mb-2">Warehouses</div>
-                <v-list-item-title class="text-h5 font-weight-bold">
-                  Manage Warehouses
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  Create and control your warehouses, tables, and access policies in one place.
-                </v-list-item-subtitle>
-              </v-list-item>
-              <v-card-actions>
-                <v-btn color="primary" outlined rounded to="/warehouse">Manage Warehouses</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-
-          <!-- Roles Card -->
-          <v-col>
-            <v-card
-              class="mx-auto hover-card"
-              :elevation="hoverRoles ? 10 : 2"
-              max-width="344"
-              outlined
-              @mouseleave="hoverRoles = false"
-              @mouseover="hoverRoles = true">
-              <v-list-item three-line>
-                <div class="text-overline text-success mb-2">Roles</div>
-                <v-list-item-title class="text-h5 font-weight-bold">Manage Roles</v-list-item-title>
-                <v-list-item-subtitle>
-                  Define and control user roles to ensure secure data access across your platform.
-                </v-list-item-subtitle>
-              </v-list-item>
-              <v-card-actions>
-                <v-btn color="success" outlined rounded to="/roles">Manage Roles</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-
-          <!-- Documentation Card -->
-          <v-col>
-            <v-card
-              class="mx-auto hover-card"
-              :elevation="hoverDocs ? 10 : 2"
-              max-width="344"
-              outlined
-              @mouseleave="hoverDocs = false"
-              @mouseover="hoverDocs = true">
-              <v-list-item three-line>
-                <div class="text-overline text-info mb-2">Documentation</div>
-                <v-list-item-title class="text-h5 font-weight-bold">
-                  Explore Documentation
-                </v-list-item-title>
-                <v-list-item-subtitle>
-                  Get step-by-step guidance and best practices for using Lakekeeper effectively.
-                </v-list-item-subtitle>
-              </v-list-item>
-              <v-card-actions>
-                <v-btn
-                  color="info"
-                  href="https://docs.lakekeeper.io"
-                  outlined
-                  rounded
-                  target="_blank">
-                  View Docs
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-responsive>
-    </v-container>
-    <v-container v-else class="fill-height d-flex justify-center align-center">
-      <v-card class="pa-8 text-center" elevation="5" max-width="600">
-        <v-card-title class="text-h5 font-weight-bold">
-          You don't have any projects assignments
-        </v-card-title>
-        <v-card-subtitle>
-          <div>Please talk to your administrator</div>
-          <div>
-            {{ user.id }}
-
-            <v-btn
-              :disabled="user.id == ''"
-              icon="mdi-content-copy"
-              size="small"
-              variant="flat"
-              @click="functions.copyToClipboard(user.id)"></v-btn>
-          </div>
-        </v-card-subtitle>
-        <v-card-text>
-          <v-btn block color="primary" large @click="checkAccessStatus">Check status</v-btn>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn @click="logout">Logout</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-container>
-  </span>
+      </v-container>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -188,9 +320,6 @@ import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
 
-const hover = ref(false);
-const hoverRoles = ref(false);
-const hoverDocs = ref(false);
 const auth = inject<any>('auth', null);
 const assignedToProjects = ref(false);
 const functions = useFunctions();
@@ -299,14 +428,289 @@ async function checkAccessStatus() {
 </script>
 
 <style scoped>
-.hover-card {
-  transition:
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
+.home-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 60px 24px;
 }
 
-.hover-card:hover {
-  box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.2);
-  transform: translateY(-5px);
+.hero-section {
+  padding: 40px 0 60px;
+}
+
+.logo-fade-in {
+  animation: fadeIn 0.8s ease-in;
+}
+
+.subtitle-fade-in {
+  animation: fadeIn 1s ease-in 0.2s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stats-row {
+  animation: fadeIn 1.2s ease-in 0.4s both;
+}
+
+.stat-chip {
+  background: rgb(var(--v-theme-surface-variant));
+  font-weight: 500;
+}
+
+.cta-buttons {
+  animation: fadeIn 1.4s ease-in 0.6s both;
+}
+
+.github-btn {
+  background-color: white !important;
+  color: black !important;
+}
+
+.github-btn:hover {
+  background-color: #f0f0f0 !important;
+}
+
+.quick-access-section {
+  margin-bottom: 40px;
+}
+
+.feature-cards {
+  padding: 0 20px;
+}
+
+.feature-card {
+  border: 1px solid rgb(var(--v-theme-surface-variant));
+  border-radius: 16px !important;
+  padding: 32px 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  background: rgb(var(--v-theme-surface));
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  border-color: rgb(var(--v-theme-primary));
+}
+
+.card-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.card-icon-wrapper.primary {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--v-theme-primary)) 0%,
+    rgb(var(--v-theme-primary-darken-1)) 100%
+  );
+  color: white;
+}
+
+.card-icon-wrapper.success {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--v-theme-success)) 0%,
+    rgb(var(--v-theme-success-darken-1)) 100%
+  );
+  color: white;
+}
+
+.card-icon-wrapper.info {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--v-theme-info)) 0%,
+    rgb(var(--v-theme-info-darken-1)) 100%
+  );
+  color: white;
+}
+
+.v-card-title {
+  text-align: center;
+}
+
+.v-card-text {
+  text-align: center;
+  min-height: 80px;
+}
+
+.quick-links-section {
+  border-top: 1px solid rgb(var(--v-theme-surface-variant));
+  padding-top: 40px;
+}
+
+.quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.quick-link-btn {
+  justify-content: flex-start;
+  text-transform: none;
+  font-size: 0.95rem;
+}
+
+.quick-link-btn:hover {
+  background-color: rgb(var(--v-theme-surface-variant));
+}
+
+.no-projects-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-primary), 0.02) 0%,
+    rgba(var(--v-theme-secondary), 0.02) 100%
+  );
+}
+
+.no-access-card {
+  text-align: center;
+  padding: 60px 40px;
+  border-radius: 24px;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgb(var(--v-theme-surface-variant));
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.icon-container {
+  margin-bottom: 32px;
+  animation: fadeInScale 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.rotating-icon {
+  animation: gentleRotate 3s ease-in-out infinite;
+}
+
+@keyframes gentleRotate {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(10deg);
+  }
+}
+
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--v-theme-primary)) 0%,
+    rgb(var(--v-theme-secondary)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: fadeIn 1s ease-out 0.4s both;
+}
+
+.user-id-section {
+  animation: fadeIn 1.2s ease-out 0.6s both;
+}
+
+.user-id-chip {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: monospace;
+  font-size: 0.95rem;
+  padding: 24px 20px;
+}
+
+.user-id-chip:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.3);
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+  animation: fadeIn 1.4s ease-out 0.8s both;
+}
+
+.help-section {
+  animation: fadeIn 1.6s ease-out 1s both;
+}
+
+.help-links {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .no-access-card {
+    padding: 40px 24px;
+  }
+
+  .text-h3 {
+    font-size: 2rem !important;
+  }
+
+  .icon-container .rotating-icon {
+    font-size: 80px !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .home-container {
+    padding: 40px 16px;
+  }
+
+  .hero-section {
+    padding: 20px 0 40px;
+  }
+
+  .feature-cards {
+    padding: 0;
+  }
+
+  .quick-links-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>
