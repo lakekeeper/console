@@ -12,162 +12,88 @@
   </v-container>
   <div v-else>
     <v-container v-if="assignedToProjects" class="home-container" fluid>
-      <!-- Hero Section -->
-      <v-row class="hero-section align-center justify-center">
-        <v-col cols="12" class="text-center">
-          <v-img
-            class="mb-6 mx-auto logo-fade-in"
-            max-width="400"
-            src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
-          <p class="text-h6 text-medium-emphasis mb-8 subtitle-fade-in">
-            Modern data catalog for Apache Iceberg
-          </p>
+      <!-- Row 1: SVG Logo -->
+      <v-row class="logo-row">
+        <v-col cols="12" class="text-center py-3">
+          <v-img class="mx-auto" max-width="280" src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
+        </v-col>
+      </v-row>
 
-          <!-- Stats Row -->
-          <v-row class="stats-row justify-center mb-8">
-            <v-col cols="12" md="auto">
-              <v-chip class="stat-chip" size="large" variant="flat">
-                <v-icon start>mdi-tag-outline</v-icon>
-                {{ version }}
-              </v-chip>
-            </v-col>
-            <v-col cols="12" md="auto" v-if="starCount > 0">
-              <v-chip class="stat-chip" size="large" variant="flat">
-                <v-icon start>mdi-star-outline</v-icon>
-                {{ starCount }} stars
-              </v-chip>
-            </v-col>
-            <v-col cols="12" md="auto" v-if="forksCount > 0">
-              <v-chip class="stat-chip" size="large" variant="flat">
-                <v-icon start>mdi-source-fork</v-icon>
-                {{ forksCount }} forks
-              </v-chip>
-            </v-col>
-          </v-row>
-
-          <!-- CTA Buttons -->
-          <div class="cta-buttons">
-            <v-btn
-              class="mr-4 mb-2 github-btn"
-              href="https://github.com/lakekeeper/lakekeeper"
-              prepend-icon="mdi-github"
-              size="large"
-              target="_blank"
-              variant="elevated">
-              Star on GitHub
-            </v-btn>
-            <v-btn
-              class="mb-2"
-              color="indigo"
-              href="https://discord.gg/jkAGG8p93B"
-              prepend-icon="mdi-discord"
-              size="large"
-              target="_blank"
-              variant="elevated">
-              Join Discord
-            </v-btn>
+      <!-- Row 2: GitHub Button with Stats -->
+      <v-row class="github-row">
+        <v-col cols="12" class="text-center py-2">
+          <div class="d-flex align-center justify-center flex-wrap gap-2 mb-3">
+            <v-chip v-if="version" class="stat-chip" size="small" variant="flat">
+              <v-icon start size="small">mdi-tag-outline</v-icon>
+              {{ version }}
+            </v-chip>
+            <v-chip v-if="starCount > 0" class="stat-chip" size="small" variant="flat">
+              <v-icon start size="small">mdi-star-outline</v-icon>
+              {{ starCount }}
+            </v-chip>
+            <v-chip v-if="forksCount > 0" class="stat-chip" size="small" variant="flat">
+              <v-icon start size="small">mdi-source-fork</v-icon>
+              {{ forksCount }}
+            </v-chip>
           </div>
+          <v-btn
+            class="github-btn"
+            href="https://github.com/lakekeeper/lakekeeper"
+            prepend-icon="mdi-github"
+            target="_blank"
+            variant="elevated">
+            Star us on GitHub
+          </v-btn>
         </v-col>
       </v-row>
 
-      <!-- Quick Access Section -->
-      <v-row class="quick-access-section mt-16">
-        <v-col cols="12" class="text-center mb-6">
-          <h2 class="text-h4 font-weight-bold mb-2">Quick Access</h2>
-          <p class="text-body-1 text-medium-emphasis">
-            Everything you need to manage your data catalog
-          </p>
-        </v-col>
-      </v-row>
-
-      <!-- Feature Cards -->
-      <v-row class="feature-cards justify-center mb-12">
-        <!-- Warehouses Card -->
-        <v-col cols="12" md="4" sm="6">
-          <v-card class="feature-card h-100" elevation="0">
-            <div class="card-icon-wrapper primary">
-              <v-icon size="48">mdi-warehouse</v-icon>
-            </div>
-            <v-card-title class="text-h5 font-weight-bold mt-4">Warehouses</v-card-title>
-            <v-card-text class="text-body-1">
-              Create and control your warehouses, tables, and access policies in one centralized
-              location.
+      <!-- Row 3: Quick Access Cards -->
+      <v-row class="quick-access-row py-3">
+        <v-col cols="12" sm="4">
+          <v-card
+            class="feature-card text-center"
+            elevation="1"
+            @click="$router.push('/warehouse')">
+            <v-card-text class="pa-3">
+              <v-icon color="primary" size="36">mdi-warehouse</v-icon>
+              <div class="text-subtitle-1 font-weight-bold mt-2 mb-1">Warehouses</div>
+              <div class="text-caption text-medium-emphasis">Manage data warehouses</div>
             </v-card-text>
-            <v-card-actions class="pa-4">
-              <v-btn block color="primary" size="large" to="/warehouse" variant="flat">
-                Manage Warehouses
-                <v-icon end>mdi-arrow-right</v-icon>
-              </v-btn>
-            </v-card-actions>
           </v-card>
         </v-col>
-
-        <!-- Roles Card -->
-        <v-col cols="12" md="4" sm="6">
-          <v-card class="feature-card h-100" elevation="0">
-            <div class="card-icon-wrapper success">
-              <v-icon size="48">mdi-shield-account</v-icon>
-            </div>
-            <v-card-title class="text-h5 font-weight-bold mt-4">Roles & Permissions</v-card-title>
-            <v-card-text class="text-body-1">
-              Define and control user roles to ensure secure and compliant data access across your
-              platform.
+        <v-col cols="12" sm="4">
+          <v-card class="feature-card text-center" elevation="1" @click="$router.push('/roles')">
+            <v-card-text class="pa-3">
+              <v-icon color="success" size="36">mdi-shield-account</v-icon>
+              <div class="text-subtitle-1 font-weight-bold mt-2 mb-1">Roles</div>
+              <div class="text-caption text-medium-emphasis">Configure access control</div>
             </v-card-text>
-            <v-card-actions class="pa-4">
-              <v-btn block color="success" size="large" to="/roles" variant="flat">
-                Manage Roles
-                <v-icon end>mdi-arrow-right</v-icon>
-              </v-btn>
-            </v-card-actions>
           </v-card>
         </v-col>
-
-        <!-- Documentation Card -->
-        <v-col cols="12" md="4" sm="6">
-          <v-card class="feature-card h-100" elevation="0">
-            <div class="card-icon-wrapper info">
-              <v-icon size="48">mdi-book-open-page-variant</v-icon>
-            </div>
-            <v-card-title class="text-h5 font-weight-bold mt-4">Documentation</v-card-title>
-            <v-card-text class="text-body-1">
-              Get step-by-step guidance, API references, and best practices for using Lakekeeper
-              effectively.
+        <v-col cols="12" sm="4">
+          <v-card
+            class="feature-card text-center"
+            elevation="1"
+            href="https://docs.lakekeeper.io"
+            target="_blank">
+            <v-card-text class="pa-3">
+              <v-icon color="info" size="36">mdi-book-open-page-variant</v-icon>
+              <div class="text-subtitle-1 font-weight-bold mt-2 mb-1">Documentation</div>
+              <div class="text-caption text-medium-emphasis">Learn how to use it</div>
             </v-card-text>
-            <v-card-actions class="pa-4">
-              <v-btn
-                block
-                color="info"
-                href="https://docs.lakekeeper.io"
-                size="large"
-                target="_blank"
-                variant="flat">
-                View Docs
-                <v-icon end>mdi-open-in-new</v-icon>
-              </v-btn>
-            </v-card-actions>
           </v-card>
         </v-col>
       </v-row>
 
-      <!-- Quick Links Section -->
-      <v-row class="quick-links-section mt-8 mb-8">
-        <v-col cols="12" class="text-center mb-4">
-          <h3 class="text-h5 font-weight-medium">Quick Links</h3>
-        </v-col>
+      <!-- Row 4: Quick Links -->
+      <v-row class="links-row py-2">
         <v-col cols="12">
           <div class="quick-links-grid">
             <v-btn
               class="quick-link-btn"
-              href="https://docs.lakekeeper.io"
-              prepend-icon="mdi-file-document"
-              target="_blank"
-              variant="text">
-              Documentation
-            </v-btn>
-            <v-btn
-              class="quick-link-btn"
               href="https://github.com/lakekeeper/lakekeeper"
               prepend-icon="mdi-github"
+              size="small"
               target="_blank"
               variant="text">
               GitHub
@@ -176,6 +102,7 @@
               class="quick-link-btn"
               href="https://discord.gg/jkAGG8p93B"
               prepend-icon="mdi-discord"
+              size="small"
               target="_blank"
               variant="text">
               Discord
@@ -184,6 +111,7 @@
               class="quick-link-btn"
               href="https://lakekeeper.io"
               prepend-icon="mdi-web"
+              size="small"
               target="_blank"
               variant="text">
               Website
@@ -192,17 +120,10 @@
               class="quick-link-btn"
               href="https://docs.lakekeeper.io/getting-started"
               prepend-icon="mdi-rocket-launch"
+              size="small"
               target="_blank"
               variant="text">
               Getting Started
-            </v-btn>
-            <v-btn
-              class="quick-link-btn"
-              href="https://docs.lakekeeper.io/api"
-              prepend-icon="mdi-api"
-              target="_blank"
-              variant="text">
-              API Reference
             </v-btn>
           </div>
         </v-col>
@@ -596,11 +517,13 @@ async function checkAccessStatus() {
 .home-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 60px 24px;
+  padding: 20px 24px;
+  max-height: 100vh;
+  overflow: hidden;
 }
 
 .hero-section {
-  padding: 40px 0 60px;
+  padding: 20px 0 30px;
 }
 
 .logo-fade-in {
@@ -645,7 +568,7 @@ async function checkAccessStatus() {
 }
 
 .quick-access-section {
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
 .feature-cards {
@@ -655,22 +578,22 @@ async function checkAccessStatus() {
 .feature-card {
   border: 1px solid rgb(var(--v-theme-surface-variant));
   border-radius: 16px !important;
-  padding: 32px 24px;
+  padding: 20px 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   background: rgb(var(--v-theme-surface));
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   border-color: rgb(var(--v-theme-primary));
 }
 
 .card-icon-wrapper {
-  width: 80px;
-  height: 80px;
-  border-radius: 16px;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -710,18 +633,19 @@ async function checkAccessStatus() {
 
 .v-card-text {
   text-align: center;
-  min-height: 80px;
+  min-height: 60px;
 }
 
 .quick-links-section {
   border-top: 1px solid rgb(var(--v-theme-surface-variant));
-  padding-top: 40px;
+  padding-top: 20px;
+  margin-top: 20px;
 }
 
 .quick-links-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
   max-width: 900px;
   margin: 0 auto;
 }
@@ -729,7 +653,7 @@ async function checkAccessStatus() {
 .quick-link-btn {
   justify-content: flex-start;
   text-transform: none;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
 }
 
 .quick-link-btn:hover {
