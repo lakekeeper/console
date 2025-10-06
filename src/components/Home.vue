@@ -278,6 +278,55 @@
                 </v-btn>
               </div>
 
+              <!-- Mini Game Section -->
+              <v-divider class="my-8"></v-divider>
+
+              <div class="game-section mb-6">
+                <div class="d-flex align-center justify-center mb-3">
+                  <v-icon size="small" class="mr-2">mdi-gamepad-variant</v-icon>
+                  <p class="text-body-2 text-medium-emphasis mb-0">
+                    While you wait... Play Tic-Tac-Toe!
+                  </p>
+                </div>
+                <p class="text-caption text-medium-emphasis mb-4">You are ❌ • Computer is 🔵</p>
+
+                <div class="tictactoe-container">
+                  <div class="game-status mb-4">
+                    <span v-if="!gameOver">
+                      {{ currentPlayer === 'X' ? 'Your turn!' : 'Computer thinking...' }}
+                    </span>
+                    <span v-else-if="winner === 'draw'">It's a draw!</span>
+                    <span v-else-if="winner === 'X'">🎉 You won!</span>
+                    <span v-else>Computer won!</span>
+                  </div>
+
+                  <div class="tictactoe-board">
+                    <div
+                      v-for="(cell, index) in board"
+                      :key="index"
+                      class="tictactoe-cell"
+                      :class="{
+                        'cell-x': cell === 'X',
+                        'cell-o': cell === 'O',
+                        disabled: cell !== '' || gameOver || currentPlayer === 'O',
+                      }"
+                      @click="makeMove(index)">
+                      <span v-if="cell === 'X'" class="cell-mark cell-mark-x">❌</span>
+                      <span v-if="cell === 'O'" class="cell-mark cell-mark-o">🔵</span>
+                    </div>
+                  </div>
+
+                  <v-btn
+                    class="mt-4"
+                    color="primary"
+                    size="small"
+                    variant="outlined"
+                    @click="resetGame">
+                    New Game
+                  </v-btn>
+                </div>
+              </div>
+
               <!-- Help Section -->
               <v-divider class="my-8"></v-divider>
 
@@ -339,6 +388,122 @@ const starCount = ref(0);
 const forksCount = ref(0);
 const version = ref('0');
 const loading = ref(true);
+
+// Tic-Tac-Toe Game state
+const board = ref<string[]>(Array(9).fill(''));
+const currentPlayer = ref<'X' | 'O'>('X');
+const gameOver = ref(false);
+const winner = ref<'X' | 'O' | 'draw' | null>(null);
+
+const checkWinner = (): 'X' | 'O' | 'draw' | null => {
+  const winPatterns = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8], // rows
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8], // columns
+    [0, 4, 8],
+    [2, 4, 6], // diagonals
+  ];
+
+  for (const pattern of winPatterns) {
+    const [a, b, c] = pattern;
+    if (board.value[a] && board.value[a] === board.value[b] && board.value[a] === board.value[c]) {
+      return board.value[a] as 'X' | 'O';
+    }
+  }
+
+  if (board.value.every((cell) => cell !== '')) {
+    return 'draw';
+  }
+
+  return null;
+};
+
+const makeMove = (index: number) => {
+  if (board.value[index] !== '' || gameOver.value || currentPlayer.value === 'O') {
+    return;
+  }
+
+  // Player move
+  board.value[index] = 'X';
+
+  const result = checkWinner();
+  if (result) {
+    gameOver.value = true;
+    winner.value = result;
+    return;
+  }
+
+  // Computer's turn
+  currentPlayer.value = 'O';
+
+  setTimeout(() => {
+    computerMove();
+  }, 500);
+};
+
+const computerMove = () => {
+  const emptyIndices = board.value
+    .map((cell, index) => (cell === '' ? index : -1))
+    .filter((index) => index !== -1);
+
+  if (emptyIndices.length === 0) return;
+
+  // Simple AI: Try to win, block player, or pick random
+  let moveIndex = -1;
+
+  // Try to win
+  for (const index of emptyIndices) {
+    board.value[index] = 'O';
+    if (checkWinner() === 'O') {
+      moveIndex = index;
+      board.value[index] = '';
+      break;
+    }
+    board.value[index] = '';
+  }
+
+  // Try to block
+  if (moveIndex === -1) {
+    for (const index of emptyIndices) {
+      board.value[index] = 'X';
+      if (checkWinner() === 'X') {
+        moveIndex = index;
+        board.value[index] = '';
+        break;
+      }
+      board.value[index] = '';
+    }
+  }
+
+  // Pick random or center
+  if (moveIndex === -1) {
+    if (emptyIndices.includes(4)) {
+      moveIndex = 4; // Center
+    } else {
+      moveIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    }
+  }
+
+  board.value[moveIndex] = 'O';
+
+  const result = checkWinner();
+  if (result) {
+    gameOver.value = true;
+    winner.value = result;
+  } else {
+    currentPlayer.value = 'X';
+  }
+};
+
+const resetGame = () => {
+  board.value = Array(9).fill('');
+  currentPlayer.value = 'X';
+  gameOver.value = false;
+  winner.value = null;
+};
 
 onMounted(async () => {
   fetchGitHub();
@@ -682,6 +847,85 @@ async function checkAccessStatus() {
   flex-wrap: wrap;
 }
 
+/* Mini Game Styles */
+.game-section {
+  animation: fadeIn 1.8s ease-out 1.2s both;
+}
+
+.tictactoe-container {
+  max-width: 350px;
+  margin: 0 auto;
+}
+
+.game-status {
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  min-height: 30px;
+  color: rgb(var(--v-theme-primary));
+}
+
+.tictactoe-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 16px;
+  background: rgb(var(--v-theme-surface-variant));
+  border-radius: 12px;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.tictactoe-cell {
+  aspect-ratio: 1;
+  background: rgb(var(--v-theme-surface));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 3rem;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.tictactoe-cell:hover:not(.disabled) {
+  background: rgb(var(--v-theme-primary), 0.1);
+  transform: scale(1.05);
+  border-color: rgb(var(--v-theme-primary));
+}
+
+.tictactoe-cell.disabled {
+  cursor: not-allowed;
+}
+
+.cell-mark {
+  animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.cell-mark-o {
+  filter: drop-shadow(0 2px 4px rgba(33, 150, 243, 0.4));
+}
+
+.cell-mark-x {
+  filter: drop-shadow(0 2px 4px rgba(244, 67, 54, 0.4));
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 @media (max-width: 600px) {
   .no-access-card {
     padding: 40px 24px;
@@ -693,6 +937,16 @@ async function checkAccessStatus() {
 
   .icon-container .rotating-icon {
     font-size: 80px !important;
+  }
+
+  .tictactoe-board {
+    max-width: 280px;
+    gap: 6px;
+    padding: 12px;
+  }
+
+  .tictactoe-cell {
+    font-size: 2.5rem;
   }
 }
 
