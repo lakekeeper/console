@@ -55,39 +55,29 @@ router.beforeEach(async (to, from, next) => {
   let serverInfo;
   try {
     serverInfo = await functions.getServerInfo();
-    console.log('Server info received:', JSON.stringify(serverInfo, null, 2));
 
     // Check if server returned "Failed to authenticate" (401 error)
     if (serverInfo === 'Failed to authenticate' || typeof serverInfo === 'string') {
-      console.log('Authentication failed, logging out user');
       userStorage.unsetUser();
       return next('/login');
     }
 
+    // Check if serverInfo is empty object or null (server offline)
+    if (!serverInfo || Object.keys(serverInfo).length === 0) {
+      return next('/server-offline');
+    }
+
     // Check if server returned an error status (401 Unauthorized)
     if (serverInfo?.status === 401 || serverInfo?.statusCode === 401) {
-      console.log('Unauthorized (401) in response, logging out user');
       userStorage.unsetUser();
       return next('/login');
     }
 
     // Check if server is actually offline (getServerInfo might return a flag)
     if (serverInfo?.offline || serverInfo?.error) {
-      console.log('Server is offline, redirecting to /server-offline');
       return next('/server-offline');
     }
   } catch (error: any) {
-    console.error(
-      'Failed to get server info - Full error object:',
-      JSON.stringify(error, Object.getOwnPropertyNames(error), 2),
-    );
-    console.error('Error details:', {
-      status: error?.status,
-      statusCode: error?.statusCode,
-      response: error?.response,
-      message: error?.message,
-    });
-
     // Check if it's a 401 Unauthorized error in various formats
     if (
       error?.status === 401 ||
@@ -96,26 +86,15 @@ router.beforeEach(async (to, from, next) => {
       error?.message?.includes('401') ||
       error?.message?.includes('Unauthorized')
     ) {
-      console.log('Unauthorized (401) detected, logging out user');
-      // Clear user session and redirect to logout
       userStorage.unsetUser();
       return next('/login');
     }
 
     // For other errors (network, timeout, etc), redirect to server-offline
-    console.log('Non-401 error, redirecting to server-offline');
     return next('/server-offline');
   }
 
   visual.currentUrl = to.path;
-  console.log(
-    'Router check - to.path:',
-    to.path,
-    'isAuthenticated:',
-    userStorage.isAuthenticated,
-    'bootstrapped:',
-    serverInfo.bootstrapped,
-  );
 
   if (to.name === '/notfound') {
     return next();
@@ -123,9 +102,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (env.enabledAuthentication) {
     // Check if the user is authenticated and project bootstrap is not done
-
     if (userStorage.isAuthenticated && !serverInfo.bootstrapped && to.path !== '/bootstrap') {
-      console.log('Redirecting to bootstrap');
       return next('/bootstrap');
     }
 
