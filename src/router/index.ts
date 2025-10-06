@@ -41,12 +41,18 @@ router.beforeEach(async (to, from, next) => {
   const userStorage = useUserStore();
   const functions = useFunctions();
 
-  // Allow these paths without any server checks
+  // If authentication is disabled, redirect auth-related paths to home
+  if (!env.enabledAuthentication) {
+    if (to.path === '/login' || to.path === '/callback' || to.path === '/logout') {
+      return next('/');
+    }
+  }
+
+  // Allow these paths without any server checks (only when auth is enabled)
   if (
     to.path === '/server-offline' ||
-    to.path === '/logout' ||
-    to.path === '/login' ||
-    to.path === '/callback'
+    (env.enabledAuthentication &&
+      (to.path === '/logout' || to.path === '/login' || to.path === '/callback'))
   ) {
     return next();
   }

@@ -62,7 +62,7 @@
           </v-card>
         </v-col>
         <v-col cols="12" sm="4">
-          <v-card class="feature-card text-center" elevation="1" @click="$router.push('/roles')">
+          <v-card class="feature-card text-center" elevation="1" @click="routeToRoles">
             <v-card-text class="pa-3">
               <v-icon color="success" size="36">mdi-shield-account</v-icon>
               <div class="text-subtitle-1 font-weight-bold mt-2 mb-1">Roles</div>
@@ -286,6 +286,7 @@
 <script setup lang="ts">
 import { useFunctions, useUserStore, useVisualStore } from '@lakekeeper/console-components';
 import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
+import * as env from '@/app.config';
 
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
@@ -509,6 +510,20 @@ async function checkAccessStatus() {
     }
   } catch (error) {
     console.error(error);
+  }
+}
+
+function routeToRoles() {
+  if (env.enabledAuthentication && env.enabledPermissions) {
+    router.push('/roles');
+  } else {
+    visual.setSnackbarMsg({
+      function: 'routeToRoles',
+      text: 'Authorization is disabled',
+      ttl: 3000,
+      ts: Date.now(),
+      type: Type.INFO,
+    });
   }
 }
 </script>

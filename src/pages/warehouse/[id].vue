@@ -8,10 +8,8 @@
       <v-tabs v-model="tab" density="compact">
         <v-tab density="compact" value="namespaces">namespaces</v-tab>
         <v-tab density="compact" value="details">Details</v-tab>
-        <v-tab v-if="permissions.showTasksTab" density="compact" value="tasks">Tasks</v-tab>
-        <v-tab v-if="permissions.showPermissionsTab" density="compact" value="permissions">
-          permissions
-        </v-tab>
+        <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
+        <v-tab v-if="showPermissionsTab" density="compact" value="permissions">permissions</v-tab>
       </v-tabs>
       <v-card>
         <v-tabs-window v-model="tab">
@@ -51,8 +49,8 @@ const params = computed(() => route.params as { id: string });
 const warehouseId = computed(() => params.value.id);
 
 // Use warehouse permissions composable
-const permissions = useWarehousePermissions(warehouseId);
-
+// const permissions = useWarehousePermissions(warehouseId);
+const { showPermissionsTab, showTasksTab } = useWarehousePermissions(warehouseId);
 // // Refresh permissions when user logs in (not on token renewal)
 // watch(
 //   () => userStore.getUser(),
