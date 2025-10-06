@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
 import { routes } from 'vue-router/auto-routes';
-import { useUserStore, useVisualStore, useFunctions } from '@lakekeeper/console-components';
+import { useUserStore, useFunctions } from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
 import NotFound from '@/pages/notfound.vue';
@@ -39,7 +39,6 @@ router.isReady().then(() => {
 
 router.beforeEach(async (to, from, next) => {
   const userStorage = useUserStore();
-  const visual = useVisualStore();
   const functions = useFunctions();
 
   // Allow these paths without any server checks
@@ -93,8 +92,6 @@ router.beforeEach(async (to, from, next) => {
     // For other errors (network, timeout, etc), redirect to server-offline
     return next('/server-offline');
   }
-
-  visual.currentUrl = to.path;
 
   if (to.name === '/notfound') {
     return next();
