@@ -65,3 +65,8 @@ rust-project.json
 .env.azure
 .env.development
 **/.vscode/*
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.auth/

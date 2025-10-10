@@ -1,0 +1,21 @@
+import { test as setup, expect } from '@playwright/test';
+import { login } from './utils/auth';
+
+const authFile = 'playwright/.auth/user.json';
+
+// Test credentials from environment
+const TEST_USER = {
+  username: process.env.TEST_USERNAME || 'peter',
+  password: process.env.TEST_PASSWORD || 'password',
+};
+
+setup('authenticate', async ({ page }) => {
+  // Perform authentication
+  await login(page, TEST_USER);
+
+  // Verify we're authenticated
+  await expect(page).toHaveURL(/\/$|\/ui\/$/);
+
+  // Save authentication state to file
+  await page.context().storageState({ path: authFile });
+});

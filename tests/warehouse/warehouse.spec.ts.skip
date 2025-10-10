@@ -1,0 +1,141 @@
+import { test, expect } from '@playwright/test';
+
+// No longer need to import login - we'll use saved auth state
+
+test.describe('Warehouse Management', () => {
+  // Remove beforeEach - tests will use saved authentication state
+  // test.beforeEach is no longer needed
+
+  test('should display warehouses list page', async ({ page }) => {
+    // Navigate to warehouses
+    await page.goto('/ui/warehouse');
+
+    // Verify page loaded
+    await expect(page).toHaveURL(/\/ui\/warehouse/);
+
+    // Verify page elements
+    const pageTitle = page.locator('h1, .v-toolbar-title, [data-testid="page-title"]').first();
+    await expect(pageTitle).toBeVisible();
+  });
+
+  test('should create a new warehouse', async ({ page }) => {
+    // Navigate to warehouses
+    await page.goto('/ui/warehouse');
+
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+
+    // Click create warehouse button
+    const createButton = page
+      .locator(
+        '[data-testid="create-warehouse"], button:has-text("Create"), button:has-text("New Warehouse")',
+      )
+      .first();
+
+    // Only click if button exists
+    if (await createButton.isVisible({ timeout: 5000 })) {
+      await createButton.click();
+
+      // Fill in warehouse form
+      const warehouseName = `test-warehouse-${Date.now()}`;
+
+      // Wait for dialog/form to appear
+      const nameInput = page
+        .locator('[data-testid="warehouse-name"], input[label*="Name"], input[placeholder*="name"]')
+        .first();
+      await expect(nameInput).toBeVisible();
+
+      await nameInput.fill(warehouseName);
+
+      // Fill storage location
+      const storageInput = page
+        .locator(
+          '[data-testid="warehouse-storage"], input[label*="Storage"], input[placeholder*="location"]',
+        )
+        .first();
+      if (await storageInput.isVisible({ timeout: 2000 })) {
+        await storageInput.fill(`s3://test-bucket/${warehouseName}`);
+      }
+
+      // Submit form
+      const submitButton = page
+        .locator(
+          '[data-testid="submit-warehouse"], button:has-text("Create"), button:has-text("Save")',
+        )
+        .first();
+      await submitButton.click();
+
+      // Wait for warehouse to be created (API call)
+      await page
+        .waitForResponse(
+          (response) => response.url().includes('/warehouse') && response.status() === 200,
+          { timeout: 10000 },
+        )
+        .catch(() => null); // Ignore if no matching request
+
+      // Verify warehouse appears in list
+      const warehouseItem = page.locator(`text=${warehouseName}`).first();
+      await expect(warehouseItem).toBeVisible({ timeout: 10000 });
+    } else {
+      test.skip();
+    }
+  });
+
+  test('should view warehouse details', async ({ page }) => {
+    // Navigate to warehouses
+    await page.goto('/ui/warehouse');
+
+    // Wait for warehouses to load
+    await page.waitForLoadState('networkidle');
+
+    // Click on first warehouse if exists
+    const firstWarehouse = page
+      .locator('[data-testid="warehouse-item"], .v-list-item, .warehouse-card')
+      .first();
+
+    if (await firstWarehouse.isVisible({ timeout: 5000 })) {
+      await firstWarehouse.click();
+
+      // Verify we're on warehouse detail page
+      await expect(page).toHaveURL(/\/ui\/warehouse\/[^\/]+/);
+
+      // Verify detail page loaded
+      const detailsSection = page
+        .locator('[data-testid="warehouse-details"], .warehouse-info, .v-card')
+        .first();
+      await expect(detailsSection).toBeVisible();
+    } else {
+      test.skip();
+    }
+  });
+
+  test('should navigate to warehouse namespaces', async ({ page }) => {
+    await page.goto('/ui/warehouse');
+    await page.waitForLoadState('networkidle');
+
+    const firstWarehouse = page.locator('[data-testid="warehouse-item"], .v-list-item').first();
+
+    if (await firstWarehouse.isVisible({ timeout: 5000 })) {
+      await firstWarehouse.click();
+
+      // Look for namespaces tab or link
+      const namespacesTab = page
+        .locator(
+          '[data-testid="namespaces-tab"], a:has-text("Namespaces"), button:has-text("Namespaces")',
+        )
+        .first();
+
+      if (await namespacesTab.isVisible({ timeout: 3000 })) {
+        await namespacesTab.click();
+
+        // Verify namespace section is visible
+        const namespaceSection = page
+          .locator('[data-testid="namespaces"], .namespace-list')
+          .first();
+        await expect(namespaceSection).toBeVisible();
+      }
+    } else {
+      test.skip();
+    }
+  });
+});

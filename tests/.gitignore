@@ -1,0 +1,11 @@
+# Playwright test artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Test environment
+.env.test.local
+
+# Traces and screenshots
+trace.zip
+*.trace
