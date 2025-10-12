@@ -68,7 +68,7 @@
   </v-row>
 </template>
 <script lang="ts" setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions, RelationType, useViewPermissions } from '@lakekeeper/console-components';
 
@@ -83,16 +83,25 @@ const params = computed(() => ({
   vid: (route.params as { vid: string }).vid,
 }));
 
-// Use composable for view permissions
-const { showPermissionsTab, showTasksTab } = useViewPermissions(viewId, params.value.id);
+// Use composable for view permissions with reactive warehouse id
+const warehouseId = computed(() => params.value.id);
+const { showPermissionsTab, showTasksTab } = useViewPermissions(viewId, warehouseId);
 
-// Load view metadata on mount
-onMounted(async () => {
+async function loadViewMetadata() {
   try {
     const view = await functions.loadView(params.value.id, params.value.nsid, params.value.vid);
     viewId.value = view.metadata['view-uuid'] || '';
   } catch (error) {
     console.error('Failed to load view metadata:', error);
+    viewId.value = '';
   }
-});
+}
+
+// Initial load and react to route changes
+onMounted(loadViewMetadata);
+watch(
+  () => [params.value.id, params.value.nsid, params.value.vid],
+  () => loadViewMetadata(),
+  { immediate: false },
+);
 </script>

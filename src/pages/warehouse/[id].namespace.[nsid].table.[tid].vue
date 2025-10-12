@@ -60,7 +60,7 @@
   </v-row>
 </template>
 <script lang="ts" setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFunctions, RelationType, useTablePermissions } from '@lakekeeper/console-components';
 
@@ -75,11 +75,11 @@ const params = computed(() => ({
   tid: (route.params as { tid: string }).tid,
 }));
 
-// Use composable for permissions
-const { showPermissionsTab, showTasksTab } = useTablePermissions(tableId, params.value.id);
+// Use composable for permissions with reactive warehouse id
+const warehouseId = computed(() => params.value.id);
+const { showPermissionsTab, showTasksTab } = useTablePermissions(tableId, warehouseId);
 
-// Load table metadata on mount
-onMounted(async () => {
+async function loadTableMetadata() {
   try {
     const table = await functions.loadTableCustomized(
       params.value.id,
@@ -89,6 +89,17 @@ onMounted(async () => {
     tableId.value = table.metadata['table-uuid'] || '';
   } catch (error) {
     console.error('Failed to load table metadata:', error);
+    tableId.value = '';
   }
-});
+}
+
+// Load table metadata on mount
+onMounted(loadTableMetadata);
+
+// Reload metadata when route params change
+watch(
+  () => [params.value.id, params.value.nsid, params.value.tid],
+  () => loadTableMetadata(),
+  { immediate: false },
+);
 </script>
