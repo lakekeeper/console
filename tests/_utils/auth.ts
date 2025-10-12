@@ -148,7 +148,7 @@ export async function clearSession(page: Page) {
       sessionStorage.clear();
       localStorage.clear();
     });
-  } catch (error) {
+  } catch {
     // If we can't clear storage (e.g., page hasn't navigated yet), that's fine
     // The page is already in a clean state
     console.log('Note: Could not clear storage (page may not be loaded yet)');

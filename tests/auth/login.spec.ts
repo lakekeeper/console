@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { login, clearSession } from '../_utils/auth';
+import { login } from '../_utils/auth';
 
 // Test credentials from environment
 const TEST_USER = {
