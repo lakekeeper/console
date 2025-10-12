@@ -21,7 +21,7 @@
     "test:run": "./run-tests.sh"
   },
   "dependencies": {
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#vk/adding-components",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.1.0",
     "@mdi/font": "7.4.47",
     "@wdns/vue-code-block": "^2.3.3",
     "chart.js": "^4.4.8",
