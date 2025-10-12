@@ -4,7 +4,7 @@
       <v-card-title class="text-h5 font-weight-bold">Lakekeeper is Offline</v-card-title>
       <v-card-subtitle>Please talk to your administrator</v-card-subtitle>
       <v-card-text>
-        <v-btn block color="primary" large @click="checkServerStatus">Check status</v-btn>
+        <v-btn block color="primary" size="large" @click="checkServerStatus">Check status</v-btn>
       </v-card-text>
     </v-card>
   </v-container>

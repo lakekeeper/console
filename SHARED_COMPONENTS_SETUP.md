@@ -4,8 +4,10 @@ This guide explains how to set up the `@lakekeeper/console-components` shared co
 
 ## Overview
 
-The EULA component (and future shared components) will be moved to a separate npm package at:
+Shared Vue components are maintained in a separate GitHub repository at:
 **https://github.com/lakekeeper/console-components**
+
+The library is distributed via **GitHub Releases** (not npm) and uses **release-please** for automated versioning and changelog generation.
 
 ## Part 1: Setting up the console-components Repository
 
@@ -20,7 +22,163 @@ git clone https://github.com/lakekeeper/console-components.git
 cd console-components
 ```
 
-### 3. Create the Following Files
+### 3. Set Up Release-Please for Automated Releases
+
+#### Create release-please configuration
+
+Create `release-please/release-please-config.json`:
+
+```json
+{
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "@lakekeeper/console-components"
+    }
+  },
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": false,
+  "include-component-in-tag": false
+}
+```
+
+Create `release-please/.release-please-manifest.json`:
+
+```json
+{
+  ".": "0.0.1"
+}
+```
+
+#### Create GitHub Actions Workflows
+
+Create `.github/workflows/release.yml`:
+
+```yaml
+name: 🚀 Release
+
+on:
+  push:
+    branches:
+      - main
+      - main-*
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # Update release PR
+  release_please:
+    name: Release Please
+    runs-on: ${{ vars.RUNS_ON__AMD_XS || 'ubuntu-latest' }}
+    if: ${{ vars.RELEASE_PLEASE_ACTIVATED != '' }}
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      tag_name: ${{ steps.release.outputs['tag_name'] }}
+      major: ${{ steps.release.outputs['major'] }}
+      minor: ${{ steps.release.outputs['minor'] }}
+      patch: ${{ steps.release.outputs['patch'] }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please/release-please-config.json
+          manifest-file: release-please/.release-please-manifest.json
+          target-branch: main
+
+  # Build and publish only when a release is created
+  build:
+    name: Build and Publish
+    runs-on: ${{ vars.RUNS_ON__AMD_S || 'ubuntu-latest' }}
+    needs: release_please
+    if: ${{ needs.release_please.outputs.releases_created == 'true' }}
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Create Node Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Packages and Build Library
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload dist to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**/*
+          tag_name: ${{ needs.release_please.outputs.tag_name }}
+```
+
+Create `.github/workflows/checks.yml`:
+
+```yaml
+name: Checks
+
+on:
+  push:
+    branches: [main, 'main-*']
+  pull_request:
+    branches: [main, 'main-*']
+
+jobs:
+  checks:
+    runs-on: ${{ vars.RUNS_ON__AMD_S || 'ubuntu-latest' }}
+    container:
+      image: quay.io/vakamo/build-base:ubuntu-24-04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: just check-format
+
+      - name: Run ESLint Check
+        run: just check-lint
+
+      - name: Type check and build
+        run: just build
+```
+
+### 4. Configure GitHub Repository Secrets and Variables
+
+#### Required Secrets:
+
+1. Go to repository settings → Secrets and variables → Actions → Secrets
+2. Add `RELEASE_PLEASE_TOKEN`:
+   - Create a GitHub Personal Access Token (PAT) with `repo` scope
+   - Add it as a repository secret
+
+#### Required Variables:
+
+1. Go to repository settings → Secrets and variables → Actions → Variables
+2. Add `RELEASE_PLEASE_ACTIVATED` with value `1`
+3. (Optional) Add custom runner variables: `RUNS_ON__AMD_XS`, `RUNS_ON__AMD_S`
+
+### 5. Create the Following Files
 
 #### package.json
 
@@ -245,22 +403,37 @@ mkdir -p src/components
 
 ```typescript
 import type { App } from 'vue';
-import EULA from './components/EULA.vue';
+import ExampleComponent from './components/ExampleComponent.vue';
 
 // Export components
-export { EULA };
+export { ExampleComponent };
 
 // Export plugin for installing all components
 export default {
   install(app: App) {
-    app.component('EULA', EULA);
+    app.component('ExampleComponent', ExampleComponent);
   },
 };
 ```
 
-#### src/components/EULA.vue
+#### src/components/ExampleComponent.vue
 
-Copy the entire content from `/Users/viktor/Biz/console/src/components/EULA.vue` to this file.
+Create your shared Vue components here. Example:
+
+```vue
+<script setup lang="ts">
+defineProps<{
+  title?: string;
+}>();
+</script>
+
+<template>
+  <v-card>
+    <v-card-title>{{ title || 'Example Component' }}</v-card-title>
+    <v-card-text>This is a shared component from console-components library.</v-card-text>
+  </v-card>
+</template>
+```
 
 ### 5. Create README.md
 
@@ -271,8 +444,20 @@ Shared Vue 3 components for Lakekeeper console applications.
 
 ## Installation
 
+Install from GitHub releases:
+
 \`\`\`bash
-npm install @lakekeeper/console-components
+npm install github:lakekeeper/console-components#v0.1.0
+\`\`\`
+
+Or add to package.json:
+
+\`\`\`json
+{
+"dependencies": {
+"@lakekeeper/console-components": "github:lakekeeper/console-components#v0.1.0"
+}
+}
 \`\`\`
 
 ## Prerequisites
@@ -291,12 +476,12 @@ Make sure these are installed in your project.
 \`\`\`vue
 
 <script setup lang="ts">
-import { EULA } from '@lakekeeper/console-components';
+import { ExampleComponent } from '@lakekeeper/console-components';
 import '@lakekeeper/console-components/style.css';
 </script>
 
 <template>
-  <EULA />
+  <ExampleComponent title="My Title" />
 </template>
 \`\`\`
 
@@ -318,13 +503,13 @@ Then use in any component:
 
 \`\`\`vue
 <template>
-<EULA />
+<ExampleComponent title="Global Component" />
 </template>
 \`\`\`
 
 ## Available Components
 
-- **EULA** - Apache License 2.0 display component
+Currently, this is a template library. Add your shared components as needed.
 
 ## Development
 
@@ -368,83 +553,104 @@ npm install
 npm run build
 ```
 
-### 7. Publish to npm
+### 7. Commit Using Conventional Commits
 
-First, log in to npm (if not already):
+**Important:** All commits must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for release-please to work:
+
+- `feat:` - New features (triggers minor version bump: 0.1.0 → 0.2.0)
+- `fix:` - Bug fixes (triggers patch version bump: 0.1.0 → 0.1.1)
+- `chore:` - Maintenance tasks (no version bump)
+- `docs:` - Documentation changes (no version bump)
+- `ci:` - CI/CD changes (no version bump)
+- `style:` - Code style changes (no version bump)
+- `refactor:` - Code refactoring (no version bump)
+- `test:` - Test changes (no version bump)
+
+Breaking changes: Add `BREAKING CHANGE:` in commit body or use `!` after type (triggers major version bump)
+
+Example commits:
 
 ```bash
-npm login
+git commit -m "feat: add new shared component"
+git commit -m "fix: resolve styling issue in component"
+git commit -m "chore: update dependencies"
 ```
 
-Then publish:
+### 8. Push to Main Branch
 
 ```bash
-npm publish --access public
+git push origin main
 ```
+
+The GitHub Actions workflow will automatically:
+
+1. Run checks (linting, formatting, build)
+2. Create a release PR with version bump and CHANGELOG
+3. After you merge the release PR, it will create a GitHub Release with the built dist files
 
 ## Part 2: Update the Console App
 
-The console app has already been updated with the following changes:
+### 1. Update package.json
 
-### 1. Updated package.json
-
-Added the dependency:
+Add or update the dependency:
 
 ```json
-"@lakekeeper/console-components": "^0.1.0"
+{
+  "dependencies": {
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.1.0"
+  }
+}
 ```
 
-### 2. Updated src/pages/license.vue
-
-Changed from using local component to importing from the shared library:
-
-```vue
-<script setup lang="ts">
-import { EULA } from '@lakekeeper/console-components';
-import '@lakekeeper/console-components/style.css';
-</script>
-
-<template>
-  <EULA />
-</template>
-```
-
-### 3. Install the new dependency
-
-After publishing the package to npm, run:
+### 2. Install the dependency
 
 ```bash
 npm install
 ```
 
-### 4. (Optional) Remove the old local component
+### 3. Import and use components
 
-Once verified that everything works with the shared library:
+```vue
+<script setup lang="ts">
+import { ExampleComponent } from '@lakekeeper/console-components';
+import '@lakekeeper/console-components/style.css';
+</script>
 
-```bash
-rm src/components/EULA.vue
+<template>
+  <ExampleComponent title="My App" />
+</template>
 ```
 
 ## Part 3: Using in Future Applications
 
 To use the shared components in any other Vue 3 + Vuetify application:
 
-1. Install the package:
+1. Install from GitHub:
 
    ```bash
-   npm install @lakekeeper/console-components
+   npm install github:lakekeeper/console-components#v0.1.0
+   ```
+
+   Or add to package.json:
+
+   ```json
+   {
+     "dependencies": {
+       "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.1.0"
+     }
+   }
    ```
 
 2. Import and use components:
 
    ```vue
    <script setup lang="ts">
-   import { EULA } from '@lakekeeper/console-components';
+   import { ExampleComponent } from '@lakekeeper/console-components';
    import '@lakekeeper/console-components/style.css';
    </script>
 
    <template>
-     <EULA />
+     <ExampleComponent title="My Title" />
    </template>
    ```
 
@@ -453,25 +659,42 @@ To use the shared components in any other Vue 3 + Vuetify application:
 To add more components to the shared library:
 
 1. Add the component file to `src/components/` in the console-components repo
+
 2. Export it in `src/index.ts`:
+
    ```typescript
    import NewComponent from './components/NewComponent.vue';
-   export { EULA, NewComponent };
+   export { ExampleComponent, NewComponent };
    ```
+
 3. Update the plugin installation (if using global registration):
+
    ```typescript
    export default {
      install(app: App) {
-       app.component('EULA', EULA);
+       app.component('ExampleComponent', ExampleComponent);
        app.component('NewComponent', NewComponent);
      },
    };
    ```
-4. Rebuild and publish a new version:
+
+4. Commit using conventional commits:
+
    ```bash
-   npm version patch  # or minor/major
-   npm run build
-   npm publish
+   git add .
+   git commit -m "feat: add NewComponent"
+   git push origin main
+   ```
+
+5. Wait for release-please to create a release PR
+
+6. Review and merge the release PR - this automatically:
+   - Creates a new GitHub Release with the version tag
+   - Attaches the built dist files to the release
+
+7. Update consuming apps to use the new version:
+   ```json
+   "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.0"
    ```
 
 ## Development Workflow
@@ -479,16 +702,33 @@ To add more components to the shared library:
 ### For library development:
 
 1. Make changes in the console-components repo
-2. Build: `npm run build`
-3. Publish new version: `npm version patch && npm publish`
+2. Commit using conventional commits:
+   ```bash
+   git commit -m "feat: add new feature"
+   # or
+   git commit -m "fix: resolve bug"
+   ```
+3. Push to main:
+   ```bash
+   git push origin main
+   ```
+4. Wait for release-please to create a PR
+5. Review and merge the release PR
+6. GitHub Release is automatically created with built dist files
 
 ### For consuming apps:
 
-1. Update dependency version in package.json
-2. Run: `npm install`
+1. Update dependency version in package.json:
+   ```json
+   "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.0"
+   ```
+2. Run:
+   ```bash
+   npm install
+   ```
 3. Import and use updated components
 
-### For local testing (before publishing):
+### For local testing (before releasing):
 
 In the console-components repo:
 
@@ -502,11 +742,100 @@ In the console app:
 npm link @lakekeeper/console-components
 ```
 
-This allows you to test changes locally before publishing to npm.
+This allows you to test changes locally before creating a release.
+
+To unlink:
+
+```bash
+# In console app
+npm unlink @lakekeeper/console-components
+npm install
+
+# In console-components
+npm unlink
+```
+
+## Release Process
+
+### Automated Release Flow:
+
+1. **Make changes** with conventional commits:
+   - `feat:` → minor version bump (0.1.0 → 0.2.0)
+   - `fix:` → patch version bump (0.1.0 → 0.1.1)
+   - `BREAKING CHANGE:` → major version bump (0.1.0 → 1.0.0)
+
+2. **Push to main**:
+
+   ```bash
+   git push origin main
+   ```
+
+3. **Release-please creates PR**:
+   - Updates version in package.json
+   - Generates/updates CHANGELOG.md
+   - Creates release commit
+
+4. **Review and merge PR**:
+   - Check the CHANGELOG
+   - Verify version bump is correct
+   - Merge the PR
+
+5. **GitHub Release created automatically**:
+   - Tagged with version (e.g., v0.2.0)
+   - Includes CHANGELOG notes
+   - Has dist files attached
+
+6. **Update consuming apps**:
+   - Change version tag in package.json
+   - Run `npm install`
+
+### Version Bump Examples:
+
+| Commit Message           | Version Change  |
+| ------------------------ | --------------- |
+| `feat: add component`    | 0.1.0 → 0.2.0   |
+| `fix: resolve bug`       | 0.1.0 → 0.1.1   |
+| `feat!: breaking change` | 0.1.0 → 1.0.0   |
+| `chore: update deps`     | No version bump |
 
 ## Notes
 
+- The library is distributed via **GitHub Releases**, not npm
+- Install using: `"github:lakekeeper/console-components#v0.1.0"`
 - The library is configured to externalize Vue and Vuetify, so they won't be bundled
 - TypeScript declarations are generated automatically during build
 - The library supports both ESM and UMD formats
 - CSS is extracted to a separate file that must be imported separately
+- **Conventional commits are required** for automatic versioning
+- Release-please manages versioning and CHANGELOG automatically
+- GitHub Actions workflows handle testing, building, and releasing
+- The `checks.yml` workflow runs on every PR to verify builds before merging
+- The `release.yml` workflow creates releases after merging release PRs
+
+## Troubleshooting
+
+### Release PR not created
+
+- Check that `RELEASE_PLEASE_ACTIVATED` variable is set to `1` in repository settings
+- Verify `RELEASE_PLEASE_TOKEN` secret is set with a PAT that has `repo` scope
+- Ensure commits use conventional commit format (`feat:`, `fix:`, etc.)
+- Check GitHub Actions logs for errors
+
+### Build fails in release workflow
+
+- The `checks.yml` workflow should catch build errors before merging
+- Ensure all dependencies are in package.json
+- Verify TypeScript types are correct
+- Check that all imports are valid
+
+### npm install fails with GitHub package
+
+- Ensure you're using the correct format: `github:owner/repo#tag`
+- Check that the release exists and has dist files attached
+- Verify you have access to the repository (for private repos, you need authentication)
+
+### Local testing with npm link not working
+
+- Make sure to run `npm run build` in console-components before linking
+- Unlink and reinstall if you encounter issues
+- Clear node_modules and package-lock.json if needed
