@@ -83,6 +83,8 @@ const { showPermissionsTab, showTasksTab } = useTablePermissions(tableId, wareho
 async function loadTableMetadata() {
   const { id, nsid, tid } = params.value;
   const requestToken = ++lastTableRequest.value;
+  // Clear stale table id so downstream consumers don't operate on the previous table
+  tableId.value = '';
   try {
     const table = await functions.loadTableCustomized(id, nsid, tid);
     if (requestToken !== lastTableRequest.value) {

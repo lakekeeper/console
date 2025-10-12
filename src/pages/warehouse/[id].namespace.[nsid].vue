@@ -77,6 +77,8 @@ const params = computed(() => ({
 async function loadNamespaceMetadata() {
   const { id, nsid } = params.value;
   const requestToken = ++lastNamespaceRequest.value;
+  // Clear stale namespace id so downstream consumers don't operate on the previous namespace
+  namespaceId.value = '';
   try {
     const namespace = await functions.loadNamespaceMetadata(id, nsid);
     if (requestToken !== lastNamespaceRequest.value) {

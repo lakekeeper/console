@@ -91,6 +91,8 @@ const { showPermissionsTab, showTasksTab } = useViewPermissions(viewId, warehous
 async function loadViewMetadata() {
   const { id, nsid, vid } = params.value;
   const requestToken = ++lastViewRequest.value;
+  // Clear stale view id so downstream consumers don't operate on the previous view
+  viewId.value = '';
   try {
     const view = await functions.loadView(id, nsid, vid);
     if (requestToken !== lastViewRequest.value) {
