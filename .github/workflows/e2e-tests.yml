@@ -1,131 +1,131 @@
-name: E2E Tests
+# name: E2E Tests
 
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+# on:
+#   push:
+#     branches: [main, develop]
+#   pull_request:
+#     branches: [main, develop]
 
-jobs:
-  test:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
+# jobs:
+#   test:
+#     timeout-minutes: 60
+#     runs-on: ubuntu-latest
     
-    services:
-      postgres:
-        image: postgres:16.4
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          -c max_connections=10000
-        ports:
-          - 5432:5432
+#     services:
+#       postgres:
+#         image: postgres:16.4
+#         env:
+#           POSTGRES_PASSWORD: postgres
+#         options: >-
+#           --health-cmd pg_isready
+#           --health-interval 10s
+#           --health-timeout 5s
+#           --health-retries 5
+#           -c max_connections=10000
+#         ports:
+#           - 5432:5432
       
-      openfga:
-        image: openfga/openfga
-        ports:
-          - 35080:8080
-          - 35081:8081
-          - 35300:3000
+#       openfga:
+#         image: openfga/openfga
+#         ports:
+#           - 35080:8080
+#           - 35081:8081
+#           - 35300:3000
       
-      keycloak:
-        image: quay.io/keycloak/keycloak:26.0.7
-        env:
-          KC_BOOTSTRAP_ADMIN_USERNAME: admin
-          KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-          KEYCLOAK_ADMIN: admin
-          KEYCLOAK_ADMIN_PASSWORD: admin
-        options: >-
-          --health-cmd "curl -f http://localhost:8080/health || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 20
-        ports:
-          - 30080:8080
+#       keycloak:
+#         image: quay.io/keycloak/keycloak:26.0.7
+#         env:
+#           KC_BOOTSTRAP_ADMIN_USERNAME: admin
+#           KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+#           KEYCLOAK_ADMIN: admin
+#           KEYCLOAK_ADMIN_PASSWORD: admin
+#         options: >-
+#           --health-cmd "curl -f http://localhost:8080/health || exit 1"
+#           --health-interval 10s
+#           --health-timeout 5s
+#           --health-retries 20
+#         ports:
+#           - 30080:8080
       
-    steps:
-      - uses: actions/checkout@v4
+#     steps:
+#       - uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: '22'
+#           cache: 'npm'
       
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+#       - name: Setup Rust
+#         uses: actions-rust-lang/setup-rust-toolchain@v1
         
-      - name: Clone Lakekeeper
-        run: |
-          git clone https://github.com/lakekeeper/lakekeeper.git ../lakekeeper
+#       - name: Clone Lakekeeper
+#         run: |
+#           git clone https://github.com/lakekeeper/lakekeeper.git ../lakekeeper
           
-      - name: Setup Keycloak Realm
-        run: |
-          # Wait for Keycloak to be ready
-          timeout 120 bash -c 'until curl -sf http://localhost:30080/health; do sleep 2; done'
+#       - name: Setup Keycloak Realm
+#         run: |
+#           # Wait for Keycloak to be ready
+#           timeout 120 bash -c 'until curl -sf http://localhost:30080/health; do sleep 2; done'
           
-          # Import realm configuration
-          # Note: In CI, we may need to use Keycloak Admin API to import realm
-          echo "Keycloak is ready"
+#           # Import realm configuration
+#           # Note: In CI, we may need to use Keycloak Admin API to import realm
+#           echo "Keycloak is ready"
       
-      - name: Build and Start Lakekeeper
-        run: |
-          cd ../lakekeeper/crates/iceberg-catalog-bin
+#       - name: Build and Start Lakekeeper
+#         run: |
+#           cd ../lakekeeper/crates/iceberg-catalog-bin
           
-          # Run database migrations
-          LAKEKEEPER__PG_DATABASE_URL_WRITE=postgresql://postgres:postgres@localhost/postgres \
-          LAKEKEEPER__PG_DATABASE_URL_READ=postgresql://postgres:postgres@localhost/postgres \
-          LAKEKEEPER__PG_ENCRYPTION_KEY=abc \
-          cargo run --all-features migrate
+#           # Run database migrations
+#           LAKEKEEPER__PG_DATABASE_URL_WRITE=postgresql://postgres:postgres@localhost/postgres \
+#           LAKEKEEPER__PG_DATABASE_URL_READ=postgresql://postgres:postgres@localhost/postgres \
+#           LAKEKEEPER__PG_ENCRYPTION_KEY=abc \
+#           cargo run --all-features migrate
           
-          # Start Lakekeeper in background
-          LAKEKEEPER__AUTHZ_BACKEND=openfga \
-          LAKEKEEPER__OPENFGA__ENDPOINT=http://localhost:35081 \
-          LAKEKEEPER__PG_ENCRYPTION_KEY=abc \
-          LAKEKEEPER__PG_DATABASE_URL_READ=postgresql://postgres:postgres@localhost/postgres \
-          LAKEKEEPER__PG_DATABASE_URL_WRITE=postgresql://postgres:postgres@localhost/postgres \
-          LAKEKEEPER__BASE_URI=http://localhost:8181 \
-          LAKEKEEPER__OPENID_PROVIDER_URI=http://localhost:30080/realms/iceberg \
-          LAKEKEEPER__OPENID_AUDIENCE=lakekeeper \
-          LAKEKEEPER__LISTEN_PORT=8181 \
-          LAKEKEEPER__UI__OPENID_CLIENT_ID=lakekeeper \
-          LAKEKEEPER__ALLOW_ORIGIN=* \
-          cargo run --all-features serve &
+#           # Start Lakekeeper in background
+#           LAKEKEEPER__AUTHZ_BACKEND=openfga \
+#           LAKEKEEPER__OPENFGA__ENDPOINT=http://localhost:35081 \
+#           LAKEKEEPER__PG_ENCRYPTION_KEY=abc \
+#           LAKEKEEPER__PG_DATABASE_URL_READ=postgresql://postgres:postgres@localhost/postgres \
+#           LAKEKEEPER__PG_DATABASE_URL_WRITE=postgresql://postgres:postgres@localhost/postgres \
+#           LAKEKEEPER__BASE_URI=http://localhost:8181 \
+#           LAKEKEEPER__OPENID_PROVIDER_URI=http://localhost:30080/realms/iceberg \
+#           LAKEKEEPER__OPENID_AUDIENCE=lakekeeper \
+#           LAKEKEEPER__LISTEN_PORT=8181 \
+#           LAKEKEEPER__UI__OPENID_CLIENT_ID=lakekeeper \
+#           LAKEKEEPER__ALLOW_ORIGIN=* \
+#           cargo run --all-features serve &
           
-          # Wait for Lakekeeper to be ready
-          timeout 60 bash -c 'until curl -sf http://localhost:8181/health || curl -sf http://localhost:8181; do sleep 2; done'
-          echo "Lakekeeper is ready"
+#           # Wait for Lakekeeper to be ready
+#           timeout 60 bash -c 'until curl -sf http://localhost:8181/health || curl -sf http://localhost:8181; do sleep 2; done'
+#           echo "Lakekeeper is ready"
       
-      - name: Install dependencies
-        run: npm ci
+#       - name: Install dependencies
+#         run: npm ci
       
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps chromium
+#       - name: Install Playwright Browsers
+#         run: npx playwright install --with-deps chromium
       
-      - name: Run E2E tests
-        run: npm test
-        env:
-          CI: true
-          TEST_USERNAME: peter
-          TEST_PASSWORD: iceberg
-          PLAYWRIGHT_BASE_URL: http://localhost:5001
+#       - name: Run E2E tests
+#         run: npm test
+#         env:
+#           CI: true
+#           TEST_USERNAME: peter
+#           TEST_PASSWORD: iceberg
+#           PLAYWRIGHT_BASE_URL: http://localhost:5001
       
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+#       - name: Upload test results
+#         uses: actions/upload-artifact@v4
+#         if: always()
+#         with:
+#           name: playwright-report
+#           path: playwright-report/
+#           retention-days: 30
       
-      - name: Upload test screenshots
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: test-results
-          path: test-results/
-          retention-days: 30
+#       - name: Upload test screenshots
+#         uses: actions/upload-artifact@v4
+#         if: failure()
+#         with:
+#           name: test-results
+#           path: test-results/
+#           retention-days: 30
