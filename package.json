@@ -20,7 +20,7 @@
     "test:manual": "SKIP_WEBSERVER=true playwright test"
   },
   "dependencies": {
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.1.0",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.1.1",
     "@mdi/font": "7.4.47",
     "@wdns/vue-code-block": "^2.3.3",
     "chart.js": "^4.4.8",
