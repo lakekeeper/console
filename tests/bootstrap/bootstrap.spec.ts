@@ -1,4 +1,4 @@
-import { test, expect } from '../fixtures/auth.fixture'; // Import our custom fixture
+import { test, expect } from '../_fixtures/auth.fixture'; // Import our custom fixture
 
 test.describe('Bootstrap Flow', () => {
   test.use({

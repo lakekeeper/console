@@ -17,8 +17,7 @@
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "test:codegen": "playwright codegen http://localhost:3001",
-    "test:manual": "SKIP_WEBSERVER=true playwright test",
-    "test:run": "./run-tests.sh"
+    "test:manual": "SKIP_WEBSERVER=true playwright test"
   },
   "dependencies": {
     "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.1.0",

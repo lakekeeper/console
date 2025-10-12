@@ -1,5 +1,5 @@
 import { test as base, Page } from '@playwright/test';
-import { login } from '../utils/auth';
+import { login } from '../_utils/auth';
 
 // Test credentials from environment
 const TEST_USER = {
