@@ -68,6 +68,7 @@ const route = useRoute();
 const functions = useFunctions();
 const tab = ref('overview');
 const tableId = ref('');
+const lastTableRequest = ref(0);
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -80,16 +81,19 @@ const warehouseId = computed(() => params.value.id);
 const { showPermissionsTab, showTasksTab } = useTablePermissions(tableId, warehouseId);
 
 async function loadTableMetadata() {
+  const { id, nsid, tid } = params.value;
+  const requestToken = ++lastTableRequest.value;
   try {
-    const table = await functions.loadTableCustomized(
-      params.value.id,
-      params.value.nsid,
-      params.value.tid,
-    );
+    const table = await functions.loadTableCustomized(id, nsid, tid);
+    if (requestToken !== lastTableRequest.value) {
+      return;
+    }
     tableId.value = table.metadata['table-uuid'] || '';
   } catch (error) {
     console.error('Failed to load table metadata:', error);
-    tableId.value = '';
+    if (requestToken === lastTableRequest.value) {
+      tableId.value = '';
+    }
   }
 }
 

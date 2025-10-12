@@ -67,6 +67,7 @@ const route = useRoute();
 const functions = useFunctions();
 const tab = ref('namespaces');
 const namespaceId = ref('');
+const lastNamespaceRequest = ref(0);
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -74,12 +75,19 @@ const params = computed(() => ({
 }));
 
 async function loadNamespaceMetadata() {
+  const { id, nsid } = params.value;
+  const requestToken = ++lastNamespaceRequest.value;
   try {
-    const namespace = await functions.loadNamespaceMetadata(params.value.id, params.value.nsid);
+    const namespace = await functions.loadNamespaceMetadata(id, nsid);
+    if (requestToken !== lastNamespaceRequest.value) {
+      return;
+    }
     namespaceId.value = namespace.properties?.namespace_id || '';
   } catch (error) {
     console.error('Failed to load namespace metadata:', error);
-    namespaceId.value = '';
+    if (requestToken === lastNamespaceRequest.value) {
+      namespaceId.value = '';
+    }
   }
 }
 

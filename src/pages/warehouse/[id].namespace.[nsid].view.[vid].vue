@@ -76,6 +76,7 @@ const functions = useFunctions();
 const route = useRoute();
 const tab = ref('overview');
 const viewId = ref('');
+const lastViewRequest = ref(0);
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -88,12 +89,19 @@ const warehouseId = computed(() => params.value.id);
 const { showPermissionsTab, showTasksTab } = useViewPermissions(viewId, warehouseId);
 
 async function loadViewMetadata() {
+  const { id, nsid, vid } = params.value;
+  const requestToken = ++lastViewRequest.value;
   try {
-    const view = await functions.loadView(params.value.id, params.value.nsid, params.value.vid);
+    const view = await functions.loadView(id, nsid, vid);
+    if (requestToken !== lastViewRequest.value) {
+      return;
+    }
     viewId.value = view.metadata['view-uuid'] || '';
   } catch (error) {
     console.error('Failed to load view metadata:', error);
-    viewId.value = '';
+    if (requestToken === lastViewRequest.value) {
+      viewId.value = '';
+    }
   }
 }
 
