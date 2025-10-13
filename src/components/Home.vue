@@ -15,7 +15,16 @@
       <!-- Row 1: SVG Logo -->
       <v-row class="logo-row">
         <v-col cols="12" class="text-center py-3">
-          <v-img class="mx-auto" max-width="280" src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
+          <v-img
+            v-if="visual.themeLight"
+            class="mx-auto"
+            max-width="280"
+            src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
+          <v-img
+            v-else
+            class="mx-auto"
+            max-width="280"
+            src="@/assets/LAKEKEEPER_IMAGE_TEXT_WHITE.svg" />
         </v-col>
       </v-row>
 
