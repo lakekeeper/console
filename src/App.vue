@@ -9,15 +9,18 @@
 
 <script lang="ts" setup>
 import { onMounted } from 'vue';
+import { useTheme } from 'vuetify';
 import { enabledAuthentication } from '@/app.config';
 import router from '@/router';
 import { useVisualStore, useFunctions } from '@lakekeeper/console-components';
 const functions = useFunctions();
 
 const visual = useVisualStore();
+const theme = useTheme();
 
 onMounted(async () => {
   try {
+    theme.global.name.value = visual.themeLight ? 'light' : 'dark';
     if (!enabledAuthentication) {
       const serverInfo = await functions.getServerInfo();
 
