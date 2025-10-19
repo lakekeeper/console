@@ -48,7 +48,7 @@
               :namespace-id="params.nsid"
               :table-name="params.tid"
               :catalog-url="icebergCatalogUrl"
-              :access-token="userStorage.user.access_token" />
+              :use-fresh-token="true" />
           </v-tabs-window-item>
 
           <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
@@ -78,13 +78,11 @@ import {
   useFunctions,
   RelationType,
   useTablePermissions,
-  useUserStore,
 } from '@lakekeeper/console-components';
 import { icebergCatalogUrl } from '@/app.config';
 
 const route = useRoute();
 const functions = useFunctions();
-const userStorage = useUserStore();
 const tab = ref('overview');
 const tableId = ref('');
 const lastTableRequest = ref(0);
@@ -99,18 +97,6 @@ const params = computed(() => ({
 // Use composable for permissions with reactive warehouse id
 const warehouseId = computed(() => params.value.id);
 const { showPermissionsTab, showTasksTab } = useTablePermissions(tableId, warehouseId);
-
-
-async function loadWarehouse() {
-  try {
-    const wh = await functions.getWarehouse(params.value.id);
-    warehouse.value = wh;
-  } catch (error) {
-    console.error('Failed to load warehouse:', error);
-    warehouse.value = null;
-  }
-}
-
 
 async function loadWarehouse() {
   try {
