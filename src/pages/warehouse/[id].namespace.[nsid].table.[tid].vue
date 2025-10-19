@@ -47,7 +47,7 @@
               :warehouse-name="warehouse?.name"
               :namespace-id="params.nsid"
               :table-name="params.tid"
-              :catalog-url="icebergCatalogUrl"
+              :catalog-url="`${icebergCatalogUrl}/catalog`"
               :use-fresh-token="true" />
           </v-tabs-window-item>
 
@@ -74,11 +74,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import {
-  useFunctions,
-  RelationType,
-  useTablePermissions,
-} from '@lakekeeper/console-components';
+import { useFunctions, RelationType, useTablePermissions } from '@lakekeeper/console-components';
 import { icebergCatalogUrl } from '@/app.config';
 
 const route = useRoute();
