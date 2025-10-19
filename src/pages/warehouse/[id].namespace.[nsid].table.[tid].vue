@@ -9,7 +9,6 @@
         <v-tab value="overview">overview</v-tab>
         <v-tab value="raw">raw</v-tab>
         <v-tab value="branch">branch</v-tab>
-        <v-tab value="sql">SQL</v-tab>
         <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
         <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
       </v-tabs>
@@ -38,17 +37,6 @@
               :warehouse-id="params.id"
               :namespace-id="params.nsid"
               :table-name="params.tid" />
-          </v-tabs-window-item>
-
-          <v-tabs-window-item value="sql">
-            <TableSqlQuery
-              v-if="tab === 'sql'"
-              :warehouse-id="params.id"
-              :warehouse-name="warehouse?.name"
-              :namespace-id="params.nsid"
-              :table-name="params.tid"
-              :catalog-url="'http://127.0.0.1:8181/catalog'"
-              :use-fresh-token="true" />
           </v-tabs-window-item>
 
           <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
