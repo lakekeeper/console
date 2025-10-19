@@ -9,6 +9,7 @@
         <v-tab value="overview">overview</v-tab>
         <v-tab value="raw">raw</v-tab>
         <v-tab value="branch">branch</v-tab>
+        <v-tab value="sql">SQL</v-tab>
         <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
         <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
       </v-tabs>
@@ -39,6 +40,17 @@
               :table-name="params.tid" />
           </v-tabs-window-item>
 
+          <v-tabs-window-item value="sql">
+            <TableSqlQuery
+              v-if="tab === 'sql'"
+              :warehouse-id="params.id"
+              :warehouse-name="warehouse?.name"
+              :namespace-id="params.nsid"
+              :table-name="params.tid"
+              :catalog-url="icebergCatalogUrl"
+              :access-token="userStorage.user.access_token" />
+          </v-tabs-window-item>
+
           <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
             <PermissionManager
               v-if="tab == 'permissions' && tableId"
@@ -62,13 +74,21 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useFunctions, RelationType, useTablePermissions } from '@lakekeeper/console-components';
+import {
+  useFunctions,
+  RelationType,
+  useTablePermissions,
+  useUserStore,
+} from '@lakekeeper/console-components';
+import { icebergCatalogUrl } from '@/app.config';
 
 const route = useRoute();
 const functions = useFunctions();
+const userStorage = useUserStore();
 const tab = ref('overview');
 const tableId = ref('');
 const lastTableRequest = ref(0);
+const warehouse = ref<{ name: string; id: string } | null>(null);
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -79,6 +99,28 @@ const params = computed(() => ({
 // Use composable for permissions with reactive warehouse id
 const warehouseId = computed(() => params.value.id);
 const { showPermissionsTab, showTasksTab } = useTablePermissions(tableId, warehouseId);
+
+
+async function loadWarehouse() {
+  try {
+    const wh = await functions.getWarehouse(params.value.id);
+    warehouse.value = wh;
+  } catch (error) {
+    console.error('Failed to load warehouse:', error);
+    warehouse.value = null;
+  }
+}
+
+
+async function loadWarehouse() {
+  try {
+    const wh = await functions.getWarehouse(params.value.id);
+    warehouse.value = wh;
+  } catch (error) {
+    console.error('Failed to load warehouse:', error);
+    warehouse.value = null;
+  }
+}
 
 async function loadTableMetadata() {
   const { id, nsid, tid } = params.value;
@@ -99,13 +141,19 @@ async function loadTableMetadata() {
   }
 }
 
-// Load table metadata on mount
-onMounted(loadTableMetadata);
+// Load warehouse and table metadata on mount
+onMounted(() => {
+  loadWarehouse();
+  loadTableMetadata();
+});
 
 // Reload metadata when route params change
 watch(
   () => [params.value.id, params.value.nsid, params.value.tid],
-  () => loadTableMetadata(),
+  () => {
+    loadWarehouse();
+    loadTableMetadata();
+  },
   { immediate: false },
 );
 </script>
