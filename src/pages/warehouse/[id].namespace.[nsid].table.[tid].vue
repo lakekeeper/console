@@ -47,7 +47,7 @@
               :warehouse-name="warehouse?.name"
               :namespace-id="params.nsid"
               :table-name="params.tid"
-              :catalog-url="'localhost:8181/catalog'"
+              :catalog-url="'http://127.0.0.1:8181/catalog'"
               :use-fresh-token="true" />
           </v-tabs-window-item>
 
