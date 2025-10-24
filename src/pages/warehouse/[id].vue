@@ -26,6 +26,7 @@
               :warehouse-id="params.id"
               :warehouse-name="warehouseName"
               :catalog-url="catalogUrl"
+              :storage-type="storageType"
               :use-fresh-token="true" />
           </v-tabs-window-item>
           <v-tabs-window-item value="permissions">
@@ -57,6 +58,7 @@ const route = useRoute();
 const functions = useFunctions();
 const tab = ref('namespaces');
 const warehouseName = ref<string | undefined>(undefined);
+const storageType = ref<string | undefined>(undefined);
 
 // Get catalog URL from environment variable
 const catalogUrl = computed(() => {
@@ -79,9 +81,30 @@ async function loadWarehouse() {
   try {
     const wh = await functions.getWarehouse(params.value.id);
     warehouseName.value = wh.name;
+
+    // Extract storage type from warehouse config
+    // The storage profile typically contains the type (s3, gcs, azure, etc.)
+    if (wh['storage-profile'] && wh['storage-profile'].type) {
+      storageType.value = wh['storage-profile'].type;
+    } else if (wh['storage-profile']) {
+      // Try to infer from storage profile keys
+      const profile = wh['storage-profile'];
+      if (
+        profile['s3-access-key-id'] ||
+        profile['s3-secret-access-key'] ||
+        profile['s3-endpoint']
+      ) {
+        storageType.value = 's3';
+      } else if (profile['adls-connection-string'] || profile['adls-sas-token']) {
+        storageType.value = 'azure';
+      } else if (profile['gcs-project-id'] || profile['gcs-service-account']) {
+        storageType.value = 'gcs';
+      }
+    }
   } catch (error) {
     console.error('Failed to load warehouse:', error);
     warehouseName.value = undefined;
+    storageType.value = undefined;
   }
 }
 
