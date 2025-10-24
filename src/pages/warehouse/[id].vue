@@ -25,7 +25,7 @@
               v-if="tab === 'sql'"
               :warehouse-id="params.id"
               :warehouse-name="warehouseName"
-              :catalog-url="'http://127.0.0.1:8181/catalog'"
+              :catalog-url="catalogUrl"
               :use-fresh-token="true" />
           </v-tabs-window-item>
           <v-tabs-window-item value="permissions">
@@ -57,6 +57,13 @@ const route = useRoute();
 const functions = useFunctions();
 const tab = ref('namespaces');
 const warehouseName = ref<string | undefined>(undefined);
+
+// Get catalog URL from environment variable
+const catalogUrl = computed(() => {
+  const baseUrl = import.meta.env.VITE_APP_ICEBERG_CATALOG_URL || 'http://localhost:8181';
+  return `${baseUrl}/catalog`;
+});
+
 // const userStore = useUserStore();
 const params = computed(() => route.params as { id: string });
 
