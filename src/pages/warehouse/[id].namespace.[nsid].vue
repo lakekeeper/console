@@ -27,7 +27,7 @@
               <div class="d-flex justify-end mb-4">
                 <TableCreate
                   :warehouse-id="params.id"
-                  :namespace-id="params.nsid"
+                  :namespace-id="namespacePath"
                   :catalog-url="catalogUrl"
                   :storage-type="storageType"
                   @created="onTableCreated" />
@@ -93,6 +93,14 @@ const params = computed(() => ({
   nsid: (route.params as { nsid: string }).nsid,
 }));
 
+// Convert URL-encoded namespace path to dot-separated format
+// In the URL, namespace levels are separated by %1F (Unit Separator, ASCII 31)
+// When decoded from the route param, it becomes the actual \x1F character
+// e.g., "finance\x1Fsub" -> "finance.sub"
+const namespacePath = computed(() => {
+  return params.value.nsid.replace(/\x1F/g, '.');
+});
+
 async function loadNamespaceMetadata() {
   const { id, nsid } = params.value;
   const requestToken = ++lastNamespaceRequest.value;
@@ -108,6 +116,11 @@ async function loadNamespaceMetadata() {
     if (warehouse['storage-profile']?.type) {
       storageType.value = warehouse['storage-profile'].type;
     }
+    console.log('Namespace page loaded warehouse:', {
+      warehouseId: id,
+      storageProfileType: warehouse['storage-profile']?.type,
+      storageType: storageType.value,
+    });
 
     const namespace = await functions.loadNamespaceMetadata(id, nsid);
     if (requestToken !== lastNamespaceRequest.value) {

@@ -107,6 +107,11 @@ async function loadWarehouse() {
     if (wh['storage-profile']?.type) {
       storageType.value = wh['storage-profile'].type;
     }
+    console.log('Table page loaded warehouse:', {
+      warehouseId: params.value.id,
+      storageProfileType: wh['storage-profile']?.type,
+      storageType: storageType.value,
+    });
   } catch (error) {
     console.error('Failed to load warehouse:', error);
     warehouse.value = null;
