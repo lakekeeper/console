@@ -28,12 +28,14 @@
                 <CreateTable
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
-                  :catalog-url="catalogUrl" />
+                  :catalog-url="catalogUrl"
+                  @created="onTableCreated" />
               </div>
               <NamespaceTables
                 v-if="tab === 'tables'"
                 :warehouse-id="params.id"
-                :namespace-path="params.nsid" />
+                :namespace-path="params.nsid"
+                :key="tableListKey" />
             </div>
           </v-tabs-window-item>
 
@@ -76,6 +78,7 @@ const functions = useFunctions();
 const tab = ref('namespaces');
 const namespaceId = ref('');
 const lastNamespaceRequest = ref(0);
+const tableListKey = ref(0);
 
 // Get catalog URL from environment variable
 const catalogUrl = computed(() => {
@@ -105,6 +108,12 @@ async function loadNamespaceMetadata() {
       namespaceId.value = '';
     }
   }
+}
+
+// Handle table creation - force refresh of table list
+function onTableCreated(tableName: string) {
+  console.log('Table created:', tableName);
+  tableListKey.value++; // Increment key to force re-render of NamespaceTables
 }
 
 // Load namespace metadata on mount to get namespaceId for permissions
