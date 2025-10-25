@@ -29,6 +29,7 @@
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :catalog-url="catalogUrl"
+                  :storage-type="storageType"
                   @created="onTableCreated" />
               </div>
               <NamespaceTables
@@ -79,6 +80,7 @@ const tab = ref('namespaces');
 const namespaceId = ref('');
 const lastNamespaceRequest = ref(0);
 const tableListKey = ref(0);
+const storageType = ref<string | undefined>(undefined);
 
 // Get catalog URL from environment variable
 const catalogUrl = computed(() => {
@@ -96,7 +98,17 @@ async function loadNamespaceMetadata() {
   const requestToken = ++lastNamespaceRequest.value;
   // Clear stale namespace id so downstream consumers don't operate on the previous namespace
   namespaceId.value = '';
+  storageType.value = undefined;
   try {
+    // Load warehouse to get storage type
+    const warehouse = await functions.getWarehouse(id);
+    if (requestToken !== lastNamespaceRequest.value) {
+      return;
+    }
+    if (warehouse['storage-profile']?.type) {
+      storageType.value = warehouse['storage-profile'].type;
+    }
+
     const namespace = await functions.loadNamespaceMetadata(id, nsid);
     if (requestToken !== lastNamespaceRequest.value) {
       return;
@@ -106,6 +118,7 @@ async function loadNamespaceMetadata() {
     console.error('Failed to load namespace metadata:', error);
     if (requestToken === lastNamespaceRequest.value) {
       namespaceId.value = '';
+      storageType.value = undefined;
     }
   }
 }

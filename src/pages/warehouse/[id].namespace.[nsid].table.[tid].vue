@@ -30,7 +30,8 @@
               :warehouse-id="params.id"
               :namespace-id="params.nsid"
               :table-name="params.tid"
-              :catalog-url="catalogUrl" />
+              :catalog-url="catalogUrl"
+              :storage-type="storageType" />
           </v-tabs-window-item>
 
           <v-tabs-window-item value="raw">
@@ -80,6 +81,7 @@ const tab = ref('overview');
 const tableId = ref('');
 const lastTableRequest = ref(0);
 const warehouse = ref<{ name: string; id: string } | null>(null);
+const storageType = ref<string | undefined>(undefined);
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -101,9 +103,14 @@ async function loadWarehouse() {
   try {
     const wh = await functions.getWarehouse(params.value.id);
     warehouse.value = wh;
+    // Extract storage type from warehouse
+    if (wh['storage-profile']?.type) {
+      storageType.value = wh['storage-profile'].type;
+    }
   } catch (error) {
     console.error('Failed to load warehouse:', error);
     warehouse.value = null;
+    storageType.value = undefined;
   }
 }
 
