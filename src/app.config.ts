@@ -1,4 +1,4 @@
-import { TokenType } from './common/enums';
+import { TokenType } from '@lakekeeper/console-components';
 
 const icebergCatalogUrl = import.meta.env.VITE_APP_ICEBERG_CATALOG_URL || '';
 const idpAuthority = import.meta.env.VITE_IDP_AUTHORITY || '';

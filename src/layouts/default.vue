@@ -2,7 +2,8 @@
   <v-app>
     <AppBar v-if="visual.showAppOrNavBar" />
     <v-main>
-      <AuthorizationOffBanner v-if="!enabledAuthentication"></AuthorizationOffBanner>
+      <AuthenticationDisabledWarningBanner
+        v-if="!enabledAuthentication"></AuthenticationDisabledWarningBanner>
       <NavigationBar v-if="visual.showAppOrNavBar" />
       <router-view />
     </v-main>
@@ -14,8 +15,7 @@
 <script lang="ts" setup>
 //
 
-import AuthorizationOffBanner from '@/components/AuthenticationDisabledWarningBanner.vue';
 import { enabledAuthentication } from '@/app.config';
-import { useVisualStore } from '@/stores/visual';
+import { useVisualStore } from '@lakekeeper/console-components';
 const visual = useVisualStore();
 </script>
