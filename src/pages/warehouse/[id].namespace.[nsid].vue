@@ -70,7 +70,6 @@ import {
   useFunctions,
   useNamespacePermissions,
   RelationType,
-  CreateTable,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
