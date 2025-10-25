@@ -25,7 +25,7 @@
           <v-tabs-window-item value="tables">
             <div class="pa-4">
               <div class="d-flex justify-end mb-4">
-                <CreateTable
+                <TableCreate
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :catalog-url="catalogUrl"
