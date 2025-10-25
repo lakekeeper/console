@@ -23,10 +23,19 @@
           </v-tabs-window-item>
 
           <v-tabs-window-item value="tables">
+            <v-card-title class="d-flex justify-space-between align-center">
+              <span>Tables</span>
+              <CreateTable
+                :warehouse-id="params.id"
+                :namespace-id="params.nsid"
+                :catalog-url="catalogUrl"
+                @created="onTableCreated" />
+            </v-card-title>
             <NamespaceTables
               v-if="tab === 'tables'"
               :warehouse-id="params.id"
-              :namespace-path="params.nsid" />
+              :namespace-path="params.nsid"
+              :key="tableListKey" />
           </v-tabs-window-item>
 
           <v-tabs-window-item value="views">
@@ -68,6 +77,13 @@ const functions = useFunctions();
 const tab = ref('namespaces');
 const namespaceId = ref('');
 const lastNamespaceRequest = ref(0);
+const tableListKey = ref(0);
+
+// Get catalog URL from environment variable
+const catalogUrl = computed(() => {
+  const baseUrl = import.meta.env.VITE_APP_ICEBERG_CATALOG_URL || 'http://localhost:8181';
+  return `${baseUrl}/catalog`;
+});
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -91,6 +107,12 @@ async function loadNamespaceMetadata() {
       namespaceId.value = '';
     }
   }
+}
+
+// Handle table creation success - refresh the table list
+function onTableCreated(tableName: string) {
+  console.log('Table created:', tableName);
+  tableListKey.value++; // Force re-render of NamespaceTables component
 }
 
 // Load namespace metadata on mount to get namespaceId for permissions
