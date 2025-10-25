@@ -7,6 +7,7 @@
 
       <v-tabs v-model="tab">
         <v-tab value="overview">overview</v-tab>
+        <v-tab value="preview">preview</v-tab>
         <v-tab value="raw">raw</v-tab>
         <v-tab value="branch">branch</v-tab>
         <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
@@ -21,6 +22,15 @@
               :warehouse-id="params.id"
               :namespace-id="params.nsid"
               :table-name="params.tid" />
+          </v-tabs-window-item>
+
+          <v-tabs-window-item value="preview">
+            <TablePreview
+              v-if="tab === 'preview'"
+              :warehouse-id="params.id"
+              :namespace-id="params.nsid"
+              :table-name="params.tid"
+              :catalog-url="catalogUrl" />
           </v-tabs-window-item>
 
           <v-tabs-window-item value="raw">
@@ -80,6 +90,12 @@ const params = computed(() => ({
 // Use composable for permissions with reactive warehouse id
 const warehouseId = computed(() => params.value.id);
 const { showPermissionsTab, showTasksTab } = useTablePermissions(tableId, warehouseId);
+
+// Get catalog URL from environment variable (same pattern as warehouse page)
+const catalogUrl = computed(() => {
+  const baseUrl = import.meta.env.VITE_APP_ICEBERG_CATALOG_URL || 'http://localhost:8181';
+  return `${baseUrl}/catalog`;
+});
 
 async function loadWarehouse() {
   try {
