@@ -23,19 +23,18 @@
           </v-tabs-window-item>
 
           <v-tabs-window-item value="tables">
-            <v-card-title class="d-flex justify-space-between align-center">
-              <span>Tables</span>
-              <CreateTable
+            <div class="pa-4">
+              <div class="d-flex justify-end mb-4">
+                <CreateTable
+                  :warehouse-id="params.id"
+                  :namespace-id="params.nsid"
+                  :catalog-url="catalogUrl" />
+              </div>
+              <NamespaceTables
+                v-if="tab === 'tables'"
                 :warehouse-id="params.id"
-                :namespace-id="params.nsid"
-                :catalog-url="catalogUrl"
-                @created="onTableCreated" />
-            </v-card-title>
-            <NamespaceTables
-              v-if="tab === 'tables'"
-              :warehouse-id="params.id"
-              :namespace-path="params.nsid"
-              :key="tableListKey" />
+                :namespace-path="params.nsid" />
+            </div>
           </v-tabs-window-item>
 
           <v-tabs-window-item value="views">
@@ -77,7 +76,6 @@ const functions = useFunctions();
 const tab = ref('namespaces');
 const namespaceId = ref('');
 const lastNamespaceRequest = ref(0);
-const tableListKey = ref(0);
 
 // Get catalog URL from environment variable
 const catalogUrl = computed(() => {
@@ -107,12 +105,6 @@ async function loadNamespaceMetadata() {
       namespaceId.value = '';
     }
   }
-}
-
-// Handle table creation success - refresh the table list
-function onTableCreated(tableName: string) {
-  console.log('Table created:', tableName);
-  tableListKey.value++; // Force re-render of NamespaceTables component
 }
 
 // Load namespace metadata on mount to get namespaceId for permissions
