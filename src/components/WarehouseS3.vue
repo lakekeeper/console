@@ -73,8 +73,7 @@
         (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
           (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
             !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
-        (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
-          !warehouseObjectData['storage-credential']['external-id'])
+        warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity'
       "
       @click="emitNewCredentials">
       Update Credentials
@@ -285,8 +284,7 @@
           (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
             (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
               !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
-          (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
-            !warehouseObjectData['storage-credential']['external-id']) ||
+          warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' ||
           !warehouseObjectData['storage-profile'].bucket ||
           (warehouseObjectData['storage-profile'].flavor === 'aws' &&
             !warehouseObjectData['storage-profile'].region) ||
@@ -309,8 +307,7 @@
           (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
             (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
               !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
-          (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
-            !warehouseObjectData['storage-credential']['external-id']) ||
+          warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' ||
           !warehouseObjectData['storage-profile'].bucket ||
           (warehouseObjectData['storage-profile'].flavor === 'aws' &&
             !warehouseObjectData['storage-profile'].region) ||
