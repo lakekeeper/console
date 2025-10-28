@@ -111,11 +111,11 @@
             :items="s3Flavor"
             label="S3 Flavor *"
             :placeholder="
-              warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' 
+              warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity'
                 ? 'Automatically set to AWS for System Identity'
                 : warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'
-                ? 'Automatically set to S3-Compatible for R2'
-                : 'Select S3 Flavor'
+                  ? 'Automatically set to S3-Compatible for R2'
+                  : 'Select S3 Flavor'
             "
             :rules="[rules.required]"
             :error="isFlavorInvalid"
