@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.3](https://github.com/lakekeeper/console/compare/v0.10.2...v0.10.3) (2025-10-28)
+
+
+### Bug Fixes
+
+* create s3 with aws identity ([#171](https://github.com/lakekeeper/console/issues/171)) ([69a918c](https://github.com/lakekeeper/console/commit/69a918cf20a3cb8d32fe1ced00b89be62fbb76fe))
+
 ## [0.10.2](https://github.com/lakekeeper/console/compare/v0.10.1...v0.10.2) (2025-10-05)
 
 
