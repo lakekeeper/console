@@ -16,52 +16,64 @@
       v-if="warehouseObjectData['storage-credential']['credential-type'] === 'access-key'"
       v-model="warehouseObjectData['storage-credential']['aws-access-key-id']"
       autocomplete="username"
-      label="AWS Access Key ID"
+      :label="getFieldLabel('AWS Access Key ID', areAccessKeysRequired)"
       placeholder="AKIAIOSFODNN7EXAMPLE"
-      :rules="[rules.required]"></v-text-field>
+      :rules="[rules.requiredForAccessKey]"
+      :error="isAccessKeyIdInvalid"
+      :color="isAccessKeyIdInvalid ? 'error' : 'primary'"></v-text-field>
     <v-text-field
       v-if="warehouseObjectData['storage-credential']['credential-type'] === 'access-key'"
       v-model="warehouseObjectData['storage-credential']['aws-secret-access-key']"
       :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
       autocomplete="current-password"
-      label="AWS Secret Access Key"
+      :label="getFieldLabel('AWS Secret Access Key', areAccessKeysRequired)"
       placeholder="your-aws-secret-access-key"
-      :rules="[rules.required]"
+      :rules="[rules.requiredForAccessKey]"
       :type="showPassword ? 'text' : 'password'"
+      :error="isSecretKeyInvalid"
+      :color="isSecretKeyInvalid ? 'error' : 'primary'"
       @click:append-inner="showPassword = !showPassword"></v-text-field>
 
     <div v-if="warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'">
       <v-text-field
         v-model="warehouseObjectData['storage-credential']['access-key-id']"
         autocomplete="username"
-        label="Access Key ID"
+        label="Access Key ID *"
         placeholder="AKIAIOSFODNN7EXAMPLE"
-        :rules="[rules.required]"></v-text-field>
+        :rules="[rules.required]"
+        :error="isR2AccessKeyInvalid"
+        :color="isR2AccessKeyInvalid ? 'error' : 'primary'"></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-credential']['secret-access-key']"
         :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
         autocomplete="current-password"
-        label="Secret Access Key"
+        label="Secret Access Key *"
         placeholder="your-secret-access-key"
         :rules="[rules.required]"
         :type="showPassword ? 'text' : 'password'"
+        :error="isR2SecretKeyInvalid"
+        :color="isR2SecretKeyInvalid ? 'error' : 'primary'"
         @click:append-inner="showPassword = !showPassword"></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-credential'].token"
         :append-inner-icon="showPassword ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"
         autocomplete="current-password"
-        label="Token"
+        label="Token *"
         placeholder="7Ld5fNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-123456"
         :rules="[rules.required]"
         :type="showPassword ? 'text' : 'password'"
+        :error="isR2TokenInvalid"
+        :color="isR2TokenInvalid ? 'error' : 'primary'"
         @click:append-inner="showPassword = !showPassword"></v-text-field>
 
       <v-text-field
         v-model="warehouseObjectData['storage-credential']['account-id']"
         autocomplete="username"
-        label="Account ID"
+        label="Account ID *"
         placeholder="123456aaaaa1111"
-        :rules="[rules.required]"></v-text-field>
+        :rules="[rules.required]"
+        :error="isR2AccountIdInvalid"
+        :color="isR2AccountIdInvalid ? 'error' : 'primary'"></v-text-field>
     </div>
 
     <!-- AWS System Identity Fields -->
@@ -70,11 +82,9 @@
       v-if="props.objectType === ObjectType.STORAGE_CREDENTIAL"
       color="success"
       :disabled="
-        (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
-          (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
-            !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
-        (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
-          !warehouseObjectData['storage-credential']['external-id'])
+        warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
+        (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
+          !warehouseObjectData['storage-credential']['aws-secret-access-key'])
       "
       @click="emitNewCredentials">
       Update Credentials
@@ -95,12 +105,21 @@
             item-title="name"
             item-value="code"
             :disabled="
-              warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'
+              warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2' ||
+              warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity'
             "
             :items="s3Flavor"
-            label="S3 Flavor"
-            placeholder="Select S3 Flavor"
-            :rules="[rules.required]">
+            label="S3 Flavor *"
+            :placeholder="
+              warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity'
+                ? 'Automatically set to AWS for System Identity'
+                : warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2'
+                  ? 'Automatically set to S3-Compatible for R2'
+                  : 'Select S3 Flavor'
+            "
+            :rules="[rules.required]"
+            :error="isFlavorInvalid"
+            :color="isFlavorInvalid ? 'error' : 'primary'">
             <template #item="{ props: itemProps, item }">
               <v-list-item v-bind="itemProps" :subtitle="item.raw.code"></v-list-item>
             </template>
@@ -110,8 +129,16 @@
           <v-combobox
             v-model="warehouseObjectData['storage-profile'].region"
             :items="regions"
-            label="Bucket Region"
-            placeholder="eu-central-1"></v-combobox>
+            :label="
+              getFieldLabel(
+                'Bucket Region',
+                warehouseObjectData['storage-profile'].flavor === 'aws',
+              )
+            "
+            placeholder="eu-central-1"
+            :rules="[rules.requiredForAws]"
+            :error="isRegionInvalid"
+            :color="isRegionInvalid ? 'error' : 'primary'"></v-combobox>
         </v-col>
         <v-col>
           <v-text-field
@@ -157,9 +184,11 @@
 
       <v-text-field
         v-model="warehouseObjectData['storage-profile'].bucket"
-        label="Bucket"
+        label="Bucket *"
         placeholder="my-bucket"
-        :rules="[rules.required]"></v-text-field>
+        :rules="[rules.required]"
+        :error="isBucketInvalid"
+        :color="isBucketInvalid ? 'error' : 'primary'"></v-text-field>
       <v-text-field
         v-model="warehouseObjectData['storage-profile']['key-prefix']"
         label="Key Prefix"
@@ -285,8 +314,6 @@
           (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
             (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
               !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
-          (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
-            !warehouseObjectData['storage-credential']['external-id']) ||
           !warehouseObjectData['storage-profile'].bucket ||
           (warehouseObjectData['storage-profile'].flavor === 'aws' &&
             !warehouseObjectData['storage-profile'].region) ||
@@ -309,8 +336,6 @@
           (warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
             (!warehouseObjectData['storage-credential']['aws-access-key-id'] ||
               !warehouseObjectData['storage-credential']['aws-secret-access-key'])) ||
-          (warehouseObjectData['storage-credential']['credential-type'] === 'aws-system-identity' &&
-            !warehouseObjectData['storage-credential']['external-id']) ||
           !warehouseObjectData['storage-profile'].bucket ||
           (warehouseObjectData['storage-profile'].flavor === 'aws' &&
             !warehouseObjectData['storage-profile'].region) ||
@@ -331,7 +356,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch } from 'vue';
+import { ref, onMounted, reactive, watch, computed } from 'vue';
 
 import {
   S3Credential,
@@ -458,6 +483,90 @@ const regions = [
 const rules = {
   required: (value: any) => !!value || 'Required.',
   noSlash: (value: string) => !value.includes('/') || 'Cannot contain "/"',
+  // Dynamic rules based on credential type
+  requiredForAccessKey: (value: any) => {
+    if (warehouseObjectData['storage-credential']['credential-type'] === 'access-key') {
+      return !!value || 'Required for Access Key credentials.';
+    }
+    return true;
+  },
+  requiredForAws: (value: any) => {
+    if (warehouseObjectData['storage-profile'].flavor === 'aws') {
+      return !!value || 'Required for AWS flavor.';
+    }
+    return true;
+  },
+  // Optional field helper (for visual indication)
+  optional: () => true,
+};
+
+// Computed properties for field requirements
+const isRegionRequired = computed(() => warehouseObjectData['storage-profile'].flavor === 'aws');
+
+const areAccessKeysRequired = computed(() => {
+  return warehouseObjectData['storage-credential']['credential-type'] === 'access-key';
+});
+
+// Computed properties for field validation states (show red border when required but empty)
+const isAccessKeyIdInvalid = computed(() => {
+  return (
+    areAccessKeysRequired.value &&
+    warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
+    !(warehouseObjectData['storage-credential'] as any)['aws-access-key-id']
+  );
+});
+
+const isSecretKeyInvalid = computed(() => {
+  return (
+    areAccessKeysRequired.value &&
+    warehouseObjectData['storage-credential']['credential-type'] === 'access-key' &&
+    !(warehouseObjectData['storage-credential'] as any)['aws-secret-access-key']
+  );
+});
+
+const isBucketInvalid = computed(() => {
+  return !warehouseObjectData['storage-profile'].bucket;
+});
+
+const isRegionInvalid = computed(
+  () => isRegionRequired.value && !warehouseObjectData['storage-profile'].region,
+);
+
+const isFlavorInvalid = computed(() => {
+  return !warehouseObjectData['storage-profile'].flavor;
+});
+
+// Cloudflare R2 field validation
+const isR2AccessKeyInvalid = computed(() => {
+  return (
+    warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2' &&
+    !(warehouseObjectData['storage-credential'] as any)['access-key-id']
+  );
+});
+
+const isR2SecretKeyInvalid = computed(() => {
+  return (
+    warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2' &&
+    !(warehouseObjectData['storage-credential'] as any)['secret-access-key']
+  );
+});
+
+const isR2TokenInvalid = computed(() => {
+  return (
+    warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2' &&
+    !(warehouseObjectData['storage-credential'] as any).token
+  );
+});
+
+const isR2AccountIdInvalid = computed(() => {
+  return (
+    warehouseObjectData['storage-credential']['credential-type'] === 'cloudflare-r2' &&
+    !(warehouseObjectData['storage-credential'] as any)['account-id']
+  );
+});
+
+const getFieldLabel = (baseLabel: string, isRequired: boolean) => {
+  return isRequired ? `${baseLabel} *` : `${baseLabel} (optional)`;
 };
 
 const s3Flavor = [
@@ -555,6 +664,8 @@ watch(
   (newValue) => {
     if (newValue === 'cloudflare-r2') {
       warehouseObjectData['storage-profile'].flavor = 's3-compat';
+    } else if (newValue === 'aws-system-identity') {
+      warehouseObjectData['storage-profile'].flavor = 'aws';
     }
   },
 );
