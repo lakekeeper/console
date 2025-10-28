@@ -28,7 +28,7 @@
             <TablePreview
               v-if="tab === 'preview'"
               :warehouse-id="params.id"
-              :namespace-id="params.nsid"
+              :namespace-id="namespacePath"
               :table-name="params.tid"
               :catalog-url="catalogUrl"
               :storage-type="storageType" />
@@ -118,6 +118,10 @@ async function loadWarehouse() {
     storageType.value = undefined;
   }
 }
+
+const namespacePath = computed(() => {
+  return params.value.nsid.replace(/\x1F/g, '.');
+});
 
 async function loadTableMetadata() {
   const { id, nsid, tid } = params.value;
