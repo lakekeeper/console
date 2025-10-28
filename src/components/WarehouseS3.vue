@@ -129,9 +129,14 @@
           <v-combobox
             v-model="warehouseObjectData['storage-profile'].region"
             :items="regions"
-            label="Bucket Region *"
+            :label="
+              getFieldLabel(
+                'Bucket Region',
+                warehouseObjectData['storage-profile'].flavor === 'aws',
+              )
+            "
             placeholder="eu-central-1"
-            :rules="[rules.requiredForRegion]"
+            :rules="[rules.requiredForAws]"
             :error="isRegionInvalid"
             :color="isRegionInvalid ? 'error' : 'primary'"></v-combobox>
         </v-col>
@@ -491,18 +496,12 @@ const rules = {
     }
     return true;
   },
-  // Region is always required regardless of flavor
-  requiredForRegion: (value: any) => {
-    return !!value || 'Region is required.';
-  },
   // Optional field helper (for visual indication)
   optional: () => true,
 };
 
 // Computed properties for field requirements
-const isRegionRequired = computed(() => {
-  return true; // Region is always required
-});
+const isRegionRequired = computed(() => warehouseObjectData['storage-profile'].flavor === 'aws');
 
 const areAccessKeysRequired = computed(() => {
   return warehouseObjectData['storage-credential']['credential-type'] === 'access-key';
@@ -529,9 +528,9 @@ const isBucketInvalid = computed(() => {
   return !warehouseObjectData['storage-profile'].bucket;
 });
 
-const isRegionInvalid = computed(() => {
-  return isRegionRequired.value && !warehouseObjectData['storage-profile'].region;
-});
+const isRegionInvalid = computed(
+  () => isRegionRequired.value && !warehouseObjectData['storage-profile'].region,
+);
 
 const isFlavorInvalid = computed(() => {
   return !warehouseObjectData['storage-profile'].flavor;
