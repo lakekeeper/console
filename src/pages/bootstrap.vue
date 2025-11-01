@@ -168,7 +168,6 @@ onUnmounted(() => {
 
 async function getServerInfo() {
   try {
-    console.log('Fetching server info...');
     const data = await functions.getServerInfo();
     visual.setServerInfo(data);
     bootstrapped.value = data.bootstrapped;

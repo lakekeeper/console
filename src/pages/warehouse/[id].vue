@@ -8,7 +8,7 @@
       <v-tabs v-model="tab" density="compact">
         <v-tab density="compact" value="namespaces">namespaces</v-tab>
         <v-tab density="compact" value="details">Details</v-tab>
-        <v-tab density="compact" value="sql">SQL</v-tab>
+        <v-tab density="compact" value="query">Query</v-tab>
         <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
         <v-tab v-if="showPermissionsTab" density="compact" value="permissions">permissions</v-tab>
       </v-tabs>
@@ -20,9 +20,9 @@
           <v-tabs-window-item value="details">
             <WarehouseDetails v-if="tab === 'details'" :warehouse-id="params.id" />
           </v-tabs-window-item>
-          <v-tabs-window-item value="sql">
+          <v-tabs-window-item value="query">
             <WarehouseSqlQuery
-              v-if="tab === 'sql'"
+              v-if="tab === 'query'"
               :warehouse-id="params.id"
               :warehouse-name="warehouseName"
               :catalog-url="catalogUrl"

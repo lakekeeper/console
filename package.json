@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.30.0",
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#vk/wasm-duckdb",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.0",
     "@mdi/font": "7.4.47",
     "@wdns/vue-code-block": "^2.3.3",
     "chart.js": "^4.4.8",

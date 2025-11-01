@@ -116,11 +116,6 @@ async function loadNamespaceMetadata() {
     if (warehouse['storage-profile']?.type) {
       storageType.value = warehouse['storage-profile'].type;
     }
-    console.log('Namespace page loaded warehouse:', {
-      warehouseId: id,
-      storageProfileType: warehouse['storage-profile']?.type,
-      storageType: storageType.value,
-    });
 
     const namespace = await functions.loadNamespaceMetadata(id, nsid);
     if (requestToken !== lastNamespaceRequest.value) {
@@ -138,7 +133,6 @@ async function loadNamespaceMetadata() {
 
 // Handle table creation - force refresh of table list
 function onTableCreated(tableName: string) {
-  console.log('Table created:', tableName);
   tableListKey.value++; // Increment key to force re-render of NamespaceTables
 }
 
