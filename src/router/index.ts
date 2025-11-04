@@ -1,7 +1,6 @@
-// @ts-ignore - vue-router/auto is provided by unplugin-vue-router
+// @ts-expect-error - vue-router/auto is provided by unplugin-vue-router
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
-// @ts-ignore - vue-router/auto-routes is provided by unplugin-vue-router
 import { routes } from 'vue-router/auto-routes';
 import { useUserStore, useFunctions } from '@lakekeeper/console-components';
 import * as env from '../app.config';
