@@ -20,7 +20,7 @@
     "test:manual": "SKIP_WEBSERVER=true playwright test"
   },
   "dependencies": {
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#vk/deps",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.2",
     "@mdi/font": "7.4.47",
     "json-bigint": "^1.0.0",
     "oidc-client-ts": "^3.3.0",
