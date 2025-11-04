@@ -98,6 +98,7 @@ const params = computed(() => ({
 // When decoded from the route param, it becomes the actual \x1F character
 // e.g., "finance\x1Fsub" -> "finance.sub"
 const namespacePath = computed(() => {
+  // eslint-disable-next-line no-control-regex
   return params.value.nsid.replace(/\x1F/g, '.');
 });
 
@@ -132,7 +133,7 @@ async function loadNamespaceMetadata() {
 }
 
 // Handle table creation - force refresh of table list
-function onTableCreated(tableName: string) {
+function onTableCreated() {
   tableListKey.value++; // Increment key to force re-render of NamespaceTables
 }
 

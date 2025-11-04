@@ -1,5 +1,7 @@
+// @ts-ignore - vue-router/auto is provided by unplugin-vue-router
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
+// @ts-ignore - vue-router/auto-routes is provided by unplugin-vue-router
 import { routes } from 'vue-router/auto-routes';
 import { useUserStore, useFunctions } from '@lakekeeper/console-components';
 import * as env from '../app.config';
@@ -20,7 +22,7 @@ const router = createRouter({
 });
 
 // Workaround for https://github.com/vitejs/vite/issues/11804
-router.onError((err, to) => {
+router.onError((err: any, to: any) => {
   if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
     if (!localStorage.getItem('vuetify:dynamic-reload')) {
       localStorage.setItem('vuetify:dynamic-reload', 'true');
@@ -37,7 +39,7 @@ router.isReady().then(() => {
   localStorage.removeItem('vuetify:dynamic-reload');
 });
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to: any, from: any, next: any) => {
   const userStorage = useUserStore();
   const functions = useFunctions();
 

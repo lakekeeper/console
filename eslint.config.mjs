@@ -67,6 +67,10 @@ export default [
       'rust-project.json',
       '.env.azure',
       'console-rs',
+      'public/**',
+      '**/duckdb-worker-wrapper.js',
+      '**/duckdb*.js',
+      '**/duckdb*.wasm',
     ],
   },
   {

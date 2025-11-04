@@ -115,6 +115,7 @@ async function loadWarehouse() {
 }
 
 const namespacePath = computed(() => {
+  // eslint-disable-next-line no-control-regex
   return params.value.nsid.replace(/\x1F/g, '.');
 });
 
