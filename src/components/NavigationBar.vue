@@ -1,0 +1,75 @@
+<template>
+  <v-navigation-drawer v-model="visual.navBarShow">
+    <v-list>
+      <v-list-item link prepend-icon="mdi-home" title="Home" to="/"></v-list-item>
+      <v-list-item
+        link
+        prepend-icon="mdi-warehouse"
+        title="Warehouses"
+        to="/warehouse"></v-list-item>
+      <v-dialog v-model="isDialogActive" max-width="500">
+        <template #activator="{ props: activatorProps }">
+          <v-list-item
+            v-bind="activatorProps"
+            link
+            prepend-icon="mdi-bucket"
+            title="Volumes"></v-list-item>
+        </template>
+
+        <v-card title="Welcome to the Roadmap">
+          <v-card-text>
+            <div class="mb-2">Excited about the future of Lakekeeper?</div>
+
+            Join the conversation and shape the journey!
+            <a href="https://github.com/lakekeeper/lakekeeper/discussions/409" target="_blank">
+              Click here
+            </a>
+            to explore and contribute to the roadmap discussion about Volumes on GitHub.
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn color="info" text="Close" @click="isDialogActive = false"></v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-list-item
+        link
+        prepend-icon="mdi-account-key"
+        title="Roles"
+        @click="routeToRoles"></v-list-item>
+      <v-list-item
+        link
+        prepend-icon="mdi-cog"
+        title="Server settings"
+        to="/server-settings"></v-list-item>
+    </v-list>
+  </v-navigation-drawer>
+</template>
+
+<script setup lang="ts">
+import { useVisualStore } from '@lakekeeper/console-components';
+import { useRouter } from 'vue-router';
+import { useConfig } from '@lakekeeper/console-components';
+import { Type } from '@lakekeeper/console-components';
+
+const visual = useVisualStore();
+const router = useRouter();
+const config = useConfig();
+const isDialogActive = ref(false);
+
+function routeToRoles() {
+  if (config.enabledAuthentication.value && config.enabledPermissions.value) {
+    router.push('/roles');
+  } else {
+    visual.setSnackbarMsg({
+      function: 'routeToRoles',
+      text: 'Authorization is disabled',
+      ttl: 3000,
+      ts: Date.now(),
+      type: Type.INFO,
+    });
+  }
+}
+</script>

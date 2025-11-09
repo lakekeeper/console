@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     EULA: typeof import('./components/EULA.vue')['default']
     Home: typeof import('./components/Home.vue')['default']
+    NavigationBar: typeof import('./components/NavigationBar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
