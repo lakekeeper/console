@@ -75,6 +75,7 @@ import {
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
+const router = useRouter();
 const functions = useFunctions();
 const tab = ref('namespaces');
 const namespaceId = ref('');
@@ -123,8 +124,12 @@ async function loadNamespaceMetadata() {
       return;
     }
     namespaceId.value = namespace.properties?.namespace_id || '';
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load namespace metadata:', error);
+    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
+      router.push('/notfound');
+      return;
+    }
     if (requestToken === lastNamespaceRequest.value) {
       namespaceId.value = '';
       storageType.value = undefined;

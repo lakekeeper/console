@@ -44,6 +44,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/dependencies': RouteRecordInfo<
+      '/dependencies',
+      '/dependencies',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/license': RouteRecordInfo<
       '/license',
       '/license',
@@ -170,6 +177,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/callback.vue': {
       routes:
         | '/callback'
+      views:
+        | never
+    }
+    'src/pages/dependencies.vue': {
+      routes:
+        | '/dependencies'
       views:
         | never
     }

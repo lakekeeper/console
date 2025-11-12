@@ -77,6 +77,7 @@ const route = useRoute();
 const tab = ref('overview');
 const viewId = ref('');
 const lastViewRequest = ref(0);
+const router = useRouter();
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -99,8 +100,12 @@ async function loadViewMetadata() {
       return;
     }
     viewId.value = view.metadata['view-uuid'] || '';
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load view metadata:', error);
+    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
+      router.push('/notfound');
+      return;
+    }
     if (requestToken === lastViewRequest.value) {
       viewId.value = '';
     }

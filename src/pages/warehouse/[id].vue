@@ -46,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   RelationType,
   useWarehousePermissions,
@@ -55,6 +55,7 @@ import {
 import { computed, ref, onMounted } from 'vue';
 
 const route = useRoute();
+const router = useRouter();
 const functions = useFunctions();
 const tab = ref('namespaces');
 const warehouseName = ref<string | undefined>(undefined);
@@ -80,6 +81,7 @@ const { showPermissionsTab, showTasksTab } = useWarehousePermissions(warehouseId
 async function loadWarehouse() {
   try {
     const wh = await functions.getWarehouse(params.value.id);
+
     warehouseName.value = wh.name;
 
     // Extract storage type from warehouse config
@@ -101,8 +103,14 @@ async function loadWarehouse() {
         storageType.value = 'gcs';
       }
     }
-  } catch (error) {
-    console.error('Failed to load warehouse:', error);
+  } catch (error: any) {
+    // If it's a 404/WarehouseNotFound error, redirect to not found page
+    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
+      router.push('/notfound');
+      return;
+    }
+
+    // For other errors, clear the warehouse data but stay on page
     warehouseName.value = undefined;
     storageType.value = undefined;
   }

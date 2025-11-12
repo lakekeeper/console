@@ -82,6 +82,7 @@ const tableId = ref('');
 const lastTableRequest = ref(0);
 const warehouse = ref<{ name: string; id: string } | null>(null);
 const storageType = ref<string | undefined>(undefined);
+const router = useRouter();
 
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
@@ -130,8 +131,12 @@ async function loadTableMetadata() {
       return;
     }
     tableId.value = table.metadata['table-uuid'] || '';
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load table metadata:', error);
+    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
+      router.push('/notfound');
+      return;
+    }
     if (requestToken === lastTableRequest.value) {
       tableId.value = '';
     }

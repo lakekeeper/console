@@ -17,10 +17,11 @@
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "test:codegen": "playwright codegen http://localhost:3001",
-    "test:manual": "SKIP_WEBSERVER=true playwright test"
+    "test:manual": "SKIP_WEBSERVER=true playwright test",
+    "update-deps-page": "node scripts/update-dependencies-page.js"
   },
   "dependencies": {
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.4",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.5",
     "@mdi/font": "7.4.47",
     "json-bigint": "^1.0.0",
     "oidc-client-ts": "^3.3.0",
