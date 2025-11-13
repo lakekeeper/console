@@ -18,7 +18,7 @@ const lakekeeperDir = path.resolve(__dirname, '../../lakekeeper');
 const consolePackagePath = path.join(consoleDir, 'package.json');
 const componentsPackagePath = path.join(consoleComponentsDir, 'package.json');
 const cargoTomlPath = path.join(lakekeeperDir, 'Cargo.toml');
-const dependenciesVuePath = path.join(consoleDir, 'src/pages/dependencies.vue');
+const dependenciesJsonPath = path.join(consoleDir, 'src/data/dependencies.json');
 
 console.log('📦 Reading package files...\n');
 
@@ -94,267 +94,34 @@ if (fs.existsSync(cargoTomlPath)) {
   console.warn('⚠️  Cargo.toml not found, skipping Rust dependencies');
 }
 
-// Generate Vue component code
-const vueContent = `<template>
-  <v-container fluid>
-    <v-row>
-      <v-col>
-        <h1 class="text-h4 mb-4">Project Dependencies</h1>
-        
-        <v-tabs v-model="tab" color="primary">
-          <v-tab value="console">Console (Frontend)</v-tab>
-          <v-tab value="components">Console Components (Library)</v-tab>
-          <v-tab value="backend">Lakekeeper (Backend - Rust)</v-tab>
-        </v-tabs>
+// Create dependencies data object
+const dependenciesData = {
+  console: {
+    version: consolePackage.version,
+    dependencies: consoleDeps,
+    devDependencies: consoleDevDeps,
+  },
+  components: {
+    version: componentsPackage.version,
+    dependencies: componentsDeps,
+    devDependencies: componentsDevDeps,
+    peerDependencies: componentsPeerDeps,
+  },
+  rust: {
+    version: rustVersion,
+    rustVersion: wasmVersion,
+    dependencies: rustDeps,
+  },
+};
 
-        <v-card class="mt-4">
-          <v-tabs-window v-model="tab">
-            <!-- Console Dependencies -->
-            <v-tabs-window-item value="console">
-              <v-card-text>
-                <h2 class="text-h5 mb-4">Console Application</h2>
-                <p class="text-body-2 mb-4">Version: ${consolePackage.version}</p>
-
-                <v-expansion-panels class="mb-4">
-                  <v-expansion-panel>
-                    <v-expansion-panel-title>
-                      <div class="d-flex align-center">
-                        <v-icon class="mr-2" color="success">mdi-package-variant</v-icon>
-                        <strong>Runtime Dependencies ({{ consoleDeps.length }})</strong>
-                      </div>
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text>
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in consoleDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-
-                  <v-expansion-panel>
-                    <v-expansion-panel-title>
-                      <div class="d-flex align-center">
-                        <v-icon class="mr-2" color="info">mdi-tools</v-icon>
-                        <strong>Dev Dependencies ({{ consoleDevDeps.length }})</strong>
-                      </div>
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text>
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in consoleDevDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </v-card-text>
-            </v-tabs-window-item>
-
-            <!-- Console Components Dependencies -->
-            <v-tabs-window-item value="components">
-              <v-card-text>
-                <h2 class="text-h5 mb-4">Console Components Library</h2>
-                <p class="text-body-2 mb-4">Version: ${componentsPackage.version}</p>
-
-                <v-expansion-panels class="mb-4">
-                  <v-expansion-panel>
-                    <v-expansion-panel-title>
-                      <div class="d-flex align-center">
-                        <v-icon class="mr-2" color="success">mdi-package-variant</v-icon>
-                        <strong>Runtime Dependencies ({{ componentsDeps.length }})</strong>
-                      </div>
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text>
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in componentsDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-
-                  <v-expansion-panel>
-                    <v-expansion-panel-title>
-                      <div class="d-flex align-center">
-                        <v-icon class="mr-2" color="info">mdi-tools</v-icon>
-                        <strong>Dev Dependencies ({{ componentsDevDeps.length }})</strong>
-                      </div>
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text>
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in componentsDevDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-
-                  <v-expansion-panel>
-                    <v-expansion-panel-title>
-                      <div class="d-flex align-center">
-                        <v-icon class="mr-2" color="warning">mdi-link-variant</v-icon>
-                        <strong>Peer Dependencies ({{ componentsPeerDeps.length }})</strong>
-                      </div>
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text>
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in componentsPeerDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </v-card-text>
-            </v-tabs-window-item>
-
-            <!-- Rust Dependencies -->
-            <v-tabs-window-item value="backend">
-              <v-card-text>
-                <h2 class="text-h5 mb-4">Lakekeeper Backend (Rust)</h2>
-                <p class="text-body-2 mb-4">Version: ${rustVersion} | Rust: ${wasmVersion}</p>
-
-                <v-expansion-panels>
-                  <v-expansion-panel>
-                    <v-expansion-panel-title>
-                      <div class="d-flex align-center">
-                        <v-icon class="mr-2" color="error">mdi-language-rust</v-icon>
-                        <strong>Workspace Dependencies ({{ rustDeps.length }})</strong>
-                      </div>
-                    </v-expansion-panel-title>
-                    <v-expansion-panel-text>
-                      <v-text-field
-                        v-model="rustSearch"
-                        label="Search dependencies"
-                        prepend-inner-icon="mdi-magnify"
-                        clearable
-                        density="compact"
-                        class="mb-4"></v-text-field>
-
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in filteredRustDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>
-                            {{ dep.version }}
-                            <span v-if="dep.features" class="text-caption ml-2">
-                              (features: {{ dep.features }})
-                            </span>
-                          </v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </v-card-text>
-            </v-tabs-window-item>
-          </v-tabs-window>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
-</template>
-
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-
-const tab = ref('console');
-const rustSearch = ref('');
-
-// Console Dependencies (Runtime)
-const consoleDeps = ${JSON.stringify(consoleDeps, null, 2)};
-
-// Console Dev Dependencies
-const consoleDevDeps = ${JSON.stringify(consoleDevDeps, null, 2)};
-
-// Console Components Dependencies
-const componentsDeps = ${JSON.stringify(componentsDeps, null, 2)};
-
-const componentsDevDeps = ${JSON.stringify(componentsDevDeps, null, 2)};
-
-const componentsPeerDeps = ${JSON.stringify(componentsPeerDeps, null, 2)};
-
-// Rust Dependencies
-const rustDeps = ${JSON.stringify(rustDeps, null, 2)};
-
-const filteredRustDeps = computed(() => {
-  if (!rustSearch.value) return rustDeps;
-  const search = rustSearch.value.toLowerCase();
-  return rustDeps.filter((dep) => dep.name.toLowerCase().includes(search));
-});
-</script>
-
-<style scoped>
-.dependency-item {
-  border-left: 2px solid rgba(0, 0, 0, 0.05);
+// Write JSON file
+const jsonDir = path.dirname(dependenciesJsonPath);
+if (!fs.existsSync(jsonDir)) {
+  fs.mkdirSync(jsonDir, { recursive: true });
 }
+fs.writeFileSync(dependenciesJsonPath, JSON.stringify(dependenciesData, null, 2), 'utf8');
 
-code {
-  background-color: rgba(0, 0, 0, 0.05);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 0.875rem;
-}
-</style>
-`;
-
-// Write the file
-fs.writeFileSync(dependenciesVuePath, vueContent, 'utf8');
-
-console.log(`\n✅ Updated ${dependenciesVuePath}`);
+console.log(`\n✅ Updated ${dependenciesJsonPath}`);
 console.log('\n📊 Summary:');
 console.log(`   Console: ${consoleDeps.length + consoleDevDeps.length} total dependencies`);
 console.log(

@@ -20,7 +20,7 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "src/**/*.vue", "src/**/*.ts"],
+  "include": ["src/**/*", "src/**/*.vue", "src/**/*.ts", "src/**/*.json"],
   "exclude": ["dist", "node_modules", "cypress"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

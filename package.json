@@ -21,7 +21,7 @@
     "update-deps-page": "node scripts/update-dependencies-page.js"
   },
   "dependencies": {
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.5",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.6",
     "@mdi/font": "7.4.47",
     "json-bigint": "^1.0.0",
     "oidc-client-ts": "^3.3.0",
