@@ -16,7 +16,6 @@
             <v-tabs-window-item value="console">
               <v-card-text>
                 <h2 class="text-h5 mb-4">Console Application</h2>
-                <p class="text-body-2 mb-4">Version: {{ dependenciesData.console.version }}</p>
 
                 <v-expansion-panels class="mb-4">
                   <v-expansion-panel>
@@ -27,20 +26,22 @@
                       </div>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in consoleDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
+                      <div style="max-height: 60vh; overflow-y: auto">
+                        <v-list density="compact">
+                          <v-list-item
+                            v-for="dep in consoleDeps"
+                            :key="dep.name"
+                            class="dependency-item">
+                            <template v-slot:prepend>
+                              <v-icon size="small">mdi-circle-small</v-icon>
+                            </template>
+                            <v-list-item-title>
+                              <code>{{ dep.name }}</code>
+                            </v-list-item-title>
+                            <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
+                          </v-list-item>
+                        </v-list>
+                      </div>
                     </v-expansion-panel-text>
                   </v-expansion-panel>
 
@@ -52,20 +53,22 @@
                       </div>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in consoleDevDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
+                      <div style="max-height: 60vh; overflow-y: auto">
+                        <v-list density="compact">
+                          <v-list-item
+                            v-for="dep in consoleDevDeps"
+                            :key="dep.name"
+                            class="dependency-item">
+                            <template v-slot:prepend>
+                              <v-icon size="small">mdi-circle-small</v-icon>
+                            </template>
+                            <v-list-item-title>
+                              <code>{{ dep.name }}</code>
+                            </v-list-item-title>
+                            <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
+                          </v-list-item>
+                        </v-list>
+                      </div>
                     </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>
@@ -76,7 +79,6 @@
             <v-tabs-window-item value="components">
               <v-card-text>
                 <h2 class="text-h5 mb-4">Console Components Library</h2>
-                <p class="text-body-2 mb-4">Version: {{ dependenciesData.components.version }}</p>
 
                 <v-expansion-panels class="mb-4">
                   <v-expansion-panel>
@@ -88,18 +90,20 @@
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
                       <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in componentsDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
+                        <div style="max-height: 60vh; overflow-y: auto">
+                          <v-list-item
+                            v-for="dep in componentsDeps"
+                            :key="dep.name"
+                            class="dependency-item">
+                            <template v-slot:prepend>
+                              <v-icon size="small">mdi-circle-small</v-icon>
+                            </template>
+                            <v-list-item-title>
+                              <code>{{ dep.name }}</code>
+                            </v-list-item-title>
+                            <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
+                          </v-list-item>
+                        </div>
                       </v-list>
                     </v-expansion-panel-text>
                   </v-expansion-panel>
@@ -112,20 +116,22 @@
                       </div>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in componentsDevDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
+                      <div style="max-height: 60vh; overflow-y: auto">
+                        <v-list density="compact">
+                          <v-list-item
+                            v-for="dep in componentsDevDeps"
+                            :key="dep.name"
+                            class="dependency-item">
+                            <template v-slot:prepend>
+                              <v-icon size="small">mdi-circle-small</v-icon>
+                            </template>
+                            <v-list-item-title>
+                              <code>{{ dep.name }}</code>
+                            </v-list-item-title>
+                            <v-list-item-subtitle>{{ dep.version }}</v-list-item-subtitle>
+                          </v-list-item>
+                        </v-list>
+                      </div>
                     </v-expansion-panel-text>
                   </v-expansion-panel>
 
@@ -161,10 +167,6 @@
             <v-tabs-window-item value="backend">
               <v-card-text>
                 <h2 class="text-h5 mb-4">Lakekeeper Backend (Rust)</h2>
-                <p class="text-body-2 mb-4">
-                  Version: {{ dependenciesData.rust.version }} | Rust:
-                  {{ dependenciesData.rust.rustVersion }}
-                </p>
 
                 <v-expansion-panels>
                   <v-expansion-panel>
@@ -182,26 +184,27 @@
                         clearable
                         density="compact"
                         class="mb-4"></v-text-field>
-
-                      <v-list density="compact">
-                        <v-list-item
-                          v-for="dep in filteredRustDeps"
-                          :key="dep.name"
-                          class="dependency-item">
-                          <template v-slot:prepend>
-                            <v-icon size="small">mdi-circle-small</v-icon>
-                          </template>
-                          <v-list-item-title>
-                            <code>{{ dep.name }}</code>
-                          </v-list-item-title>
-                          <v-list-item-subtitle>
-                            {{ dep.version }}
-                            <span v-if="dep.features" class="text-caption ml-2">
-                              (features: {{ dep.features }})
-                            </span>
-                          </v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
+                      <div style="max-height: 60vh; overflow-y: auto">
+                        <v-list density="compact">
+                          <v-list-item
+                            v-for="dep in filteredRustDeps"
+                            :key="dep.name"
+                            class="dependency-item">
+                            <template v-slot:prepend>
+                              <v-icon size="small">mdi-circle-small</v-icon>
+                            </template>
+                            <v-list-item-title>
+                              <code>{{ dep.name }}</code>
+                            </v-list-item-title>
+                            <v-list-item-subtitle>
+                              {{ dep.version }}
+                              <span v-if="dep.features" class="text-caption ml-2">
+                                (features: {{ dep.features }})
+                              </span>
+                            </v-list-item-subtitle>
+                          </v-list-item>
+                        </v-list>
+                      </div>
                     </v-expansion-panel-text>
                   </v-expansion-panel>
                 </v-expansion-panels>
