@@ -21,7 +21,12 @@
 </template>
 
 <script lang="ts" setup>
-import { useFunctions, RelationType, useServerPermissions } from '@lakekeeper/console-components';
+import {
+  useFunctions,
+  RelationType,
+  useServerPermissions,
+  useServerAuthorizerPermissions,
+} from '@lakekeeper/console-components';
 import { onMounted, ref } from 'vue';
 
 const tab = ref('overview');
@@ -30,7 +35,8 @@ const functions = useFunctions();
 const serverId = ref('');
 
 // Use the server permissions composable
-const { showPermissionsTab, showUsersTab } = useServerPermissions(serverId);
+const { showUsersTab } = useServerPermissions(serverId);
+const { showPermissionsTab } = useServerAuthorizerPermissions(serverId);
 
 const permissionType = RelationType.Server;
 

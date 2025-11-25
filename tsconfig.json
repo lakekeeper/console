@@ -18,7 +18,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
-    "skipLibCheck": true
+    "skipLibCheck": false
   },
   "include": ["src/**/*", "src/**/*.vue", "src/**/*.ts", "src/**/*.json"],
   "exclude": ["dist", "node_modules", "cypress"],

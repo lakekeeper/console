@@ -73,7 +73,12 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useFunctions, RelationType, useTablePermissions } from '@lakekeeper/console-components';
+import {
+  useFunctions,
+  RelationType,
+  useTablePermissions,
+  useTableAuthorizerPermissions,
+} from '@lakekeeper/console-components';
 
 const route = useRoute();
 const functions = useFunctions();
@@ -92,7 +97,8 @@ const params = computed(() => ({
 
 // Use composable for permissions with reactive warehouse id
 const warehouseId = computed(() => params.value.id);
-const { showPermissionsTab, showTasksTab } = useTablePermissions(tableId, warehouseId);
+const { showTasksTab } = useTablePermissions(tableId, warehouseId);
+const { showPermissionsTab } = useTableAuthorizerPermissions(tableId, warehouseId);
 
 // Get catalog URL from environment variable (same pattern as warehouse page)
 const catalogUrl = computed(() => {

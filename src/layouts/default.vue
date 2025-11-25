@@ -10,7 +10,12 @@
 
     <AppFooter>
       <template #app-links>
-        <v-btn to="/dependencies" prepend-icon="mdi-link" size="small" variant="text">
+        <v-btn
+          v-if="visual.showAppOrNavBar"
+          to="/dependencies"
+          prepend-icon="mdi-link"
+          size="small"
+          variant="text">
           Dependencies
         </v-btn>
       </template>

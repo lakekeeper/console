@@ -51,6 +51,7 @@ import {
   RelationType,
   useWarehousePermissions,
   useFunctions,
+  useWarehouseAuthorizerPermissions,
 } from '@lakekeeper/console-components';
 import { computed, ref, onMounted } from 'vue';
 
@@ -75,7 +76,8 @@ const warehouseId = computed(() => params.value.id);
 
 // Use warehouse permissions composable
 // const permissions = useWarehousePermissions(warehouseId);
-const { showPermissionsTab, showTasksTab } = useWarehousePermissions(warehouseId);
+const { showTasksTab } = useWarehousePermissions(warehouseId);
+const { showPermissionsTab } = useWarehouseAuthorizerPermissions(warehouseId);
 
 // Load warehouse data
 async function loadWarehouse() {

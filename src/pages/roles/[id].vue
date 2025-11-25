@@ -42,7 +42,11 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { RelationType, useRolePermissions } from '@lakekeeper/console-components';
+import {
+  RelationType,
+  useRolePermissions,
+  useRoleAuthorizerPermissions,
+} from '@lakekeeper/console-components';
 
 const route = useRoute();
 const params = computed(() => route.params as { id: string });
@@ -53,5 +57,6 @@ const type = RelationType.Role;
 const roleId = computed(() => params.value.id);
 
 // Use the role permissions composable
-const { loading, canRead, showPermissionsTab } = useRolePermissions(roleId);
+const { loading, canRead } = useRolePermissions(roleId);
+const { showPermissionsTab } = useRoleAuthorizerPermissions(roleId);
 </script>

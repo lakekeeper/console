@@ -70,7 +70,7 @@ import { computed, ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import {
   useFunctions,
-  useNamespacePermissions,
+  useNamespaceAuthorizerPermissions,
   RelationType,
 } from '@lakekeeper/console-components';
 
@@ -152,5 +152,5 @@ watch(
   { immediate: false },
 );
 
-const { showPermissionsTab } = useNamespacePermissions(namespaceId);
+const { showPermissionsTab } = useNamespaceAuthorizerPermissions(namespaceId, params.value.id);
 </script>

@@ -70,7 +70,12 @@
 <script lang="ts" setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useFunctions, RelationType, useViewPermissions } from '@lakekeeper/console-components';
+import {
+  useFunctions,
+  RelationType,
+  useViewPermissions,
+  useViewAuthorizerPermissions,
+} from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const route = useRoute();
@@ -87,7 +92,8 @@ const params = computed(() => ({
 
 // Use composable for view permissions with reactive warehouse id
 const warehouseId = computed(() => params.value.id);
-const { showPermissionsTab, showTasksTab } = useViewPermissions(viewId, warehouseId);
+const { showTasksTab } = useViewPermissions(viewId, warehouseId);
+const { showPermissionsTab } = useViewAuthorizerPermissions(viewId, warehouseId);
 
 async function loadViewMetadata() {
   const { id, nsid, vid } = params.value;

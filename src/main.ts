@@ -6,11 +6,7 @@
 
 // Plugins
 import { registerPlugins } from '@/plugins';
-import {
-  createAuth,
-  useFunctionsImplementation,
-  useVisualStore,
-} from '@lakekeeper/console-components';
+import { createAuth, useFunctions, useVisualStore } from '@lakekeeper/console-components';
 
 // Components
 import App from './App.vue';
@@ -76,6 +72,6 @@ app.use(auth);
 
 // Provide functions for shared components (using 'functions' key to match shared components expectations)
 // Pass config to functions so they can use the runtime config
-app.provide('functions', useFunctionsImplementation(appConfigObject));
+app.provide('functions', useFunctions(appConfigObject));
 
 app.mount('#app');

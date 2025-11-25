@@ -40,7 +40,19 @@ router.isReady().then(() => {
 
 router.beforeEach(async (to: any, from: any, next: any) => {
   const userStorage = useUserStore();
-  const functions = useFunctions();
+  const functions = useFunctions({
+    icebergCatalogUrl: env.icebergCatalogUrl,
+    idpAuthority: env.idpAuthority,
+    idpClientId: env.idpClientId,
+    idpRedirectPath: env.idpRedirectPath,
+    idpScope: env.idpScope,
+    idpResource: env.idpResource,
+    idpTokenType: env.idpTokenType,
+    idpLogoutRedirectPath: env.idpLogoutRedirectPath,
+    enabledAuthentication: env.enabledAuthentication,
+    enabledPermissions: env.enabledPermissions,
+    baseUrlPrefix: env.baseUrlPrefix,
+  });
 
   // If authentication is disabled, redirect auth-related paths to home
   if (!env.enabledAuthentication) {
@@ -62,33 +74,17 @@ router.beforeEach(async (to: any, from: any, next: any) => {
   try {
     serverInfo = await functions.getServerInfo();
 
-    // Check if server returned "Failed to authenticate" (401 error)
-    if (serverInfo === 'Failed to authenticate' || typeof serverInfo === 'string') {
-      userStorage.unsetUser();
-      return next('/login');
-    }
-
-    // Check if serverInfo is empty object or null (server offline)
-    if (!serverInfo || Object.keys(serverInfo).length === 0) {
-      return next('/server-offline');
-    }
-
-    // Check if server returned an error status (401 Unauthorized)
-    if (serverInfo?.status === 401 || serverInfo?.statusCode === 401) {
-      userStorage.unsetUser();
-      return next('/login');
-    }
-
-    // Check if server is actually offline (getServerInfo might return a flag)
-    if (serverInfo?.offline || serverInfo?.error) {
+    // Check if serverInfo is empty or null (server offline)
+    if (!serverInfo) {
       return next('/server-offline');
     }
   } catch (error: any) {
-    // Check if it's a 401 Unauthorized error in various formats
+    // Check if it's a 401 Unauthorized error
     if (
       error?.status === 401 ||
       error?.statusCode === 401 ||
       error?.response?.status === 401 ||
+      error?.code === 401 ||
       error?.message?.includes('401') ||
       error?.message?.includes('Unauthorized')
     ) {

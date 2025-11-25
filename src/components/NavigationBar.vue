@@ -51,16 +51,15 @@
 <script setup lang="ts">
 import { useVisualStore } from '@lakekeeper/console-components';
 import { useRouter } from 'vue-router';
-import { useConfig } from '@lakekeeper/console-components';
 import { Type } from '@lakekeeper/console-components';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 const visual = useVisualStore();
 const router = useRouter();
-const config = useConfig();
 const isDialogActive = ref(false);
 
 function routeToRoles() {
-  if (config.enabledAuthentication.value && config.enabledPermissions.value) {
+  if (enabledAuthentication && enabledPermissions) {
     router.push('/roles');
   } else {
     visual.setSnackbarMsg({
