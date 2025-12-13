@@ -32,17 +32,17 @@
       <v-row class="github-row">
         <v-col cols="12" class="text-center py-2">
           <div class="d-flex align-center justify-center flex-wrap gap-2 mb-3">
-            <v-chip v-if="version" class="stat-chip" size="small" variant="flat">
+            <v-chip v-if="version" class="stat-chip mr-2" size="small" variant="flat">
               <v-icon start size="small">mdi-tag-outline</v-icon>
               {{ version }}
             </v-chip>
-            <v-chip v-if="starCount > 0" class="stat-chip" size="small" variant="flat">
+            <v-chip v-if="starCount > 0" class="stat-chip mr-2" size="small" variant="flat">
               <v-icon start size="small">mdi-star-outline</v-icon>
-              {{ starCount }}
+              {{ formatCount(starCount) }}
             </v-chip>
             <v-chip v-if="forksCount > 0" class="stat-chip" size="small" variant="flat">
               <v-icon start size="small">mdi-source-fork</v-icon>
-              {{ forksCount }}
+              {{ formatCount(forksCount) }}
             </v-chip>
           </div>
           <v-btn
@@ -51,7 +51,7 @@
             prepend-icon="mdi-github"
             target="_blank"
             variant="elevated">
-            Star us on GitHub
+            ⭐ us on GitHub
           </v-btn>
         </v-col>
       </v-row>
@@ -325,6 +325,25 @@ const board = ref<string[]>(Array(9).fill(''));
 const currentPlayer = ref<'X' | 'O'>('X');
 const gameOver = ref(false);
 const winner = ref<'X' | 'O' | 'draw' | null>(null);
+
+const formatCount = (count: number): string => {
+  if (count < 1000) {
+    return count.toString();
+  }
+
+  const thousands = count / 1000;
+
+  // Round to 1 decimal place
+  const rounded = Math.round(thousands * 10) / 10;
+
+  // If it's a whole number (like 1.0, 2.0), show without decimal
+  if (rounded % 1 === 0) {
+    return `${rounded.toFixed(0)}k`;
+  }
+
+  // Otherwise show with 1 decimal place
+  return `${rounded.toFixed(1)}k`;
+};
 
 const checkWinner = (): 'X' | 'O' | 'draw' | null => {
   const winPatterns = [

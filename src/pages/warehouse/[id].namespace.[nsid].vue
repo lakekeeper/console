@@ -58,7 +58,8 @@
             <PermissionManager
               v-if="tab === 'permissions'"
               :objectId="namespaceId"
-              :relationType="RelationType.Namespace" />
+              :relationType="RelationType.Namespace"
+              :warehouseId="params.id" />
           </v-tabs-window-item>
         </v-tabs-window>
       </v-card>
