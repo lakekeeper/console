@@ -69,7 +69,7 @@
 </template>
 <script lang="ts" setup>
 import { onMounted, ref, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   useFunctions,
   RelationType,

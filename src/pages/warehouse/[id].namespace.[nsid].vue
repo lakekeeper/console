@@ -68,7 +68,7 @@
 </template>
 <script lang="ts" setup>
 import { computed, ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import {
   useFunctions,
   useNamespaceAuthorizerPermissions,
