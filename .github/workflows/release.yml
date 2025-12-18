@@ -57,7 +57,7 @@ jobs:
 
       - name: Install Packages and Build Application
         run: |
-          npm ci
+          npm ci --include=optional
           npm run build
 
       - name: Upload dist folder
