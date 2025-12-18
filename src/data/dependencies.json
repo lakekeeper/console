@@ -4,7 +4,7 @@
     "dependencies": [
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.2.5"
+        "version": "github:lakekeeper/console-components#v0.2.11"
       },
       {
         "name": "@mdi/font",
@@ -143,7 +143,7 @@
     ]
   },
   "components": {
-    "version": "0.2.4",
+    "version": "0.2.11",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -163,7 +163,7 @@
       },
       {
         "name": "@duckdb/duckdb-wasm",
-        "version": "^1.31.1-dev1.0"
+        "version": "^1.32.1-dev1.0"
       },
       {
         "name": "@wdns/vue-code-block",
@@ -276,6 +276,10 @@
         "version": "^5.4.21"
       },
       {
+        "name": "vite-plugin-dts",
+        "version": "^4.5.4"
+      },
+      {
         "name": "vite-plugin-vuetify",
         "version": "^2.1.1"
       },
@@ -309,13 +313,8 @@
   },
   "rust": {
     "version": "0.10.3",
-    "rustVersion": "1.87.0",
+    "rustVersion": "1.88.0",
     "dependencies": [
-      {
-        "name": "unicase",
-        "version": "2.8.1",
-        "features": ""
-      },
       {
         "name": "anyhow",
         "version": "^1.0",
@@ -353,12 +352,27 @@
       },
       {
         "name": "aws-config",
-        "version": "1.8.5",
+        "version": "1.8.10",
         "features": "behavior-version-latest"
+      },
+      {
+        "name": "aws-credential-types",
+        "version": "1.2",
+        "features": ""
+      },
+      {
+        "name": "aws-sdk-s3",
+        "version": "1.65",
+        "features": ""
       },
       {
         "name": "aws-sdk-sts",
         "version": "1.82.0",
+        "features": ""
+      },
+      {
+        "name": "aws-sigv4",
+        "version": "1.2",
         "features": ""
       },
       {
@@ -492,13 +506,13 @@
         "features": ""
       },
       {
-        "name": "google-cloud-token",
-        "version": "1.0",
+        "name": "google-cloud-storage",
+        "version": "1.1",
         "features": ""
       },
       {
-        "name": "google-cloud-storage",
-        "version": "1.1",
+        "name": "google-cloud-token",
+        "version": "1.0",
         "features": ""
       },
       {
@@ -603,12 +617,12 @@
       },
       {
         "name": "rdkafka",
-        "version": "git",
+        "version": "0.38.0",
         "features": ""
       },
       {
         "name": "reqwest",
-        "version": "^0.12",
+        "version": "0.12.23",
         "features": ""
       },
       {
@@ -688,13 +702,18 @@
       },
       {
         "name": "tracing",
-        "version": "^0.1",
-        "features": "attributes"
+        "version": "^0.1.41",
+        "features": "attributes, valuable"
       },
       {
         "name": "tracing-subscriber",
         "version": "0.3.18",
         "features": "env-filter, json"
+      },
+      {
+        "name": "tracing-test",
+        "version": "0.2.5",
+        "features": ""
       },
       {
         "name": "tryhard",
@@ -704,6 +723,11 @@
       {
         "name": "typed-builder",
         "version": "^0.22.0",
+        "features": ""
+      },
+      {
+        "name": "unicase",
+        "version": "2.8.1",
         "features": ""
       },
       {
@@ -732,14 +756,19 @@
         "features": "serde, v4, v5, v7"
       },
       {
+        "name": "valuable",
+        "version": "0.1.1",
+        "features": ""
+      },
+      {
         "name": "veil",
         "version": "0.2.0",
         "features": ""
       },
       {
-        "name": "tracing-test",
-        "version": "0.2.5",
-        "features": ""
+        "name": "xxhash-rust",
+        "version": "0.8.12",
+        "features": "xxh3"
       }
     ]
   }
