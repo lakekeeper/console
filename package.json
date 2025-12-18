@@ -1,6 +1,6 @@
 {
   "name": "catalog",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "scripts": {
     "dev": "vite",
     "dev:test": "vite --port 5001",
