@@ -30,13 +30,27 @@ fn main() {
     std::process::Command::new("bash")
         .arg("-c")
         .arg(format!(
-            "cd {} && HOME=\"{}\" npm ci",
+            "cd {} && HOME=\"{}\" npm ci --include=optional",
             node_root.to_str().unwrap(),
             node_root.to_str().unwrap()
         ))
         .current_dir(node_root.clone())
         .status()
         .expect("Failed to install Lakekeeper UI dependencies with npm");
+    
+    // Explicitly install rollup native binary to work around npm bug
+    // See: https://github.com/npm/cli/issues/4828
+    std::process::Command::new("bash")
+        .arg("-c")
+        .arg(format!(
+            "cd {} && HOME=\"{}\" npm install --no-save --force @rollup/rollup-linux-x64-gnu",
+            node_root.to_str().unwrap(),
+            node_root.to_str().unwrap()
+        ))
+        .current_dir(node_root.clone())
+        .status()
+        .expect("Failed to install rollup native binary");
+    
     let output = std::process::Command::new("npm")
         .args(["run", "build-placeholder"])
         .current_dir(&node_root)
