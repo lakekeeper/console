@@ -58,6 +58,7 @@ jobs:
       - name: Install Packages and Build Application
         run: |
           npm ci --include=optional
+          npm install --no-save --force @rollup/rollup-linux-x64-gnu
           npm run build
 
       - name: Upload dist folder
