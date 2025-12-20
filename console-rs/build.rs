@@ -43,7 +43,7 @@ fn main() {
     std::process::Command::new("bash")
         .arg("-c")
         .arg(format!(
-            "cd {} && HOME=\"{}\" npm install --no-save --force @rollup/rollup-linux-x64-gnu",
+            "cd {} && HOME=\"{}\" npm install --no-save --legacy-peer-deps @rollup/rollup-linux-x64-gnu",
             node_root.to_str().unwrap(),
             node_root.to_str().unwrap()
         ))

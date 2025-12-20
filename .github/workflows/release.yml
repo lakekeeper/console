@@ -58,7 +58,9 @@ jobs:
       - name: Install Packages and Build Application
         run: |
           npm ci --include=optional
-          npm install --no-save --force @rollup/rollup-linux-x64-gnu
+          # Workaround for npm bug where platform-specific optional dependencies
+          # may not install correctly in CI (https://github.com/npm/cli/issues/4828)
+          npm install --no-save --legacy-peer-deps @rollup/rollup-linux-x64-gnu
           npm run build
 
       - name: Upload dist folder
