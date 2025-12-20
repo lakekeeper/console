@@ -23,11 +23,23 @@ const lakekeeperDir = path.resolve(__dirname, '../../lakekeeper');
 const consolePackagePath = path.join(consoleDir, 'package.json');
 const componentsPackagePath = path.join(consoleComponentsDir, 'package.json');
 const cargoTomlPath = path.join(lakekeeperDir, 'Cargo.toml');
-const dependenciesJsonPath = path.join(consoleDir, 'src/data/dependencies.json');
+const dependenciesJsonPath = path.join(consoleDir, 'src/assets/dependencies.json');
 
 console.log('📦 Reading package files...\n');
 
-// Read package.json files
+// Read package.json files with existence checks
+if (!fs.existsSync(consolePackagePath)) {
+  console.error(`❌ Error: Console package.json not found`);
+  console.error(`   Expected at: ${consolePackagePath}`);
+  process.exit(1);
+}
+
+if (!fs.existsSync(componentsPackagePath)) {
+  console.error(`❌ Error: Console Components package.json not found`);
+  console.error(`   Expected at: ${componentsPackagePath}`);
+  process.exit(1);
+}
+
 const consolePackage = JSON.parse(fs.readFileSync(consolePackagePath, 'utf8'));
 const componentsPackage = JSON.parse(fs.readFileSync(componentsPackagePath, 'utf8'));
 

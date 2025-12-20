@@ -81,4 +81,11 @@ export default [
       'vue/valid-v-slot': 'off',
     },
   },
+  {
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
+      sourceType: 'module',
+    },
+  },
 ];

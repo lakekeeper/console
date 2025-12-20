@@ -219,7 +219,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import dependenciesData from '../data/dependencies.json' with { type: 'json' };
+import dependenciesData from '../assets/dependencies.json' with { type: 'json' };
 
 const tab = ref('console');
 const rustSearch = ref('');
