@@ -60,7 +60,13 @@ jobs:
           npm ci --include=optional
           # Workaround for npm bug where platform-specific optional dependencies
           # may not install correctly in CI (https://github.com/npm/cli/issues/4828)
-          npm install --no-save --legacy-peer-deps @rollup/rollup-linux-x64-gnu
+          # Detect architecture and install the correct Rollup binary
+          ARCH=$(uname -m)
+          if [ "$ARCH" = "x86_64" ]; then
+            npm install --no-save --legacy-peer-deps @rollup/rollup-linux-x64-gnu
+          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
+            npm install --no-save --legacy-peer-deps @rollup/rollup-linux-arm64-gnu
+          fi
           npm run build
 
       - name: Upload dist folder
