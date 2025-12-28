@@ -14,5 +14,9 @@ import ConsoleComponentsPlugin from '@lakekeeper/console-components';
 import type { App } from 'vue';
 
 export function registerPlugins(app: App) {
-  app.use(vuetify).use(router).use(pinia).use(ConsoleComponentsPlugin);
+  app
+    .use(vuetify)
+    .use(router)
+    .use(pinia)
+    .use(ConsoleComponentsPlugin as any);
 }
