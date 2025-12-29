@@ -17,7 +17,20 @@ function copyDuckDBFiles() {
   return {
     name: 'copy-duckdb-files',
     buildStart() {
-      const consoleComponentsPath = resolve(__dirname, '../console-components/public');
+      // Try both locations: local dev (sibling directory/public) and node_modules (dist)
+      const localPublicPath = resolve(__dirname, '../console-components/public');
+      const nodeModulesDistPath = resolve(__dirname, 'node_modules/@lakekeeper/console-components/dist');
+      
+      let consoleComponentsPath;
+      if (existsSync(localPublicPath)) {
+        consoleComponentsPath = localPublicPath;
+      } else if (existsSync(nodeModulesDistPath)) {
+        consoleComponentsPath = nodeModulesDistPath;
+      } else {
+        console.warn('Could not find console-components DuckDB files');
+        return;
+      }
+      
       const targetPath = resolve(__dirname, 'public');
 
       // Copy DuckDB files if they exist in console-components
