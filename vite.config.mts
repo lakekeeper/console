@@ -134,6 +134,15 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         external: [],
+        output: {
+          assetFileNames: (assetInfo) => {
+            // Don't hash DuckDB files - they need stable names
+            if (assetInfo.name?.includes('duckdb')) {
+              return 'assets/[name][extname]';
+            }
+            return 'assets/[name]-[hash][extname]';
+          },
+        },
       },
     },
   };
