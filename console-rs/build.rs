@@ -81,15 +81,35 @@ fn main() {
         .output()
         .expect("Failed to spawn npm to build Lakekeeper UI");
     if !output.status.success() {
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    panic!(
-        "npm run build-placeholder failed with exit code: {:?}\n\
-         STDOUT:\n{stdout}\n\
-         STDERR:\n{stderr}\n\
-         Working directory: {}",
-        output.status.code(),
-        node_root.display()
-    );
-}
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        panic!(
+            "npm run build-placeholder failed with exit code: {:?}\n\
+             STDOUT:\n{stdout}\n\
+             STDERR:\n{stderr}\n\
+             Working directory: {}",
+            output.status.code(),
+            node_root.display()
+        );
+    }
+    
+    // Debug: List all files in dist to verify DuckDB files are present
+    println!("cargo:warning=Listing files in dist directory:");
+    if let Ok(entries) = fs::read_dir(&asset_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let relative_path = path.strip_prefix(&asset_dir).unwrap_or(&path);
+            println!("cargo:warning=  - {}", relative_path.display());
+            
+            // If it's the duckdb directory, list its contents too
+            if path.is_dir() && path.file_name().and_then(|n| n.to_str()) == Some("duckdb") {
+                println!("cargo:warning=    DuckDB directory contents:");
+                if let Ok(duckdb_entries) = fs::read_dir(&path) {
+                    for duckdb_entry in duckdb_entries.flatten() {
+                        println!("cargo:warning=      - {}", duckdb_entry.file_name().to_string_lossy());
+                    }
+                }
+            }
+        }
+    }
 }
