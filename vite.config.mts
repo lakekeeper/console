@@ -18,26 +18,16 @@ function copyDuckDBFiles() {
     name: 'copy-duckdb-files',
     buildStart() {
       // Try both locations: local dev (sibling directory/public) and node_modules (dist)
-      const localPublicPath = resolve(__dirname, '../console-components/public');
+
       const nodeModulesDistPath = resolve(
         __dirname,
         'node_modules/@lakekeeper/console-components/dist',
       );
 
-      let consoleComponentsPath;
-      if (existsSync(localPublicPath)) {
-        consoleComponentsPath = localPublicPath;
-      } else if (existsSync(nodeModulesDistPath)) {
-        consoleComponentsPath = nodeModulesDistPath;
-      } else {
-        console.warn('Could not find console-components DuckDB files');
-        return;
-      }
-
       const targetPath = resolve(__dirname, 'public');
 
       // Copy DuckDB files if they exist in console-components
-      if (existsSync(consoleComponentsPath)) {
+      if (existsSync(nodeModulesDistPath)) {
         try {
           // Ensure target directories exist
           mkdirSync(resolve(targetPath, 'duckdb'), { recursive: true });
@@ -54,7 +44,7 @@ function copyDuckDBFiles() {
           ];
 
           duckdbFiles.forEach((file) => {
-            const src = resolve(consoleComponentsPath, 'duckdb', file);
+            const src = resolve(nodeModulesDistPath, 'duckdb', file);
             const dest = resolve(targetPath, 'duckdb', file);
             if (existsSync(src)) {
               copyFileSync(src, dest);
@@ -63,7 +53,7 @@ function copyDuckDBFiles() {
           });
 
           // Copy worker wrapper
-          const wrapperSrc = resolve(consoleComponentsPath, 'duckdb-worker-wrapper.js');
+          const wrapperSrc = resolve(nodeModulesDistPath, 'duckdb-worker-wrapper.js');
           const wrapperDest = resolve(targetPath, 'duckdb-worker-wrapper.js');
           if (existsSync(wrapperSrc)) {
             copyFileSync(wrapperSrc, wrapperDest);
