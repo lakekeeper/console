@@ -1,10 +1,10 @@
 {
   "console": {
-    "version": "0.10.2",
+    "version": "0.10.3",
     "dependencies": [
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.2.11"
+        "version": "github:lakekeeper/console-components#v0.2.16"
       },
       {
         "name": "@mdi/font",
@@ -143,7 +143,7 @@
     ]
   },
   "components": {
-    "version": "0.2.11",
+    "version": "0.2.15",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -623,6 +623,11 @@
       {
         "name": "reqwest",
         "version": "0.12.23",
+        "features": ""
+      },
+      {
+        "name": "semver",
+        "version": "1.0.27",
         "features": ""
       },
       {
