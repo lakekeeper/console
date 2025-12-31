@@ -1,8 +1,8 @@
+// @ts-expect-error - vue-router/auto is provided by unplugin-vue-router
 import { createRouter, createWebHistory } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
 import { routes } from 'vue-router/auto-routes';
-import { useUserStore } from '../stores/user';
-import { useVisualStore } from '../stores/visual';
+import { useUserStore, useFunctions } from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
 import NotFound from '@/pages/notfound.vue';
@@ -21,7 +21,7 @@ const router = createRouter({
 });
 
 // Workaround for https://github.com/vitejs/vite/issues/11804
-router.onError((err, to) => {
+router.onError((err: any, to: any) => {
   if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
     if (!localStorage.getItem('vuetify:dynamic-reload')) {
       localStorage.setItem('vuetify:dynamic-reload', 'true');
@@ -38,22 +38,71 @@ router.isReady().then(() => {
   localStorage.removeItem('vuetify:dynamic-reload');
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to: any, from: any, next: any) => {
   const userStorage = useUserStore();
-  const visual = useVisualStore();
-  visual.currentUrl = to.path;
+  const functions = useFunctions({
+    icebergCatalogUrl: env.icebergCatalogUrl,
+    idpAuthority: env.idpAuthority,
+    idpClientId: env.idpClientId,
+    idpRedirectPath: env.idpRedirectPath,
+    idpScope: env.idpScope,
+    idpResource: env.idpResource,
+    idpTokenType: env.idpTokenType,
+    idpLogoutRedirectPath: env.idpLogoutRedirectPath,
+    enabledAuthentication: env.enabledAuthentication,
+    enabledPermissions: env.enabledPermissions,
+    baseUrlPrefix: env.baseUrlPrefix,
+  });
+
+  // If authentication is disabled, redirect auth-related paths to home
+  if (!env.enabledAuthentication) {
+    if (to.path === '/login' || to.path === '/callback' || to.path === '/logout') {
+      return next('/');
+    }
+  }
+
+  // Allow these paths without any server checks (only when auth is enabled)
+  if (
+    to.path === '/server-offline' ||
+    (env.enabledAuthentication &&
+      (to.path === '/logout' || to.path === '/login' || to.path === '/callback'))
+  ) {
+    return next();
+  }
+
+  let serverInfo;
+  try {
+    serverInfo = await functions.getServerInfo();
+
+    // Check if serverInfo is empty or null (server offline)
+    if (!serverInfo) {
+      return next('/server-offline');
+    }
+  } catch (error: any) {
+    // Check if it's a 401 Unauthorized error
+    if (
+      error?.status === 401 ||
+      error?.statusCode === 401 ||
+      error?.response?.status === 401 ||
+      error?.code === 401 ||
+      error?.message?.includes('401') ||
+      error?.message?.includes('Unauthorized')
+    ) {
+      userStorage.unsetUser();
+      return next('/login');
+    }
+
+    // For other errors (network, timeout, etc), redirect to server-offline
+    return next('/server-offline');
+  }
+
   if (to.name === '/notfound') {
     return next();
   }
 
   if (env.enabledAuthentication) {
     // Check if the user is authenticated and project bootstrap is not done
-
-    if (
-      userStorage.isAuthenticated &&
-      !visual.getServerInfo().bootstrapped &&
-      to.path !== '/bootstrap'
-    ) {
+    if (userStorage.isAuthenticated && !serverInfo.bootstrapped && to.path !== '/bootstrap') {
       return next('/bootstrap');
     }
 
@@ -72,7 +121,7 @@ router.beforeEach((to, from, next) => {
   } else {
     // For cases where enabledAuthentication is false
 
-    if (!visual.getServerInfo().bootstrapped && to.path !== '/bootstrap') {
+    if (!serverInfo.bootstrapped && to.path !== '/bootstrap') {
       return next('/bootstrap');
     }
 

@@ -1,8 +1,8 @@
 <template>
-  <div v-if="!visual.getServerInfo().bootstrapped">
+  <div v-if="!bootstrapped">
     <v-row>
       <v-col cols="10" offset="1">
-        <v-stepper :items="['Global Admin', 'EULA', 'Submit']">
+        <v-stepper v-model="currentStep" :items="['Global Admin', 'EULA', 'Submit']">
           <template #item.1>
             <v-card flat>
               <v-card-title>Welcome {{ user.given_name }} {{ user.family_name }}</v-card-title>
@@ -16,10 +16,29 @@
 
           <template #item.2>
             <v-card flat>
-              <div style="max-height: 50vh; overflow-y: auto">
-                <EULA></EULA>
+              <div
+                ref="eulaScrollContainer"
+                style="max-height: 50vh; overflow-y: auto"
+                @scroll="handleEulaScroll">
+                <EULA @scrolled-to-end="handleEulaScrolled"></EULA>
               </div>
+              <v-card-text v-if="!eulaScrolledToEnd" class="text-center text-warning">
+                Please scroll to the end of the EULA to continue
+              </v-card-text>
             </v-card>
+          </template>
+
+          <template #actions>
+            <div v-if="currentStep < 3" class="d-flex justify-space-between pa-4">
+              <v-btn :disabled="currentStep === 1" variant="text" @click="prevStep">Previous</v-btn>
+              <v-btn
+                :disabled="isNextDisabled"
+                color="primary"
+                variant="elevated"
+                @click="nextStep">
+                Next
+              </v-btn>
+            </div>
           </template>
 
           <template #item.3>
@@ -30,6 +49,8 @@
                 terms and conditions of the End User License Agreement (EULA).
               </v-card-text>
               <v-card-actions>
+                <v-btn class="mb-6" variant="text" @click="prevStep">Previous</v-btn>
+                <v-spacer></v-spacer>
                 <v-btn class="mb-6" color="success" variant="elevated" @click="bootstrap">
                   Accept
                 </v-btn>
@@ -45,17 +66,82 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, onUnmounted, onMounted } from 'vue';
-import { useUserStore } from '../stores/user';
-import { useVisualStore } from '../stores/visual';
-import { ServerInfo } from '@/gen/management/types.gen';
+import { onBeforeMount, onUnmounted, onMounted, ref, computed, watch, nextTick } from 'vue';
+import '@lakekeeper/console-components/style.css';
+import EULA from '@/components/EULA.vue';
+import { useUserStore, useVisualStore } from '@lakekeeper/console-components';
 import router from '../router';
-import { useFunctions } from '../plugins/functions';
+import { useFunctions } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
 const userStore = useUserStore();
 const user = userStore.getUser();
 const visual = useVisualStore();
+
+const currentStep = ref(1);
+const eulaScrolledToEnd = ref(false);
+const eulaScrollContainer = ref<HTMLElement | null>(null);
+const bootstrapped = ref(false);
+
+const isNextDisabled = computed(() => {
+  // Disable next button on step 2 (EULA) until it's been scrolled to the end
+  if (currentStep.value === 2) {
+    return !eulaScrolledToEnd.value;
+  }
+  return false;
+});
+
+// Watch for step changes to check scroll position
+watch(currentStep, async (newStep) => {
+  if (newStep === 2) {
+    // Wait for DOM to update
+    await nextTick();
+    // Check if content is already fully visible (no scrolling needed)
+    if (eulaScrollContainer.value) {
+      const { scrollHeight, clientHeight } = eulaScrollContainer.value;
+      if (scrollHeight <= clientHeight) {
+        eulaScrolledToEnd.value = true;
+      }
+    }
+  }
+});
+
+function handleEulaScroll(event: Event) {
+  const target = event.target as HTMLElement;
+  if (!target) return;
+
+  const scrollTop = target.scrollTop;
+  const scrollHeight = target.scrollHeight;
+  const clientHeight = target.clientHeight;
+
+  // Check if scrolled to bottom (with a small threshold of 10px)
+  // or if content is shorter than container (no scroll needed)
+  const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10 || scrollHeight <= clientHeight;
+
+  if (isAtBottom && !eulaScrolledToEnd.value) {
+    eulaScrolledToEnd.value = true;
+  }
+}
+
+function handleEulaScrolled(scrolled: boolean) {
+  eulaScrolledToEnd.value = scrolled;
+}
+
+function nextStep() {
+  if (currentStep.value < 3) {
+    currentStep.value++;
+  }
+}
+
+function prevStep() {
+  if (currentStep.value > 1) {
+    currentStep.value--;
+    // Reset EULA scroll state when going back to step 1
+    if (currentStep.value === 1) {
+      eulaScrolledToEnd.value = false;
+    }
+  }
+}
 
 onBeforeMount(async () => {
   await getServerInfo();
@@ -64,8 +150,10 @@ onBeforeMount(async () => {
 async function bootstrap() {
   try {
     await functions.bootstrapServer();
+    // Load projects after bootstrap to ensure visual store is updated
+    await functions.loadProjectList();
   } catch (error) {
-    console.error(error);
+    console.error('Error during bootstrap:', error);
   } finally {
     await getServerInfo();
   }
@@ -80,9 +168,11 @@ onUnmounted(() => {
 
 async function getServerInfo() {
   try {
-    const data: ServerInfo = await functions.getServerInfo();
+    const data = await functions.getServerInfo();
     visual.setServerInfo(data);
-    if (visual.getServerInfo().bootstrapped) router.push('/');
+    bootstrapped.value = data.bootstrapped;
+
+    if (bootstrapped.value) router.push('/');
   } catch (error) {
     console.error(error);
   }

@@ -4,3 +4,13 @@ release-please
 justfile
 CHANGELOG.md
 */*.d.ts
+
+# Third-party libraries - do not format
+public/**
+**/duckdb-worker-wrapper.js
+**/duckdb*.js
+**/duckdb*.wasm
+
+# Build output
+dist/
+node_modules/

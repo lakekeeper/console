@@ -45,20 +45,18 @@
         title="Server settings"
         to="/server-settings"></v-list-item>
     </v-list>
-    <v-snackbar v-model="snackbarVisible" timeout="3000">Volumes are not active yet</v-snackbar>
   </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useVisualStore } from '../stores/visual';
-
-import router from '../router';
-import { enabledAuthentication, enabledPermissions } from '../app.config';
-import { Type } from '../common/interfaces';
+import { useVisualStore } from '@lakekeeper/console-components';
+import { useRouter } from 'vue-router';
+import { Type } from '@lakekeeper/console-components';
+import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 const visual = useVisualStore();
-const snackbarVisible = ref(false);
+const router = useRouter();
 const isDialogActive = ref(false);
 
 function routeToRoles() {

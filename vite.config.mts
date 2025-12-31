@@ -7,8 +7,65 @@ import Vue from '@vitejs/plugin-vue';
 import VueRouter from 'unplugin-vue-router/vite';
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import { loadEnv, defineConfig } from 'vite';
+import { resolve } from 'path';
+import { copyFileSync, mkdirSync, existsSync } from 'fs';
 // Utilities
 import { fileURLToPath, URL } from 'node:url';
+
+// Plugin to copy DuckDB files from console-components
+function copyDuckDBFiles() {
+  return {
+    name: 'copy-duckdb-files',
+    buildStart() {
+      // Try both locations: local dev (sibling directory/public) and node_modules (dist)
+
+      const nodeModulesDistPath = resolve(
+        __dirname,
+        'node_modules/@lakekeeper/console-components/dist',
+      );
+
+      const targetPath = resolve(__dirname, 'public');
+
+      // Copy DuckDB files if they exist in console-components
+      if (existsSync(nodeModulesDistPath)) {
+        try {
+          // Ensure target directories exist
+          mkdirSync(resolve(targetPath, 'duckdb'), { recursive: true });
+
+          // Copy WASM files
+          const duckdbFiles = [
+            'duckdb-browser-coi.pthread.worker.js',
+            'duckdb-browser-coi.worker.js',
+            'duckdb-browser-eh.worker.js',
+            'duckdb-browser-mvp.worker.js',
+            'duckdb-coi.wasm',
+            'duckdb-eh.wasm',
+            'duckdb-mvp.wasm',
+          ];
+
+          duckdbFiles.forEach((file) => {
+            const src = resolve(nodeModulesDistPath, 'duckdb', file);
+            const dest = resolve(targetPath, 'duckdb', file);
+            if (existsSync(src)) {
+              copyFileSync(src, dest);
+              console.log(`Copied DuckDB file: ${file}`);
+            }
+          });
+
+          // Copy worker wrapper
+          const wrapperSrc = resolve(nodeModulesDistPath, 'duckdb-worker-wrapper.js');
+          const wrapperDest = resolve(targetPath, 'duckdb-worker-wrapper.js');
+          if (existsSync(wrapperSrc)) {
+            copyFileSync(wrapperSrc, wrapperDest);
+            console.log('Copied DuckDB worker wrapper');
+          }
+        } catch (error) {
+          console.warn('Could not copy DuckDB files from console-components:', error.message);
+        }
+      }
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -16,6 +73,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: `${env.VITE_BASE_URL_PREFIX || ''}/ui/`,
     plugins: [
+      copyDuckDBFiles(), // Copy DuckDB files from console-components
       VueRouter({
         dts: 'src/typed-router.d.ts',
       }),
@@ -41,9 +99,6 @@ export default defineConfig(({ mode }) => {
       }),
       Vuetify({
         autoImport: true,
-        styles: {
-          configFile: 'src/styles/settings.scss',
-        },
       }),
       Fonts({
         google: {
@@ -65,6 +120,21 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3001,
+      fs: {
+        allow: [
+          // Allow serving files from workspace root
+          resolve(__dirname, '../..'),
+          // Allow serving DuckDB files from console-components
+          resolve(__dirname, '../console-components/public'),
+        ],
+      },
+    },
+    // Copy DuckDB files from console-components to serve them
+    publicDir: 'public',
+    build: {
+      rollupOptions: {
+        external: [],
+      },
     },
   };
 });

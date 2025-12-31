@@ -67,6 +67,10 @@ export default [
       'rust-project.json',
       '.env.azure',
       'console-rs',
+      'public/**',
+      '**/duckdb-worker-wrapper.js',
+      '**/duckdb*.js',
+      '**/duckdb*.wasm',
     ],
   },
   {
@@ -75,6 +79,13 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       'vue/multi-word-component-names': 'off',
       'vue/valid-v-slot': 'off',
+    },
+  },
+  {
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      globals: globals.node,
+      sourceType: 'module',
     },
   },
 ];

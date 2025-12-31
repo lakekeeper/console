@@ -30,28 +30,66 @@ fn main() {
     std::process::Command::new("bash")
         .arg("-c")
         .arg(format!(
-            "cd {} && HOME=\"{}\" npm ci",
+            "cd {} && HOME=\"{}\" npm ci --include=optional",
             node_root.to_str().unwrap(),
             node_root.to_str().unwrap()
         ))
         .current_dir(node_root.clone())
         .status()
         .expect("Failed to install Lakekeeper UI dependencies with npm");
+    
+    // Explicitly install rollup native binary to work around npm bug
+    // See: https://github.com/npm/cli/issues/4828
+    // Detect the correct platform-specific binary
+    let rollup_package = if cfg!(target_os = "linux") {
+        if cfg!(target_arch = "x86_64") {
+            "@rollup/rollup-linux-x64-gnu"
+        } else if cfg!(target_arch = "aarch64") {
+            "@rollup/rollup-linux-arm64-gnu"
+        } else {
+            // Fallback - let npm try to figure it out
+            ""
+        }
+    } else if cfg!(target_os = "macos") {
+        if cfg!(target_arch = "aarch64") {
+            "@rollup/rollup-darwin-arm64"
+        } else {
+            "@rollup/rollup-darwin-x64"
+        }
+    } else {
+        // Windows or other platforms
+        ""
+    };
+    
+    if !rollup_package.is_empty() {
+        std::process::Command::new("bash")
+            .arg("-c")
+            .arg(format!(
+                "cd {} && HOME=\"{}\" npm install --no-save --legacy-peer-deps {}",
+                node_root.to_str().unwrap(),
+                node_root.to_str().unwrap(),
+                rollup_package
+            ))
+            .current_dir(node_root.clone())
+            .status()
+            .expect("Failed to install rollup native binary");
+    }
+    
     let output = std::process::Command::new("npm")
         .args(["run", "build-placeholder"])
         .current_dir(&node_root)
         .output()
         .expect("Failed to spawn npm to build Lakekeeper UI");
     if !output.status.success() {
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    panic!(
-        "npm run build-placeholder failed with exit code: {:?}\n\
-         STDOUT:\n{stdout}\n\
-         STDERR:\n{stderr}\n\
-         Working directory: {}",
-        output.status.code(),
-        node_root.display()
-    );
-}
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        panic!(
+            "npm run build-placeholder failed with exit code: {:?}\n\
+             STDOUT:\n{stdout}\n\
+             STDERR:\n{stderr}\n\
+             Working directory: {}",
+            output.status.code(),
+            node_root.display()
+        );
+    }
 }
