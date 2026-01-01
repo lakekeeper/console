@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/lakekeeper/console/compare/v0.10.3...v0.11.0) (2026-01-01)
+
+
+### Miscellaneous Chores
+
+* component logic ([#168](https://github.com/lakekeeper/console/issues/168)) ([233a866](https://github.com/lakekeeper/console/commit/233a8664035e7d15750467966309370c5824edc0))
+
 ## [0.10.3](https://github.com/lakekeeper/console/compare/v0.10.2...v0.10.3) (2025-10-28)
 
 
