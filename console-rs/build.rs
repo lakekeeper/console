@@ -20,12 +20,39 @@ fn main() {
     // Copy everything from repo_dir to node_dir, we are not allowed to write anywhere else
     fs::remove_dir_all(&node_root).ok();
     fs::create_dir_all(&asset_dir).unwrap();
-    fs_extra::dir::copy(
-        repo_dir,
-        &node_root,
-        &fs_extra::dir::CopyOptions::new().content_only(true),
-    )
-    .unwrap();
+
+    let copy_options = &fs_extra::dir::CopyOptions::new().content_only(true);
+    for entry in fs::read_dir(repo_dir).unwrap() {
+        let entry = entry.unwrap();
+        let name = entry.file_name();
+        let dest = node_root.join(&name);
+
+        if entry.file_type().unwrap().is_dir() {
+            if name == "console-rs" {
+                // Special handling for console-rs: copy it but exclude target/
+                fs::create_dir_all(&dest).unwrap();
+                for sub_entry in fs::read_dir(entry.path()).unwrap() {
+                    let sub_entry = sub_entry.unwrap();
+                    let sub_name = sub_entry.file_name();
+                    
+                    if sub_name == "target" {
+                        continue; // Skip target directory to avoid race condition
+                    }
+                    
+                    let sub_dest = dest.join(&sub_name);
+                    if sub_entry.file_type().unwrap().is_dir() {
+                        fs_extra::dir::copy(sub_entry.path(), &dest, &copy_options).unwrap();
+                    } else {
+                        fs::copy(sub_entry.path(), &sub_dest).unwrap();
+                    }
+                }
+            } else {
+                fs_extra::dir::copy(entry.path(), &node_root, &copy_options).unwrap();
+            }
+        } else {
+            fs::copy(entry.path(), &dest).unwrap();
+        }
+    }
 
     std::process::Command::new("bash")
         .arg("-c")
