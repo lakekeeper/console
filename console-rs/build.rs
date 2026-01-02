@@ -21,7 +21,7 @@ fn main() {
     fs::remove_dir_all(&node_root).ok();
     fs::create_dir_all(&asset_dir).unwrap();
 
-    let copy_options = &fs_extra::dir::CopyOptions::new().content_only(true);
+    let copy_options = &fs_extra::dir::CopyOptions::new().content_only(true).overwrite(true);
     for entry in fs::read_dir(repo_dir).unwrap() {
         let entry = entry.unwrap();
         let name = entry.file_name();
