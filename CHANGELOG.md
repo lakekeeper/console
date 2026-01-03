@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/lakekeeper/console/compare/v0.11.0...v0.11.0) (2026-01-03)
+
+
+### Bug Fixes
+
+* rust build script should not copy target ([#184](https://github.com/lakekeeper/console/issues/184)) ([2734b52](https://github.com/lakekeeper/console/commit/2734b5220c328b4e004ca6fbd602f8a9aa6c6b3f))
+
 ## [0.11.0](https://github.com/lakekeeper/console/compare/v0.10.3...v0.11.0) (2026-01-01)
 
 
