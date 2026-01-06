@@ -13,7 +13,6 @@ all = []
 
 [dependencies]
 rust-embed = { version = "^8.4", features = ["interpolate-folder-path"] }
-derivative = "2.2.0"
 mime_guess = { version = "^2.0" }
 moka = { version = "^0.12", features = ["sync"] }
 

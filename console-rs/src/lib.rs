@@ -22,25 +22,37 @@ pub enum IdpTokenType {
     IdToken,
 }
 
-#[derive(Debug, Clone, PartialEq, derivative::Derivative)]
-#[derivative(Default)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct LakekeeperConsoleConfig {
     pub idp_authority: String,
-    #[derivative(Default(value = "\"/lakekeeper\".to_string()"))]
     pub idp_client_id: String,
-    #[derivative(Default(value = "\"/callback\".to_string()"))]
     pub idp_redirect_path: String,
-    #[derivative(Default(value = "\"openid profile email\".to_string()"))]
     pub idp_scope: String,
     pub idp_resource: String,
-    #[derivative(Default(value = "\"/logout\".to_string()"))]
     pub idp_post_logout_redirect_path: String,
-    #[derivative(Default(value = "IdpTokenType::AccessToken"))]
     pub idp_token_type: IdpTokenType,
     pub enable_authentication: bool,
     pub enable_permissions: bool,
     pub app_lakekeeper_url: Option<String>,
     pub base_url_prefix: Option<String>,
+}
+
+impl Default for LakekeeperConsoleConfig {
+    fn default() -> Self {
+        Self {
+            idp_authority: String::new(),
+            idp_client_id: "/lakekeeper".to_string(),
+            idp_redirect_path: "/callback".to_string(),
+            idp_scope: "openid profile email".to_string(),
+            idp_resource: String::new(),
+            idp_post_logout_redirect_path: "/logout".to_string(),
+            idp_token_type: IdpTokenType::AccessToken,
+            enable_authentication: false,
+            enable_permissions: false,
+            app_lakekeeper_url: None,
+            base_url_prefix: None,
+        }
+    }
 }
 
 /// Retrieves a file from the Lakekeeper Console embed.
