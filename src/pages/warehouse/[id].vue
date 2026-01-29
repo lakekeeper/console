@@ -23,6 +23,7 @@
           <v-tabs-window-item value="query">
             <WarehouseSqlQuery
               v-if="tab === 'query'"
+              :project-id="projectId"
               :warehouse-id="params.id"
               :warehouse-name="warehouseName"
               :catalog-url="catalogUrl"
@@ -78,12 +79,13 @@ const warehouseId = computed(() => params.value.id);
 // const permissions = useWarehousePermissions(warehouseId);
 const { showTasksTab } = useWarehousePermissions(warehouseId);
 const { showPermissionsTab } = useWarehouseAuthorizerPermissions(warehouseId);
+const projectId = ref<string | undefined>(undefined);
 
 // Load warehouse data
 async function loadWarehouse() {
   try {
     const wh = await functions.getWarehouse(params.value.id);
-
+    projectId.value = wh['project-id'];
     warehouseName.value = wh.name;
 
     // Extract storage type from warehouse config
