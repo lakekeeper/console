@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.2](https://github.com/lakekeeper/console/compare/v0.11.1...v0.11.2) (2026-01-29)
+
+
+### Bug Fixes
+
+* duckdb attach catalog improvements ([#189](https://github.com/lakekeeper/console/issues/189)) ([e445a31](https://github.com/lakekeeper/console/commit/e445a31aa0fefb100e15e3b8c241deb43fe468e0))
+
 ## [0.11.1](https://github.com/lakekeeper/console/compare/v0.11.0...v0.11.1) (2026-01-06)
 
 
