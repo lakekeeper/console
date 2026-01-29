@@ -27,7 +27,11 @@ import {
   useServerPermissions,
   useServerAuthorizerPermissions,
 } from '@lakekeeper/console-components';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
 
 const tab = ref('overview');
 const functions = useFunctions();
@@ -46,6 +50,13 @@ async function init() {
 }
 
 onMounted(async () => {
+  if (route.query.tab) {
+    tab.value = route.query.tab as string;
+  }
   await init();
+});
+
+watch(tab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } });
 });
 </script>

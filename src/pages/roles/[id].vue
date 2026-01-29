@@ -40,8 +40,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, ref, watch, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import {
   RelationType,
   useRolePermissions,
@@ -49,6 +49,7 @@ import {
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
+const router = useRouter();
 const params = computed(() => route.params as { id: string });
 const tab = ref('overview');
 const type = RelationType.Role;
@@ -59,4 +60,14 @@ const roleId = computed(() => params.value.id);
 // Use the role permissions composable
 const { loading, canRead } = useRolePermissions(roleId);
 const { showPermissionsTab } = useRoleAuthorizerPermissions(roleId);
+
+onMounted(() => {
+  if (route.query.tab) {
+    tab.value = route.query.tab as string;
+  }
+});
+
+watch(tab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } });
+});
 </script>

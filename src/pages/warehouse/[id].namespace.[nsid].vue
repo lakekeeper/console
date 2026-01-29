@@ -144,7 +144,12 @@ function onTableCreated() {
 }
 
 // Load namespace metadata on mount to get namespaceId for permissions
-onMounted(loadNamespaceMetadata);
+// onMounted(loadNamespaceMetadata);
+onMounted(() => {
+  if (route.query.tab) {
+    tab.value = route.query.tab as string;
+  }
+});
 
 // Reload when route params change
 watch(
@@ -154,4 +159,7 @@ watch(
 );
 
 const { showPermissionsTab } = useNamespaceAuthorizerPermissions(namespaceId, params.value.id);
+watch(tab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } });
+});
 </script>

@@ -151,6 +151,9 @@ async function loadTableMetadata() {
 
 // Load warehouse and table metadata on mount
 onMounted(() => {
+  if (route.query.tab) {
+    tab.value = route.query.tab as string;
+  }
   loadWarehouse();
   loadTableMetadata();
 });
@@ -164,4 +167,8 @@ watch(
   },
   { immediate: false },
 );
+
+watch(tab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } });
+});
 </script>

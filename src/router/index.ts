@@ -1,8 +1,8 @@
 // @ts-expect-error - vue-router/auto is provided by unplugin-vue-router
-import { createRouter, createWebHistory } from 'vue-router/auto';
+import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router/auto';
 import { setupLayouts } from 'virtual:generated-layouts';
 import { routes } from 'vue-router/auto-routes';
-import { useUserStore, useFunctions } from '@lakekeeper/console-components';
+import { useUserStore, useFunctions, useNavigationStore } from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
 import NotFound from '@/pages/notfound.vue';
@@ -18,6 +18,15 @@ const router = createRouter({
       component: NotFound,
     },
   ]),
+});
+
+router.afterEach((to: RouteLocationNormalized) => {
+  const navigationStore = useNavigationStore();
+  navigationStore.updateCurrentLocation({
+    path: to.fullPath,
+    params: to.params,
+    query: to.query,
+  });
 });
 
 // Workaround for https://github.com/vitejs/vite/issues/11804

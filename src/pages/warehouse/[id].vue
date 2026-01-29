@@ -54,7 +54,7 @@ import {
   useFunctions,
   useWarehouseAuthorizerPermissions,
 } from '@lakekeeper/console-components';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -121,6 +121,9 @@ async function loadWarehouse() {
 }
 
 onMounted(() => {
+  if (route.query.tab) {
+    tab.value = route.query.tab as string;
+  }
   loadWarehouse();
 });
 
@@ -135,4 +138,8 @@ onMounted(() => {
 //     }
 //   },
 // );
+
+watch(tab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } });
+});
 </script>

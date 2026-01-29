@@ -119,10 +119,21 @@ async function loadViewMetadata() {
 }
 
 // Initial load and react to route changes
-onMounted(loadViewMetadata);
+// onMounted(loadViewMetadata);
+onMounted(() => {
+  if (route.query.tab) {
+    tab.value = route.query.tab as string;
+  }
+  loadViewMetadata();
+});
+
 watch(
   () => [params.value.id, params.value.nsid, params.value.vid],
   () => loadViewMetadata(),
   { immediate: false },
 );
+
+watch(tab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } });
+});
 </script>
