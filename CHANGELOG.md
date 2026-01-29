@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.3](https://github.com/lakekeeper/console/compare/v0.11.2...v0.11.3) (2026-01-29)
+
+
+### Bug Fixes
+
+* reload nav tabs ([#193](https://github.com/lakekeeper/console/issues/193)) ([8d05ed5](https://github.com/lakekeeper/console/commit/8d05ed561e33b2c93c65e52d05bbccf1c62cd759))
+
 ## [0.11.2](https://github.com/lakekeeper/console/compare/v0.11.1...v0.11.2) (2026-01-29)
 
 
