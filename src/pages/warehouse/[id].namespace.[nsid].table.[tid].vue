@@ -170,6 +170,6 @@ watch(
 );
 
 watch(tab, (newTab) => {
-  localStorage.setItem('warehouse-tab', newTab);
+  router.replace({ query: { ...route.query, tab: newTab } });
 });
 </script>
