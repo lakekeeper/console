@@ -153,6 +153,10 @@ async function loadTableMetadata() {
 onMounted(() => {
   loadWarehouse();
   loadTableMetadata();
+
+  if (route.query.tab) {
+    tab.value = route.query.tab as string;
+  }
 });
 
 // Reload metadata when route params change
@@ -164,4 +168,8 @@ watch(
   },
   { immediate: false },
 );
+
+watch(tab, (newTab) => {
+  localStorage.setItem('warehouse-tab', newTab);
+});
 </script>

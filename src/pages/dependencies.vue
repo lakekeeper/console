@@ -218,8 +218,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import dependenciesData from '../assets/dependencies.json' with { type: 'json' };
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
 
 const tab = ref('console');
 const rustSearch = ref('');
@@ -236,6 +240,16 @@ const filteredRustDeps = computed(() => {
   if (!rustSearch.value) return rustDeps;
   const search = rustSearch.value.toLowerCase();
   return rustDeps.filter((dep: any) => dep.name.toLowerCase().includes(search));
+});
+
+onMounted(() => {
+  if (route.query.tab) {
+    tab.value = route.query.tab as string;
+  }
+});
+
+watch(tab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } });
 });
 </script>
 
