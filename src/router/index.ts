@@ -101,8 +101,37 @@ router.beforeEach(async (to: any, from: any, next: any) => {
       return next('/login');
     }
 
-    // For other errors (network, timeout, etc), redirect to server-offline
-    return next('/server-offline');
+    // If navigating from /callback and getServerInfo fails, retry with backoff
+    // This handles race condition where auth token isn't fully configured yet
+    if (from.path === '/callback' && env.enabledAuthentication) {
+      const delays = [100, 300, 500]; // Progressive delays in ms
+
+      for (const delay of delays) {
+        try {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          serverInfo = await functions.getServerInfo();
+          break; // Success, exit retry loop
+        } catch (retryError: any) {
+          // If it's a 401, no point in retrying
+          if (
+            retryError?.status === 401 ||
+            retryError?.statusCode === 401 ||
+            retryError?.response?.status === 401
+          ) {
+            userStorage.unsetUser();
+            return next('/login');
+          }
+        }
+      }
+
+      // If all retries failed and serverInfo is still not set
+      if (!serverInfo) {
+        return next('/server-offline');
+      }
+    } else {
+      // For other errors (network, timeout, etc), redirect to server-offline
+      return next('/server-offline');
+    }
   }
 
   if (to.name === '/notfound') {
