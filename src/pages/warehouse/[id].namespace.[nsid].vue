@@ -24,7 +24,12 @@
 
           <v-tabs-window-item value="tables">
             <div class="pa-4">
-              <div class="d-flex justify-end mb-4">
+              <div class="d-flex justify-end mb-4 gap-2 mr-2">
+                <TableRegister
+                  :warehouse-id="params.id"
+                  :namespace-id="namespacePath"
+                  @registered="onTableCreated" />
+                <span class="mr-2"></span>
                 <TableCreate
                   :warehouse-id="params.id"
                   :namespace-id="namespacePath"
