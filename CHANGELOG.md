@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.4](https://github.com/lakekeeper/console/compare/v0.11.3...v0.11.4) (2026-02-13)
+
+
+### Bug Fixes
+
+* patch components to 0.2.22 ([#195](https://github.com/lakekeeper/console/issues/195)) ([58e2ea2](https://github.com/lakekeeper/console/commit/58e2ea2f420c96118cb819dfc4af47c6960087d8))
+* patch version ([#197](https://github.com/lakekeeper/console/issues/197)) ([a78db64](https://github.com/lakekeeper/console/commit/a78db649b239cfa57f43b88fcf06b06d3e47b764))
+
 ## [0.11.3](https://github.com/lakekeeper/console/compare/v0.11.2...v0.11.3) (2026-01-29)
 
 
