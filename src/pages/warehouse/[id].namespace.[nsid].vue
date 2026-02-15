@@ -3,71 +3,116 @@
     <v-col>
       <BreadcrumbsFromUrl />
 
-      <NamespaceHeader :warehouse-id="params.id" :namespace-path="params.nsid" />
-
-      <v-tabs v-model="tab">
-        <v-tab value="namespaces">namespaces</v-tab>
-        <v-tab value="tables">tables</v-tab>
-        <v-tab value="views">views</v-tab>
-        <v-tab value="deleted">deleted</v-tab>
-        <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
-      </v-tabs>
-
-      <v-card>
-        <v-tabs-window v-model="tab">
-          <v-tabs-window-item value="namespaces">
-            <NamespaceNamespaces
-              v-if="tab === 'namespaces'"
-              :warehouse-id="params.id"
-              :namespace-path="params.nsid" />
-          </v-tabs-window-item>
-
-          <v-tabs-window-item value="tables">
-            <div class="pa-4">
-              <div class="d-flex justify-end mb-4 gap-2 mr-2">
-                <TableRegister
-                  :warehouse-id="params.id"
-                  :namespace-id="namespacePath"
-                  @registered="onTableCreated" />
-                <span class="mr-2"></span>
-                <TableCreate
-                  :warehouse-id="params.id"
-                  :namespace-id="namespacePath"
-                  :catalog-url="catalogUrl"
-                  :storage-type="storageType"
-                  @created="onTableCreated" />
-              </div>
-              <NamespaceTables
-                v-if="tab === 'tables'"
+      <!-- Single flex container for navigation + content -->
+      <div style="display: flex; height: calc(100vh - 200px); position: relative">
+        <!-- Left: Navigation Tree -->
+        <v-expand-x-transition>
+          <div v-show="!isNavigationCollapsed" style="display: flex; height: 100%">
+            <div
+              :style="{
+                width: leftWidth + 'px',
+                minWidth: '200px',
+                maxWidth: '800px',
+                height: '100%',
+                overflowX: 'hidden',
+                overflowY: 'auto',
+                borderRight: '1px solid rgba(var(--v-theme-on-surface), 0.12)',
+              }">
+              <WarehousesNavigationTree
+                v-if="warehouseName"
                 :warehouse-id="params.id"
-                :namespace-path="params.nsid"
-                :key="tableListKey" />
+                :warehouse-name="warehouseName"
+                @navigate="handleNavigate" />
             </div>
-          </v-tabs-window-item>
 
-          <v-tabs-window-item value="views">
-            <NamespaceViews
-              v-if="tab === 'views'"
-              :warehouse-id="params.id"
-              :namespace-path="params.nsid" />
-          </v-tabs-window-item>
+            <!-- Resizable Divider -->
+            <div
+              @mousedown="startResize"
+              style="
+                width: 5px;
+                cursor: col-resize;
+                user-select: none;
+                flex-shrink: 0;
+                transition: background 0.3s;
+              "
+              :style="{
+                background:
+                  dividerHover || isResizing ? '#2196F3' : 'rgba(var(--v-theme-on-surface), 0.12)',
+              }"
+              @mouseenter="dividerHover = true"
+              @mouseleave="dividerHover = false"></div>
+          </div>
+        </v-expand-x-transition>
 
-          <v-tabs-window-item value="deleted">
-            <NamespaceDeleted
-              v-if="tab === 'deleted'"
-              :warehouse-id="params.id"
-              :namespace-path="params.nsid" />
-          </v-tabs-window-item>
+        <!-- Right: Main Content -->
+        <div style="flex: 1; height: 100%; overflow-y: auto; min-width: 0">
+          <NamespaceHeader :warehouse-id="params.id" :namespace-path="params.nsid" />
 
-          <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
-            <PermissionManager
-              v-if="tab === 'permissions'"
-              :objectId="namespaceId"
-              :relationType="RelationType.Namespace"
-              :warehouseId="params.id" />
-          </v-tabs-window-item>
-        </v-tabs-window>
-      </v-card>
+          <v-tabs v-model="tab">
+            <v-tab value="namespaces">namespaces</v-tab>
+            <v-tab value="tables">tables</v-tab>
+            <v-tab value="views">views</v-tab>
+            <v-tab value="deleted">deleted</v-tab>
+            <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
+          </v-tabs>
+
+          <v-card>
+            <v-tabs-window v-model="tab">
+              <v-tabs-window-item value="namespaces">
+                <NamespaceNamespaces
+                  v-if="tab === 'namespaces'"
+                  :warehouse-id="params.id"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="tables">
+                <div class="pa-4">
+                  <div class="d-flex justify-end mb-4 gap-2 mr-2">
+                    <TableRegister
+                      :warehouse-id="params.id"
+                      :namespace-id="namespacePath"
+                      @registered="onTableCreated" />
+                    <span class="mr-2"></span>
+                    <TableCreate
+                      :warehouse-id="params.id"
+                      :namespace-id="namespacePath"
+                      :catalog-url="catalogUrl"
+                      :storage-type="storageType"
+                      @created="onTableCreated" />
+                  </div>
+                  <NamespaceTables
+                    v-if="tab === 'tables'"
+                    :warehouse-id="params.id"
+                    :namespace-path="params.nsid"
+                    :key="tableListKey" />
+                </div>
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="views">
+                <NamespaceViews
+                  v-if="tab === 'views'"
+                  :warehouse-id="params.id"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="deleted">
+                <NamespaceDeleted
+                  v-if="tab === 'deleted'"
+                  :warehouse-id="params.id"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
+
+              <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
+                <PermissionManager
+                  v-if="tab === 'permissions'"
+                  :objectId="namespaceId"
+                  :relationType="RelationType.Namespace"
+                  :warehouseId="params.id" />
+              </v-tabs-window-item>
+            </v-tabs-window>
+          </v-card>
+        </div>
+      </div>
     </v-col>
   </v-row>
 </template>
@@ -78,16 +123,79 @@ import {
   useFunctions,
   useNamespaceAuthorizerPermissions,
   RelationType,
+  useVisualStore,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
 const router = useRouter();
 const functions = useFunctions();
+const visual = useVisualStore();
 const tab = ref('namespaces');
 const namespaceId = ref('');
 const lastNamespaceRequest = ref(0);
 const tableListKey = ref(0);
 const storageType = ref<string | undefined>(undefined);
+const warehouseName = ref<string | undefined>(undefined);
+const leftWidth = ref(300);
+const dividerHover = ref(false);
+const isResizing = ref(false);
+const isNavigationCollapsed = computed({
+  get: () => visual.isNavigationCollapsed,
+  set: (value: boolean) => {
+    visual.isNavigationCollapsed = value;
+  },
+});
+
+function startResize(e: MouseEvent) {
+  isResizing.value = true;
+  const startX = e.clientX;
+  const startWidth = leftWidth.value;
+
+  function onMouseMove(e: MouseEvent) {
+    const delta = e.clientX - startX;
+    const newWidth = startWidth + delta;
+    leftWidth.value = Math.max(200, Math.min(800, newWidth));
+  }
+
+  function onMouseUp() {
+    isResizing.value = false;
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup', onMouseUp);
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+}
+
+function handleNavigate(item: {
+  type: string;
+  warehouseId: string;
+  namespaceId?: string;
+  name: string;
+  tab?: string;
+}) {
+  const namespaceForRoute = item.namespaceId?.split('.').join('\x1F');
+
+  if (item.type === 'warehouse') {
+    visual.whId = item.warehouseId;
+    router.push(`/warehouse/${item.warehouseId}`);
+  } else if (item.type === 'namespace' && namespaceForRoute) {
+    const navRoute = `/warehouse/${item.warehouseId}/namespace/${namespaceForRoute}`;
+    if (item.tab) {
+      router.push({ path: navRoute, query: { tab: item.tab } });
+    } else {
+      router.push(navRoute);
+    }
+  } else if (item.type === 'table' && namespaceForRoute) {
+    router.push(`/warehouse/${item.warehouseId}/namespace/${namespaceForRoute}/table/${item.name}`);
+  } else if (item.type === 'view' && namespaceForRoute) {
+    router.push(`/warehouse/${item.warehouseId}/namespace/${namespaceForRoute}/view/${item.name}`);
+  }
+}
 
 // Get catalog URL from environment variable
 const catalogUrl = computed(() => {
@@ -116,11 +224,12 @@ async function loadNamespaceMetadata() {
   namespaceId.value = '';
   storageType.value = undefined;
   try {
-    // Load warehouse to get storage type
+    // Load warehouse to get storage type and name
     const warehouse = await functions.getWarehouse(id);
     if (requestToken !== lastNamespaceRequest.value) {
       return;
     }
+    warehouseName.value = warehouse.name;
     if (warehouse['storage-profile']?.type) {
       storageType.value = warehouse['storage-profile'].type;
     }
@@ -149,11 +258,11 @@ function onTableCreated() {
 }
 
 // Load namespace metadata on mount to get namespaceId for permissions
-// onMounted(loadNamespaceMetadata);
 onMounted(() => {
   if (route.query.tab) {
     tab.value = route.query.tab as string;
   }
+  loadNamespaceMetadata();
 });
 
 // Reload when route params change
