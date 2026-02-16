@@ -19,6 +19,7 @@
                 borderRight: '1px solid rgba(var(--v-theme-on-surface), 0.12)',
               }">
               <WarehousesNavigationTree
+                v-if="warehouseName"
                 :warehouse-id="params.id"
                 :warehouse-name="warehouseName"
                 @navigate="handleNavigate" />

@@ -14,7 +14,8 @@
                 minWidth: '200px',
                 maxWidth: '800px',
                 height: '100%',
-                overflow: 'visible',
+                overflowX: 'hidden',
+                overflowY: 'auto',
                 borderRight: '1px solid rgba(var(--v-theme-on-surface), 0.12)',
               }">
               <WarehousesNavigationTree @navigate="handleNavigate" />
