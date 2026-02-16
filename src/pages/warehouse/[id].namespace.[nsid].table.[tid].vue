@@ -281,4 +281,14 @@ watch(
 watch(tab, (newTab) => {
   router.replace({ query: { ...route.query, tab: newTab } });
 });
+watch(
+  () => visual.requestedNamespaceTab,
+  (newTab) => {
+    if (newTab) {
+      tab.value = newTab;
+      visual.requestedNamespaceTab = null;
+    }
+  },
+  { immediate: true },
+);
 </script>

@@ -49,6 +49,7 @@
 </template>
 
 <script lang="ts" setup>
+import { computed, ref } from 'vue';
 import { useVisualStore } from '@lakekeeper/console-components';
 import { useRouter } from 'vue-router';
 const router = useRouter();

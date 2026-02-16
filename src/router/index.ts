@@ -21,6 +21,12 @@ const router = createRouter({
 });
 
 router.afterEach((to: RouteLocationNormalized) => {
+  // Don't store these paths as the last visited location to prevent unwanted restoration after login
+  const excludedPaths = ['/server-offline', '/login', '/callback', '/logout'];
+  if (excludedPaths.includes(to.path)) {
+    return;
+  }
+
   const navigationStore = useNavigationStore();
   navigationStore.updateCurrentLocation({
     path: to.fullPath,
@@ -76,7 +82,14 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     (env.enabledAuthentication &&
       (to.path === '/logout' || to.path === '/login' || to.path === '/callback'))
   ) {
-    return next();
+    // Special case: if navigating TO /server-offline FROM /callback, this might be
+    // console-components restoring a previous location during the auth race condition
+    // Run server check with retries instead of allowing it through
+    if (to.path === '/server-offline' && from.path === '/callback' && env.enabledAuthentication) {
+      // Fall through to server check below
+    } else {
+      return next();
+    }
   }
 
   let serverInfo;
@@ -84,8 +97,40 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     serverInfo = await functions.getServerInfo();
 
     // Check if serverInfo is empty or null (server offline)
+    // If coming from /callback, retry before giving up (race condition with auth token setup)
+    if (!serverInfo && from.path === '/callback' && env.enabledAuthentication) {
+      const delays = [100, 300, 500]; // Progressive delays in ms
+
+      for (const delay of delays) {
+        try {
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          serverInfo = await functions.getServerInfo();
+          if (serverInfo) {
+            break; // Success, exit retry loop
+          }
+        } catch (retryError: any) {
+          // If it's a 401, no point in retrying
+          if (
+            retryError?.status === 401 ||
+            retryError?.statusCode === 401 ||
+            retryError?.response?.status === 401
+          ) {
+            userStorage.unsetUser();
+            return next('/login');
+          }
+          // For other errors, continue to next retry
+        }
+      }
+    }
+
+    // After retries (if any), check if serverInfo is still not available
     if (!serverInfo) {
       return next('/server-offline');
+    }
+
+    // If we were heading to /server-offline but server is actually online, redirect to home
+    if (to.path === '/server-offline' && from.path === '/callback') {
+      return next('/');
     }
   } catch (error: any) {
     // Check if it's a 401 Unauthorized error
@@ -110,7 +155,9 @@ router.beforeEach(async (to: any, from: any, next: any) => {
         try {
           await new Promise((resolve) => setTimeout(resolve, delay));
           serverInfo = await functions.getServerInfo();
-          break; // Success, exit retry loop
+          if (serverInfo) {
+            break; // Success, exit retry loop
+          }
         } catch (retryError: any) {
           // If it's a 401, no point in retrying
           if (
@@ -121,12 +168,18 @@ router.beforeEach(async (to: any, from: any, next: any) => {
             userStorage.unsetUser();
             return next('/login');
           }
+          // For other errors, continue to next retry or fall through
         }
       }
 
       // If all retries failed and serverInfo is still not set
       if (!serverInfo) {
         return next('/server-offline');
+      }
+
+      // If we were heading to /server-offline but server is actually online, redirect to home
+      if (to.path === '/server-offline') {
+        return next('/');
       }
     } else {
       // For other errors (network, timeout, etc), redirect to server-offline
