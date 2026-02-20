@@ -1,10 +1,10 @@
 <template>
   <v-app>
     <AppBar v-if="visual.showAppOrNavBar" />
+    <NavigationBar v-if="visual.showAppOrNavBar" />
     <v-main>
       <AuthenticationDisabledWarningBanner
         v-if="!enabledAuthentication"></AuthenticationDisabledWarningBanner>
-      <NavigationBar v-if="visual.showAppOrNavBar" />
       <router-view />
     </v-main>
 

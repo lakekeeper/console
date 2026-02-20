@@ -19,11 +19,13 @@
             v-if="visual.themeLight"
             class="mx-auto"
             max-width="280"
+            lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23f5f5f5' width='280' height='80' rx='8'/%3E%3C/svg%3E"
             src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
           <v-img
             v-else
             class="mx-auto"
             max-width="280"
+            lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23333' width='280' height='80' rx='8'/%3E%3C/svg%3E"
             src="@/assets/LAKEKEEPER_IMAGE_TEXT_WHITE.svg" />
         </v-col>
       </v-row>
@@ -49,6 +51,7 @@
             class="github-btn"
             href="https://github.com/lakekeeper/lakekeeper"
             prepend-icon="mdi-github"
+            rel="noopener noreferrer"
             target="_blank"
             variant="elevated">
             ⭐ us on GitHub
@@ -57,37 +60,50 @@
       </v-row>
 
       <!-- Row 3: Quick Access Cards -->
-      <v-row class="quick-access-row py-3">
-        <v-col cols="12" sm="4">
+      <v-row class="quick-access-row py-3" justify="center">
+        <v-col cols="6" sm="3">
           <v-card
             class="feature-card text-center"
             elevation="1"
             @click="$router.push('/warehouse')">
-            <v-card-text class="pa-3">
-              <v-icon color="primary" size="36">mdi-warehouse</v-icon>
-              <div class="text-subtitle-1 font-weight-bold mt-2 mb-1">Warehouses</div>
+            <v-card-text class="pa-2">
+              <v-icon color="primary" size="28">mdi-warehouse</v-icon>
+              <div class="text-body-2 font-weight-bold mt-1">Warehouses</div>
               <div class="text-caption text-medium-emphasis">Manage data warehouses</div>
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" sm="4">
+        <v-col cols="6" sm="3">
           <v-card class="feature-card text-center" elevation="1" @click="routeToRoles">
-            <v-card-text class="pa-3">
-              <v-icon color="success" size="36">mdi-shield-account</v-icon>
-              <div class="text-subtitle-1 font-weight-bold mt-2 mb-1">Roles</div>
+            <v-card-text class="pa-2">
+              <v-icon color="success" size="28">mdi-shield-account</v-icon>
+              <div class="text-body-2 font-weight-bold mt-1">Roles</div>
               <div class="text-caption text-medium-emphasis">Configure access control</div>
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" sm="4">
+        <v-col cols="6" sm="3">
+          <v-card class="feature-card text-center" elevation="1" @click="$router.push('/loqe')">
+            <v-card-text class="pa-2">
+              <v-icon color="warning" size="28">mdi-console</v-icon>
+              <div class="d-flex align-center justify-center mt-1">
+                <span class="text-body-2 font-weight-bold">LoQE</span>
+                <v-chip size="x-small" color="info" variant="tonal" class="ml-1">Beta</v-chip>
+              </div>
+              <div class="text-caption text-medium-emphasis">Query your data lake</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="6" sm="3">
           <v-card
             class="feature-card text-center"
             elevation="1"
             href="https://docs.lakekeeper.io"
+            rel="noopener noreferrer"
             target="_blank">
-            <v-card-text class="pa-3">
-              <v-icon color="info" size="36">mdi-book-open-page-variant</v-icon>
-              <div class="text-subtitle-1 font-weight-bold mt-2 mb-1">Documentation</div>
+            <v-card-text class="pa-2">
+              <v-icon color="info" size="28">mdi-book-open-page-variant</v-icon>
+              <div class="text-body-2 font-weight-bold mt-1">Documentation</div>
               <div class="text-caption text-medium-emphasis">Learn how to use it</div>
             </v-card-text>
           </v-card>
@@ -102,6 +118,7 @@
               class="quick-link-btn"
               href="https://github.com/lakekeeper/lakekeeper"
               prepend-icon="mdi-github"
+              rel="noopener noreferrer"
               size="small"
               target="_blank"
               variant="text">
@@ -111,6 +128,7 @@
               class="quick-link-btn"
               href="https://discord.gg/jkAGG8p93B"
               prepend-icon="mdi-discord"
+              rel="noopener noreferrer"
               size="small"
               target="_blank"
               variant="text">
@@ -120,6 +138,7 @@
               class="quick-link-btn"
               href="https://lakekeeper.io"
               prepend-icon="mdi-web"
+              rel="noopener noreferrer"
               size="small"
               target="_blank"
               variant="text">
@@ -129,6 +148,7 @@
               class="quick-link-btn"
               href="https://docs.lakekeeper.io/getting-started"
               prepend-icon="mdi-rocket-launch"
+              rel="noopener noreferrer"
               size="small"
               target="_blank"
               variant="text">
@@ -192,6 +212,7 @@
                   color="secondary"
                   href="https://docs.lakekeeper.io"
                   prepend-icon="mdi-book-open-variant"
+                  rel="noopener noreferrer"
                   size="large"
                   target="_blank"
                   variant="tonal">
@@ -269,6 +290,7 @@
                   <v-btn
                     href="https://discord.gg/jkAGG8p93B"
                     prepend-icon="mdi-discord"
+                    rel="noopener noreferrer"
                     size="small"
                     target="_blank"
                     variant="text">
@@ -277,6 +299,7 @@
                   <v-btn
                     href="https://github.com/lakekeeper/lakekeeper/issues"
                     prepend-icon="mdi-bug"
+                    rel="noopener noreferrer"
                     size="small"
                     target="_blank"
                     variant="text">

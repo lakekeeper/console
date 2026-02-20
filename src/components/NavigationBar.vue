@@ -1,63 +1,94 @@
 <template>
-  <v-navigation-drawer v-model="visual.navBarShow">
-    <v-list>
-      <v-list-item link prepend-icon="mdi-home" title="Home" to="/"></v-list-item>
-      <v-list-item
-        link
-        prepend-icon="mdi-warehouse"
-        title="Warehouses"
-        to="/warehouse"></v-list-item>
-      <v-dialog v-model="isDialogActive" max-width="500">
-        <template #activator="{ props: activatorProps }">
-          <v-list-item
-            v-bind="activatorProps"
-            link
-            prepend-icon="mdi-bucket"
-            title="Volumes"></v-list-item>
+  <v-navigation-drawer :rail="!visual.navBarShow" permanent>
+    <v-list nav density="compact" color="primary" class="pa-2">
+      <v-list-subheader v-show="visual.navBarShow" class="text-uppercase font-weight-bold">
+        Navigation
+      </v-list-subheader>
+      <v-list-item link title="Home" to="/" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Home
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-home-circle"></v-icon>
         </template>
+      </v-list-item>
+      <v-list-item link title="Warehouses" to="/warehouse" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Warehouses
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-database"></v-icon>
+        </template>
+      </v-list-item>
+      <v-list-item link title="Volumes" to="/volumes" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Volumes
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-bucket"></v-icon>
+        </template>
+        <template #append>
+          <v-chip v-show="visual.navBarShow" size="x-small" color="warning" variant="tonal">
+            Roadmap
+          </v-chip>
+        </template>
+      </v-list-item>
+      <v-list-item link title="Roles" rounded="lg" :active="isRolesActive" @click="routeToRoles">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Roles
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-shield-account"></v-icon>
+        </template>
+      </v-list-item>
 
-        <v-card title="Welcome to the Roadmap">
-          <v-card-text>
-            <div class="mb-2">Excited about the future of Lakekeeper?</div>
+      <v-divider class="my-2"></v-divider>
 
-            Join the conversation and shape the journey!
-            <a href="https://github.com/lakekeeper/lakekeeper/discussions/409" target="_blank">
-              Click here
-            </a>
-            to explore and contribute to the roadmap discussion about Volumes on GitHub.
-          </v-card-text>
+      <v-list-subheader v-show="visual.navBarShow" class="text-uppercase font-weight-bold">
+        Tools
+      </v-list-subheader>
+      <v-list-item link title="LoQE" to="/loqe" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            LoQE
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-console"></v-icon>
+        </template>
+        <template #append>
+          <v-chip v-show="visual.navBarShow" size="x-small" color="info" variant="tonal">
+            Beta
+          </v-chip>
+        </template>
+      </v-list-item>
 
-          <v-card-actions>
-            <v-spacer></v-spacer>
+      <v-divider class="my-2"></v-divider>
 
-            <v-btn color="info" text="Close" @click="isDialogActive = false"></v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <v-list-item
-        link
-        prepend-icon="mdi-account-key"
-        title="Roles"
-        @click="routeToRoles"></v-list-item>
-      <v-list-item
-        link
-        prepend-icon="mdi-cog"
-        title="Server settings"
-        to="/server-settings"></v-list-item>
+      <v-list-subheader v-show="visual.navBarShow" class="text-uppercase font-weight-bold">
+        System
+      </v-list-subheader>
+      <v-list-item link title="Server settings" to="/server-settings" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Server settings
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-cog"></v-icon>
+        </template>
+      </v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { useVisualStore } from '@lakekeeper/console-components';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Type } from '@lakekeeper/console-components';
 import { enabledAuthentication, enabledPermissions } from '@/app.config';
 
 const visual = useVisualStore();
 const router = useRouter();
-const isDialogActive = ref(false);
+const route = useRoute();
+const isRolesActive = computed(() => route.path.startsWith('/roles'));
 
 function routeToRoles() {
   if (enabledAuthentication && enabledPermissions) {
@@ -73,3 +104,9 @@ function routeToRoles() {
   }
 }
 </script>
+
+<style scoped>
+:deep(.v-list-item__prepend > .v-icon) {
+  font-size: 18px !important;
+}
+</style>
