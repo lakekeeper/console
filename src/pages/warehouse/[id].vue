@@ -167,10 +167,10 @@ function handleNavigate(item: {
 }
 
 // Get catalog URL from environment variable
-const catalogUrl = computed(() => {
-  const baseUrl = import.meta.env.VITE_APP_ICEBERG_CATALOG_URL || 'http://localhost:8181';
-  return `${baseUrl}/catalog`;
-});
+// const catalogUrl = computed(() => {
+//   const baseUrl = import.meta.env.VITE_APP_ICEBERG_CATALOG_URL || 'http://localhost:8181';
+//   return `${baseUrl}/catalog`;
+// });
 
 // const userStore = useUserStore();
 const params = computed(() => route.params as { id: string });
