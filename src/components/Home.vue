@@ -51,6 +51,7 @@
             class="github-btn"
             href="https://github.com/lakekeeper/lakekeeper"
             prepend-icon="mdi-github"
+            rel="noopener noreferrer"
             target="_blank"
             variant="elevated">
             ⭐ us on GitHub
@@ -98,6 +99,7 @@
             class="feature-card text-center"
             elevation="1"
             href="https://docs.lakekeeper.io"
+            rel="noopener noreferrer"
             target="_blank">
             <v-card-text class="pa-2">
               <v-icon color="info" size="28">mdi-book-open-page-variant</v-icon>
@@ -116,6 +118,7 @@
               class="quick-link-btn"
               href="https://github.com/lakekeeper/lakekeeper"
               prepend-icon="mdi-github"
+              rel="noopener noreferrer"
               size="small"
               target="_blank"
               variant="text">
@@ -125,6 +128,7 @@
               class="quick-link-btn"
               href="https://discord.gg/jkAGG8p93B"
               prepend-icon="mdi-discord"
+              rel="noopener noreferrer"
               size="small"
               target="_blank"
               variant="text">
@@ -134,6 +138,7 @@
               class="quick-link-btn"
               href="https://lakekeeper.io"
               prepend-icon="mdi-web"
+              rel="noopener noreferrer"
               size="small"
               target="_blank"
               variant="text">
@@ -143,6 +148,7 @@
               class="quick-link-btn"
               href="https://docs.lakekeeper.io/getting-started"
               prepend-icon="mdi-rocket-launch"
+              rel="noopener noreferrer"
               size="small"
               target="_blank"
               variant="text">
@@ -206,6 +212,7 @@
                   color="secondary"
                   href="https://docs.lakekeeper.io"
                   prepend-icon="mdi-book-open-variant"
+                  rel="noopener noreferrer"
                   size="large"
                   target="_blank"
                   variant="tonal">
@@ -283,6 +290,7 @@
                   <v-btn
                     href="https://discord.gg/jkAGG8p93B"
                     prepend-icon="mdi-discord"
+                    rel="noopener noreferrer"
                     size="small"
                     target="_blank"
                     variant="text">
@@ -291,6 +299,7 @@
                   <v-btn
                     href="https://github.com/lakekeeper/lakekeeper/issues"
                     prepend-icon="mdi-bug"
+                    rel="noopener noreferrer"
                     size="small"
                     target="_blank"
                     variant="text">

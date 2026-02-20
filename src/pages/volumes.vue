@@ -24,6 +24,7 @@
               color="primary"
               href="https://github.com/lakekeeper/lakekeeper/discussions/409"
               prepend-icon="mdi-github"
+              rel="noopener noreferrer"
               target="_blank"
               variant="elevated">
               Join the Discussion

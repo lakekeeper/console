@@ -28,7 +28,9 @@
           <v-icon size="small" icon="mdi-bucket"></v-icon>
         </template>
         <template #append>
-          <v-chip size="x-small" color="warning" variant="tonal">Roadmap</v-chip>
+          <v-chip v-show="visual.navBarShow" size="x-small" color="warning" variant="tonal"
+            >Roadmap</v-chip
+          >
         </template>
       </v-list-item>
       <v-list-item link title="Roles" rounded="lg" :active="isRolesActive" @click="routeToRoles">
@@ -53,7 +55,9 @@
           <v-icon size="small" icon="mdi-console"></v-icon>
         </template>
         <template #append>
-          <v-chip size="x-small" color="info" variant="tonal">Beta</v-chip>
+          <v-chip v-show="visual.navBarShow" size="x-small" color="info" variant="tonal"
+            >Beta</v-chip
+          >
         </template>
       </v-list-item>
 
