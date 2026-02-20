@@ -51,7 +51,7 @@
           <v-tabs v-model="tab" density="compact">
             <v-tab density="compact" value="namespaces">namespaces</v-tab>
             <v-tab density="compact" value="details">Details</v-tab>
-            <v-tab density="compact" value="query">Query</v-tab>
+
             <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
             <v-tab v-if="showPermissionsTab" density="compact" value="permissions">
               permissions
@@ -65,16 +65,7 @@
               <v-tabs-window-item value="details">
                 <WarehouseDetails v-if="tab === 'details'" :warehouse-id="params.id" />
               </v-tabs-window-item>
-              <v-tabs-window-item value="query">
-                <WarehouseSqlQuery
-                  v-if="tab === 'query'"
-                  :project-id="projectId"
-                  :warehouse-id="params.id"
-                  :warehouse-name="warehouseName"
-                  :catalog-url="catalogUrl"
-                  :storage-type="storageType"
-                  :use-fresh-token="true" />
-              </v-tabs-window-item>
+
               <v-tabs-window-item value="permissions">
                 <PermissionManager
                   v-if="tab === 'permissions'"

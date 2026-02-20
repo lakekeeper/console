@@ -72,6 +72,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/loqe': RouteRecordInfo<
+      '/loqe',
+      '/loqe',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/notfound': RouteRecordInfo<
       '/notfound',
       '/notfound',
@@ -110,6 +117,13 @@ declare module 'vue-router/auto-routes' {
     '/user-profile': RouteRecordInfo<
       '/user-profile',
       '/user-profile',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/volumes': RouteRecordInfo<
+      '/volumes',
+      '/volumes',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -204,6 +218,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/pages/loqe.vue': {
+      routes:
+        | '/loqe'
+      views:
+        | never
+    }
     'src/pages/notfound.vue': {
       routes:
         | '/notfound'
@@ -237,6 +257,12 @@ declare module 'vue-router/auto-routes' {
     'src/pages/user-profile.vue': {
       routes:
         | '/user-profile'
+      views:
+        | never
+    }
+    'src/pages/volumes.vue': {
+      routes:
+        | '/volumes'
       views:
         | never
     }
