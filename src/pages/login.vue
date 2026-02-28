@@ -1,5 +1,9 @@
 <template>
-  <LoginPage />
+  <v-row>
+    <v-col class="align-self-center">
+      <LoginPage />
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts" setup>
