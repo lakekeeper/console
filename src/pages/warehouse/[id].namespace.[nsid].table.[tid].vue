@@ -52,8 +52,9 @@
             :table-name="params.tid" />
 
           <v-tabs v-model="tab">
-            <v-tab value="overview">overview</v-tab>
+            <v-tab value="details">details</v-tab>
             <v-tab value="preview">preview</v-tab>
+            <v-tab value="health">health</v-tab>
             <v-tab value="raw">raw</v-tab>
             <v-tab value="branch">branch</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
@@ -62,9 +63,9 @@
 
           <v-card style="max-height: 80vh; overflow: auto">
             <v-tabs-window v-model="tab">
-              <v-tabs-window-item value="overview">
+              <v-tabs-window-item value="details">
                 <TableOverview
-                  v-if="tab === 'overview'"
+                  v-if="tab === 'details'"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :table-name="params.tid" />
@@ -73,6 +74,15 @@
               <v-tabs-window-item value="preview">
                 <TablePreview
                   v-if="tab === 'preview'"
+                  :warehouse-id="params.id"
+                  :namespace-id="namespacePath"
+                  :table-name="params.tid"
+                  :catalog-url="catalogUrl"
+                  :storage-type="storageType" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="health">
+                <TableHealth
+                  v-if="tab === 'health'"
                   :warehouse-id="params.id"
                   :namespace-id="namespacePath"
                   :table-name="params.tid"
