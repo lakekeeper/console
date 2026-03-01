@@ -52,7 +52,7 @@
             :view-name="params.vid" />
 
           <v-tabs v-model="tab">
-            <v-tab value="overview">overview</v-tab>
+            <v-tab value="details">details</v-tab>
             <v-tab value="raw">raw</v-tab>
             <v-tab value="history">history</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
@@ -61,9 +61,9 @@
 
           <v-card style="max-height: 80vh; overflow: auto; min-height: 55vh">
             <v-tabs-window v-model="tab">
-              <v-tabs-window-item value="overview">
+              <v-tabs-window-item value="details">
                 <ViewOverview
-                  v-if="tab === 'overview'"
+                  v-if="tab === 'details'"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :view-name="params.vid" />
@@ -129,7 +129,7 @@ import {
 const functions = useFunctions();
 const route = useRoute();
 const visual = useVisualStore();
-const tab = ref('overview');
+const tab = ref('details');
 const viewId = ref('');
 const lastViewRequest = ref(0);
 const warehouseName = ref<string | undefined>(undefined);
