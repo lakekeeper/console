@@ -142,7 +142,7 @@ import {
 const route = useRoute();
 const functions = useFunctions();
 const visual = useVisualStore();
-const tab = ref('overview');
+const tab = ref('details');
 const tableId = ref('');
 const lastTableRequest = ref(0);
 const warehouse = ref<{ name: string; id: string } | null>(null);
