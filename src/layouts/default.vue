@@ -5,7 +5,19 @@
     <v-main>
       <AuthenticationDisabledWarningBanner
         v-if="!enabledAuthentication"></AuthenticationDisabledWarningBanner>
-      <router-view />
+      <router-view v-slot="{ Component, route }">
+        <transition name="fade" mode="out-in">
+          <div
+            :key="route.path"
+            style="
+              min-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
+              display: flex;
+              flex-direction: column;
+            ">
+            <component :is="Component" />
+          </div>
+        </transition>
+      </router-view>
     </v-main>
 
     <AppFooter>
@@ -33,3 +45,15 @@ import { enabledAuthentication } from '@/app.config';
 import { useVisualStore } from '@lakekeeper/console-components';
 const visual = useVisualStore();
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

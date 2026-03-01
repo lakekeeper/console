@@ -164,7 +164,7 @@ body {
 }
 
 #app {
-  overflow: auto;
+  overflow-x: hidden;
   height: 100vh;
   width: 100%;
 }
