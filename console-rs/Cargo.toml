@@ -1,6 +1,6 @@
 [package]
 name = "lakekeeper-console"
-version = "0.11.3"
+version = "0.11.4"
 edition = "2021"
 resolver = "2"
 homepage = "https://github.com/lakekeeper/lakekeeper"
