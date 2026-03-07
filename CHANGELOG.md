@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.11.4](https://github.com/lakekeeper/console/compare/v0.11.3...v0.11.4) (2026-03-07)
+
+
+### Bug Fixes
+
+* patch ([#203](https://github.com/lakekeeper/console/issues/203)) ([c9443cf](https://github.com/lakekeeper/console/commit/c9443cf124ad37fddb1e931ec52ee8558ed42c1c))
+* patch components to 0.2.22 ([#195](https://github.com/lakekeeper/console/issues/195)) ([58e2ea2](https://github.com/lakekeeper/console/commit/58e2ea2f420c96118cb819dfc4af47c6960087d8))
+* patch version ([#197](https://github.com/lakekeeper/console/issues/197)) ([a78db64](https://github.com/lakekeeper/console/commit/a78db649b239cfa57f43b88fcf06b06d3e47b764))
+* patch version console-components ([#202](https://github.com/lakekeeper/console/issues/202)) ([6b714a8](https://github.com/lakekeeper/console/commit/6b714a8d96ca9c2efd96c147e7aaa10782bd9d3a))
+* query iverload ([#200](https://github.com/lakekeeper/console/issues/200)) ([051be2f](https://github.com/lakekeeper/console/commit/051be2fdb4791a12c0474a47739580bfed3fb6e4))
+* ui improvements ([#199](https://github.com/lakekeeper/console/issues/199)) ([a88b087](https://github.com/lakekeeper/console/commit/a88b08712e51292af22a7788e55cd1b047636792))
+* **ui:** bump console-components to v0.2.31 ([#205](https://github.com/lakekeeper/console/issues/205)) ([78fb496](https://github.com/lakekeeper/console/commit/78fb4968b0f3c7813b60d657914a73bc665d5e39))
+* **ui:** handle sub-namespaces with dots in API calls, DuckDB SQL, and SQL autocomplete ([4afec4f](https://github.com/lakekeeper/console/commit/4afec4f96f9edcca7d3d98dfa3f86b541a5954bb))
+
 ## [0.11.3](https://github.com/lakekeeper/console/compare/v0.11.2...v0.11.3) (2026-01-29)
 
 
