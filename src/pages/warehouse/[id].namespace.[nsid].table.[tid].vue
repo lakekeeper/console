@@ -45,7 +45,15 @@
         </v-expand-x-transition>
 
         <!-- Right: Main Content -->
-        <div style="flex: 1; height: 100%; min-width: 0; display: flex; flex-direction: column; overflow: hidden">
+        <div
+          style="
+            flex: 1;
+            height: 100%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          ">
           <TableHeader
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
