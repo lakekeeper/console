@@ -18,7 +18,9 @@
     "test:debug": "playwright test --debug",
     "test:codegen": "playwright codegen http://localhost:5001",
     "test:manual": "SKIP_WEBSERVER=true playwright test",
-    "update-deps-page": "node scripts/update-dependencies-page.js"
+    "update-deps-page": "node scripts/update-dependencies-page.js",
+    "link": "npm link ../console-components",
+    "unlink": "npm unlink --no-save @lakekeeper/console-components 2>/dev/null; rm -rf node_modules package-lock.json && npm install"
   },
   "dependencies": {
     "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.31",
