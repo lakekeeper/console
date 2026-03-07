@@ -45,7 +45,7 @@
         </v-expand-x-transition>
 
         <!-- Right: Main Content -->
-        <div style="flex: 1; height: 100%; overflow-y: auto; min-width: 0">
+        <div style="flex: 1; height: 100%; min-width: 0; display: flex; flex-direction: column; overflow: hidden">
           <TableHeader
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
@@ -56,12 +56,12 @@
             <v-tab value="preview">preview</v-tab>
             <v-tab value="health">health</v-tab>
             <v-tab value="raw">raw</v-tab>
-            <v-tab value="branch">branch</v-tab>
+            <v-tab value="versioning">versioning</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
 
-          <v-card style="max-height: 80vh; overflow: auto">
+          <v-card style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="details">
                 <TableOverview
@@ -98,9 +98,9 @@
                   :table-name="params.tid" />
               </v-tabs-window-item>
 
-              <v-tabs-window-item value="branch">
-                <TableBranch
-                  v-if="tab === 'branch'"
+              <v-tabs-window-item value="versioning">
+                <TableVersioning
+                  v-if="tab === 'versioning'"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :table-name="params.tid" />
