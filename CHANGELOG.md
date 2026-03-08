@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.12.0](https://github.com/lakekeeper/console/compare/v0.11.4...v0.12.0) (2026-03-08)
+
+
+### Features
+
+* **ui:** add community action cards (Star, Contribute, Share on LinkedIn) to Home page ([c477e37](https://github.com/lakekeeper/console/commit/c477e372f4b915d784e56b40c8dd0fc7557f8dff))
+* **ui:** add HomeStatistics dashboard with project/warehouse/table/view counts and API calls area chart ([c477e37](https://github.com/lakekeeper/console/commit/c477e372f4b915d784e56b40c8dd0fc7557f8dff))
+* **ui:** add WarehouseStatistics tab with D3 stacked area charts and server-side filtering ([c477e37](https://github.com/lakekeeper/console/commit/c477e372f4b915d784e56b40c8dd0fc7557f8dff))
+* **ui:** move GitHub stars to AppBar linked to repository ([c477e37](https://github.com/lakekeeper/console/commit/c477e372f4b915d784e56b40c8dd0fc7557f8dff))
+* **ui:** pass storageLayout prop to NamespaceTables and NamespaceViews ([c477e37](https://github.com/lakekeeper/console/commit/c477e372f4b915d784e56b40c8dd0fc7557f8dff))
+* **ui:** update Contributing section in README to point to shared CONTRIBUTING.md ([c477e37](https://github.com/lakekeeper/console/commit/c477e372f4b915d784e56b40c8dd0fc7557f8dff))
+* **ui:** upgrade console-components to v0.3.0 ([#207](https://github.com/lakekeeper/console/issues/207)) ([c477e37](https://github.com/lakekeeper/console/commit/c477e372f4b915d784e56b40c8dd0fc7557f8dff))
+
+
+### Bug Fixes
+
+* **ui:** remove deprecated GitHub stats chips, quick access cards, and routeToRoles from Home ([c477e37](https://github.com/lakekeeper/console/commit/c477e372f4b915d784e56b40c8dd0fc7557f8dff))
+
+
+### Miscellaneous Chores
+
+* add npm link/unlink scripts for local dev ([9b86fbd](https://github.com/lakekeeper/console/commit/9b86fbd261a52ee5096bc107361fb124cfdc3178))
+* fix npm link compatibility for singleton packages ([bb83205](https://github.com/lakekeeper/console/commit/bb83205dda63a19777c233e010a217084f3207e3))
+
 ## [0.11.4](https://github.com/lakekeeper/console/compare/v0.11.3...v0.11.4) (2026-03-07)
 
 
