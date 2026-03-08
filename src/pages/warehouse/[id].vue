@@ -53,7 +53,11 @@
             <v-tab density="compact" value="details">Details</v-tab>
 
             <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
-            <v-tab v-if="showStatisticsTab" density="compact" value="statistics" @click="loadStatistics">
+            <v-tab
+              v-if="showStatisticsTab"
+              density="compact"
+              value="statistics"
+              @click="loadStatistics">
               Statistics
             </v-tab>
             <v-tab v-if="showPermissionsTab" density="compact" value="permissions">

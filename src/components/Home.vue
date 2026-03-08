@@ -301,9 +301,14 @@
 </template>
 
 <script setup lang="ts">
-import { useFunctions, useUserStore, useVisualStore, HomeStatistics } from '@lakekeeper/console-components';
+import {
+  useFunctions,
+  useUserStore,
+  useVisualStore,
+  HomeStatistics,
+} from '@lakekeeper/console-components';
 import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
-import * as env from '@/app.config';
+// import * as env from '@/app.config';
 
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
