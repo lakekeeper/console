@@ -61,6 +61,7 @@ src/
 ### Environment variables
 
 All configured in `src/app.config.ts`:
+
 - `VITE_APP_ICEBERG_CATALOG_URL` — Lakekeeper server URL
 - `VITE_ENABLE_AUTHENTICATION` / `VITE_ENABLE_PERMISSIONS` — auth toggles
 - `VITE_IDP_*` — OIDC provider settings (authority, client_id, scope, etc.)
@@ -87,6 +88,7 @@ npm run unlink
 ```
 
 Why this matters:
+
 - `npm link` creates a symlink — no `package-lock.json` entry is generated for the linked package
 - CI runs `npm ci` which requires a valid `package-lock.json` — without it, the build fails with missing exports
 - Running `npm run unlink` does a fresh install from the GitHub ref in `package.json` (e.g. `github:lakekeeper/console-components#v0.3.0`), producing the correct lockfile
