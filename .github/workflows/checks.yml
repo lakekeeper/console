@@ -8,7 +8,7 @@ on:
 
 jobs:
   checks:
-    runs-on: ${{ vars.RUNS_ON__AMD_S }}
+    runs-on: ${{ vars.RUNS_ON__AMD_S || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
 
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 23
+          node-version: 24
           cache: 'npm'
 
       - name: Install dependencies

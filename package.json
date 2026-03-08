@@ -22,6 +22,9 @@
     "link": "npm link ../console-components && touch tsconfig.json",
     "unlink": "npm unlink --no-save @lakekeeper/console-components 2>/dev/null; rm -rf node_modules package-lock.json && npm install"
   },
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
     "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.3.0",
     "@mdi/font": "7.4.47",
@@ -45,6 +48,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-vue": "^10.5.1",
+    "globals": "^16.5.0",
     "pinia": "^3.0.3",
     "prettier": "^3.6.2",
     "typescript": "~5.9.3",
