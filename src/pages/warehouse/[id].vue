@@ -53,6 +53,13 @@
             <v-tab density="compact" value="details">Details</v-tab>
 
             <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
+            <v-tab
+              v-if="showStatisticsTab"
+              density="compact"
+              value="statistics"
+              @click="loadStatistics">
+              Statistics
+            </v-tab>
             <v-tab v-if="showPermissionsTab" density="compact" value="permissions">
               permissions
             </v-tab>
@@ -79,6 +86,12 @@
                   :warehouse-id="params.id"
                   entity-type="warehouse" />
               </v-tabs-window-item>
+              <v-tabs-window-item value="statistics">
+                <WarehouseStatistics
+                  v-if="tab === 'statistics'"
+                  ref="warehouseStatisticsRef"
+                  :warehouse-id="params.id" />
+              </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
         </div>
@@ -95,6 +108,7 @@ import {
   useFunctions,
   useWarehouseAuthorizerPermissions,
   useVisualStore,
+  WarehouseStatistics,
 } from '@lakekeeper/console-components';
 import { computed, ref, onMounted, watch } from 'vue';
 
@@ -180,9 +194,14 @@ const warehouseId = computed(() => params.value.id);
 
 // Use warehouse permissions composable
 // const permissions = useWarehousePermissions(warehouseId);
-const { showTasksTab } = useWarehousePermissions(warehouseId);
+const { showTasksTab, showStatisticsTab } = useWarehousePermissions(warehouseId);
 const { showPermissionsTab } = useWarehouseAuthorizerPermissions(warehouseId);
 const projectId = ref<string | undefined>(undefined);
+const warehouseStatisticsRef = ref<InstanceType<typeof WarehouseStatistics> | null>(null);
+
+function loadStatistics() {
+  warehouseStatisticsRef.value?.loadStatistics();
+}
 
 // Load warehouse data
 async function loadWarehouse() {

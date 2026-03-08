@@ -23,7 +23,7 @@
     "unlink": "npm unlink --no-save @lakekeeper/console-components 2>/dev/null; rm -rf node_modules package-lock.json && npm install"
   },
   "dependencies": {
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.2.31",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.3.0",
     "@mdi/font": "7.4.47",
     "json-bigint": "^1.0.0",
     "oidc-client-ts": "^3.3.0",
