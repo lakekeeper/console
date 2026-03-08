@@ -30,87 +30,72 @@
         </v-col>
       </v-row>
 
-      <!-- Row 2: GitHub Button with Stats -->
-      <v-row class="github-row">
-        <v-col cols="12" class="text-center py-2">
-          <div class="d-flex align-center justify-center flex-wrap gap-2 mb-3">
-            <v-chip v-if="version" class="stat-chip mr-2" size="small" variant="flat">
-              <v-icon start size="small">mdi-tag-outline</v-icon>
-              {{ version }}
-            </v-chip>
-            <v-chip v-if="starCount > 0" class="stat-chip mr-2" size="small" variant="flat">
-              <v-icon start size="small">mdi-star-outline</v-icon>
-              {{ formatCount(starCount) }}
-            </v-chip>
-            <v-chip v-if="forksCount > 0" class="stat-chip" size="small" variant="flat">
-              <v-icon start size="small">mdi-source-fork</v-icon>
-              {{ formatCount(forksCount) }}
-            </v-chip>
-          </div>
-          <v-btn
-            class="github-btn"
+      <!-- Row 3: Community Actions -->
+      <v-row class="py-2" justify="center">
+        <v-col cols="12" sm="4">
+          <v-card
+            class="community-card"
+            variant="outlined"
             href="https://github.com/lakekeeper/lakekeeper"
-            prepend-icon="mdi-github"
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="elevated">
-            ⭐ us on GitHub
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <!-- Row 3: Quick Access Cards -->
-      <v-row class="quick-access-row py-3" justify="center">
-        <v-col cols="6" sm="3">
-          <v-card
-            class="feature-card text-center"
-            elevation="1"
-            @click="$router.push('/warehouse')">
-            <v-card-text class="pa-2">
-              <v-icon color="primary" size="28">mdi-warehouse</v-icon>
-              <div class="text-body-2 font-weight-bold mt-1">Warehouses</div>
-              <div class="text-caption text-medium-emphasis">Manage data warehouses</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="6" sm="3">
-          <v-card class="feature-card text-center" elevation="1" @click="routeToRoles">
-            <v-card-text class="pa-2">
-              <v-icon color="success" size="28">mdi-shield-account</v-icon>
-              <div class="text-body-2 font-weight-bold mt-1">Roles</div>
-              <div class="text-caption text-medium-emphasis">Configure access control</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="6" sm="3">
-          <v-card class="feature-card text-center" elevation="1" @click="$router.push('/loqe')">
-            <v-card-text class="pa-2">
-              <v-icon color="warning" size="28">mdi-console</v-icon>
-              <div class="d-flex align-center justify-center mt-1">
-                <span class="text-body-2 font-weight-bold">LoQE</span>
-                <v-chip size="x-small" color="info" variant="tonal" class="ml-1">Beta</v-chip>
-              </div>
-              <div class="text-caption text-medium-emphasis">Query your data lake</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="6" sm="3">
-          <v-card
-            class="feature-card text-center"
-            elevation="1"
-            href="https://docs.lakekeeper.io"
             rel="noopener noreferrer"
             target="_blank">
-            <v-card-text class="pa-2">
-              <v-icon color="info" size="28">mdi-book-open-page-variant</v-icon>
-              <div class="text-body-2 font-weight-bold mt-1">Documentation</div>
-              <div class="text-caption text-medium-emphasis">Learn how to use it</div>
+            <v-card-text class="d-flex align-center pa-3">
+              <v-avatar color="grey-darken-3" size="36" class="mr-3">
+                <v-icon color="white" size="20">mdi-github</v-icon>
+              </v-avatar>
+              <div>
+                <div class="text-body-2 font-weight-bold">Star us on GitHub</div>
+                <div class="text-caption text-medium-emphasis">Show your support</div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <v-card
+            class="community-card"
+            variant="outlined"
+            href="https://github.com/lakekeeper/console-components/blob/main/CONTRIBUTING.md"
+            rel="noopener noreferrer"
+            target="_blank">
+            <v-card-text class="d-flex align-center pa-3">
+              <v-avatar color="primary" size="36" class="mr-3">
+                <v-icon color="white" size="20">mdi-hand-heart</v-icon>
+              </v-avatar>
+              <div>
+                <div class="text-body-2 font-weight-bold">Contribute</div>
+                <div class="text-caption text-medium-emphasis">Help build Lakekeeper</div>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="4">
+          <v-card
+            class="community-card"
+            variant="outlined"
+            :href="`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent('I\'m using Lakekeeper — an open-source Apache Iceberg REST Catalog for data lakehouse management! 🚀\n\nhttps://github.com/lakekeeper/lakekeeper')}`"
+            rel="noopener noreferrer"
+            target="_blank">
+            <v-card-text class="d-flex align-center pa-3">
+              <v-avatar color="blue-darken-3" size="36" class="mr-3">
+                <v-icon color="white" size="20">mdi-linkedin</v-icon>
+              </v-avatar>
+              <div>
+                <div class="text-body-2 font-weight-bold">Share on LinkedIn</div>
+                <div class="text-caption text-medium-emphasis">Spread the word</div>
+              </div>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
 
-      <!-- Row 4: Quick Links -->
+      <!-- Row 4: Dashboard Statistics -->
+      <v-row class="py-2">
+        <v-col cols="12">
+          <HomeStatistics />
+        </v-col>
+      </v-row>
+
+      <!-- Row 6: Quick Links -->
       <v-row class="links-row py-2">
         <v-col cols="12">
           <div class="quick-links-grid">
@@ -316,7 +301,7 @@
 </template>
 
 <script setup lang="ts">
-import { useFunctions, useUserStore, useVisualStore } from '@lakekeeper/console-components';
+import { useFunctions, useUserStore, useVisualStore, HomeStatistics } from '@lakekeeper/console-components';
 import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
 import * as env from '@/app.config';
 
@@ -338,9 +323,6 @@ const user = reactive({
   'user-type': 'human',
 });
 
-const starCount = ref(0);
-const forksCount = ref(0);
-const version = ref('0');
 const loading = ref(true);
 
 // Tic-Tac-Toe Game state
@@ -348,25 +330,6 @@ const board = ref<string[]>(Array(9).fill(''));
 const currentPlayer = ref<'X' | 'O'>('X');
 const gameOver = ref(false);
 const winner = ref<'X' | 'O' | 'draw' | null>(null);
-
-const formatCount = (count: number): string => {
-  if (count < 1000) {
-    return count.toString();
-  }
-
-  const thousands = count / 1000;
-
-  // Round to 1 decimal place
-  const rounded = Math.round(thousands * 10) / 10;
-
-  // If it's a whole number (like 1.0, 2.0), show without decimal
-  if (rounded % 1 === 0) {
-    return `${rounded.toFixed(0)}k`;
-  }
-
-  // Otherwise show with 1 decimal place
-  return `${rounded.toFixed(1)}k`;
-};
 
 const checkWinner = (): 'X' | 'O' | 'draw' | null => {
   const winPatterns = [
@@ -479,7 +442,6 @@ const resetGame = () => {
 };
 
 onMounted(async () => {
-  fetchGitHub();
   await checkAccessStatus();
 
   loading.value = false;
@@ -499,44 +461,6 @@ const logout = () => {
   }
   router.push('/login');
 };
-
-async function fetchGitHub() {
-  try {
-    const response = await fetch('https://api.github.com/repos/lakekeeper/lakekeeper');
-    const data = await response.json();
-    starCount.value = data.stargazers_count;
-    forksCount.value = data.forks_count;
-
-    const res = await fetch('https://api.github.com/repos/lakekeeper/lakekeeper/tags');
-
-    type Release = {
-      name: string;
-    };
-
-    const releases: Release[] = await res.json();
-
-    const getHighestVersion = (haystack: Release[]): string => {
-      const validReleases = haystack
-        .map((release) => release.name)
-        .filter((name) => /^v\d+\.\d+\.\d+$/.test(name)) // Exclude pre-release versions like "-rc"
-        .sort((a, b) => {
-          const versionA = a.slice(1).split('.').map(Number); // Convert version numbers to arrays of numbers
-          const versionB = b.slice(1).split('.').map(Number);
-          for (let i = 0; i < versionA.length; i++) {
-            if (versionA[i] > versionB[i]) return -1;
-            if (versionA[i] < versionB[i]) return 1;
-          }
-          return 0;
-        });
-
-      return validReleases[0]; // Always returns the highest version as a string
-    };
-
-    version.value = getHighestVersion(releases);
-  } catch (error) {
-    console.error('Error fetching GitHub star count:', error);
-  }
-}
 
 async function checkAccessStatus() {
   try {
@@ -561,20 +485,6 @@ async function checkAccessStatus() {
     }
   } catch (error) {
     console.error(error);
-  }
-}
-
-function routeToRoles() {
-  if (env.enabledAuthentication && env.enabledPermissions) {
-    router.push('/roles');
-  } else {
-    visual.setSnackbarMsg({
-      function: 'routeToRoles',
-      text: 'Authorization is disabled',
-      ttl: 3000,
-      ts: Date.now(),
-      type: Type.INFO,
-    });
   }
 }
 </script>
@@ -611,15 +521,6 @@ function routeToRoles() {
   }
 }
 
-.stats-row {
-  animation: fadeIn 1.2s ease-in 0.4s both;
-}
-
-.stat-chip {
-  background: rgb(var(--v-theme-surface-variant));
-  font-weight: 500;
-}
-
 .cta-buttons {
   animation: fadeIn 1.4s ease-in 0.6s both;
 }
@@ -631,6 +532,19 @@ function routeToRoles() {
 
 .github-btn:hover {
   background-color: #f0f0f0 !important;
+}
+
+.community-card {
+  border-radius: 12px !important;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.community-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(var(--v-theme-primary), 0.25);
+  border-color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.08);
 }
 
 .quick-access-section {

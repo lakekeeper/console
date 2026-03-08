@@ -84,6 +84,7 @@
                     v-if="tab === 'tables'"
                     :warehouse-id="params.id"
                     :namespace-path="params.nsid"
+                    :storage-layout="storageLayout"
                     :key="tableListKey" />
                 </div>
               </v-tabs-window-item>
@@ -92,7 +93,8 @@
                 <NamespaceViews
                   v-if="tab === 'views'"
                   :warehouse-id="params.id"
-                  :namespace-path="params.nsid" />
+                  :namespace-path="params.nsid"
+                  :storage-layout="storageLayout" />
               </v-tabs-window-item>
 
               <v-tabs-window-item value="deleted">
@@ -135,6 +137,7 @@ const namespaceId = ref('');
 const lastNamespaceRequest = ref(0);
 const tableListKey = ref(0);
 const storageType = ref<string | undefined>(undefined);
+const storageLayout = ref<string | undefined>(undefined);
 const warehouseName = ref<string | undefined>(undefined);
 const leftWidth = ref(300);
 const dividerHover = ref(false);
@@ -233,6 +236,8 @@ async function loadNamespaceMetadata() {
     if (warehouse['storage-profile']?.type) {
       storageType.value = warehouse['storage-profile'].type;
     }
+    storageLayout.value =
+      (warehouse['storage-profile'] as any)?.['storage-layout']?.type || 'default';
 
     const namespace = await functions.loadNamespaceMetadata(id, nsid);
     if (requestToken !== lastNamespaceRequest.value) {
@@ -248,6 +253,7 @@ async function loadNamespaceMetadata() {
     if (requestToken === lastNamespaceRequest.value) {
       namespaceId.value = '';
       storageType.value = undefined;
+      storageLayout.value = undefined;
     }
   }
 }
