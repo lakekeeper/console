@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.1](https://github.com/lakekeeper/console/compare/v0.12.0...v0.12.1) (2026-03-08)
+
+
+### Miscellaneous Chores
+
+* claude ([bea5e46](https://github.com/lakekeeper/console/commit/bea5e461eb573cdf19c93ee1122bf9b08690f659))
+* prettier ([f9845a5](https://github.com/lakekeeper/console/commit/f9845a57cd975ae0b8d6612e0ec9707b3b554fba))
+
 ## [0.12.0](https://github.com/lakekeeper/console/compare/v0.11.4...v0.12.0) (2026-03-08)
 
 
