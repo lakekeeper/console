@@ -81,6 +81,15 @@
                   :warehouseId="warehouseId" />
               </v-tabs-window-item>
               <v-tabs-window-item value="tasks">
+                <!-- Task Config Dialog -->
+                <v-row no-gutters>
+                  <v-col cols="3">
+                    <TaskConfigDialog
+                      v-if="warehouseData"
+                      :warehouse="{ id: warehouseData.id, name: warehouseData.name }" />
+                  </v-col>
+                </v-row>
+
                 <TaskManager
                   v-if="tab === 'tasks'"
                   :warehouse-id="params.id"
@@ -119,6 +128,7 @@ const visual = useVisualStore();
 const tab = ref('namespaces');
 const warehouseName = ref<string | undefined>(undefined);
 const storageType = ref<string | undefined>(undefined);
+const warehouseData = ref<any>(null);
 const leftWidth = ref(300);
 const dividerHover = ref(false);
 const isResizing = ref(false);
@@ -207,6 +217,7 @@ function loadStatistics() {
 async function loadWarehouse() {
   try {
     const wh = await functions.getWarehouse(params.value.id);
+    warehouseData.value = wh;
     projectId.value = wh['project-id'];
     warehouseName.value = wh.name;
 

@@ -1,7 +1,7 @@
 // @ts-expect-error - vue-router/auto is provided by unplugin-vue-router
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router/auto';
-import { setupLayouts } from 'virtual:generated-layouts';
 import { routes } from 'vue-router/auto-routes';
+import DefaultLayout from '@/layouts/default.vue';
 import { useUserStore, useFunctions, useNavigationStore } from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
@@ -11,13 +11,19 @@ const baseUrlPrefix = `${env.baseUrlPrefix}/ui/`;
 
 const router = createRouter({
   history: createWebHistory(baseUrlPrefix),
-  routes: setupLayouts([
-    ...routes,
+  routes: [
     {
-      path: '/:catchAll(.*)*',
-      component: NotFound,
+      path: '/',
+      component: DefaultLayout,
+      children: [
+        ...routes,
+        {
+          path: '/:catchAll(.*)*',
+          component: NotFound,
+        },
+      ],
     },
-  ]),
+  ],
 });
 
 router.afterEach((to: RouteLocationNormalized) => {

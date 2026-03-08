@@ -15,7 +15,7 @@
       "@vue/shared": ["./node_modules/@vue/shared"]
     },
     "resolveJsonModule": true,
-    "types": ["vite/client", "vite-plugin-vue-layouts/client", "unplugin-vue-router/client"],
+    "types": ["vite/client", "unplugin-vue-router/client"],
     "allowJs": true,
     "strict": true,
     "strictNullChecks": true,
