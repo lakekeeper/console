@@ -20,7 +20,7 @@ jobs:
   # Update release PR
   release_please:
     name: Release Please
-    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    runs-on: ${{ vars.RUNS_ON__AMD_XS || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
     if: ${{ vars.RELEASE_PLEASE_ACTIVATED != '' }}
@@ -37,36 +37,27 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please/release-please-config.json
           manifest-file: release-please/.release-please-manifest.json
-          target-branch: ${{ vars.RELEASE_PLEASE_TARGET_BRANCH }}
+          target-branch: ${{ vars.RELEASE_PLEASE_TARGET_BRANCH || 'main' }}
 
   build:
     name: Build
-    runs-on: ${{ vars.RUNS_ON__AMD_S }}
+    runs-on: ${{ vars.RUNS_ON__AMD_S || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Create Node Environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
           cache: 'npm'
 
       - name: Install Packages and Build Application
         run: |
-          npm ci --include=optional
-          # Workaround for npm bug where platform-specific optional dependencies
-          # may not install correctly in CI (https://github.com/npm/cli/issues/4828)
-          # Detect architecture and install the correct Rollup binary
-          ARCH=$(uname -m)
-          if [ "$ARCH" = "x86_64" ]; then
-            npm install --no-save --legacy-peer-deps @rollup/rollup-linux-x64-gnu
-          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-            npm install --no-save --legacy-peer-deps @rollup/rollup-linux-arm64-gnu
-          fi
+          npm ci
           npm run build
 
       - name: Upload dist folder
@@ -77,13 +68,13 @@ jobs:
   
   tests:
     name: Test Repo
-    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    runs-on: ${{ vars.RUNS_ON__AMD_XS || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Ensure placeholder env in sync
         # Make sure that the keys (before =) in .env and .env.placeholder are identical
@@ -91,13 +82,13 @@ jobs:
   
   test-rs:
     name: Test Rust
-    runs-on: ${{ vars.RUNS_ON__AMD_S }}
+    runs-on: ${{ vars.RUNS_ON__AMD_S || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -105,9 +96,9 @@ jobs:
           rust-src-dir: console-rs
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
           cache: 'npm'
 
       - name: Test Rust
@@ -115,7 +106,7 @@ jobs:
 
   publish-build:
     name: Publish Build
-    runs-on: ${{ vars.RUNS_ON__AMD_XS }}
+    runs-on: ${{ vars.RUNS_ON__AMD_XS || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
     needs:

@@ -70,3 +70,11 @@ rust-project.json
 test-results/
 playwright-report/
 playwright/.auth/
+
+# DuckDB WASM files (copied from @duckdb/duckdb-wasm at build time)
+public/duckdb/
+public/duckdb-worker-wrapper.js
+
+# Vite timestamp cache
+vite.config.ts.timestamp-*
+vite.config.mts.timestamp-*

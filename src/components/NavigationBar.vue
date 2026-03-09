@@ -4,7 +4,7 @@
       <v-list-subheader v-show="visual.navBarShow" class="text-uppercase font-weight-bold">
         Navigation
       </v-list-subheader>
-      <v-list-item link title="Home" to="/" rounded="lg">
+      <v-list-item link title="Home" to="/" :exact="true" rounded="lg">
         <template #prepend>
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
             Home

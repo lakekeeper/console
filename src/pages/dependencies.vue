@@ -222,6 +222,12 @@ import { ref, computed, watch, onMounted } from 'vue';
 import dependenciesData from '../assets/dependencies.json' with { type: 'json' };
 import { useRoute, useRouter } from 'vue-router';
 
+interface RustDep {
+  name: string;
+  version: string;
+  features?: string;
+}
+
 const route = useRoute();
 const router = useRouter();
 
@@ -234,12 +240,12 @@ const consoleDevDeps = dependenciesData.console.devDependencies;
 const componentsDeps = dependenciesData.components.dependencies;
 const componentsDevDeps = dependenciesData.components.devDependencies;
 const componentsPeerDeps = dependenciesData.components.peerDependencies;
-const rustDeps = dependenciesData.rust.dependencies;
+const rustDeps = dependenciesData.rust.dependencies as RustDep[];
 
 const filteredRustDeps = computed(() => {
   if (!rustSearch.value) return rustDeps;
   const search = rustSearch.value.toLowerCase();
-  return rustDeps.filter((dep: any) => dep.name.toLowerCase().includes(search));
+  return rustDeps.filter((dep) => dep.name.toLowerCase().includes(search));
 });
 
 onMounted(() => {

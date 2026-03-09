@@ -20,7 +20,7 @@ const theme = useTheme();
 
 onMounted(async () => {
   try {
-    theme.global.name.value = visual.themeLight ? 'light' : 'dark';
+    theme.change(visual.themeLight ? 'light' : 'dark');
     if (!enabledAuthentication) {
       const serverInfo = await functions.getServerInfo();
 

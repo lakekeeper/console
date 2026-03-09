@@ -8,32 +8,22 @@ on:
 
 jobs:
   checks:
-    runs-on: ${{ vars.RUNS_ON__AMD_S }}
+    runs-on: ${{ vars.RUNS_ON__AMD_S || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
           cache: 'npm'
 
       - name: Install dependencies
-        run: |
-          npm ci --include=optional
-          # Workaround for npm bug where platform-specific optional dependencies
-          # may not install correctly in CI (https://github.com/npm/cli/issues/4828)
-          # Detect architecture and install the correct Rollup binary
-          ARCH=$(uname -m)
-          if [ "$ARCH" = "x86_64" ]; then
-            npm install --no-save --legacy-peer-deps @rollup/rollup-linux-x64-gnu
-          elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then
-            npm install --no-save --legacy-peer-deps @rollup/rollup-linux-arm64-gnu
-          fi
+        run: npm ci
 
       - name: Check formatting
         run: just check-format
