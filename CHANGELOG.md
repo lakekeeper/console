@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.2](https://github.com/lakekeeper/console/compare/v0.12.1...v0.12.2) (2026-03-09)
+
+
+### Bug Fixes
+
+* **ui:** maintenance - upgrade deps, gitignore DuckDB WASM, CI improvements ([#209](https://github.com/lakekeeper/console/issues/209)) ([b923867](https://github.com/lakekeeper/console/commit/b923867a7f4914388a7560547c6564d13c15d4cd))
+
 ## [0.12.1](https://github.com/lakekeeper/console/compare/v0.12.0...v0.12.1) (2026-03-08)
 
 
