@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.3](https://github.com/lakekeeper/console/compare/v0.12.2...v0.12.3) (2026-03-09)
+
+
+### Miscellaneous Chores
+
+* update package-lock.json ([#211](https://github.com/lakekeeper/console/issues/211)) ([89411c2](https://github.com/lakekeeper/console/commit/89411c2c7ad7a4c7d9ad647d6eaec24917c5e9ba))
+
 ## [0.12.2](https://github.com/lakekeeper/console/compare/v0.12.1...v0.12.2) (2026-03-09)
 
 
