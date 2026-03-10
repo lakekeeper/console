@@ -5,19 +5,19 @@
   "packageRules": [
     {
       "groupName": "eslint",
-      "matchPackagePatterns": ["eslint", "typescript-eslint", "vue-eslint-parser", "globals"]
+      "matchPackageNames": ["/eslint/", "/typescript-eslint/", "/vue-eslint-parser/", "/globals/"]
     },
     {
       "groupName": "vue ecosystem",
-      "matchPackagePatterns": ["vue", "vuetify", "pinia", "vue-router", "vue-tsc"]
+      "matchPackageNames": ["/vue/", "/vuetify/", "/pinia/", "/vue-router/", "/vue-tsc/"]
     },
     {
       "groupName": "vite",
-      "matchPackagePatterns": ["vite", "@vitejs"]
+      "matchPackageNames": ["/vite/", "/@vitejs/"]
     },
     {
       "groupName": "playwright",
-      "matchPackagePatterns": ["@playwright"]
+      "matchPackageNames": ["/@playwright/"]
     },
     {
       "matchUpdateTypes": ["patch"],
