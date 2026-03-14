@@ -4,7 +4,7 @@
       <v-breadcrumbs :items="['warehouses']"></v-breadcrumbs>
 
       <!-- Single flex container for navigation + content -->
-      <div style="display: flex; height: calc(100vh - 200px); position: relative">
+      <div style="display: flex; height: calc(100vh - 160px); position: relative">
         <!-- Left: Navigation Tree -->
         <v-expand-x-transition>
           <div v-show="!isNavigationCollapsed" style="display: flex; height: 100%">

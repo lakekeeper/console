@@ -4,7 +4,7 @@
     <v-tab v-if="showPermissionsTab" value="permissions">permissions</v-tab>
     <v-tab v-if="showUsersTab" value="users">users</v-tab>
   </v-tabs>
-  <v-tabs-window v-model="tab">
+  <v-tabs-window v-model="tab" style="max-height: calc(100vh - 140px); overflow-y: auto">
     <v-tabs-window-item value="overview">
       <ServerOverview v-if="tab === 'overview'" />
     </v-tabs-window-item>

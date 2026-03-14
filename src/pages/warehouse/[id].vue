@@ -4,7 +4,7 @@
       <BreadcrumbsFromUrl />
 
       <!-- Single flex container for navigation + content -->
-      <div style="display: flex; height: calc(100vh - 200px); position: relative">
+      <div style="display: flex; height: calc(100vh - 160px); position: relative">
         <!-- Left: Navigation Tree -->
         <v-expand-x-transition>
           <div v-show="!isNavigationCollapsed" style="display: flex; height: 100%">
@@ -45,7 +45,15 @@
         </v-expand-x-transition>
 
         <!-- Right: Main Content -->
-        <div style="flex: 1; height: 100%; overflow-y: auto; min-width: 0">
+        <div
+          style="
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+          ">
           <WarehouseHeader :warehouse-id="params.id" />
 
           <v-tabs v-model="tab" density="compact">
@@ -64,8 +72,8 @@
               permissions
             </v-tab>
           </v-tabs>
-          <v-card>
-            <v-tabs-window v-model="tab">
+          <v-card style="flex: 1; min-height: 0; overflow: auto">
+            <v-tabs-window v-model="tab" style="height: 100%">
               <v-tabs-window-item value="namespaces">
                 <WarehouseNamespaces v-if="tab === 'namespaces'" :warehouse-id="params.id" />
               </v-tabs-window-item>
@@ -95,7 +103,7 @@
                   :warehouse-id="params.id"
                   entity-type="warehouse" />
               </v-tabs-window-item>
-              <v-tabs-window-item value="statistics">
+              <v-tabs-window-item value="statistics" style="height: 100%">
                 <WarehouseStatistics
                   v-if="tab === 'statistics'"
                   ref="warehouseStatisticsRef"
