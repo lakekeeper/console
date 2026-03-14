@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.12.5](https://github.com/lakekeeper/console/compare/v0.12.4...v0.12.5) (2026-03-14)
+
+
+### Bug Fixes
+
+* **ui:** adapt layout heights for 14-inch MacBook screens ([#216](https://github.com/lakekeeper/console/issues/216)) ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** AppBar and BreadcrumbsFromUrl add density=compact to reduce vertical space ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** AppFooter reduce height from 40px to 32px ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** HomeStatistics reduce chart height from 180px to 140px ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** LoQEExplorer fix height and overflow for proper container sizing ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** ProjectManager add overflow-y auto to tabs window and height propagation for statistics tab ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** replace fixed data table heights (60vh, 75vh, 288px) with calc-based responsive heights ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** ServerOverview add max-height with overflow-y auto ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** TableVersioningVisualization fix snapshot-log ordering (topological) and remove diverge-pass double-draw ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** ViewOverview remove double v-card-text wrapping ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+* **ui:** WarehouseStatistics and ProjectStatistics use container-relative height with flex layout ([01e5368](https://github.com/lakekeeper/console/commit/01e53689d7a934cea702bca28cd84bfb9ff95bf8))
+
 ## [0.12.4](https://github.com/lakekeeper/console/compare/v0.12.3...v0.12.4) (2026-03-13)
 
 
