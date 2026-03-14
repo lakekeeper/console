@@ -4,7 +4,7 @@
       <BreadcrumbsFromUrl />
 
       <!-- Single flex container for navigation + content -->
-      <div style="display: flex; height: calc(100vh - 200px); position: relative">
+      <div style="display: flex; height: calc(100vh - 160px); position: relative">
         <!-- Left: Navigation Tree -->
         <v-expand-x-transition>
           <div v-show="!isNavigationCollapsed" style="display: flex; height: 100%">
@@ -45,7 +45,15 @@
         </v-expand-x-transition>
 
         <!-- Right: Main Content -->
-        <div style="flex: 1; height: 100%; overflow-y: auto; min-width: 0">
+        <div
+          style="
+            flex: 1;
+            height: 100%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          ">
           <ViewHeader
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
@@ -59,7 +67,7 @@
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
 
-          <v-card style="max-height: 80vh; overflow: auto; min-height: 55vh">
+          <v-card style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="details">
                 <ViewOverview

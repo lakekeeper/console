@@ -14,7 +14,7 @@
     <v-container v-if="assignedToProjects" class="home-container" fluid>
       <!-- Row 1: SVG Logo -->
       <v-row class="logo-row">
-        <v-col cols="12" class="text-center py-3">
+        <v-col cols="12" class="text-center py-1">
           <v-img
             v-if="visual.themeLight"
             class="mx-auto"
@@ -31,7 +31,7 @@
       </v-row>
 
       <!-- Row 3: Community Actions -->
-      <v-row class="py-2" justify="center">
+      <v-row class="py-1" justify="center">
         <v-col cols="12" sm="4">
           <v-card
             class="community-card"
@@ -89,14 +89,14 @@
       </v-row>
 
       <!-- Row 4: Dashboard Statistics -->
-      <v-row class="py-2">
+      <v-row class="py-1">
         <v-col cols="12">
           <HomeStatistics />
         </v-col>
       </v-row>
 
       <!-- Row 6: Quick Links -->
-      <v-row class="links-row py-2">
+      <v-row class="links-row py-1">
         <v-col cols="12">
           <div class="quick-links-grid">
             <v-btn
@@ -498,9 +498,8 @@ async function checkAccessStatus() {
 .home-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 20px 24px;
-  max-height: 100vh;
-  overflow: hidden;
+  padding: 8px 24px;
+  overflow-y: auto;
 }
 
 .hero-section {
