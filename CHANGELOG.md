@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.6](https://github.com/lakekeeper/console/compare/v0.12.5...v0.12.6) (2026-03-15)
+
+
+### Bug Fixes
+
+* patch console components ([#218](https://github.com/lakekeeper/console/issues/218)) ([0a4e5be](https://github.com/lakekeeper/console/commit/0a4e5bee5784856bb5aec3f7f3d92949cee1e4bc))
+
 ## [0.12.5](https://github.com/lakekeeper/console/compare/v0.12.4...v0.12.5) (2026-03-14)
 
 
