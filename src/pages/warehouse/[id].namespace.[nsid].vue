@@ -22,6 +22,7 @@
                 v-if="warehouseName"
                 :warehouse-id="params.id"
                 :warehouse-name="warehouseName"
+                :active-namespace-path="namespacePath"
                 @navigate="handleNavigate" />
             </div>
 
@@ -261,6 +262,7 @@ async function loadNamespaceMetadata() {
 // Handle table creation - force refresh of table list
 function onTableCreated() {
   tableListKey.value++; // Increment key to force re-render of NamespaceTables
+  visual.refreshNavTree(params.value.id, namespacePath.value);
 }
 
 // Load namespace metadata on mount to get namespaceId for permissions

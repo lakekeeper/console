@@ -22,6 +22,7 @@
                 v-if="warehouseName"
                 :warehouse-id="params.id"
                 :warehouse-name="warehouseName"
+                :active-namespace-path="namespacePath"
                 @navigate="handleNavigate" />
             </div>
 
@@ -208,6 +209,11 @@ const params = computed(() => ({
   nsid: (route.params as { nsid: string }).nsid,
   vid: (route.params as { vid: string }).vid,
 }));
+
+const namespacePath = computed(() => {
+  // eslint-disable-next-line no-control-regex
+  return params.value.nsid.replace(/\x1F/g, '.');
+});
 
 // Use composable for view permissions with reactive warehouse id
 const warehouseId = computed(() => params.value.id);
