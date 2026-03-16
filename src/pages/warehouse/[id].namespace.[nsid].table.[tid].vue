@@ -22,6 +22,7 @@
                 v-if="warehouse"
                 :warehouse-id="params.id"
                 :warehouse-name="warehouse.name"
+                :active-namespace-path="namespacePath"
                 @navigate="handleNavigate" />
             </div>
 
