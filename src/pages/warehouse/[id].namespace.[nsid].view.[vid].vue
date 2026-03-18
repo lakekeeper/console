@@ -229,11 +229,11 @@ async function loadWarehouseName() {
   } catch (error: any) {
     console.error('Failed to load warehouse:', error);
     if (isForbiddenError(error)) {
-      router.back();
+      router.replace('/');
       return;
     }
     if (isNotFoundError(error)) {
-      router.push('/notfound');
+      router.replace('/');
       return;
     }
     warehouseName.value = undefined;
@@ -254,11 +254,11 @@ async function loadViewMetadata() {
   } catch (error: any) {
     console.error('Failed to load view metadata:', error);
     if (isForbiddenError(error)) {
-      router.back();
+      router.replace(`/warehouse/${params.value.id}`);
       return;
     }
     if (isNotFoundError(error)) {
-      router.push('/notfound');
+      router.replace(`/warehouse/${params.value.id}`);
       return;
     }
     if (requestToken === lastViewRequest.value) {

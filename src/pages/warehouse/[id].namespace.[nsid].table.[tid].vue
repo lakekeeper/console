@@ -248,11 +248,11 @@ async function loadWarehouse() {
   } catch (error: any) {
     console.error('Failed to load warehouse:', error);
     if (isForbiddenError(error)) {
-      router.back();
+      router.replace('/');
       return;
     }
     if (isNotFoundError(error)) {
-      router.push('/notfound');
+      router.replace('/');
       return;
     }
     warehouse.value = null;
@@ -279,11 +279,11 @@ async function loadTableMetadata() {
   } catch (error: any) {
     console.error('Failed to load table metadata:', error);
     if (isForbiddenError(error)) {
-      router.back();
+      router.replace(`/warehouse/${params.value.id}`);
       return;
     }
     if (isNotFoundError(error)) {
-      router.push('/notfound');
+      router.replace(`/warehouse/${params.value.id}`);
       return;
     }
     if (requestToken === lastTableRequest.value) {

@@ -250,11 +250,11 @@ async function loadNamespaceMetadata() {
   } catch (error: any) {
     console.error('Failed to load namespace metadata:', error);
     if (isForbiddenError(error)) {
-      router.back();
+      router.replace(`/warehouse/${params.value.id}`);
       return;
     }
     if (isNotFoundError(error)) {
-      router.push('/notfound');
+      router.replace(`/warehouse/${params.value.id}`);
       return;
     }
     if (requestToken === lastNamespaceRequest.value) {

@@ -253,12 +253,11 @@ async function loadWarehouse() {
   } catch (error: any) {
     // If it's a 403 Forbidden error, redirect to forbidden page
     if (isForbiddenError(error)) {
-      router.back();
+      router.replace('/');
       return;
     }
-    // If it's a 404/WarehouseNotFound error, redirect to not found page
     if (isNotFoundError(error)) {
-      router.push('/notfound');
+      router.replace('/');
       return;
     }
 
