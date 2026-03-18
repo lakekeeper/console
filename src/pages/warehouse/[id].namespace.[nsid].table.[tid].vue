@@ -146,6 +146,8 @@ import {
   useTablePermissions,
   useTableAuthorizerPermissions,
   useVisualStore,
+  isForbiddenError,
+  isNotFoundError,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
@@ -243,8 +245,16 @@ async function loadWarehouse() {
     if (wh['storage-profile']?.type) {
       storageType.value = wh['storage-profile'].type;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load warehouse:', error);
+    if (isForbiddenError(error)) {
+      router.back();
+      return;
+    }
+    if (isNotFoundError(error)) {
+      router.push('/notfound');
+      return;
+    }
     warehouse.value = null;
     storageType.value = undefined;
   }
@@ -268,7 +278,11 @@ async function loadTableMetadata() {
     tableId.value = table.metadata['table-uuid'] || '';
   } catch (error: any) {
     console.error('Failed to load table metadata:', error);
-    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
+    if (isForbiddenError(error)) {
+      router.back();
+      return;
+    }
+    if (isNotFoundError(error)) {
       router.push('/notfound');
       return;
     }

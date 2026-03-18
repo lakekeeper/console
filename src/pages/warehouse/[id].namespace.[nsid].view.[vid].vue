@@ -133,6 +133,8 @@ import {
   useViewPermissions,
   useViewAuthorizerPermissions,
   useVisualStore,
+  isForbiddenError,
+  isNotFoundError,
 } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
@@ -224,8 +226,16 @@ async function loadWarehouseName() {
   try {
     const warehouse = await functions.getWarehouse(params.value.id);
     warehouseName.value = warehouse.name;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load warehouse:', error);
+    if (isForbiddenError(error)) {
+      router.back();
+      return;
+    }
+    if (isNotFoundError(error)) {
+      router.push('/notfound');
+      return;
+    }
     warehouseName.value = undefined;
   }
 }
@@ -243,7 +253,11 @@ async function loadViewMetadata() {
     viewId.value = view.metadata['view-uuid'] || '';
   } catch (error: any) {
     console.error('Failed to load view metadata:', error);
-    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
+    if (isForbiddenError(error)) {
+      router.back();
+      return;
+    }
+    if (isNotFoundError(error)) {
       router.push('/notfound');
       return;
     }

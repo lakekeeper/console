@@ -126,6 +126,8 @@ import {
   useWarehouseAuthorizerPermissions,
   useVisualStore,
   WarehouseStatistics,
+  isForbiddenError,
+  isNotFoundError,
 } from '@lakekeeper/console-components';
 import { computed, ref, onMounted, watch } from 'vue';
 
@@ -249,8 +251,13 @@ async function loadWarehouse() {
       }
     }
   } catch (error: any) {
+    // If it's a 403 Forbidden error, redirect to forbidden page
+    if (isForbiddenError(error)) {
+      router.back();
+      return;
+    }
     // If it's a 404/WarehouseNotFound error, redirect to not found page
-    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
+    if (isNotFoundError(error)) {
       router.push('/notfound');
       return;
     }

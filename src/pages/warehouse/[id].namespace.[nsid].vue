@@ -127,6 +127,8 @@ import {
   useNamespaceAuthorizerPermissions,
   RelationType,
   useVisualStore,
+  isForbiddenError,
+  isNotFoundError,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
@@ -247,7 +249,11 @@ async function loadNamespaceMetadata() {
     namespaceId.value = namespace.properties?.namespace_id || '';
   } catch (error: any) {
     console.error('Failed to load namespace metadata:', error);
-    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
+    if (isForbiddenError(error)) {
+      router.back();
+      return;
+    }
+    if (isNotFoundError(error)) {
       router.push('/notfound');
       return;
     }
