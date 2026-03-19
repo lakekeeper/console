@@ -5,20 +5,38 @@
       <v-card-subtitle>Please talk to your administrator</v-card-subtitle>
       <v-card-text>
         <v-btn block color="primary" size="large" @click="checkServerStatus">Check status</v-btn>
+        <v-btn
+          v-if="env.enabledAuthentication"
+          block
+          variant="outlined"
+          size="large"
+          class="mt-3"
+          prepend-icon="mdi-logout"
+          @click="logout"
+        >
+          Logout
+        </v-btn>
       </v-card-text>
     </v-card>
   </v-container>
 </template>
 
 <script lang="ts" setup>
-import { useFunctions } from '@lakekeeper/console-components';
+import { useFunctions, useUserStore, useVisualStore } from '@lakekeeper/console-components';
 import { onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useVisualStore } from '@lakekeeper/console-components';
-const router = useRouter();
+import * as env from '../app.config';
 
+const router = useRouter();
 const visual = useVisualStore();
 const functions = useFunctions();
+const userStorage = useUserStore();
+
+function logout() {
+  userStorage.isAuthenticated = false;
+  userStorage.unsetUser();
+  router.push('/login');
+}
 
 async function checkServerStatus() {
   try {

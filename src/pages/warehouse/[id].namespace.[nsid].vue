@@ -229,9 +229,10 @@ async function loadNamespaceMetadata() {
   // Clear stale namespace id so downstream consumers don't operate on the previous namespace
   namespaceId.value = '';
   storageType.value = undefined;
+
+  // Load warehouse first — if this fails, redirect (user cannot access the warehouse)
   try {
-    // Load warehouse to get storage type and name
-    const warehouse = await functions.getWarehouse(id);
+    const warehouse = await functions.getWarehouse(id, false);
     if (requestToken !== lastNamespaceRequest.value) {
       return;
     }
@@ -241,26 +242,33 @@ async function loadNamespaceMetadata() {
     }
     storageLayout.value =
       (warehouse['storage-profile'] as any)?.['storage-layout']?.type || 'default';
+  } catch (error: any) {
+    if (isForbiddenError(error) || isNotFoundError(error)) {
+      router.replace(`/warehouse/${params.value.id}`);
+      return;
+    }
+    if (requestToken === lastNamespaceRequest.value) {
+      storageType.value = undefined;
+      storageLayout.value = undefined;
+    }
+    return;
+  }
 
-    const namespace = await functions.loadNamespaceMetadata(id, nsid);
+  // Load namespace metadata — if forbidden, just skip (tabs handle their own permissions)
+  try {
+    const namespace = await functions.loadNamespaceMetadata(id, nsid, false);
     if (requestToken !== lastNamespaceRequest.value) {
       return;
     }
     namespaceId.value = namespace.properties?.namespace_id || '';
   } catch (error: any) {
-    console.error('Failed to load namespace metadata:', error);
-    if (isForbiddenError(error)) {
-      router.replace(`/warehouse/${params.value.id}`);
-      return;
-    }
     if (isNotFoundError(error)) {
       router.replace(`/warehouse/${params.value.id}`);
       return;
     }
+    // On 403, stay on the page — the user may have partial access (e.g. can view tables but not list namespaces)
     if (requestToken === lastNamespaceRequest.value) {
       namespaceId.value = '';
-      storageType.value = undefined;
-      storageLayout.value = undefined;
     }
   }
 }

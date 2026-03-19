@@ -116,10 +116,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
           }
         } catch (retryError: any) {
           // If it's a 401, no point in retrying
+          const retryCode = retryError?.error?.code || retryError?.status || retryError?.response?.status || retryError?.code || 0;
           if (
-            retryError?.status === 401 ||
+            retryCode === 401 ||
             retryError?.statusCode === 401 ||
-            retryError?.response?.status === 401
+            retryError?.message?.includes('401') ||
+            retryError?.message?.includes('Unauthorized')
           ) {
             userStorage.unsetUser();
             return next('/login');
@@ -140,16 +142,21 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     }
   } catch (error: any) {
     // Check if it's a 401 Unauthorized error
+    const errorCode = error?.error?.code || error?.status || error?.response?.status || error?.code || 0;
     if (
-      error?.status === 401 ||
+      errorCode === 401 ||
       error?.statusCode === 401 ||
-      error?.response?.status === 401 ||
-      error?.code === 401 ||
       error?.message?.includes('401') ||
       error?.message?.includes('Unauthorized')
     ) {
       userStorage.unsetUser();
       return next('/login');
+    }
+
+    // If the server responded with a 4xx (e.g. 403 from Cedar policy), it IS online.
+    // Proceed with navigation — individual pages will handle permission errors.
+    if (errorCode >= 400 && errorCode < 500) {
+      return next();
     }
 
     // If navigating from /callback and getServerInfo fails, retry with backoff
@@ -166,10 +173,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
           }
         } catch (retryError: any) {
           // If it's a 401, no point in retrying
+          const retryCode = retryError?.error?.code || retryError?.status || retryError?.response?.status || retryError?.code || 0;
           if (
-            retryError?.status === 401 ||
+            retryCode === 401 ||
             retryError?.statusCode === 401 ||
-            retryError?.response?.status === 401
+            retryError?.message?.includes('401') ||
+            retryError?.message?.includes('Unauthorized')
           ) {
             userStorage.unsetUser();
             return next('/login');

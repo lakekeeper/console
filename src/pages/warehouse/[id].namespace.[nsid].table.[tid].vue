@@ -60,7 +60,20 @@
             :namespace-id="params.nsid"
             :table-name="params.tid" />
 
-          <v-tabs v-model="tab">
+          <div v-if="loading" class="d-flex justify-center align-center pa-8">
+            <v-progress-circular indeterminate color="primary" />
+          </div>
+
+          <v-alert
+            v-else-if="pageError"
+            type="warning"
+            variant="tonal"
+            class="ma-4"
+            style="flex: none">
+            The table <strong>{{ params.tid }}</strong> does not exist or you do not have sufficient rights to access it.
+          </v-alert>
+
+          <v-tabs v-if="!loading && !pageError" v-model="tab">
             <v-tab value="details">details</v-tab>
             <v-tab value="preview">preview</v-tab>
             <v-tab value="health">health</v-tab>
@@ -70,7 +83,7 @@
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
 
-          <v-card style="flex: 1; min-height: 0; overflow: auto">
+          <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="details">
                 <TableOverview
@@ -156,6 +169,8 @@ const visual = useVisualStore();
 const tab = ref('details');
 const tableId = ref('');
 const lastTableRequest = ref(0);
+const pageError = ref<'forbidden' | 'not-found' | null>(null);
+const loading = ref(true);
 const warehouse = ref<{ name: string; id: string } | null>(null);
 const storageType = ref<string | undefined>(undefined);
 const router = useRouter();
@@ -239,19 +254,14 @@ const catalogUrl = computed(() => {
 
 async function loadWarehouse() {
   try {
-    const wh = await functions.getWarehouse(params.value.id);
+    const wh = await functions.getWarehouse(params.value.id, false);
     warehouse.value = wh;
     // Extract storage type from warehouse
     if (wh['storage-profile']?.type) {
       storageType.value = wh['storage-profile'].type;
     }
   } catch (error: any) {
-    console.error('Failed to load warehouse:', error);
-    if (isForbiddenError(error)) {
-      router.replace('/');
-      return;
-    }
-    if (isNotFoundError(error)) {
+    if (isForbiddenError(error) || isNotFoundError(error)) {
       router.replace('/');
       return;
     }
@@ -270,25 +280,27 @@ async function loadTableMetadata() {
   const requestToken = ++lastTableRequest.value;
   // Clear stale table id so downstream consumers don't operate on the previous table
   tableId.value = '';
+  pageError.value = null;
+  loading.value = true;
   try {
-    const table = await functions.loadTableCustomized(id, nsid, tid);
+    const table = await functions.loadTableCustomized(id, nsid, tid, false);
     if (requestToken !== lastTableRequest.value) {
       return;
     }
     tableId.value = table.metadata['table-uuid'] || '';
   } catch (error: any) {
-    console.error('Failed to load table metadata:', error);
+    if (requestToken !== lastTableRequest.value) return;
     if (isForbiddenError(error)) {
-      router.replace(`/warehouse/${params.value.id}`);
+      pageError.value = 'forbidden';
       return;
     }
     if (isNotFoundError(error)) {
-      router.replace(`/warehouse/${params.value.id}`);
+      pageError.value = 'not-found';
       return;
     }
-    if (requestToken === lastTableRequest.value) {
-      tableId.value = '';
-    }
+    tableId.value = '';
+  } finally {
+    loading.value = false;
   }
 }
 
