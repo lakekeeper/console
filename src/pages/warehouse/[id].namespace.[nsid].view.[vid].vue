@@ -240,10 +240,13 @@ const { showTasksTab } = useViewPermissions(viewId, warehouseId);
 const { showPermissionsTab } = useViewAuthorizerPermissions(viewId, warehouseId);
 
 async function loadWarehouseName() {
+  const currentId = params.value.id;
   try {
-    const warehouse = await functions.getWarehouse(params.value.id, false);
+    const warehouse = await functions.getWarehouse(currentId, false);
+    if (params.value.id !== currentId) return;
     warehouseName.value = warehouse.name;
   } catch (error: any) {
+    if (params.value.id !== currentId) return;
     if (isForbiddenError(error) || isNotFoundError(error)) {
       router.replace('/');
       return;
@@ -277,7 +280,9 @@ async function loadViewMetadata() {
     }
     viewId.value = '';
   } finally {
-    loading.value = false;
+    if (requestToken === lastViewRequest.value) {
+      loading.value = false;
+    }
   }
 }
 

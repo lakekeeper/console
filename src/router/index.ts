@@ -160,14 +160,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     }
 
     // If the server responded with a 4xx (e.g. 403 from Cedar policy), it IS online.
-    // Proceed with navigation — individual pages will handle permission errors.
+    // Assume bootstrapped and fall through to auth/bootstrap checks.
     if (errorCode >= 400 && errorCode < 500) {
-      return next();
-    }
-
-    // If navigating from /callback and getServerInfo fails, retry with backoff
-    // This handles race condition where auth token isn't fully configured yet
-    if (from.path === '/callback' && env.enabledAuthentication) {
+      serverInfo = { bootstrapped: true } as any;
+    } else if (from.path === '/callback' && env.enabledAuthentication) {
+      // If navigating from /callback and getServerInfo fails, retry with backoff
+      // This handles race condition where auth token isn't fully configured yet
       const delays = [100, 300, 500]; // Progressive delays in ms
 
       for (const delay of delays) {

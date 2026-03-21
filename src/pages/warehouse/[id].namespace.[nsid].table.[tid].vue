@@ -255,14 +255,17 @@ const catalogUrl = computed(() => {
 });
 
 async function loadWarehouse() {
+  const currentId = params.value.id;
   try {
-    const wh = await functions.getWarehouse(params.value.id, false);
+    const wh = await functions.getWarehouse(currentId, false);
+    if (params.value.id !== currentId) return;
     warehouse.value = wh;
     // Extract storage type from warehouse
     if (wh['storage-profile']?.type) {
       storageType.value = wh['storage-profile'].type;
     }
   } catch (error: any) {
+    if (params.value.id !== currentId) return;
     if (isForbiddenError(error) || isNotFoundError(error)) {
       router.replace('/');
       return;
@@ -302,7 +305,9 @@ async function loadTableMetadata() {
     }
     tableId.value = '';
   } finally {
-    loading.value = false;
+    if (requestToken === lastTableRequest.value) {
+      loading.value = false;
+    }
   }
 }
 

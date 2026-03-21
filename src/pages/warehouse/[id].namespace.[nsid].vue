@@ -262,14 +262,14 @@ async function loadNamespaceMetadata() {
     storageLayout.value =
       (warehouse['storage-profile'] as any)?.['storage-layout']?.type || 'default';
   } catch (error: any) {
+    if (requestToken !== lastNamespaceRequest.value) return;
     if (isForbiddenError(error) || isNotFoundError(error)) {
-      router.replace(`/warehouse/${params.value.id}`);
+      router.replace(`/warehouse/${id}`);
       return;
     }
-    if (requestToken === lastNamespaceRequest.value) {
-      storageType.value = undefined;
-      storageLayout.value = undefined;
-    }
+    storageType.value = undefined;
+    storageLayout.value = undefined;
+    loading.value = false;
     return;
   }
 
