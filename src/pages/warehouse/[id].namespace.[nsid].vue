@@ -264,7 +264,7 @@ async function loadNamespaceMetadata() {
   } catch (error: any) {
     if (requestToken !== lastNamespaceRequest.value) return;
     if (isForbiddenError(error) || isNotFoundError(error)) {
-      router.replace(`/warehouse/${id}`);
+      router.replace('/');
       return;
     }
     storageType.value = undefined;

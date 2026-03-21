@@ -256,6 +256,7 @@ const catalogUrl = computed(() => {
 
 async function loadWarehouse() {
   const currentId = params.value.id;
+  storageType.value = undefined;
   try {
     const wh = await functions.getWarehouse(currentId, false);
     if (params.value.id !== currentId) return;
@@ -263,6 +264,8 @@ async function loadWarehouse() {
     // Extract storage type from warehouse
     if (wh['storage-profile']?.type) {
       storageType.value = wh['storage-profile'].type;
+    } else {
+      storageType.value = undefined;
     }
   } catch (error: any) {
     if (params.value.id !== currentId) return;

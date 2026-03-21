@@ -120,6 +120,7 @@ router.beforeEach(async (to: any, from: any, next: any) => {
             retryError?.error?.code ||
             retryError?.status ||
             retryError?.response?.status ||
+            retryError?.statusCode ||
             retryError?.code ||
             0;
           if (
@@ -131,6 +132,8 @@ router.beforeEach(async (to: any, from: any, next: any) => {
             userStorage.unsetUser();
             return next('/login');
           }
+          // Don't retry other client errors (403, 404, etc.)
+          if (retryCode >= 400 && retryCode < 500) break;
           // For other errors, continue to next retry
         }
       }
@@ -148,7 +151,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
   } catch (error: any) {
     // Check if it's a 401 Unauthorized error
     const errorCode =
-      error?.error?.code || error?.status || error?.response?.status || error?.code || 0;
+      error?.error?.code ||
+      error?.status ||
+      error?.response?.status ||
+      error?.statusCode ||
+      error?.code ||
+      0;
     if (
       errorCode === 401 ||
       error?.statusCode === 401 ||
@@ -163,6 +171,9 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     // Assume bootstrapped and fall through to auth/bootstrap checks.
     if (errorCode >= 400 && errorCode < 500) {
       serverInfo = { bootstrapped: true } as any;
+      if (to.path === '/server-offline') {
+        return next('/');
+      }
     } else if (from.path === '/callback' && env.enabledAuthentication) {
       // If navigating from /callback and getServerInfo fails, retry with backoff
       // This handles race condition where auth token isn't fully configured yet
@@ -181,6 +192,7 @@ router.beforeEach(async (to: any, from: any, next: any) => {
             retryError?.error?.code ||
             retryError?.status ||
             retryError?.response?.status ||
+            retryError?.statusCode ||
             retryError?.code ||
             0;
           if (
@@ -192,6 +204,8 @@ router.beforeEach(async (to: any, from: any, next: any) => {
             userStorage.unsetUser();
             return next('/login');
           }
+          // Don't retry other client errors (403, 404, etc.)
+          if (retryCode >= 400 && retryCode < 500) break;
           // For other errors, continue to next retry or fall through
         }
       }
