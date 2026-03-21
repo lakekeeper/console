@@ -70,7 +70,9 @@
             variant="tonal"
             class="ma-4"
             style="flex: none">
-            The view <strong>{{ params.vid }}</strong> does not exist or you do not have sufficient rights to access it.
+            The view
+            <strong>{{ params.vid }}</strong>
+            does not exist or you do not have sufficient rights to access it.
           </v-alert>
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">

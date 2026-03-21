@@ -116,7 +116,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
           }
         } catch (retryError: any) {
           // If it's a 401, no point in retrying
-          const retryCode = retryError?.error?.code || retryError?.status || retryError?.response?.status || retryError?.code || 0;
+          const retryCode =
+            retryError?.error?.code ||
+            retryError?.status ||
+            retryError?.response?.status ||
+            retryError?.code ||
+            0;
           if (
             retryCode === 401 ||
             retryError?.statusCode === 401 ||
@@ -142,7 +147,8 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     }
   } catch (error: any) {
     // Check if it's a 401 Unauthorized error
-    const errorCode = error?.error?.code || error?.status || error?.response?.status || error?.code || 0;
+    const errorCode =
+      error?.error?.code || error?.status || error?.response?.status || error?.code || 0;
     if (
       errorCode === 401 ||
       error?.statusCode === 401 ||
@@ -173,7 +179,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
           }
         } catch (retryError: any) {
           // If it's a 401, no point in retrying
-          const retryCode = retryError?.error?.code || retryError?.status || retryError?.response?.status || retryError?.code || 0;
+          const retryCode =
+            retryError?.error?.code ||
+            retryError?.status ||
+            retryError?.response?.status ||
+            retryError?.code ||
+            0;
           if (
             retryCode === 401 ||
             retryError?.statusCode === 401 ||

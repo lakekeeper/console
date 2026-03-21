@@ -70,7 +70,9 @@
             variant="tonal"
             class="ma-4"
             style="flex: none">
-            The table <strong>{{ params.tid }}</strong> does not exist or you do not have sufficient rights to access it.
+            The table
+            <strong>{{ params.tid }}</strong>
+            does not exist or you do not have sufficient rights to access it.
           </v-alert>
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">

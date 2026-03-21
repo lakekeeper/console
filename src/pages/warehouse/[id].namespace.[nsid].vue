@@ -59,7 +59,9 @@
             variant="tonal"
             class="ma-4"
             style="flex: none">
-            The namespace <strong>{{ namespacePath }}</strong> does not exist or you do not have sufficient rights to access it.
+            The namespace
+            <strong>{{ namespacePath }}</strong>
+            does not exist or you do not have sufficient rights to access it.
           </v-alert>
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">

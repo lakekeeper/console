@@ -12,8 +12,7 @@
           size="large"
           class="mt-3"
           prepend-icon="mdi-logout"
-          @click="logout"
-        >
+          @click="logout">
           Logout
         </v-btn>
       </v-card-text>
