@@ -108,7 +108,7 @@ npx vue-tsc --noEmit  # type-check only
 
 ---
 
-## Git Commit Format
+## Git Commit & PR Format
 
 Use **conventional commits** with a `(ui)` scope:
 
@@ -117,3 +117,12 @@ Use **conventional commits** with a `(ui)` scope:
 | `feat(ui):`  | New UI features, components, tabs, controls, visual additions |
 | `fix(ui):`   | Bug fixes, layout corrections, broken behavior                |
 | `chore(ui):` | Docs, refactors, dependency bumps, config changes, cleanup    |
+
+**PR title**: `fix: <description>` or `feat: <description>` (no scope in the title)
+
+**PR body**: add the `BEGIN_COMMIT_OVERRIDE` / `END_COMMIT_OVERRIDE` block so release-please picks up the scoped commit messages on squash-merge:
+```text
+BEGIN_COMMIT_OVERRIDE
+fix(ui): short description of what was fixed
+END_COMMIT_OVERRIDE
+```
