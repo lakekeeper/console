@@ -49,7 +49,20 @@
         <div style="flex: 1; height: 100%; overflow-y: auto; min-width: 0">
           <NamespaceHeader :warehouse-id="params.id" :namespace-path="params.nsid" />
 
-          <v-tabs v-model="tab">
+          <div v-if="loading" class="d-flex justify-center align-center pa-8">
+            <v-progress-circular indeterminate color="primary" />
+          </div>
+
+          <v-alert
+            v-else-if="pageError"
+            type="warning"
+            variant="tonal"
+            class="ma-4"
+            style="flex: none">
+            The namespace <strong>{{ namespacePath }}</strong> does not exist or you do not have sufficient rights to access it.
+          </v-alert>
+
+          <v-tabs v-if="!loading && !pageError" v-model="tab">
             <v-tab value="namespaces">namespaces</v-tab>
             <v-tab value="tables">tables</v-tab>
             <v-tab value="views">views</v-tab>
@@ -57,7 +70,7 @@
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
           </v-tabs>
 
-          <v-card>
+          <v-card v-if="!loading && !pageError">
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="namespaces">
                 <NamespaceNamespaces
@@ -139,6 +152,8 @@ const tab = ref('namespaces');
 const namespaceId = ref('');
 const lastNamespaceRequest = ref(0);
 const tableListKey = ref(0);
+const pageError = ref<'forbidden' | 'not-found' | null>(null);
+const loading = ref(true);
 const storageType = ref<string | undefined>(undefined);
 const storageLayout = ref<string | undefined>(undefined);
 const warehouseName = ref<string | undefined>(undefined);
@@ -229,6 +244,8 @@ async function loadNamespaceMetadata() {
   // Clear stale namespace id so downstream consumers don't operate on the previous namespace
   namespaceId.value = '';
   storageType.value = undefined;
+  pageError.value = null;
+  loading.value = true;
 
   // Load warehouse first — if this fails, redirect (user cannot access the warehouse)
   try {
@@ -262,14 +279,20 @@ async function loadNamespaceMetadata() {
     }
     namespaceId.value = namespace.properties?.namespace_id || '';
   } catch (error: any) {
-    if (isNotFoundError(error)) {
-      router.replace(`/warehouse/${params.value.id}`);
+    if (requestToken !== lastNamespaceRequest.value) {
       return;
     }
-    // On 403, stay on the page — the user may have partial access (e.g. can view tables but not list namespaces)
-    if (requestToken === lastNamespaceRequest.value) {
-      namespaceId.value = '';
+    if (isNotFoundError(error)) {
+      pageError.value = 'not-found';
+    } else if (isForbiddenError(error)) {
+      pageError.value = 'forbidden';
     }
+    namespaceId.value = '';
+    loading.value = false;
+    return;
+  }
+  if (requestToken === lastNamespaceRequest.value) {
+    loading.value = false;
   }
 }
 
