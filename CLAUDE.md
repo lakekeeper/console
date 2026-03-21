@@ -121,6 +121,7 @@ Use **conventional commits** with a `(ui)` scope:
 **PR title**: `fix: <description>` or `feat: <description>` (no scope in the title)
 
 **PR body**: add the `BEGIN_COMMIT_OVERRIDE` / `END_COMMIT_OVERRIDE` block so release-please picks up the scoped commit messages on squash-merge:
+
 ```text
 BEGIN_COMMIT_OVERRIDE
 fix(ui): short description of what was fixed
