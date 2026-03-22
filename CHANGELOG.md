@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.13.0](https://github.com/lakekeeper/console/compare/v0.12.7...v0.13.0) (2026-03-22)
+
+
+### Features
+
+* **ui:** copy path copies quoted identifier to clipboard with snackbar ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** DDL dialog with read-only SqlEditor for syntax highlighting ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** DDL generated client-side from Iceberg REST API metadata ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** kebab menu actions Preview data, Show DDL, Copy path ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** preview dialog gains Copy path button next to Insert SELECT ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** replace standalone eye button with kebab menu on table/view nodes ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** same kebab menu on search results alongside insert button ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+
+
+### Bug Fixes
+
+* **ui:** added Logout button on offline page when auth is enabled ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** aligned console-plus-components error handling ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** bump console-components to 0.4.0 and console-plus-components to 0.3.1 ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** consistent 401 behavior ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** loading spinners and page-level error alerts for detail pages ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** normalized server-error handling with fewer retries for 4xx ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** reduce tree page size from 1000 to 100 and add load-more pagination ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+* **ui:** unified forbidden/not-found handling and stale update prevention ([de56b71](https://github.com/lakekeeper/console/commit/de56b71a18c7335f54290329097dec1d304a7964))
+
 ## [0.12.7](https://github.com/lakekeeper/console/compare/v0.12.6...v0.12.7) (2026-03-16)
 
 
