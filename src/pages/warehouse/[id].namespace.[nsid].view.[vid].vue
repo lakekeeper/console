@@ -60,7 +60,22 @@
             :namespace-id="params.nsid"
             :view-name="params.vid" />
 
-          <v-tabs v-model="tab">
+          <div v-if="loading" class="d-flex justify-center align-center pa-8">
+            <v-progress-circular indeterminate color="primary" />
+          </div>
+
+          <v-alert
+            v-else-if="pageError"
+            type="warning"
+            variant="tonal"
+            class="ma-4"
+            style="flex: none">
+            The view
+            <strong>{{ params.vid }}</strong>
+            does not exist or you do not have sufficient rights to access it.
+          </v-alert>
+
+          <v-tabs v-if="!loading && !pageError" v-model="tab">
             <v-tab value="details">details</v-tab>
             <v-tab value="raw">raw</v-tab>
             <v-tab value="history">history</v-tab>
@@ -68,7 +83,7 @@
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
 
-          <v-card style="flex: 1; min-height: 0; overflow: auto">
+          <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="details">
                 <ViewOverview
@@ -133,6 +148,8 @@ import {
   useViewPermissions,
   useViewAuthorizerPermissions,
   useVisualStore,
+  isForbiddenError,
+  isNotFoundError,
 } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
@@ -141,6 +158,8 @@ const visual = useVisualStore();
 const tab = ref('details');
 const viewId = ref('');
 const lastViewRequest = ref(0);
+const pageError = ref<'forbidden' | 'not-found' | null>(null);
+const loading = ref(true);
 const warehouseName = ref<string | undefined>(undefined);
 const router = useRouter();
 const leftWidth = ref(300);
@@ -221,11 +240,17 @@ const { showTasksTab } = useViewPermissions(viewId, warehouseId);
 const { showPermissionsTab } = useViewAuthorizerPermissions(viewId, warehouseId);
 
 async function loadWarehouseName() {
+  const currentId = params.value.id;
   try {
-    const warehouse = await functions.getWarehouse(params.value.id);
+    const warehouse = await functions.getWarehouse(currentId, false);
+    if (params.value.id !== currentId) return;
     warehouseName.value = warehouse.name;
-  } catch (error) {
-    console.error('Failed to load warehouse:', error);
+  } catch (error: any) {
+    if (params.value.id !== currentId) return;
+    if (isForbiddenError(error) || isNotFoundError(error)) {
+      router.replace('/');
+      return;
+    }
     warehouseName.value = undefined;
   }
 }
@@ -235,20 +260,28 @@ async function loadViewMetadata() {
   const requestToken = ++lastViewRequest.value;
   // Clear stale view id so downstream consumers don't operate on the previous view
   viewId.value = '';
+  pageError.value = null;
+  loading.value = true;
   try {
-    const view = await functions.loadView(id, nsid, vid);
+    const view = await functions.loadView(id, nsid, vid, false);
     if (requestToken !== lastViewRequest.value) {
       return;
     }
     viewId.value = view.metadata['view-uuid'] || '';
   } catch (error: any) {
-    console.error('Failed to load view metadata:', error);
-    if (error.error.code === 404 || error.error.type === 'WarehouseNotFound') {
-      router.push('/notfound');
+    if (requestToken !== lastViewRequest.value) return;
+    if (isForbiddenError(error)) {
+      pageError.value = 'forbidden';
       return;
     }
+    if (isNotFoundError(error)) {
+      pageError.value = 'not-found';
+      return;
+    }
+    viewId.value = '';
+  } finally {
     if (requestToken === lastViewRequest.value) {
-      viewId.value = '';
+      loading.value = false;
     }
   }
 }

@@ -116,13 +116,25 @@ router.beforeEach(async (to: any, from: any, next: any) => {
           }
         } catch (retryError: any) {
           // If it's a 401, no point in retrying
+          const retryCode =
+            retryError?.error?.code ||
+            retryError?.status ||
+            retryError?.response?.status ||
+            retryError?.statusCode ||
+            retryError?.code ||
+            0;
           if (
-            retryError?.status === 401 ||
-            retryError?.statusCode === 401 ||
-            retryError?.response?.status === 401
+            retryCode === 401 ||
+            retryError?.message?.includes('401') ||
+            retryError?.message?.includes('Unauthorized')
           ) {
             userStorage.unsetUser();
             return next('/login');
+          }
+          // Don't retry other client errors (403, 404, etc.) — server IS online
+          if (retryCode >= 400 && retryCode < 500) {
+            serverInfo = { bootstrapped: true } as any;
+            break;
           }
           // For other errors, continue to next retry
         }
@@ -140,11 +152,15 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     }
   } catch (error: any) {
     // Check if it's a 401 Unauthorized error
+    const errorCode =
+      error?.error?.code ||
+      error?.status ||
+      error?.response?.status ||
+      error?.statusCode ||
+      error?.code ||
+      0;
     if (
-      error?.status === 401 ||
-      error?.statusCode === 401 ||
-      error?.response?.status === 401 ||
-      error?.code === 401 ||
+      errorCode === 401 ||
       error?.message?.includes('401') ||
       error?.message?.includes('Unauthorized')
     ) {
@@ -152,9 +168,16 @@ router.beforeEach(async (to: any, from: any, next: any) => {
       return next('/login');
     }
 
-    // If navigating from /callback and getServerInfo fails, retry with backoff
-    // This handles race condition where auth token isn't fully configured yet
-    if (from.path === '/callback' && env.enabledAuthentication) {
+    // If the server responded with a 4xx (e.g. 403 from Cedar policy), it IS online.
+    // Assume bootstrapped and fall through to auth/bootstrap checks.
+    if (errorCode >= 400 && errorCode < 500) {
+      serverInfo = { bootstrapped: true } as any;
+      if (to.path === '/server-offline') {
+        return next('/');
+      }
+    } else if (from.path === '/callback' && env.enabledAuthentication) {
+      // If navigating from /callback and getServerInfo fails, retry with backoff
+      // This handles race condition where auth token isn't fully configured yet
       const delays = [100, 300, 500]; // Progressive delays in ms
 
       for (const delay of delays) {
@@ -166,13 +189,25 @@ router.beforeEach(async (to: any, from: any, next: any) => {
           }
         } catch (retryError: any) {
           // If it's a 401, no point in retrying
+          const retryCode =
+            retryError?.error?.code ||
+            retryError?.status ||
+            retryError?.response?.status ||
+            retryError?.statusCode ||
+            retryError?.code ||
+            0;
           if (
-            retryError?.status === 401 ||
-            retryError?.statusCode === 401 ||
-            retryError?.response?.status === 401
+            retryCode === 401 ||
+            retryError?.message?.includes('401') ||
+            retryError?.message?.includes('Unauthorized')
           ) {
             userStorage.unsetUser();
             return next('/login');
+          }
+          // Don't retry other client errors (403, 404, etc.) — server IS online
+          if (retryCode >= 400 && retryCode < 500) {
+            serverInfo = { bootstrapped: true } as any;
+            break;
           }
           // For other errors, continue to next retry or fall through
         }
