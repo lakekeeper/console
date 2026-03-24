@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.13.1](https://github.com/lakekeeper/console/compare/v0.13.0...v0.13.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* patch ([#231](https://github.com/lakekeeper/console/issues/231)) ([ce5fa40](https://github.com/lakekeeper/console/commit/ce5fa404f266f58fa016a7d206dd569c3c7b9011))
+
+
+### Miscellaneous Chores
+
+* claude ([6ece74f](https://github.com/lakekeeper/console/commit/6ece74f13a717c3ee6d927d180a096b18a3f6a2d))
+
 ## [0.13.0](https://github.com/lakekeeper/console/compare/v0.12.7...v0.13.0) (2026-03-22)
 
 
