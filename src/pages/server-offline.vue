@@ -1,7 +1,7 @@
 <template>
   <v-container class="fill-height d-flex justify-center align-center">
     <v-card class="pa-8 text-center" elevation="5" max-width="600" width="100%">
-      <v-card-title class="text-h5 font-weight-bold">Lakekeeper is Offline</v-card-title>
+      <v-card-title class="text-h5 font-weight-bold">Lakekeeper Unreachable</v-card-title>
       <v-card-subtitle>Please talk to your administrator</v-card-subtitle>
       <v-card-text>
         <v-btn block color="primary" size="large" @click="checkServerStatus">Check status</v-btn>
