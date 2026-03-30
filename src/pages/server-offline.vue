@@ -66,13 +66,19 @@
               </v-table>
 
               <v-alert
-                v-if="isHttpUrl(env.icebergCatalogUrl) || (env.enabledAuthentication && isHttpUrl(env.idpAuthority))"
+                v-if="
+                  isHttpUrl(env.icebergCatalogUrl) ||
+                  (env.enabledAuthentication && isHttpUrl(env.idpAuthority))
+                "
                 type="warning"
                 density="compact"
                 variant="tonal"
                 class="mt-3 text-body-2">
-                A URL uses <strong>HTTP</strong> instead of <strong>HTTPS</strong>.
-                This may cause mixed-content or CORS issues in the browser.
+                A URL uses
+                <strong>HTTP</strong>
+                instead of
+                <strong>HTTPS</strong>
+                . This may cause mixed-content or CORS issues in the browser.
               </v-alert>
 
               <v-alert
@@ -81,17 +87,22 @@
                 density="compact"
                 variant="tonal"
                 class="mt-3 text-body-2">
-                Could not reach <code>{{ env.icebergCatalogUrl }}/management/v1/info</code>.
-                Check if the URL is correct and the server is running.
+                Could not reach
+                <code>{{ env.icebergCatalogUrl }}/management/v1/info</code>
+                . Check if the URL is correct and the server is running.
               </v-alert>
 
               <v-alert
-                v-if="offlineReason && (offlineReason.statusCode === 502 || offlineReason.statusCode === 503)"
+                v-if="
+                  offlineReason &&
+                  (offlineReason.statusCode === 502 || offlineReason.statusCode === 503)
+                "
                 type="info"
                 density="compact"
                 variant="tonal"
                 class="mt-3 text-body-2">
-                The server returned {{ offlineReason.statusCode }}. It may be starting up or behind a misconfigured proxy.
+                The server returned {{ offlineReason.statusCode }}. It may be starting up or behind
+                a misconfigured proxy.
               </v-alert>
 
               <v-alert
@@ -115,8 +126,9 @@
             <v-expansion-panel-text>
               <div class="d-flex justify-space-between align-center mb-3">
                 <span class="text-body-2">
-                  Moves: <strong>{{ moves }}</strong>
-                  <template v-if="gameWon"> &mdash; You won!</template>
+                  Moves:
+                  <strong>{{ moves }}</strong>
+                  <template v-if="gameWon">&mdash; You won!</template>
                 </span>
                 <v-btn size="small" variant="text" @click="resetGame">New game</v-btn>
               </div>
@@ -182,7 +194,11 @@ function shuffle<T>(arr: T[]): T[] {
 function resetGame() {
   const pairs = shuffle(emojis).slice(0, 8);
   const deck = shuffle([...pairs, ...pairs]);
-  cards.splice(0, cards.length, ...deck.map((emoji) => ({ emoji, flipped: false, matched: false })));
+  cards.splice(
+    0,
+    cards.length,
+    ...deck.map((emoji) => ({ emoji, flipped: false, matched: false })),
+  );
   moves.value = 0;
   flippedIndices = [];
   lockBoard = false;

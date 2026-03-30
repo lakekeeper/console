@@ -2,7 +2,12 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router/auto';
 import { routes } from 'vue-router/auto-routes';
 import DefaultLayout from '@/layouts/default.vue';
-import { useUserStore, useFunctions, useNavigationStore, useVisualStore } from '@lakekeeper/console-components';
+import {
+  useUserStore,
+  useFunctions,
+  useNavigationStore,
+  useVisualStore,
+} from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
 import NotFound from '@/pages/notfound.vue';
