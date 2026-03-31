@@ -2,7 +2,12 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router/auto';
 import { routes } from 'vue-router/auto-routes';
 import DefaultLayout from '@/layouts/default.vue';
-import { useUserStore, useFunctions, useNavigationStore } from '@lakekeeper/console-components';
+import {
+  useUserStore,
+  useFunctions,
+  useNavigationStore,
+  useVisualStore,
+} from '@lakekeeper/console-components';
 import * as env from '../app.config';
 
 import NotFound from '@/pages/notfound.vue';
@@ -75,6 +80,22 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     baseUrlPrefix: env.baseUrlPrefix,
   });
 
+  const visualStore = useVisualStore();
+
+  function goOffline(error: any, errorCode?: number) {
+    const code =
+      errorCode ??
+      error?.error?.code ??
+      error?.status ??
+      error?.response?.status ??
+      error?.statusCode ??
+      error?.code ??
+      0;
+    const message = error?.error?.message ?? error?.message ?? error?.statusText ?? 'Unknown error';
+    visualStore.setOfflineReason({ statusCode: code, message, timestamp: Date.now() });
+    return next('/server-offline');
+  }
+
   // If authentication is disabled, redirect auth-related paths to home
   if (!env.enabledAuthentication) {
     if (to.path === '/login' || to.path === '/callback' || to.path === '/logout') {
@@ -143,7 +164,7 @@ router.beforeEach(async (to: any, from: any, next: any) => {
 
     // After retries (if any), check if serverInfo is still not available
     if (!serverInfo) {
-      return next('/server-offline');
+      return goOffline({ message: 'Server did not respond' });
     }
 
     // If we were heading to /server-offline but server is actually online, redirect to home
@@ -215,7 +236,7 @@ router.beforeEach(async (to: any, from: any, next: any) => {
 
       // If all retries failed and serverInfo is still not set
       if (!serverInfo) {
-        return next('/server-offline');
+        return goOffline(error);
       }
 
       // If we were heading to /server-offline but server is actually online, redirect to home
@@ -224,7 +245,7 @@ router.beforeEach(async (to: any, from: any, next: any) => {
       }
     } else {
       // For other errors (network, timeout, etc), redirect to server-offline
-      return next('/server-offline');
+      return goOffline(error);
     }
   }
 
