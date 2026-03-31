@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.2](https://github.com/lakekeeper/console/compare/v0.13.1...v0.13.2) (2026-03-31)
+
+
+### Bug Fixes
+
+* **ui:** remove counter chips from Cedar policies vertical tabs ([ddc843d](https://github.com/lakekeeper/console/commit/ddc843ded2ec7527e8a5d0f5993f107ea7e1e50d))
+
 ## [0.13.1](https://github.com/lakekeeper/console/compare/v0.13.0...v0.13.1) (2026-03-24)
 
 
