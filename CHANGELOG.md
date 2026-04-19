@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.8](https://github.com/lakekeeper/console/compare/v0.13.7...v0.13.8) (2026-04-19)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump globals from 16.5.0 to 17.5.0 in the eslint group ([#265](https://github.com/lakekeeper/console/issues/265)) ([9a4fb3d](https://github.com/lakekeeper/console/commit/9a4fb3ddce7d234f3d12bc0fa87fa4f93bf02360))
+* **deps-dev:** bump unplugin-vue-components from 31.1.0 to 32.0.0 ([#268](https://github.com/lakekeeper/console/issues/268)) ([491b850](https://github.com/lakekeeper/console/commit/491b850cd1c80b46817a23d97b9fc6d907328a51))
+
 ## [0.13.7](https://github.com/lakekeeper/console/compare/v0.13.6...v0.13.7) (2026-04-19)
 
 
