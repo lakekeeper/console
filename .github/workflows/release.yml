@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ vars.RUNS_ON__AMD_XS || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
-    if: ${{ vars.RELEASE_PLEASE_ACTIVATED != '' }}
+    if: ${{ vars.RELEASE_PLEASE_ACTIVATED != '' && github.actor != 'dependabot[bot]' }}
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       tag_name: ${{ steps.release.outputs['tag_name'] }}
