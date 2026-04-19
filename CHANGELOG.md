@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.7](https://github.com/lakekeeper/console/compare/v0.13.6...v0.13.7) (2026-04-19)
+
+
+### Miscellaneous Chores
+
+* **deps:** update dependency @vitejs/plugin-vue to v6.0.6 ([#261](https://github.com/lakekeeper/console/issues/261)) ([698f6f4](https://github.com/lakekeeper/console/commit/698f6f4bc5b3371e1279ea56043583742ad1b8dd))
+* **deps:** update dependency vite to v7.3.2 [security] ([#241](https://github.com/lakekeeper/console/issues/241)) ([17886ff](https://github.com/lakekeeper/console/commit/17886ff81fa2c63069f2a4e17ba028a92b62e28a))
+
 ## [0.13.6](https://github.com/lakekeeper/console/compare/v0.13.5...v0.13.6) (2026-04-19)
 
 
