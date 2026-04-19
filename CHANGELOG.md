@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.5](https://github.com/lakekeeper/console/compare/v0.13.4...v0.13.5) (2026-04-19)
+
+
+### Miscellaneous Chores
+
+* **ui:** migrate from unplugin-vue-router to vue-router v5 ([027f03a](https://github.com/lakekeeper/console/commit/027f03a1d1bb8b805dbcd214fd0a86bb9c1af7f5))
+
 ## [0.13.4](https://github.com/lakekeeper/console/compare/v0.13.3...v0.13.4) (2026-04-19)
 
 
