@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.13.6](https://github.com/lakekeeper/console/compare/v0.13.5...v0.13.6) (2026-04-19)
+
+
+### Miscellaneous Chores
+
+* **deps:** update dependency @playwright/test to v1.59.1 ([#238](https://github.com/lakekeeper/console/issues/238)) ([091dc08](https://github.com/lakekeeper/console/commit/091dc08d1e64f6ae51658ec813b82fd63cdfe714))
+* **deps:** update dependency @types/node to v24.12.2 ([#237](https://github.com/lakekeeper/console/issues/237)) ([2e4d506](https://github.com/lakekeeper/console/commit/2e4d506f447b334308f2d9741316e89821bd8567))
+* **deps:** update dependency dotenv to v17.4.2 ([#239](https://github.com/lakekeeper/console/issues/239)) ([76afccf](https://github.com/lakekeeper/console/commit/76afccfd04cff927edff8c94d45d81d92c373755))
+* **deps:** update dependency prettier to v3.8.3 ([#242](https://github.com/lakekeeper/console/issues/242)) ([5944e78](https://github.com/lakekeeper/console/commit/5944e780fcfc762f0c93ff5cf8383a731931293f))
+* **deps:** update dependency typescript-eslint to v8.58.2 ([#243](https://github.com/lakekeeper/console/issues/243)) ([b7d51e3](https://github.com/lakekeeper/console/commit/b7d51e34376a00c5e2808a280ac3019006c499d4))
+* **deps:** update vue ecosystem ([#220](https://github.com/lakekeeper/console/issues/220)) ([92bd5dc](https://github.com/lakekeeper/console/commit/92bd5dce1e812e159946cad6f785be81d8d4ec73))
+
 ## [0.13.5](https://github.com/lakekeeper/console/compare/v0.13.4...v0.13.5) (2026-04-19)
 
 
