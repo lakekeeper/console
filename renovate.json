@@ -26,11 +26,6 @@
     {
       "matchUpdateTypes": ["major"],
       "enabled": false
-    },
-    {
-      "matchPackageNames": ["@lakekeeper/console-components"],
-      "datasource": "github-releases",
-      "packageName": "lakekeeper/console-components"
     }
   ]
 }
