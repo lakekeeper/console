@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.9](https://github.com/lakekeeper/console/compare/v0.13.8...v0.13.9) (2026-04-19)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump unplugin-fonts from 1.4.0 to 2.0.0 ([#267](https://github.com/lakekeeper/console/issues/267)) ([d934b09](https://github.com/lakekeeper/console/commit/d934b090fbffb6fef6c7f4bb6f0e118dfb8c8a01))
+* **ui:** upgrade unplugin-fonts to v2 for Vite 8 compatibility ([2878fd9](https://github.com/lakekeeper/console/commit/2878fd9905aee58c8a57cbb648c0185f8b15635f))
+
 ## [0.13.8](https://github.com/lakekeeper/console/compare/v0.13.7...v0.13.8) (2026-04-19)
 
 
