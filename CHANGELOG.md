@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.10](https://github.com/lakekeeper/console/compare/v0.13.9...v0.13.10) (2026-04-19)
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump vite from 7.3.2 to 8.0.8 in the vite group ([#266](https://github.com/lakekeeper/console/issues/266)) ([7cb44fd](https://github.com/lakekeeper/console/commit/7cb44fd44beefe66b9e272ecc3d7a9adbde243ac))
+
 ## [0.13.9](https://github.com/lakekeeper/console/compare/v0.13.8...v0.13.9) (2026-04-19)
 
 
