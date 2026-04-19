@@ -1,5 +1,4 @@
-// @ts-expect-error - vue-router/auto is provided by unplugin-vue-router
-import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router/auto';
+import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router';
 import { routes } from 'vue-router/auto-routes';
 import DefaultLayout from '@/layouts/default.vue';
 import {
