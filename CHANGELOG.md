@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.13.4](https://github.com/lakekeeper/console/compare/v0.13.3...v0.13.4) (2026-04-19)
+
+
+### Miscellaneous Chores
+
+* **ui:** block all major dependency updates in Renovate ([f448514](https://github.com/lakekeeper/console/commit/f44851454a4c719cd85c2d5e36b8413fd920484c))
+* **ui:** fix Renovate config error caused by invalid packageRules fields ([c7d1c42](https://github.com/lakekeeper/console/commit/c7d1c42e109060e24edd5917908f4d6ef5fd1460))
+* **ui:** ignore major upgrades for typescript, vuetify, and eslint ([7447a5c](https://github.com/lakekeeper/console/commit/7447a5cbd79c4b3dcd9bc59ab6649f5679f2aac0))
+* **ui:** require dashboard approval for major dependency updates ([8f21987](https://github.com/lakekeeper/console/commit/8f21987719db18b170285df8aad65c99c65e1c1d))
+
 ## [0.13.3](https://github.com/lakekeeper/console/compare/v0.13.2...v0.13.3) (2026-04-19)
 
 
