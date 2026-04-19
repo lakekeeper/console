@@ -39,7 +39,7 @@
         },
         {
             "type": "chore",
-            "hidden": false,
+            "hidden": true,
             "section": "Miscellaneous Chores"
         }
     ],
