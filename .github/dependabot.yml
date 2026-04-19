@@ -1,0 +1,44 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    ignore:
+      - dependency-name: "@lakekeeper/console-components"
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vuetify"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "*eslint*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+    groups:
+      eslint:
+        patterns:
+          - "*eslint*"
+          - "globals"
+      vue-ecosystem:
+        patterns:
+          - "vue"
+          - "vue-*"
+          - "@vue/*"
+          - "vuetify"
+          - "pinia"
+          - "vue-tsc"
+      vite:
+        patterns:
+          - "vite"
+          - "vite-*"
+          - "@vitejs/*"
+      playwright:
+        patterns:
+          - "@playwright/*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
