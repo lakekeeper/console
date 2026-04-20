@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.12](https://github.com/lakekeeper/console/compare/v0.13.11...v0.13.12) (2026-04-20)
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to v0.5.4 ([aaef000](https://github.com/lakekeeper/console/commit/aaef000f8630bf6fa10a51e2a6e311a59f63db16))
+
 ## [0.13.11](https://github.com/lakekeeper/console/compare/v0.13.10...v0.13.11) (2026-04-20)
 
 
