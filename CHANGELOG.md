@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.13](https://github.com/lakekeeper/console/compare/v0.13.12...v0.13.13) (2026-04-21)
+
+
+### Bug Fixes
+
+* **ui:** replace catalog URL placeholder with empty string when not configured ([fb48fc0](https://github.com/lakekeeper/console/commit/fb48fc0375ead3168ea80d3c0c137ef2b255391b))
+* **ui:** set ENABLE_AUTHENTICATION and ENABLE_PERMISSIONS to true in placeholder build ([fb48fc0](https://github.com/lakekeeper/console/commit/fb48fc0375ead3168ea80d3c0c137ef2b255391b))
+
 ## [0.13.12](https://github.com/lakekeeper/console/compare/v0.13.11...v0.13.12) (2026-04-20)
 
 
