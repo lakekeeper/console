@@ -99,6 +99,7 @@
                 <TablePreview
                   v-if="tab === 'preview'"
                   :warehouse-id="params.id"
+                  :warehouse-name="warehouse?.name"
                   :namespace-id="namespacePath"
                   :table-name="params.tid"
                   :catalog-url="catalogUrl"
