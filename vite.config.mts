@@ -100,7 +100,13 @@ export default defineConfig(({ mode }) => {
         },
       }),
     ],
-    define: { 'process.env': {} },
+    define: {
+      'process.env': {},
+      ...(mode === 'placeholder' && {
+        'import.meta.env.VITE_ENABLE_AUTHENTICATION': '(globalThis.__lkauth)',
+        'import.meta.env.VITE_ENABLE_PERMISSIONS': '(globalThis.__lkperm)',
+      }),
+    },
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
