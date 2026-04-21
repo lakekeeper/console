@@ -127,14 +127,10 @@ pub fn get_file(
                     .replace("VITE_BASE_URL_PREFIX_PLACEHOLDER", &format!("/{prefix}"))
             };
 
-            let data = if let Some(app_iceberg_catalog_url) = app_iceberg_catalog_url {
-                data.replace(
-                    "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
-                    app_iceberg_catalog_url,
-                )
-            } else {
-                data
-            };
+            let data = data.replace(
+                "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
+                app_iceberg_catalog_url.as_deref().unwrap_or(""),
+            );
 
             file.data = data.into_bytes().into();
             file
