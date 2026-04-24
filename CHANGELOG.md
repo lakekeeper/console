@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.15](https://github.com/lakekeeper/console/compare/v0.13.14...v0.13.15) (2026-04-24)
+
+
+### Bug Fixes
+
+* **ui:** fix double-slash catalog URL and bump console-components to v0.5.6 ([d476966](https://github.com/lakekeeper/console/commit/d47696688339869a2626d9bcf3714b1ee2742af8))
+
 ## [0.13.14](https://github.com/lakekeeper/console/compare/v0.13.13...v0.13.14) (2026-04-21)
 
 
