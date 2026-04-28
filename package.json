@@ -52,7 +52,7 @@
     "pinia": "^3.0.3",
     "prettier": "^3.6.2",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.3",
+    "typescript-eslint": "^8.59.1",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-fonts": "^2.0.0",
     "unplugin-vue-components": "^32.0.0",
