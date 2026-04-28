@@ -159,6 +159,46 @@ mod tests {
     }
 
     #[test]
+    fn test_all_placeholders_present_in_embedded_files() {
+        let placeholders = [
+            "VITE_IDP_AUTHORITY_PLACEHOLDER",
+            "VITE_IDP_CLIENT_ID_PLACEHOLDER",
+            "VITE_IDP_REDIRECT_PATH_PLACEHOLDER",
+            "VITE_IDP_SCOPE_PLACEHOLDER",
+            "VITE_IDP_RESOURCE_PLACEHOLDER",
+            "VITE_IDP_POST_LOGOUT_REDIRECT_PATH_PLACEHOLDER",
+            "VITE_ENABLE_AUTHENTICATION_PLACEHOLDER",
+            "VITE_ENABLE_PERMISSIONS_PLACEHOLDER",
+            "VITE_IDP_TOKEN_TYPE_PLACEHOLDER",
+            "VITE_BASE_URL_PREFIX_PLACEHOLDER",
+            "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
+        ];
+
+        let files: Vec<_> = LakekeeperConsole::iter().collect();
+        let mut found = Vec::new();
+        let mut missing = Vec::new();
+
+        for placeholder in &placeholders {
+            let is_found = files.iter().any(|file_path| {
+                LakekeeperConsole::get(file_path).is_some_and(|file| {
+                    std::str::from_utf8(&file.data)
+                        .is_ok_and(|content| content.contains(placeholder))
+                })
+            });
+            if is_found {
+                found.push(*placeholder);
+            } else {
+                missing.push(*placeholder);
+            }
+        }
+
+        assert!(
+            missing.is_empty(),
+            "Placeholders not found in any embedded console file — frontend build likely no longer emits them, so templating in get_file() is a no-op.\n  missing: {missing:#?}\n  found:   {found:#?}"
+        );
+    }
+
+    #[test]
     fn test_get_all_files() {
         let config = LakekeeperConsoleConfig {
             idp_authority: "https://idp.example.com".to_string(),
