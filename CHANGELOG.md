@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.16](https://github.com/lakekeeper/console/compare/v0.13.15...v0.13.16) (2026-04-29)
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to v0.5.7 ([61e520e](https://github.com/lakekeeper/console/commit/61e520e1b16cb48daac314583345d08fe2abd090))
+* **ui:** wipe persisted state on fresh bootstrap ([61e520e](https://github.com/lakekeeper/console/commit/61e520e1b16cb48daac314583345d08fe2abd090))
+
 ## [0.13.15](https://github.com/lakekeeper/console/compare/v0.13.14...v0.13.15) (2026-04-24)
 
 
