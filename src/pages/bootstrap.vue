@@ -69,7 +69,7 @@
 import { onBeforeMount, onUnmounted, onMounted, ref, computed, watch, nextTick } from 'vue';
 import '@lakekeeper/console-components/style.css';
 import EULA from '@/components/EULA.vue';
-import { useUserStore, useVisualStore } from '@lakekeeper/console-components';
+import { useUserStore, useVisualStore, LoQEEngine } from '@lakekeeper/console-components';
 import router from '../router';
 import { useFunctions } from '@lakekeeper/console-components';
 
@@ -150,11 +150,24 @@ onBeforeMount(async () => {
 async function bootstrap() {
   try {
     await functions.bootstrapServer();
-    // Load projects after bootstrap to ensure visual store is updated
-    await functions.loadProjectList();
+    // A fresh bootstrap = a fresh server identity. Wipe every persisted
+    // Pinia store at this origin so state from a previous install
+    // (warehouses, projects, attached catalogs, navigation, notifications,
+    // etc.) doesn't leak into the new server. Keep the `user` key — it
+    // holds the access token used for the rest of this flow and the
+    // post-reload boot. OIDC's own state lives in sessionStorage and is
+    // unaffected.
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key !== 'user') localStorage.removeItem(key);
+    }
+    LoQEEngine.forceDestroy();
+    // Hard reload so Pinia rehydrates from the now-empty storage and
+    // every store starts from defaults. The bootstrap page's
+    // getServerInfo() will then route to '/'.
+    window.location.reload();
   } catch (error) {
     console.error('Error during bootstrap:', error);
-  } finally {
     await getServerInfo();
   }
 }

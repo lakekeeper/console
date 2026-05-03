@@ -6,6 +6,9 @@
 )]
 #![forbid(unsafe_code)]
 
+use std::io::Read;
+
+use flate2::read::GzDecoder;
 use rust_embed::Embed;
 
 mod cache;
@@ -55,6 +58,36 @@ impl Default for LakekeeperConsoleConfig {
     }
 }
 
+/// Look up a file in the embed. Large assets are stored gzipped under
+/// `<path>.gz` (see `build.rs`); this helper decompresses transparently so
+/// callers see the original bytes.
+fn embedded(file_path: &str) -> Option<rust_embed::EmbeddedFile> {
+    if let Some(file) = LakekeeperConsole::get(file_path) {
+        return Some(file);
+    }
+    let mut file = LakekeeperConsole::get(&format!("{file_path}.gz"))?;
+    let mut decoded = Vec::new();
+    GzDecoder::new(&file.data[..])
+        .read_to_end(&mut decoded)
+        .expect("embedded gzip file is corrupt");
+    file.data = decoded.into();
+    Some(file)
+}
+
+/// List file paths visible to consumers — names of gzipped entries are
+/// reported with the original (decompressed) extension so iteration matches
+/// what `get_file` accepts.
+#[cfg(test)]
+fn embedded_iter() -> impl Iterator<Item = std::borrow::Cow<'static, str>> {
+    LakekeeperConsole::iter().map(|name| {
+        if let Some(stripped) = name.strip_suffix(".gz") {
+            std::borrow::Cow::Owned(stripped.to_string())
+        } else {
+            name
+        }
+    })
+}
+
 /// Retrieves a file from the Lakekeeper Console embed.
 ///
 /// # Panics
@@ -78,7 +111,7 @@ pub fn get_file(
         base_url_prefix,
     } = config;
 
-    LakekeeperConsole::get(file_path).map(|file| {
+    embedded(file_path).map(|file| {
         if std::path::Path::new(file_path)
             .extension()
             .is_some_and(|ext| {
@@ -154,7 +187,7 @@ mod tests {
 
     #[test]
     fn test_index_available() {
-        let index: rust_embed::EmbeddedFile = LakekeeperConsole::get("index.html").unwrap();
+        let index: rust_embed::EmbeddedFile = embedded("index.html").unwrap();
         assert!(!index.data.is_empty());
     }
 
@@ -213,7 +246,7 @@ mod tests {
             app_lakekeeper_url: Some("https://catalog.example.com".to_string()),
             base_url_prefix: Some("/test-prefix".to_string()),
         };
-        let files = LakekeeperConsole::iter().collect::<Vec<_>>();
+        let files = embedded_iter().collect::<Vec<_>>();
 
         let config_values = [
             &config.idp_authority,
@@ -228,7 +261,7 @@ mod tests {
         let mut found_values = vec![false; config_values.len()];
 
         for file in &files {
-            let templated_file = get_file(file, &config.clone()).unwrap();
+            let templated_file = get_file(file.as_ref(), &config.clone()).unwrap();
             if let Ok(file_content) = std::str::from_utf8(&templated_file.data) {
                 assert!(
                     !file_content.contains("VITE_"),

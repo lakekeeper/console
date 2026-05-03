@@ -99,6 +99,7 @@
                 <TablePreview
                   v-if="tab === 'preview'"
                   :warehouse-id="params.id"
+                  :warehouse-name="warehouse?.name"
                   :namespace-id="namespacePath"
                   :table-name="params.tid"
                   :catalog-url="catalogUrl"
@@ -248,11 +249,7 @@ const warehouseId = computed(() => params.value.id);
 const { showTasksTab } = useTablePermissions(tableId, warehouseId);
 const { showPermissionsTab } = useTableAuthorizerPermissions(tableId, warehouseId);
 
-// Get catalog URL from environment variable (same pattern as warehouse page)
-const catalogUrl = computed(() => {
-  const baseUrl = import.meta.env.VITE_APP_ICEBERG_CATALOG_URL || 'http://localhost:8181';
-  return `${baseUrl}/catalog`;
-});
+const catalogUrl = computed(() => `${functions.icebergCatalogUrl()}catalog`);
 
 async function loadWarehouse() {
   const currentId = params.value.id;

@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.13.16](https://github.com/lakekeeper/console/compare/v0.13.15...v0.13.16) (2026-04-29)
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to v0.5.7 ([61e520e](https://github.com/lakekeeper/console/commit/61e520e1b16cb48daac314583345d08fe2abd090))
+* **ui:** wipe persisted state on fresh bootstrap ([61e520e](https://github.com/lakekeeper/console/commit/61e520e1b16cb48daac314583345d08fe2abd090))
+
+## [0.13.15](https://github.com/lakekeeper/console/compare/v0.13.14...v0.13.15) (2026-04-24)
+
+
+### Bug Fixes
+
+* **ui:** fix double-slash catalog URL and bump console-components to v0.5.6 ([d476966](https://github.com/lakekeeper/console/commit/d47696688339869a2626d9bcf3714b1ee2742af8))
+
+## [0.13.14](https://github.com/lakekeeper/console/compare/v0.13.13...v0.13.14) (2026-04-21)
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to v0.5.5 ([709fcf5](https://github.com/lakekeeper/console/commit/709fcf571978d25b6833c1e8f8234885bc84eb81))
+* **ui:** pass warehouse-name to TablePreview to fix stale name after rename ([709fcf5](https://github.com/lakekeeper/console/commit/709fcf571978d25b6833c1e8f8234885bc84eb81))
+
 ## [0.13.13](https://github.com/lakekeeper/console/compare/v0.13.12...v0.13.13) (2026-04-21)
 
 
