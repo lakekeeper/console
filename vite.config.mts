@@ -7,17 +7,16 @@ import VueRouter from 'vue-router/vite';
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import { loadEnv, defineConfig } from 'vite';
 import { resolve } from 'path';
-import { copyFileSync, mkdirSync, existsSync } from 'fs';
+import { copyFileSync, mkdirSync, existsSync, rmSync } from 'fs';
 // Utilities
 import { fileURLToPath, URL } from 'node:url';
 
-// Plugin to copy DuckDB files from console-components
+// Plugin to copy DuckDB files from console-components.
+// COI (cross-origin isolated) bundle is intentionally omitted — LoQEEngine
+// only registers mvp + eh, so the coi WASM (~32 MB) is dead weight.
 const duckdbFiles = [
-  'duckdb-browser-coi.pthread.worker.js',
-  'duckdb-browser-coi.worker.js',
   'duckdb-browser-eh.worker.js',
   'duckdb-browser-mvp.worker.js',
-  'duckdb-coi.wasm',
   'duckdb-eh.wasm',
   'duckdb-mvp.wasm',
 ];
@@ -47,6 +46,9 @@ function copyDuckDBFiles() {
         throw new Error(`Missing duckdb-worker-wrapper.js in ${srcDir}`);
       }
 
+      // Wipe any previously-copied duckdb files (e.g. variants we no longer
+      // ship) so stale binaries don't leak through Vite's publicDir into dist.
+      rmSync(resolve(targetPath, 'duckdb'), { recursive: true, force: true });
       mkdirSync(resolve(targetPath, 'duckdb'), { recursive: true });
       duckdbFiles.forEach((file) => {
         copyFileSync(resolve(srcDir, 'duckdb', file), resolve(targetPath, 'duckdb', file));

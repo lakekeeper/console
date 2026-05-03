@@ -1,6 +1,58 @@
 use std::env;
 use std::fs;
+use std::io::Write;
 use std::path::Path;
+
+use flate2::write::GzEncoder;
+use flate2::Compression;
+
+// Files at or above this size are stored gzipped and decompressed at runtime.
+// Below this threshold, gzip overhead outweighs savings.
+const GZIP_THRESHOLD_BYTES: u64 = 64 * 1024;
+
+// Extensions whose contents are already compressed — gzipping again costs CPU
+// for ~no size win.
+const SKIP_GZIP_EXTENSIONS: &[&str] = &[
+    "woff", "woff2", "png", "jpg", "jpeg", "gif", "ico", "webp", "zip", "gz",
+];
+
+fn gzip_file(path: &Path) -> std::io::Result<()> {
+    let raw = fs::read(path)?;
+    let mut encoder = GzEncoder::new(Vec::new(), Compression::best());
+    encoder.write_all(&raw)?;
+    let compressed = encoder.finish()?;
+    let gz_path = path.with_extension(format!(
+        "{}.gz",
+        path.extension().and_then(|s| s.to_str()).unwrap_or("")
+    ));
+    fs::write(&gz_path, compressed)?;
+    fs::remove_file(path)?;
+    Ok(())
+}
+
+fn gzip_large_files(dir: &Path) -> std::io::Result<()> {
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        let file_type = entry.file_type()?;
+        if file_type.is_dir() {
+            gzip_large_files(&path)?;
+            continue;
+        }
+        if !file_type.is_file() {
+            continue;
+        }
+        let ext = path.extension().and_then(|s| s.to_str()).unwrap_or("");
+        if SKIP_GZIP_EXTENSIONS.iter().any(|e| e.eq_ignore_ascii_case(ext)) {
+            continue;
+        }
+        if entry.metadata()?.len() < GZIP_THRESHOLD_BYTES {
+            continue;
+        }
+        gzip_file(&path)?;
+    }
+    Ok(())
+}
 
 fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
@@ -119,4 +171,6 @@ fn main() {
             node_root.display()
         );
     }
+
+    gzip_large_files(&asset_dir).expect("Failed to gzip dist files");
 }
