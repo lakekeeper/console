@@ -63,21 +63,31 @@ fn main() {
 
     println!("cargo:warning=Node root: {node_root:?}");
     println!("cargo:warning=Asset dir (dist): {asset_dir:?}");
-    // limit rebuilds to UI changes
+    // Only retrigger on dependency changes. Editing Vue/TS sources during dev
+    // would otherwise restart a multi-minute npm+vite chain on every save —
+    // run `cargo clean -p lakekeeper-console` (or touch package-lock.json) to
+    // force a UI rebuild after source-only changes.
     println!("cargo:rerun-if-changed={}", repo_dir.join("package.json").display());
     println!("cargo:rerun-if-changed={}", repo_dir.join("package-lock.json").display());
-    println!("cargo:rerun-if-changed={}", repo_dir.join("src").display());
-    println!("cargo:rerun-if-changed={}", repo_dir.join("public").display());
-    println!("cargo:rerun-if-changed={}", repo_dir.join("vite.config.js").display());
+    println!("cargo:rerun-if-changed={}", repo_dir.join("vite.config.mts").display());
     // Copy everything from repo_dir to node_dir, we are not allowed to write anywhere else
     fs::remove_dir_all(&node_root).ok();
     fs::create_dir_all(&asset_dir).unwrap();
+
+    // Skip large generated/vendored dirs — `npm ci` recreates node_modules
+    // and `vite build` recreates dist. Copying them adds ~700 MB of I/O per
+    // build for no benefit.
+    const SKIP_TOP_LEVEL: &[&str] = &["node_modules", "dist", "target", ".git"];
 
     let copy_options = &fs_extra::dir::CopyOptions::new().overwrite(true);
     for entry in fs::read_dir(repo_dir).unwrap() {
         let entry = entry.unwrap();
         let name = entry.file_name();
         let dest = node_root.join(&name);
+
+        if SKIP_TOP_LEVEL.iter().any(|s| name == *s) {
+            continue;
+        }
 
         if entry.file_type().unwrap().is_dir() {
             if name == "console-rs" {
@@ -86,11 +96,11 @@ fn main() {
                 for sub_entry in fs::read_dir(entry.path()).unwrap() {
                     let sub_entry = sub_entry.unwrap();
                     let sub_name = sub_entry.file_name();
-                    
+
                     if sub_name == "target" {
                         continue; // Skip target directory to avoid race condition
                     }
-                    
+
                     let sub_dest = dest.join(&sub_name);
                     if sub_entry.file_type().unwrap().is_dir() {
                         fs_extra::dir::copy(sub_entry.path(), &dest, &copy_options).unwrap();
