@@ -7,6 +7,7 @@
 // Plugins
 import { registerPlugins } from '@/plugins';
 import { createAuth, useFunctions, useVisualStore } from '@lakekeeper/console-components';
+import formbricks from '@formbricks/js';
 
 // Components
 import App from './App.vue';
@@ -73,5 +74,10 @@ app.use(auth);
 // Provide functions for shared components (using 'functions' key to match shared components expectations)
 // Pass config to functions so they can use the runtime config
 app.provide('functions', useFunctions(appConfigObject));
+
+formbricks.setup({
+  environmentId: 'cmoy9tpanq8a9y301tcw8h4q9',
+  appUrl: 'https://app.formbricks.com',
+});
 
 app.mount('#app');

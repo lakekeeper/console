@@ -26,6 +26,7 @@
     "node": ">=24"
   },
   "dependencies": {
+    "@formbricks/js": "^4.4.0",
     "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.5.7",
     "@mdi/font": "7.4.47",
     "json-bigint": "^1.0.0",

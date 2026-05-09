@@ -130,6 +130,7 @@ import {
   isNotFoundError,
 } from '@lakekeeper/console-components';
 import { computed, ref, onMounted, watch } from 'vue';
+import formbricks from '@formbricks/js';
 
 const route = useRoute();
 const router = useRouter();
@@ -272,6 +273,7 @@ onMounted(() => {
     tab.value = route.query.tab as string;
   }
   loadWarehouse();
+  formbricks.track('warehouse_viewed');
 });
 
 // // Refresh permissions when user logs in (not on token renewal)
