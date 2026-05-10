@@ -36,6 +36,9 @@ pub struct LakekeeperConsoleConfig {
     pub idp_token_type: IdpTokenType,
     pub enable_authentication: bool,
     pub enable_permissions: bool,
+    /// When `true`, the console loads the Formbricks SDK and may show optional
+    /// in-app surveys. Disable to opt out entirely (no third-party requests).
+    pub enable_user_surveys: bool,
     pub app_lakekeeper_url: Option<String>,
     pub base_url_prefix: Option<String>,
 }
@@ -52,6 +55,7 @@ impl Default for LakekeeperConsoleConfig {
             idp_token_type: IdpTokenType::AccessToken,
             enable_authentication: false,
             enable_permissions: false,
+            enable_user_surveys: true,
             app_lakekeeper_url: None,
             base_url_prefix: None,
         }
@@ -107,6 +111,7 @@ pub fn get_file(
         idp_token_type,
         enable_authentication,
         enable_permissions,
+        enable_user_surveys,
         app_lakekeeper_url: app_iceberg_catalog_url,
         base_url_prefix,
     } = config;
@@ -149,6 +154,10 @@ pub fn get_file(
                 .replace(
                     "VITE_ENABLE_PERMISSIONS_PLACEHOLDER",
                     &enable_permissions.to_string(),
+                )
+                .replace(
+                    "VITE_ENABLE_USER_SURVEYS_PLACEHOLDER",
+                    &enable_user_surveys.to_string(),
                 )
                 .replace("VITE_IDP_TOKEN_TYPE_PLACEHOLDER", token_type_str);
 
@@ -203,6 +212,7 @@ mod tests {
             idp_token_type: IdpTokenType::AccessToken,
             enable_authentication: true,
             enable_permissions: false,
+            enable_user_surveys: true,
             app_lakekeeper_url: Some("https://catalog.example.com".to_string()),
             base_url_prefix: Some("/test-prefix".to_string()),
         };

@@ -12,6 +12,8 @@ const enabledAuthentication =
   import.meta.env.VITE_ENABLE_AUTHENTICATION.toLowerCase() === 'true' || false;
 const enabledPermissions =
   import.meta.env.VITE_ENABLE_PERMISSIONS.toLowerCase() === 'true' || false;
+const enabledUserSurveys =
+  (import.meta.env.VITE_ENABLE_USER_SURVEYS ?? 'true').toLowerCase() === 'true';
 
 const baseUrlPrefix = import.meta.env.VITE_BASE_URL_PREFIX || '';
 
@@ -26,5 +28,6 @@ export {
   idpLogoutRedirectPath,
   enabledAuthentication,
   enabledPermissions,
+  enabledUserSurveys,
   baseUrlPrefix,
 };

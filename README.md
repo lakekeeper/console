@@ -25,6 +25,7 @@ This project provides a user interface for the Lakekeeper REST catalog, designed
   - [Prerequites](#prerequites)
   - [Installation UI](#installation-ui)
   - [Usage](#usage)
+  - [In-app feedback surveys](#in-app-feedback-surveys)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -70,6 +71,26 @@ Instructions and examples for using your project.
 # Run the application
 npm run dev
 ```
+
+## In-app feedback surveys
+
+The console can show occasional, dismissible in-app surveys to help us understand how people use Lakekeeper and what to build next. We use [Formbricks](https://formbricks.com) (Formbricks Cloud) for this.
+
+**What is sent**
+
+- An anonymous, randomly generated user ID created locally by the SDK (no email, no IP-based tracking by us, no warehouse/namespace/table names)
+- The action key that triggered a survey (e.g. `warehouse_viewed`) and a timestamp
+- Survey responses, **only when a user voluntarily answers**
+
+**What is _not_ sent**
+
+- Catalog contents (warehouses, namespaces, tables, columns, queries)
+- Authentication tokens or user profile data
+- Any field that could identify the deployment beyond the SDK's anonymous ID
+
+**How to disable**
+
+Set `LAKEKEEPER_UI__ENABLE_USER_SURVEYS=false` (or `VITE_ENABLE_USER_SURVEYS=false` if building from source). When disabled, the Formbricks SDK is not initialized and no third-party requests are made.
 
 ## Contributing
 
