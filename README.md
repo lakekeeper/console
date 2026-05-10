@@ -90,7 +90,7 @@ The console can show occasional, dismissible in-app surveys to help us understan
 
 **How to disable**
 
-Set `LAKEKEEPER_UI__ENABLE_USER_SURVEYS=false` (or `VITE_ENABLE_USER_SURVEYS=false` if building from source). When disabled, the Formbricks SDK is not initialized and no third-party requests are made.
+Set `LAKEKEEPER__UI__ENABLE_USER_SURVEYS=false` (or `VITE_ENABLE_USER_SURVEYS=false` if building from source). When disabled, the Formbricks SDK is not initialized and no third-party requests are made.
 
 ## Contributing
 
