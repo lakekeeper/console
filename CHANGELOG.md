@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.14.0](https://github.com/lakekeeper/console/compare/v0.13.16...v0.14.0) (2026-05-10)
+
+
+### Features
+
+* **console-rs:** add enable_user_surveys flag to LakekeeperConsoleConfig ([bc6fb5d](https://github.com/lakekeeper/console/commit/bc6fb5d7be9bdce9ca8a7296c59d418893c34c7c))
+* **ui:** add optional in-app user surveys via Formbricks ([bc6fb5d](https://github.com/lakekeeper/console/commit/bc6fb5d7be9bdce9ca8a7296c59d418893c34c7c))
+
+
+### Bug Fixes
+
+* **console-rs:** stop build.rs loop on Vue source edits ([509d846](https://github.com/lakekeeper/console/commit/509d846387f97db0d07bcf8ff4963525083ddd30))
+
 ## [0.13.16](https://github.com/lakekeeper/console/compare/v0.13.15...v0.13.16) (2026-04-29)
 
 
