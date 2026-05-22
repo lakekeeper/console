@@ -35,6 +35,7 @@ const app = createApp(App);
 
 // Provide runtime config for shared library composables as a plain object
 const appConfigObject = {
+  edition: 'oss' as const,
   icebergCatalogUrl,
   idpAuthority,
   idpClientId,
@@ -45,6 +46,7 @@ const appConfigObject = {
   idpLogoutRedirectPath,
   enabledAuthentication,
   enabledPermissions,
+  enabledUserSurveys,
   baseUrlPrefix,
 };
 

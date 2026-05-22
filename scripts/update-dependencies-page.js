@@ -4,11 +4,13 @@
  * Script to update the dependencies page with current dependencies from:
  * - console/package.json
  * - console-components/package.json
- * - lakekeeper/Cargo.toml
+ * - lakekeeper/Cargo.toml (fetched from GitHub main branch)
  */
 
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
+import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 // Get __dirname equivalent in ES modules
@@ -18,12 +20,13 @@ const __dirname = path.dirname(__filename);
 // Paths
 const consoleDir = path.resolve(__dirname, '..');
 const consoleComponentsDir = path.resolve(__dirname, '../../console-components');
-const lakekeeperDir = path.resolve(__dirname, '../../lakekeeper');
 
 const consolePackagePath = path.join(consoleDir, 'package.json');
 const componentsPackagePath = path.join(consoleComponentsDir, 'package.json');
-const cargoTomlPath = path.join(lakekeeperDir, 'Cargo.toml');
 const dependenciesJsonPath = path.join(consoleDir, 'src/assets/dependencies.json');
+
+const CARGO_REPO_SSH = 'git@github.com:lakekeeper/lakekeeper.git';
+const CARGO_REPO_BRANCH = 'main';
 
 console.log('📦 Reading package files...\n');
 
@@ -62,23 +65,18 @@ console.log(
   `✅ Console Components: ${componentsDeps.length} runtime, ${componentsDevDeps.length} dev, ${componentsPeerDeps.length} peer`,
 );
 
-// Parse Cargo.toml
-let rustDeps = [];
-let rustVersion = 'unknown';
-let wasmVersion = 'unknown';
+// Parse Cargo.toml (fetched from GitHub main branch)
+function parseCargoToml(cargoContent) {
+  let rustDeps = [];
+  let rustVersion = 'unknown';
+  let wasmVersion = 'unknown';
 
-if (fs.existsSync(cargoTomlPath)) {
-  const cargoContent = fs.readFileSync(cargoTomlPath, 'utf8');
-
-  // Extract version
   const versionMatch = cargoContent.match(/^version\s*=\s*"([^"]+)"/m);
   if (versionMatch) rustVersion = versionMatch[1];
 
-  // Extract rust-version
   const rustVersionMatch = cargoContent.match(/^rust-version\s*=\s*"([^"]+)"/m);
   if (rustVersionMatch) wasmVersion = rustVersionMatch[1];
 
-  // Extract dependencies from [workspace.dependencies] section
   const depsSection = cargoContent.match(/\[workspace\.dependencies\]([\s\S]*?)(?=\n\[|$)/);
   if (depsSection) {
     const lines = depsSection[1].split('\n');
@@ -89,7 +87,6 @@ if (fs.existsSync(cargoTomlPath)) {
         let version = '';
         let features = '';
 
-        // Parse version and features
         if (rest.includes('{')) {
           const versionMatch = rest.match(/version\s*=\s*"([^"]+)"/);
           const featuresMatch = rest.match(/features\s*=\s*\[([^\]]+)\]/);
@@ -106,9 +103,39 @@ if (fs.existsSync(cargoTomlPath)) {
     }
   }
 
-  console.log(`✅ Rust dependencies: ${rustDeps.length} workspace deps`);
-} else {
-  console.warn('⚠️  Cargo.toml not found, skipping Rust dependencies');
+  return { rustDeps, rustVersion, wasmVersion };
+}
+
+// Fetch Cargo.toml via shallow sparse SSH clone (uses local SSH key).
+function fetchCargoTomlViaSsh(repoSsh, branch) {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lke-cargo-'));
+  try {
+    execSync(
+      `git clone --depth=1 --filter=blob:none --no-checkout --branch ${branch} --quiet ${repoSsh} ${tmpDir}`,
+      { stdio: ['ignore', 'ignore', 'inherit'] },
+    );
+    execSync(`git -C ${tmpDir} checkout HEAD -- Cargo.toml`, {
+      stdio: ['ignore', 'ignore', 'inherit'],
+    });
+    return fs.readFileSync(path.join(tmpDir, 'Cargo.toml'), 'utf8');
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+let rustDeps = [];
+let rustVersion = 'unknown';
+let wasmVersion = 'unknown';
+
+try {
+  console.log(`📡 Cloning ${CARGO_REPO_SSH} (${CARGO_REPO_BRANCH}) via SSH`);
+  const cargoContent = fetchCargoTomlViaSsh(CARGO_REPO_SSH, CARGO_REPO_BRANCH);
+  ({ rustDeps, rustVersion, wasmVersion } = parseCargoToml(cargoContent));
+  console.log(`✅ Rust dependencies: ${rustDeps.length} workspace deps (lakekeeper@main)`);
+} catch (err) {
+  console.warn(
+    `⚠️  Failed to fetch Cargo.toml via SSH: ${err.message} — skipping Rust dependencies`,
+  );
 }
 
 // Create dependencies data object
@@ -146,3 +173,13 @@ console.log(
 );
 console.log(`   Rust: ${rustDeps.length} workspace dependencies`);
 console.log('\n✨ Done! The dependencies page has been updated.\n');
+
+if (rustDeps.length === 0) {
+  console.warn('━'.repeat(70));
+  console.warn(
+    '⚠️  WARNING: Rust dependencies are EMPTY in the generated JSON.\n' +
+      '   The Cargo.toml clone likely failed. Do NOT commit this file as-is.\n' +
+      '   Check SSH access to the lakekeeper repo and rerun.',
+  );
+  console.warn('━'.repeat(70));
+}
