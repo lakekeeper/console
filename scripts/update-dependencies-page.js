@@ -19,10 +19,14 @@ const __dirname = path.dirname(__filename);
 
 // Paths
 const consoleDir = path.resolve(__dirname, '..');
-const consoleComponentsDir = path.resolve(__dirname, '../../console-components');
 
 const consolePackagePath = path.join(consoleDir, 'package.json');
-const componentsPackagePath = path.join(consoleComponentsDir, 'package.json');
+// Read the installed library (whatever version the lockfile resolved to),
+// not a sibling working copy that may be on a different version.
+const componentsPackagePath = path.join(
+  consoleDir,
+  'node_modules/@lakekeeper/console-components/package.json',
+);
 const dependenciesJsonPath = path.join(consoleDir, 'src/assets/dependencies.json');
 
 const CARGO_REPO_SSH = 'git@github.com:lakekeeper/lakekeeper.git';
