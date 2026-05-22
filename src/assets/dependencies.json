@@ -3,8 +3,12 @@
     "version": "0.10.3",
     "dependencies": [
       {
+        "name": "@formbricks/js",
+        "version": "^4.4.0"
+      },
+      {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.3.1"
+        "version": "github:lakekeeper/console-components#v0.6.0"
       },
       {
         "name": "@mdi/font",
@@ -62,7 +66,7 @@
       },
       {
         "name": "@vue/tsconfig",
-        "version": "^0.8.1"
+        "version": "^0.9.0"
       },
       {
         "name": "dotenv",
@@ -86,7 +90,7 @@
       },
       {
         "name": "globals",
-        "version": "^16.5.0"
+        "version": "^17.5.0"
       },
       {
         "name": "pinia",
@@ -110,19 +114,15 @@
       },
       {
         "name": "unplugin-fonts",
-        "version": "^1.1.1"
+        "version": "^2.0.0"
       },
       {
         "name": "unplugin-vue-components",
-        "version": "^31.0.0"
-      },
-      {
-        "name": "unplugin-vue-router",
-        "version": "^0.19.2"
+        "version": "^32.0.0"
       },
       {
         "name": "vite",
-        "version": "^7.3.1"
+        "version": "^8.0.8"
       },
       {
         "name": "vite-plugin-vuetify",
@@ -134,7 +134,7 @@
       },
       {
         "name": "vue-router",
-        "version": "^4.6.3"
+        "version": "^5.0.4"
       },
       {
         "name": "vue-tsc",
@@ -143,11 +143,11 @@
     ]
   },
   "components": {
-    "version": "0.3.1",
+    "version": "0.6.0",
     "dependencies": [
       {
         "name": "@codemirror/commands",
-        "version": "^6.10.0"
+        "version": "^6.10.3"
       },
       {
         "name": "@codemirror/lang-sql",
@@ -159,7 +159,7 @@
       },
       {
         "name": "@codemirror/view",
-        "version": "^6.38.6"
+        "version": "^6.41.1"
       },
       {
         "name": "@duckdb/duckdb-wasm",
@@ -195,7 +195,7 @@
       },
       {
         "name": "sql-formatter",
-        "version": "^15.7.2"
+        "version": "^15.7.3"
       },
       {
         "name": "vue-chartjs",
@@ -208,16 +208,8 @@
         "version": "^9.39.1"
       },
       {
-        "name": "@hey-api/client-fetch",
-        "version": "^0.13.1"
-      },
-      {
         "name": "@hey-api/openapi-ts",
         "version": "^0.87.0"
-      },
-      {
-        "name": "@types/chart.js",
-        "version": "^2.9.41"
       },
       {
         "name": "@types/d3",
@@ -229,7 +221,7 @@
       },
       {
         "name": "@vitejs/plugin-vue",
-        "version": "^6.0.4"
+        "version": "^6.0.6"
       },
       {
         "name": "eslint",
@@ -249,7 +241,7 @@
       },
       {
         "name": "globals",
-        "version": "^16.5.0"
+        "version": "^17.5.0"
       },
       {
         "name": "json-bigint",
@@ -257,7 +249,7 @@
       },
       {
         "name": "oidc-client-ts",
-        "version": "^3.3.0"
+        "version": "^3.5.0"
       },
       {
         "name": "pinia",
@@ -269,23 +261,23 @@
       },
       {
         "name": "prettier",
-        "version": "^3.6.2"
+        "version": "^3.8.3"
       },
       {
         "name": "sass",
-        "version": "^1.0.0"
+        "version": "^1.99.0"
       },
       {
         "name": "typescript",
-        "version": "~5.9.3"
+        "version": "~6.0.3"
       },
       {
         "name": "typescript-eslint",
-        "version": "^8.45.0"
+        "version": "^8.58.2"
       },
       {
         "name": "vite",
-        "version": "^7.3.1"
+        "version": "^8.0.8"
       },
       {
         "name": "vite-plugin-dts",
@@ -305,11 +297,11 @@
       },
       {
         "name": "vue-router",
-        "version": "^4.5.1"
+        "version": "^5.0.4"
       },
       {
         "name": "vue-tsc",
-        "version": "^3.1.3"
+        "version": "^3.2.7"
       }
     ],
     "peerDependencies": [
@@ -324,8 +316,514 @@
     ]
   },
   "rust": {
-    "version": "unknown",
-    "rustVersion": "unknown",
-    "dependencies": []
+    "version": "0.12.2",
+    "rustVersion": "1.92",
+    "dependencies": [
+      {
+        "name": "anyhow",
+        "version": "^1.0",
+        "features": ""
+      },
+      {
+        "name": "assert-json-diff",
+        "version": "2.0.2",
+        "features": ""
+      },
+      {
+        "name": "async-channel",
+        "version": "2.3.1",
+        "features": ""
+      },
+      {
+        "name": "async-compression",
+        "version": "^0.4",
+        "features": "tokio, gzip"
+      },
+      {
+        "name": "async-nats",
+        "version": "git",
+        "features": ""
+      },
+      {
+        "name": "async-stream",
+        "version": "0.3.6",
+        "features": ""
+      },
+      {
+        "name": "async-trait",
+        "version": "0.1.89",
+        "features": ""
+      },
+      {
+        "name": "aws-config",
+        "version": "1.8.10",
+        "features": "behavior-version-latest"
+      },
+      {
+        "name": "aws-credential-types",
+        "version": "1.2",
+        "features": ""
+      },
+      {
+        "name": "aws-sdk-s3",
+        "version": "1.121",
+        "features": ""
+      },
+      {
+        "name": "aws-sdk-sts",
+        "version": "1.82.0",
+        "features": ""
+      },
+      {
+        "name": "aws-sigv4",
+        "version": "1.2",
+        "features": ""
+      },
+      {
+        "name": "aws-smithy-async",
+        "version": "1.2.5",
+        "features": ""
+      },
+      {
+        "name": "aws-smithy-http",
+        "version": "0.62.3",
+        "features": ""
+      },
+      {
+        "name": "aws-smithy-http-client",
+        "version": "1.0.6",
+        "features": ""
+      },
+      {
+        "name": "aws-smithy-runtime-api",
+        "version": "1.8.7",
+        "features": ""
+      },
+      {
+        "name": "aws-smithy-types",
+        "version": "1.3.4",
+        "features": ""
+      },
+      {
+        "name": "axum",
+        "version": "0.8.1",
+        "features": ""
+      },
+      {
+        "name": "axum-extra",
+        "version": "0.12.0",
+        "features": "middleware"
+      },
+      {
+        "name": "axum-macros",
+        "version": "0.5.0",
+        "features": ""
+      },
+      {
+        "name": "axum-prometheus",
+        "version": "0.9.0",
+        "features": "http-listener"
+      },
+      {
+        "name": "azure_core",
+        "version": "0.21.0",
+        "features": ""
+      },
+      {
+        "name": "azure_identity",
+        "version": "0.21.0",
+        "features": ""
+      },
+      {
+        "name": "azure_storage",
+        "version": "0.21.0",
+        "features": ""
+      },
+      {
+        "name": "azure_storage_blobs",
+        "version": "0.21.0",
+        "features": ""
+      },
+      {
+        "name": "azure_storage_datalake",
+        "version": "0.21.0",
+        "features": ""
+      },
+      {
+        "name": "base64",
+        "version": "0.22.1",
+        "features": ""
+      },
+      {
+        "name": "bytes",
+        "version": "1.10",
+        "features": ""
+      },
+      {
+        "name": "chrono",
+        "version": "^0.4",
+        "features": ""
+      },
+      {
+        "name": "cloudevents-sdk",
+        "version": "0.9.0",
+        "features": ""
+      },
+      {
+        "name": "derive_more",
+        "version": "^2.0.0",
+        "features": "from, debug"
+      },
+      {
+        "name": "fastrand",
+        "version": "2.3.0",
+        "features": ""
+      },
+      {
+        "name": "figment",
+        "version": "^0.10",
+        "features": "env"
+      },
+      {
+        "name": "figment_file_provider_adapter",
+        "version": "0.1.1",
+        "features": ""
+      },
+      {
+        "name": "flate2",
+        "version": "^1.0",
+        "features": ""
+      },
+      {
+        "name": "futures",
+        "version": "^0.3",
+        "features": ""
+      },
+      {
+        "name": "gcloud-token",
+        "version": "1.0.0",
+        "features": ""
+      },
+      {
+        "name": "google-cloud-auth",
+        "version": "~1.2",
+        "features": ""
+      },
+      {
+        "name": "google-cloud-storage",
+        "version": "~1.2",
+        "features": ""
+      },
+      {
+        "name": "google-cloud-token",
+        "version": "1.0",
+        "features": ""
+      },
+      {
+        "name": "headers",
+        "version": "^0.4",
+        "features": ""
+      },
+      {
+        "name": "heck",
+        "version": "0.5.0",
+        "features": ""
+      },
+      {
+        "name": "hostname",
+        "version": "0.4.0",
+        "features": ""
+      },
+      {
+        "name": "http",
+        "version": "1.3.1",
+        "features": ""
+      },
+      {
+        "name": "http-body-util",
+        "version": "^0.1",
+        "features": ""
+      },
+      {
+        "name": "iceberg",
+        "version": "git",
+        "features": ""
+      },
+      {
+        "name": "iso8601",
+        "version": "0.6.2",
+        "features": ""
+      },
+      {
+        "name": "itertools",
+        "version": "0.14.0",
+        "features": ""
+      },
+      {
+        "name": "lazy-regex",
+        "version": "3.2.0",
+        "features": "lite"
+      },
+      {
+        "name": "lazy_static",
+        "version": "^1.4",
+        "features": ""
+      },
+      {
+        "name": "limes",
+        "version": "git",
+        "features": ""
+      },
+      {
+        "name": "maplit",
+        "version": "1.0.2",
+        "features": ""
+      },
+      {
+        "name": "md5",
+        "version": "0.8.0",
+        "features": ""
+      },
+      {
+        "name": "middle",
+        "version": "0.4",
+        "features": "tonic"
+      },
+      {
+        "name": "mockall",
+        "version": "0.14.0",
+        "features": ""
+      },
+      {
+        "name": "moka",
+        "version": "^0.12",
+        "features": "future"
+      },
+      {
+        "name": "pastey",
+        "version": "0.2.1",
+        "features": ""
+      },
+      {
+        "name": "percent-encoding",
+        "version": "2.3.1",
+        "features": ""
+      },
+      {
+        "name": "pretty_assertions",
+        "version": "~1.4",
+        "features": ""
+      },
+      {
+        "name": "quick-xml",
+        "version": "0.38.3",
+        "features": "serialize"
+      },
+      {
+        "name": "rdkafka",
+        "version": "0.38.0",
+        "features": ""
+      },
+      {
+        "name": "reqwest",
+        "version": "0.12.23",
+        "features": ""
+      },
+      {
+        "name": "reqwest-middleware",
+        "version": "0.4",
+        "features": ""
+      },
+      {
+        "name": "reqwest-retry",
+        "version": "0.8",
+        "features": ""
+      },
+      {
+        "name": "semver",
+        "version": "1.0.27",
+        "features": ""
+      },
+      {
+        "name": "serde",
+        "version": "^1.0",
+        "features": "rc"
+      },
+      {
+        "name": "serde_derive",
+        "version": "^1.0",
+        "features": ""
+      },
+      {
+        "name": "serde_json",
+        "version": "^1.0",
+        "features": "raw_value"
+      },
+      {
+        "name": "serde_norway",
+        "version": "0.9.42",
+        "features": ""
+      },
+      {
+        "name": "serde_urlencoded",
+        "version": "0.7.1",
+        "features": ""
+      },
+      {
+        "name": "serde_with",
+        "version": "^3.4",
+        "features": ""
+      },
+      {
+        "name": "similar",
+        "version": "2.6.0",
+        "features": ""
+      },
+      {
+        "name": "sqlx",
+        "version": "0.8.6",
+        "features": ""
+      },
+      {
+        "name": "strum",
+        "version": "0.27.0",
+        "features": "derive"
+      },
+      {
+        "name": "strum_macros",
+        "version": "0.27.0",
+        "features": ""
+      },
+      {
+        "name": "tempfile",
+        "version": "3.20",
+        "features": ""
+      },
+      {
+        "name": "thiserror",
+        "version": "2.0.0",
+        "features": ""
+      },
+      {
+        "name": "tikv-jemallocator",
+        "version": "0.6",
+        "features": ""
+      },
+      {
+        "name": "time",
+        "version": "0.3.36",
+        "features": ""
+      },
+      {
+        "name": "tokio",
+        "version": "1.41",
+        "features": ""
+      },
+      {
+        "name": "tokio-metrics",
+        "version": "0.4.9",
+        "features": ""
+      },
+      {
+        "name": "tokio-util",
+        "version": "^0.7",
+        "features": ""
+      },
+      {
+        "name": "tower",
+        "version": "^0.5",
+        "features": ""
+      },
+      {
+        "name": "tower-http",
+        "version": "^0.6",
+        "features": ""
+      },
+      {
+        "name": "tracing",
+        "version": "^0.1.41",
+        "features": "attributes, valuable"
+      },
+      {
+        "name": "tracing-subscriber",
+        "version": "0.3.18",
+        "features": ""
+      },
+      {
+        "name": "tracing-test",
+        "version": "0.2.5",
+        "features": ""
+      },
+      {
+        "name": "tryhard",
+        "version": "0.5.1",
+        "features": ""
+      },
+      {
+        "name": "typed-builder",
+        "version": "^0.23.0",
+        "features": ""
+      },
+      {
+        "name": "typetag",
+        "version": "0.2.21",
+        "features": ""
+      },
+      {
+        "name": "unicase",
+        "version": "2.8.1",
+        "features": ""
+      },
+      {
+        "name": "unicode-general-category",
+        "version": "1.1.0",
+        "features": ""
+      },
+      {
+        "name": "url",
+        "version": "^2.5",
+        "features": "serde"
+      },
+      {
+        "name": "urlencoding",
+        "version": "^2.1",
+        "features": ""
+      },
+      {
+        "name": "utoipa",
+        "version": "5.4.0",
+        "features": ""
+      },
+      {
+        "name": "utoipa-swagger-ui",
+        "version": "9.0.2",
+        "features": "axum"
+      },
+      {
+        "name": "uuid",
+        "version": "^1.6",
+        "features": "serde, v4, v5, v7"
+      },
+      {
+        "name": "valuable",
+        "version": "0.1.1",
+        "features": ""
+      },
+      {
+        "name": "veil",
+        "version": "0.2.0",
+        "features": ""
+      },
+      {
+        "name": "webpki-root-certs",
+        "version": "1.0",
+        "features": ""
+      },
+      {
+        "name": "xxhash-rust",
+        "version": "0.8.12",
+        "features": "xxh3"
+      }
+    ]
   }
 }

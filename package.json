@@ -20,14 +20,14 @@
     "test:manual": "SKIP_WEBSERVER=true playwright test",
     "update-deps-page": "node scripts/update-dependencies-page.js",
     "link": "npm link ../console-components && touch tsconfig.json",
-    "unlink": "npm unlink --no-save @lakekeeper/console-components 2>/dev/null; rm -rf node_modules package-lock.json && npm install"
+    "unlink": "npm unlink --no-save @lakekeeper/console-components 2>/dev/null; rm -rf node_modules package-lock.json && npm install && npm run update-deps-page"
   },
   "engines": {
     "node": ">=24"
   },
   "dependencies": {
     "@formbricks/js": "^4.4.0",
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.5.7",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.6.0",
     "@mdi/font": "7.4.47",
     "json-bigint": "^1.0.0",
     "oidc-client-ts": "^3.3.0",
