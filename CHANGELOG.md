@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.14.4](https://github.com/lakekeeper/console/compare/v0.14.3...v0.14.4) (2026-05-27)
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to v0.7.2 ([a7ddddc](https://github.com/lakekeeper/console/commit/a7ddddc333c3df0c554e836c29c66cfca1774941))
+* **ui:** drop obsolete baseUrl from tsconfig ([a7ddddc](https://github.com/lakekeeper/console/commit/a7ddddc333c3df0c554e836c29c66cfca1774941))
+
 ## [0.14.3](https://github.com/lakekeeper/console/compare/v0.14.2...v0.14.3) (2026-05-25)
 
 
