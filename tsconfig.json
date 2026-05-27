@@ -3,11 +3,10 @@
     "target": "ESNext",
     "jsx": "preserve",
     "lib": ["DOM", "ESNext"],
-    "baseUrl": ".",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "vue": ["./node_modules/vue"],
       "@vue/reactivity": ["./node_modules/@vue/reactivity"],
       "@vue/runtime-core": ["./node_modules/@vue/runtime-core"],
