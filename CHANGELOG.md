@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.15.0](https://github.com/lakekeeper/console/compare/v0.14.4...v0.15.0) (2026-06-08)
+
+
+### Features
+
+* **ui:** add /warehouse/:id/namespace/:nsid/generic-table/:tid detail page ([eeaea2a](https://github.com/lakekeeper/console/commit/eeaea2a6ed491c61f5c0c0836794b3d8ee05faae))
+* **ui:** route generic-table tree/list/search clicks to the new page ([eeaea2a](https://github.com/lakekeeper/console/commit/eeaea2a6ed491c61f5c0c0836794b3d8ee05faae))
+
 ## [0.14.4](https://github.com/lakekeeper/console/compare/v0.14.3...v0.14.4) (2026-05-27)
 
 
