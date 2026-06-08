@@ -20,9 +20,9 @@ import type {
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers:
-      | never
+    _ParamParsers: {}
     RouteNamedMap: import('vue-router/auto-routes').RouteNamedMap
+    _RouteFileInfoMap: import('vue-router/auto-routes')._RouteFileInfoMap
   }
 }
 
@@ -157,6 +157,13 @@ declare module 'vue-router/auto-routes' {
       { id: ParamValue<false>, nsid: ParamValue<false> },
       | never
     >,
+    '/warehouse/[id].namespace.[nsid].generic-table.[tid]': RouteRecordInfo<
+      '/warehouse/[id].namespace.[nsid].generic-table.[tid]',
+      '/warehouse/:id/namespace/:nsid/generic-table/:tid',
+      { id: ParamValue<true>, nsid: ParamValue<true>, tid: ParamValue<true> },
+      { id: ParamValue<false>, nsid: ParamValue<false>, tid: ParamValue<false> },
+      | never
+    >,
     '/warehouse/[id].namespace.[nsid].table.[tid]': RouteRecordInfo<
       '/warehouse/[id].namespace.[nsid].table.[tid]',
       '/warehouse/:id/namespace/:nsid/table/:tid',
@@ -189,11 +196,15 @@ declare module 'vue-router/auto-routes' {
         | '/'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/bootstrap.vue': {
       routes:
         | '/bootstrap'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/callback.vue': {
@@ -201,11 +212,15 @@ declare module 'vue-router/auto-routes' {
         | '/callback'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/dependencies.vue': {
       routes:
         | '/dependencies'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/license.vue': {
@@ -213,11 +228,15 @@ declare module 'vue-router/auto-routes' {
         | '/license'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/login.vue': {
       routes:
         | '/login'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/logout.vue': {
@@ -225,11 +244,15 @@ declare module 'vue-router/auto-routes' {
         | '/logout'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/loqe.vue': {
       routes:
         | '/loqe'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/notfound.vue': {
@@ -237,11 +260,15 @@ declare module 'vue-router/auto-routes' {
         | '/notfound'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/roles/index.vue': {
       routes:
         | '/roles/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/roles/[id].vue': {
@@ -249,11 +276,15 @@ declare module 'vue-router/auto-routes' {
         | '/roles/[id]'
       views:
         | never
+      pathParamNames:
+        | 'id'
     }
     'src/pages/server-offline.vue': {
       routes:
         | '/server-offline'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/server-settings.vue': {
@@ -261,11 +292,15 @@ declare module 'vue-router/auto-routes' {
         | '/server-settings'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/user-profile.vue': {
       routes:
         | '/user-profile'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/volumes.vue': {
@@ -273,11 +308,15 @@ declare module 'vue-router/auto-routes' {
         | '/volumes'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/warehouse/index.vue': {
       routes:
         | '/warehouse/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/warehouse/[id].vue': {
@@ -285,24 +324,47 @@ declare module 'vue-router/auto-routes' {
         | '/warehouse/[id]'
       views:
         | never
+      pathParamNames:
+        | 'id'
     }
     'src/pages/warehouse/[id].namespace.[nsid].vue': {
       routes:
         | '/warehouse/[id].namespace.[nsid]'
       views:
         | never
+      pathParamNames:
+        | 'id'
+        | 'nsid'
+    }
+    'src/pages/warehouse/[id].namespace.[nsid].generic-table.[tid].vue': {
+      routes:
+        | '/warehouse/[id].namespace.[nsid].generic-table.[tid]'
+      views:
+        | never
+      pathParamNames:
+        | 'id'
+        | 'nsid'
+        | 'tid'
     }
     'src/pages/warehouse/[id].namespace.[nsid].table.[tid].vue': {
       routes:
         | '/warehouse/[id].namespace.[nsid].table.[tid]'
       views:
         | never
+      pathParamNames:
+        | 'id'
+        | 'nsid'
+        | 'tid'
     }
     'src/pages/warehouse/[id].namespace.[nsid].view.[vid].vue': {
       routes:
         | '/warehouse/[id].namespace.[nsid].view.[vid]'
       views:
         | never
+      pathParamNames:
+        | 'id'
+        | 'nsid'
+        | 'vid'
     }
   }
 

@@ -217,6 +217,10 @@ function handleNavigate(item: {
     router.push(`/warehouse/${item.warehouseId}/namespace/${namespaceForRoute}/table/${item.name}`);
   } else if (item.type === 'view' && namespaceForRoute) {
     router.push(`/warehouse/${item.warehouseId}/namespace/${namespaceForRoute}/view/${item.name}`);
+  } else if (item.type === 'generic-table' && namespaceForRoute) {
+    router.push(
+      `/warehouse/${item.warehouseId}/namespace/${namespaceForRoute}/generic-table/${item.name}`,
+    );
   }
 }
 
