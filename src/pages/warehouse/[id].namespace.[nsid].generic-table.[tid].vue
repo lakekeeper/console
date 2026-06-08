@@ -3,9 +3,7 @@
     <v-col>
       <BreadcrumbsFromUrl />
 
-      <!-- Single flex container for navigation + content -->
       <div style="display: flex; height: calc(100vh - 160px); position: relative">
-        <!-- Left: Navigation Tree -->
         <v-expand-x-transition>
           <div v-show="!isNavigationCollapsed" style="display: flex; height: 100%">
             <div
@@ -19,14 +17,13 @@
                 borderRight: '1px solid rgba(var(--v-theme-on-surface), 0.12)',
               }">
               <WarehousesNavigationTree
-                v-if="warehouse"
+                v-if="warehouseName"
                 :warehouse-id="params.id"
-                :warehouse-name="warehouse.name"
+                :warehouse-name="warehouseName"
                 :active-namespace-path="namespacePath"
                 @navigate="handleNavigate" />
             </div>
 
-            <!-- Resizable Divider -->
             <div
               @mousedown="startResize"
               style="
@@ -45,7 +42,6 @@
           </div>
         </v-expand-x-transition>
 
-        <!-- Right: Main Content -->
         <div
           style="
             flex: 1;
@@ -55,7 +51,7 @@
             flex-direction: column;
             overflow: hidden;
           ">
-          <TableHeader
+          <GenericTableHeader
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
             :table-name="params.tid" />
@@ -70,17 +66,13 @@
             variant="tonal"
             class="ma-4"
             style="flex: none">
-            The table
+            The generic table
             <strong>{{ params.tid }}</strong>
             does not exist or you do not have sufficient rights to access it.
           </v-alert>
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">
             <v-tab value="details">details</v-tab>
-            <v-tab value="preview">preview</v-tab>
-            <v-tab value="health">health</v-tab>
-            <v-tab value="raw">raw</v-tab>
-            <v-tab value="versioning">versioning</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
@@ -88,44 +80,8 @@
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab">
               <v-tabs-window-item value="details">
-                <TableOverview
+                <GenericTableOverview
                   v-if="tab === 'details'"
-                  :warehouse-id="params.id"
-                  :namespace-id="params.nsid"
-                  :table-name="params.tid" />
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="preview">
-                <TablePreview
-                  v-if="tab === 'preview'"
-                  :warehouse-id="params.id"
-                  :warehouse-name="warehouse?.name"
-                  :namespace-id="namespacePath"
-                  :table-name="params.tid"
-                  :catalog-url="catalogUrl"
-                  :storage-type="storageType" />
-              </v-tabs-window-item>
-              <v-tabs-window-item value="health">
-                <TableHealth
-                  v-if="tab === 'health'"
-                  :warehouse-id="params.id"
-                  :namespace-id="namespacePath"
-                  :table-name="params.tid"
-                  :catalog-url="catalogUrl"
-                  :storage-type="storageType" />
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="raw">
-                <TableRaw
-                  v-if="tab === 'raw'"
-                  :warehouse-id="params.id"
-                  :namespace-id="params.nsid"
-                  :table-name="params.tid" />
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="versioning">
-                <TableVersioning
-                  v-if="tab === 'versioning'"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :table-name="params.tid" />
@@ -133,18 +89,26 @@
 
               <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
                 <PermissionManager
-                  v-if="tab == 'permissions' && tableId"
-                  :objectId="tableId"
-                  :relationType="RelationType.Table"
+                  v-if="tab === 'permissions' && genericTableId"
+                  :objectId="genericTableId"
+                  :relationType="RelationType.GenericTable"
                   :warehouseId="params.id" />
+                <div v-else class="text-center pa-8">
+                  <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                  <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
+                </div>
               </v-tabs-window-item>
 
               <v-tabs-window-item v-if="showTasksTab" value="tasks">
                 <TaskManager
-                  v-if="tab == 'tasks' && tableId"
+                  v-if="genericTableId"
                   :warehouse-id="params.id"
-                  :table-id="tableId"
-                  entity-type="table" />
+                  :generic-table-id="genericTableId"
+                  entity-type="generic-table" />
+                <div v-else class="text-center pa-8">
+                  <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                  <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
+                </div>
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
@@ -153,30 +117,30 @@
     </v-col>
   </v-row>
 </template>
+
 <script lang="ts" setup>
-import { computed, ref, onMounted, watch } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
   useFunctions,
   RelationType,
-  useTablePermissions,
-  useTableAuthorizerPermissions,
+  useGenericTablePermissions,
+  useGenericTableAuthorizerPermissions,
   useVisualStore,
   isForbiddenError,
   isNotFoundError,
 } from '@lakekeeper/console-components';
 
-const route = useRoute();
 const functions = useFunctions();
+const route = useRoute();
+const router = useRouter();
 const visual = useVisualStore();
 const tab = ref('details');
-const tableId = ref('');
-const lastTableRequest = ref(0);
+const genericTableId = ref('');
+const lastRequest = ref(0);
 const pageError = ref<'forbidden' | 'not-found' | null>(null);
 const loading = ref(true);
-const warehouse = ref<{ name: string; id: string } | null>(null);
-const storageType = ref<string | undefined>(undefined);
-const router = useRouter();
+const warehouseName = ref<string | undefined>(undefined);
 const leftWidth = ref(300);
 const dividerHover = ref(false);
 const isResizing = ref(false);
@@ -248,57 +212,48 @@ const params = computed(() => ({
   tid: (route.params as { tid: string }).tid,
 }));
 
-// Use composable for permissions with reactive warehouse id
+const namespacePath = computed(() => {
+  // eslint-disable-next-line no-control-regex
+  return params.value.nsid.replace(/\x1F/g, '.');
+});
+
 const warehouseId = computed(() => params.value.id);
-const { showTasksTab } = useTablePermissions(tableId, warehouseId);
-const { showPermissionsTab } = useTableAuthorizerPermissions(tableId, warehouseId);
+const { showTasksTab } = useGenericTablePermissions(genericTableId, warehouseId);
+const { showPermissionsTab } = useGenericTableAuthorizerPermissions(genericTableId, warehouseId);
 
-const catalogUrl = computed(() => `${functions.icebergCatalogUrl()}catalog`);
-
-async function loadWarehouse() {
+async function loadWarehouseName() {
   const currentId = params.value.id;
-  storageType.value = undefined;
   try {
-    const wh = await functions.getWarehouse(currentId, false);
+    const warehouse = await functions.getWarehouse(currentId, false);
     if (params.value.id !== currentId) return;
-    warehouse.value = wh;
-    // Extract storage type from warehouse
-    if (wh['storage-profile']?.type) {
-      storageType.value = wh['storage-profile'].type;
-    } else {
-      storageType.value = undefined;
-    }
+    warehouseName.value = warehouse.name;
   } catch (error: any) {
     if (params.value.id !== currentId) return;
     if (isForbiddenError(error) || isNotFoundError(error)) {
       router.replace('/');
       return;
     }
-    warehouse.value = null;
-    storageType.value = undefined;
+    warehouseName.value = undefined;
   }
 }
 
-const namespacePath = computed(() => {
-  // eslint-disable-next-line no-control-regex
-  return params.value.nsid.replace(/\x1F/g, '.');
-});
-
-async function loadTableMetadata() {
+async function loadGenericTableMetadata() {
   const { id, nsid, tid } = params.value;
-  const requestToken = ++lastTableRequest.value;
-  // Clear stale table id so downstream consumers don't operate on the previous table
-  tableId.value = '';
+  const requestToken = ++lastRequest.value;
+  genericTableId.value = '';
   pageError.value = null;
   loading.value = true;
   try {
-    const table = await functions.loadTableCustomized(id, nsid, tid, false);
-    if (requestToken !== lastTableRequest.value) {
-      return;
-    }
-    tableId.value = table.metadata['table-uuid'] || '';
+    // loadGenericTable returns format/base-location/properties but no id; resolve
+    // the id via listGenericTables so PermissionManager/TaskManager get a UUID.
+    await functions.loadGenericTable(id, nsid, tid, false);
+    if (requestToken !== lastRequest.value) return;
+    const data = await functions.listGenericTables(id, nsid, undefined, false);
+    if (requestToken !== lastRequest.value) return;
+    const match = (data.identifiers ?? []).find((g: { name: string }) => g.name === tid);
+    genericTableId.value = match?.id || '';
   } catch (error: any) {
-    if (requestToken !== lastTableRequest.value) return;
+    if (requestToken !== lastRequest.value) return;
     if (isForbiddenError(error)) {
       pageError.value = 'forbidden';
       return;
@@ -307,29 +262,27 @@ async function loadTableMetadata() {
       pageError.value = 'not-found';
       return;
     }
-    tableId.value = '';
+    genericTableId.value = '';
   } finally {
-    if (requestToken === lastTableRequest.value) {
+    if (requestToken === lastRequest.value) {
       loading.value = false;
     }
   }
 }
 
-// Load warehouse and table metadata on mount
 onMounted(() => {
   if (route.query.tab) {
     tab.value = route.query.tab as string;
   }
-  loadWarehouse();
-  loadTableMetadata();
+  loadWarehouseName();
+  loadGenericTableMetadata();
 });
 
-// Reload metadata when route params change
 watch(
   () => [params.value.id, params.value.nsid, params.value.tid],
   () => {
-    loadWarehouse();
-    loadTableMetadata();
+    loadWarehouseName();
+    loadGenericTableMetadata();
   },
   { immediate: false },
 );
@@ -337,6 +290,7 @@ watch(
 watch(tab, (newTab) => {
   router.replace({ query: { ...route.query, tab: newTab } });
 });
+
 watch(
   () => visual.requestedNamespaceTab,
   (newTab) => {
