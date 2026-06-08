@@ -251,7 +251,14 @@ async function loadGenericTableMetadata() {
     const data = await functions.listGenericTables(id, nsid, undefined, false);
     if (requestToken !== lastRequest.value) return;
     const match = (data.identifiers ?? []).find((g: { name: string }) => g.name === tid);
-    genericTableId.value = match?.id || '';
+    if (!match?.id) {
+      // load succeeded but the listing doesn't surface this name — treat as
+      // not-found so the page renders the alert instead of spinning the
+      // Permissions / Tasks tabs forever waiting on an id that never arrives.
+      pageError.value = 'not-found';
+      return;
+    }
+    genericTableId.value = match.id;
   } catch (error: any) {
     if (requestToken !== lastRequest.value) return;
     if (isForbiddenError(error)) {
