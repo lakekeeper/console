@@ -8,7 +8,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.7.0"
+        "version": "github:lakekeeper/console-components#v0.7.0-ol"
       },
       {
         "name": "@mdi/font",
