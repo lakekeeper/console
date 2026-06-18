@@ -2,7 +2,6 @@
   <v-tabs v-model="tab">
     <v-tab value="overview">overview</v-tab>
     <v-tab v-if="showPermissionsTab" value="permissions">permissions</v-tab>
-    <v-tab v-if="showUsersTab" value="users">users</v-tab>
   </v-tabs>
   <v-tabs-window v-model="tab" style="max-height: calc(100vh - 140px); overflow-y: auto">
     <v-tabs-window-item value="overview">
@@ -14,9 +13,6 @@
         :objectId="serverId"
         :relationType="permissionType" />
     </v-tabs-window-item>
-    <v-tabs-window-item v-if="showUsersTab" value="users">
-      <UserManager v-if="tab === 'users'" />
-    </v-tabs-window-item>
   </v-tabs-window>
 </template>
 
@@ -24,7 +20,6 @@
 import {
   useFunctions,
   RelationType,
-  useServerPermissions,
   useServerAuthorizerPermissions,
 } from '@lakekeeper/console-components';
 import { onMounted, ref, watch } from 'vue';
@@ -39,7 +34,6 @@ const functions = useFunctions();
 const serverId = ref('');
 
 // Use the server permissions composable
-const { showUsersTab } = useServerPermissions(serverId);
 const { showPermissionsTab } = useServerAuthorizerPermissions(serverId);
 
 const permissionType = RelationType.Server;

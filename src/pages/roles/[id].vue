@@ -24,50 +24,18 @@
   </v-container>
 
   <div v-else>
-    <v-tabs v-model="tab">
-      <v-tab value="overview">overview</v-tab>
-      <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
-    </v-tabs>
-
-    <v-tabs-window v-model="tab">
-      <v-tabs-window-item value="overview">
-        <RoleOverviewEdit :role-id="roleId" v-if="tab === 'overview'" />
-      </v-tabs-window-item>
-      <v-tabs-window-item value="permissions">
-        <PermissionManager :objectId="roleId" :relationType="type" v-if="tab === 'permissions'" />
-      </v-tabs-window-item>
-    </v-tabs-window>
+    <RoleDetail :role-id="roleId" :can-edit="canManageGrants" />
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, ref, watch, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import {
-  RelationType,
-  useRolePermissions,
-  useRoleAuthorizerPermissions,
-} from '@lakekeeper/console-components';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { useRolePermissions, useRoleAuthorizerPermissions } from '@lakekeeper/console-components';
 
 const route = useRoute();
-const router = useRouter();
 const params = computed(() => route.params as { id: string });
-const tab = ref('overview');
-const type = RelationType.Role;
-
-// Create a computed ref for the role ID
 const roleId = computed(() => params.value.id);
 
-// Use the role permissions composable
 const { loading, canRead } = useRolePermissions(roleId);
-const { showPermissionsTab } = useRoleAuthorizerPermissions(roleId);
-
-onMounted(() => {
-  if (route.query.tab) {
-    tab.value = route.query.tab as string;
-  }
-});
-
-watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
-});
+const { canManageGrants } = useRoleAuthorizerPermissions(roleId);
 </script>
