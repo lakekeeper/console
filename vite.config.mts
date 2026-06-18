@@ -7,7 +7,7 @@ import VueRouter from 'vue-router/vite';
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import { loadEnv, defineConfig } from 'vite';
 import { resolve } from 'path';
-import { copyFileSync, mkdirSync, existsSync, rmSync } from 'fs';
+import { copyFileSync, mkdirSync, existsSync, rmSync, cpSync } from 'fs';
 // Utilities
 import { fileURLToPath, URL } from 'node:url';
 
@@ -55,6 +55,13 @@ function copyDuckDBFiles() {
       });
       copyFileSync(wrapperSrc, resolve(targetPath, 'duckdb-worker-wrapper.js'));
       console.log('Copied DuckDB files from @lakekeeper/console-components');
+
+      // Self-hosted DuckDB extensions (iceberg/httpfs/avro) for airgapped LoQE.
+      const extSrc = resolve(srcDir, 'duckdb', 'extensions');
+      if (existsSync(extSrc)) {
+        cpSync(extSrc, resolve(targetPath, 'duckdb', 'extensions'), { recursive: true });
+        console.log('Copied DuckDB extensions (iceberg/httpfs/avro)');
+      }
     },
   };
 }

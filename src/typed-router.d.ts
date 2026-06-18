@@ -59,6 +59,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/identities': RouteRecordInfo<
+      '/identities',
+      '/identities',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/license': RouteRecordInfo<
       '/license',
       '/license',
@@ -218,6 +225,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/dependencies.vue': {
       routes:
         | '/dependencies'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/identities.vue': {
+      routes:
+        | '/identities'
       views:
         | never
       pathParamNames:

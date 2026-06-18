@@ -33,15 +33,6 @@
           </v-chip>
         </template>
       </v-list-item>
-      <v-list-item link title="Roles" rounded="lg" :active="isRolesActive" @click="routeToRoles">
-        <template #prepend>
-          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
-            Roles
-          </v-tooltip>
-          <v-icon size="small" icon="mdi-shield-account"></v-icon>
-        </template>
-      </v-list-item>
-
       <v-divider class="my-2"></v-divider>
 
       <v-list-subheader v-show="visual.navBarShow" class="text-uppercase font-weight-bold">
@@ -66,6 +57,19 @@
       <v-list-subheader v-show="visual.navBarShow" class="text-uppercase font-weight-bold">
         System
       </v-list-subheader>
+      <v-list-item
+        link
+        title="Identities"
+        rounded="lg"
+        :active="isIdentitiesActive"
+        @click="routeToIdentities">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Identities
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-account-multiple"></v-icon>
+        </template>
+      </v-list-item>
       <v-list-item link title="Server settings" to="/server-settings" rounded="lg">
         <template #prepend>
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
@@ -88,11 +92,13 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 const visual = useVisualStore();
 const router = useRouter();
 const route = useRoute();
-const isRolesActive = computed(() => route.path.startsWith('/roles'));
+const isIdentitiesActive = computed(
+  () => route.path.startsWith('/identities') || route.path.startsWith('/roles'),
+);
 
-function routeToRoles() {
+function routeToIdentities() {
   if (enabledAuthentication && enabledPermissions) {
-    router.push('/roles');
+    router.push('/identities');
   } else {
     visual.setSnackbarMsg({
       function: 'routeToRoles',
