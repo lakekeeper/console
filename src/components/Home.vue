@@ -19,12 +19,14 @@
             v-if="visual.themeLight"
             class="mx-auto"
             max-width="280"
+            :aspect-ratio="1"
             lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23f5f5f5' width='280' height='80' rx='8'/%3E%3C/svg%3E"
             src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
           <v-img
             v-else
             class="mx-auto"
             max-width="280"
+            :aspect-ratio="1"
             lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23333' width='280' height='80' rx='8'/%3E%3C/svg%3E"
             src="@/assets/LAKEKEEPER_IMAGE_TEXT_WHITE.svg" />
         </v-col>
