@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.16.0](https://github.com/lakekeeper/console/compare/v0.15.2...v0.16.0) (2026-06-19)
+
+
+### Features
+
+* **ui:** default Identities to the Users tab ([4b6fc63](https://github.com/lakekeeper/console/commit/4b6fc63454ad40610df6d7a2b0ce5594cff35e15))
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to v0.12.0 ([4b6fc63](https://github.com/lakekeeper/console/commit/4b6fc63454ad40610df6d7a2b0ce5594cff35e15))
+* **ui:** render home logo by giving the v-img an explicit aspect ratio ([4b6fc63](https://github.com/lakekeeper/console/commit/4b6fc63454ad40610df6d7a2b0ce5594cff35e15))
+* **ui:** render Identities tabs after permissions load to avoid Roles flash ([4b6fc63](https://github.com/lakekeeper/console/commit/4b6fc63454ad40610df6d7a2b0ce5594cff35e15))
+
 ## [0.15.2](https://github.com/lakekeeper/console/compare/v0.15.1...v0.15.2) (2026-06-18)
 
 
