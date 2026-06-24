@@ -20,19 +20,6 @@
           <v-icon size="small" icon="mdi-database"></v-icon>
         </template>
       </v-list-item>
-      <v-list-item link title="Volumes" to="/volumes" rounded="lg">
-        <template #prepend>
-          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
-            Volumes
-          </v-tooltip>
-          <v-icon size="small" icon="mdi-bucket"></v-icon>
-        </template>
-        <template #append>
-          <v-chip v-show="visual.navBarShow" size="x-small" color="warning" variant="tonal">
-            Roadmap
-          </v-chip>
-        </template>
-      </v-list-item>
       <v-divider class="my-2"></v-divider>
 
       <v-list-subheader v-show="visual.navBarShow" class="text-uppercase font-weight-bold">

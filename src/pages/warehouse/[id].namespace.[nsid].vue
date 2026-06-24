@@ -68,6 +68,7 @@
             <v-tab value="namespaces">namespaces</v-tab>
             <v-tab value="tables">tables</v-tab>
             <v-tab value="views">views</v-tab>
+            <v-tab value="datasets">datasets</v-tab>
             <v-tab value="deleted">deleted</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
           </v-tabs>
@@ -113,6 +114,15 @@
                   :storage-layout="storageLayout" />
               </v-tabs-window-item>
 
+              <v-tabs-window-item value="datasets">
+                <DatasetsList
+                  v-if="tab === 'datasets'"
+                  :warehouse-id="params.id"
+                  :namespace-path="namespacePath"
+                  class="pa-4"
+                  @select="handleDatasetSelect" />
+              </v-tabs-window-item>
+
               <v-tabs-window-item value="deleted">
                 <NamespaceDeleted
                   v-if="tab === 'deleted'"
@@ -144,6 +154,7 @@ import {
   useVisualStore,
   isForbiddenError,
   isNotFoundError,
+  DatasetsList,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
@@ -296,6 +307,11 @@ async function loadNamespaceMetadata() {
   if (requestToken === lastNamespaceRequest.value) {
     loading.value = false;
   }
+}
+
+function handleDatasetSelect(item: { name: string; namespaceId: string }) {
+  const nsid = item.namespaceId.split('.').join('\x1F');
+  router.push(`/warehouse/${params.value.id}/namespace/${nsid}/generic-table/${item.name}`);
 }
 
 // Handle table creation - force refresh of table list
