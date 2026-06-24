@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.17.0](https://github.com/lakekeeper/console/compare/v0.16.0...v0.17.0) (2026-06-24)
+
+
+### Features
+
+* **ui:** add files tab (storage explorer) to table and generic-table pages ([83f827d](https://github.com/lakekeeper/console/commit/83f827db14817f9fd734c165ae4d15e0c511732c))
+* **ui:** wire header cog maintenance, reload details on update, drop raw tab ([83f827d](https://github.com/lakekeeper/console/commit/83f827db14817f9fd734c165ae4d15e0c511732c))
+
 ## [0.16.0](https://github.com/lakekeeper/console/compare/v0.15.2...v0.16.0) (2026-06-19)
 
 
