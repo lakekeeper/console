@@ -163,6 +163,17 @@ body {
   height: 100%;
 }
 
+/* Navigation tree row density — app-global so the linked-lib style.css cache can't mask it.
+   Leaf rows (tables/views/fields, tagged .tree-leaf-row) are more compact than container rows. */
+.tree-view .v-list-item {
+  min-height: 26px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.tree-view .v-list-item:has(.tree-leaf-row) {
+  min-height: 20px !important;
+}
+
 #app {
   overflow-x: hidden;
   height: 100vh;

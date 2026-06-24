@@ -58,7 +58,8 @@
           <ViewHeader
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
-            :view-name="params.vid" />
+            :view-name="params.vid"
+            @updated="viewOverviewRef?.loadViewData()" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
             <v-progress-circular indeterminate color="primary" />
@@ -77,7 +78,6 @@
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">
             <v-tab value="details">details</v-tab>
-            <v-tab value="raw">raw</v-tab>
             <v-tab value="history">history</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
@@ -88,14 +88,7 @@
               <v-tabs-window-item value="details">
                 <ViewOverview
                   v-if="tab === 'details'"
-                  :warehouse-id="params.id"
-                  :namespace-id="params.nsid"
-                  :view-name="params.vid" />
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="raw">
-                <ViewRaw
-                  v-if="tab === 'raw'"
+                  ref="viewOverviewRef"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :view-name="params.vid" />
@@ -157,6 +150,7 @@ const route = useRoute();
 const visual = useVisualStore();
 const tab = ref('details');
 const viewId = ref('');
+const viewOverviewRef = ref<{ loadViewData: () => void } | null>(null);
 const lastViewRequest = ref(0);
 const pageError = ref<'forbidden' | 'not-found' | null>(null);
 const loading = ref(true);
