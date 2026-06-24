@@ -54,7 +54,8 @@
           <GenericTableHeader
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
-            :table-name="params.tid" />
+            :table-name="params.tid"
+            :entity-label="tableFormat === 'dataset' ? 'dataset' : undefined" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
             <v-progress-circular indeterminate color="primary" />
@@ -85,7 +86,8 @@
                   v-if="tab === 'details'"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
-                  :table-name="params.tid" />
+                  :table-name="params.tid"
+                  :entity-label="tableFormat === 'dataset' ? 'dataset' : undefined" />
               </v-tabs-window-item>
 
               <v-tabs-window-item value="files">
@@ -94,7 +96,8 @@
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :entity-name="params.tid"
-                  entity-type="generic-table" />
+                  entity-type="generic-table"
+                  :can-write="tableFormat === 'dataset'" />
               </v-tabs-window-item>
 
               <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
@@ -147,6 +150,7 @@ const router = useRouter();
 const visual = useVisualStore();
 const tab = ref('details');
 const genericTableId = ref('');
+const tableFormat = ref<string | null>(null);
 const lastRequest = ref(0);
 const pageError = ref<'forbidden' | 'not-found' | null>(null);
 const loading = ref(true);
@@ -251,12 +255,14 @@ async function loadGenericTableMetadata() {
   const { id, nsid, tid } = params.value;
   const requestToken = ++lastRequest.value;
   genericTableId.value = '';
+  tableFormat.value = null;
   pageError.value = null;
   loading.value = true;
   try {
     // loadGenericTable returns format/base-location/properties but no id; resolve
     // the id via listGenericTables so PermissionManager/TaskManager get a UUID.
-    await functions.loadGenericTable(id, nsid, tid, false);
+    const gtResponse = await functions.loadGenericTable(id, nsid, tid, false);
+    tableFormat.value = gtResponse?.table?.format ?? null;
     if (requestToken !== lastRequest.value) return;
     const data = await functions.listGenericTables(id, nsid, undefined, false);
     if (requestToken !== lastRequest.value) return;
