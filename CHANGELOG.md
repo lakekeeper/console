@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/lakekeeper/console/compare/v0.17.0...v0.18.0) (2026-06-24)
+
+
+### Features
+
+* **ui:** add datasets tab, file explorer and storage stats ([4adfb52](https://github.com/lakekeeper/console/commit/4adfb52295e66e38f1503c770e46361077c87ff3))
+
 ## [0.17.0](https://github.com/lakekeeper/console/compare/v0.16.0...v0.17.0) (2026-06-24)
 
 
