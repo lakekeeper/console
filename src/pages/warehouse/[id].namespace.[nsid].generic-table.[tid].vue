@@ -73,6 +73,7 @@
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">
             <v-tab value="details">details</v-tab>
+            <v-tab value="files">files</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
@@ -85,6 +86,15 @@
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :table-name="params.tid" />
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="files">
+                <StorageExplorer
+                  v-if="tab === 'files'"
+                  :warehouse-id="params.id"
+                  :namespace-id="params.nsid"
+                  :entity-name="params.tid"
+                  entity-type="generic-table" />
               </v-tabs-window-item>
 
               <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
