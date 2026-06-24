@@ -8,7 +8,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.12.0"
+        "version": "github:lakekeeper/console-components#v0.13.1"
       },
       {
         "name": "@mdi/font",
@@ -143,7 +143,7 @@
     ]
   },
   "components": {
-    "version": "0.12.0",
+    "version": "0.13.1",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -163,7 +163,7 @@
       },
       {
         "name": "@duckdb/duckdb-wasm",
-        "version": "^1.33.1-dev45.0"
+        "version": "^1.32.1-dev1.0"
       },
       {
         "name": "@wdns/vue-code-block",
@@ -172,6 +172,10 @@
       {
         "name": "apache-arrow",
         "version": "^21.1.0"
+      },
+      {
+        "name": "aws4fetch",
+        "version": "^1.0.20"
       },
       {
         "name": "chart.js",

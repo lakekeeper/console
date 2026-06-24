@@ -54,7 +54,15 @@
             display: flex;
             flex-direction: column;
           ">
-          <WarehouseHeader :warehouse-id="params.id" />
+          <WarehouseHeader :warehouse-id="params.id">
+            <template #maintenance>
+              <v-divider></v-divider>
+              <v-list-subheader class="text-uppercase">Maintenance</v-list-subheader>
+              <TaskConfigDialog
+                v-if="warehouseData"
+                :warehouse="{ id: warehouseData.id, name: warehouseData.name }" />
+            </template>
+          </WarehouseHeader>
 
           <v-tabs v-model="tab" density="compact">
             <v-tab density="compact" value="namespaces">namespaces</v-tab>
@@ -89,15 +97,6 @@
                   :warehouseId="warehouseId" />
               </v-tabs-window-item>
               <v-tabs-window-item value="tasks">
-                <!-- Task Config Dialog -->
-                <v-row no-gutters>
-                  <v-col cols="3">
-                    <TaskConfigDialog
-                      v-if="warehouseData"
-                      :warehouse="{ id: warehouseData.id, name: warehouseData.name }" />
-                  </v-col>
-                </v-row>
-
                 <TaskManager
                   v-if="tab === 'tasks'"
                   :warehouse-id="params.id"
