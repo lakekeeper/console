@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.2](https://github.com/lakekeeper/console/compare/v0.18.1...v0.18.2) (2026-06-27)
+
+
+### Bug Fixes
+
+* bump console components ([#336](https://github.com/lakekeeper/console/issues/336)) ([b549fd9](https://github.com/lakekeeper/console/commit/b549fd99ac02b238e51534977ad27eab4dc1b551))
+
 ## [0.18.1](https://github.com/lakekeeper/console/compare/v0.18.0...v0.18.1) (2026-06-27)
 
 
