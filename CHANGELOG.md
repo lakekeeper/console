@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.18.1](https://github.com/lakekeeper/console/compare/v0.18.0...v0.18.1) (2026-06-27)
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to v0.14.1 ([dead27d](https://github.com/lakekeeper/console/commit/dead27df6090eed3a1040df249805fbdd7523b09))
+* **ui:** don't call whoami or redirect to login in router guard when authentication is disabled ([dead27d](https://github.com/lakekeeper/console/commit/dead27df6090eed3a1040df249805fbdd7523b09))
+
 ## [0.18.0](https://github.com/lakekeeper/console/compare/v0.17.0...v0.18.0) (2026-06-24)
 
 
