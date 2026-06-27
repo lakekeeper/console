@@ -180,12 +180,24 @@ router.beforeEach(async (to: any, from: any, next: any) => {
       error?.code ||
       0;
     if (
-      errorCode === 401 ||
-      error?.message?.includes('401') ||
-      error?.message?.includes('Unauthorized')
+      env.enabledAuthentication &&
+      (errorCode === 401 ||
+        error?.message?.includes('401') ||
+        error?.message?.includes('Unauthorized'))
     ) {
       userStorage.unsetUser();
       return next('/login');
+    }
+    // With authentication disabled, a 401 here would otherwise bounce to /login →
+    // (guard sends /login → /) → /bootstrap → 401 → … . Treat the server as online
+    // and fall through to the normal bootstrap/auth checks instead of looping.
+    if (
+      !env.enabledAuthentication &&
+      (errorCode === 401 ||
+        error?.message?.includes('401') ||
+        error?.message?.includes('Unauthorized'))
+    ) {
+      serverInfo = { bootstrapped: true } as any;
     }
 
     // If the server responded with a 4xx (e.g. 403 from Cedar policy), it IS online.

@@ -310,7 +310,7 @@ import {
   HomeStatistics,
 } from '@lakekeeper/console-components';
 import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
-// import * as env from '@/app.config';
+import { enabledAuthentication } from '@/app.config';
 
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
@@ -484,7 +484,9 @@ async function checkAccessStatus() {
           ts: Date.now(),
           type: Type.INFO,
         });
-      Object.assign(user, await functions.whoAmI());
+      // whoami has no principal when authentication is disabled (returns 401) —
+      // only call it when auth is on.
+      if (enabledAuthentication) Object.assign(user, await functions.whoAmI());
     } else {
       assignedToProjects.value = true;
       visual.showAppOrNavBar = true;
