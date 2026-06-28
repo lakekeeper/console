@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.3](https://github.com/lakekeeper/console/compare/v0.18.2...v0.18.3) (2026-06-28)
+
+
+### Bug Fixes
+
+* patch ([#338](https://github.com/lakekeeper/console/issues/338)) ([67dd6fb](https://github.com/lakekeeper/console/commit/67dd6fb0c326fdc1b09177e09b700a4666d8c6f2))
+
 ## [0.18.2](https://github.com/lakekeeper/console/compare/v0.18.1...v0.18.2) (2026-06-27)
 
 
