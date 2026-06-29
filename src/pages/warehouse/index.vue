@@ -33,7 +33,9 @@
               "
               :style="{
                 background:
-                  dividerHover || isResizing ? 'rgb(var(--v-theme-primary))' : 'rgba(var(--v-theme-on-surface), 0.12)',
+                  dividerHover || isResizing
+                    ? 'rgb(var(--v-theme-primary))'
+                    : 'rgba(var(--v-theme-on-surface), 0.12)',
               }"
               @mouseenter="dividerHover = true"
               @mouseleave="dividerHover = false"></div>
