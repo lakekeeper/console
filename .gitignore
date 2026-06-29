@@ -62,7 +62,7 @@ rust-project.json
 
 # End of https://www.toptal.com/developers/gitignore/api/rust,rust-analyzer
 
-.env
+
 .env.azure
 .env.development
 **/.vscode/*
