@@ -47,7 +47,7 @@ impl Default for LakekeeperConsoleConfig {
     fn default() -> Self {
         Self {
             idp_authority: String::new(),
-            idp_client_id: "/lakekeeper".to_string(),
+            idp_client_id: "lakekeeper".to_string(),
             idp_redirect_path: "/callback".to_string(),
             idp_scope: "openid profile email".to_string(),
             idp_resource: String::new(),
