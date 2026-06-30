@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.19.0](https://github.com/lakekeeper/console/compare/v0.18.3...v0.19.0) (2026-06-30)
+
+
+### Features
+
+* **ui:** register shared light/dark themes with flash-free initial theme ([b45c948](https://github.com/lakekeeper/console/commit/b45c948abecb44b97f8852ab6361b0726f9968b9))
+
+
+### Bug Fixes
+
+* drop leading slash from default UI client_id (default is "lakekeeper" now) ([#342](https://github.com/lakekeeper/console/issues/342)) ([29984cd](https://github.com/lakekeeper/console/commit/29984cdb23882e98ca3ce6f945baea0c1752da21))
+* **ui:** theme-align warehouse resize divider to primary ([b45c948](https://github.com/lakekeeper/console/commit/b45c948abecb44b97f8852ab6361b0726f9968b9))
+
 ## [0.18.3](https://github.com/lakekeeper/console/compare/v0.18.2...v0.18.3) (2026-06-28)
 
 
