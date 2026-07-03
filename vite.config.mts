@@ -9,6 +9,7 @@ import { resolve } from 'path';
 import { copyFileSync, mkdirSync, existsSync, rmSync, cpSync, createReadStream } from 'fs';
 // Utilities
 import { fileURLToPath, URL } from 'node:url';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 // Dev-only: serve DuckDB extension binaries directly from console-components' dist,
 // ahead of Vite's SPA history fallback. Copying them into publicDir is unreliable
@@ -26,7 +27,7 @@ function serveDuckDBExtensionsDev() {
     name: 'serve-duckdb-extensions-dev',
     apply: 'serve' as const,
     configureServer(server: { middlewares: { use: (fn: unknown) => void } }) {
-      server.middlewares.use((req: any, res: any, next: () => void) => {
+      server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
         const url = (req.url || '').split('?')[0];
         const idx = url.indexOf(marker);
         if (idx === -1 || !url.endsWith('.wasm')) return next();
