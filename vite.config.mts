@@ -1,7 +1,6 @@
 // Plugins
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
-import Fonts from 'unplugin-fonts/vite';
 import Vue from '@vitejs/plugin-vue';
 import VueRouter from 'vue-router/vite';
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
@@ -98,16 +97,8 @@ export default defineConfig(({ mode }) => {
       Vuetify({
         autoImport: true,
       }),
-      Fonts({
-        google: {
-          families: [
-            {
-              name: 'Roboto',
-              styles: 'wght@100;300;400;500;700;900',
-            },
-          ],
-        },
-      }),
+      // Roboto is now self-hosted via @fontsource/roboto (imported in main.ts) so
+      // fonts load from our own origin instead of the Google Fonts CDN (air-gap).
     ],
     define: {
       'process.env': {},
