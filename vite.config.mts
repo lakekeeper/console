@@ -5,7 +5,7 @@ import Vue from '@vitejs/plugin-vue';
 import VueRouter from 'vue-router/vite';
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import { loadEnv, defineConfig } from 'vite';
-import { resolve } from 'path';
+import { resolve, relative, isAbsolute } from 'path';
 import { copyFileSync, mkdirSync, existsSync, rmSync, cpSync, createReadStream } from 'fs';
 // Utilities
 import { fileURLToPath, URL } from 'node:url';
@@ -32,10 +32,20 @@ function serveDuckDBExtensionsDev() {
         const idx = url.indexOf(marker);
         if (idx === -1 || !url.endsWith('.wasm')) return next();
         const filePath = resolve(extRoot, url.slice(idx + marker.length));
-        if (!filePath.startsWith(extRoot) || !existsSync(filePath)) return next();
+        // Boundary-aware containment: reject anything outside extRoot (prevents
+        // sibling-path bypass like `<extRoot>-evil/…` that a prefix check misses).
+        const rel = relative(extRoot, filePath);
+        if (rel.startsWith('..') || isAbsolute(rel) || !existsSync(filePath)) return next();
         res.setHeader('Content-Type', 'application/wasm');
         res.setHeader('Cache-Control', 'no-cache');
-        createReadStream(filePath).pipe(res);
+        const stream = createReadStream(filePath);
+        // Handle read errors (e.g. TOCTOU / unreadable file) so they don't crash
+        // the dev server with an unhandled stream exception.
+        stream.on('error', () => {
+          if (!res.headersSent) res.statusCode = 500;
+          res.end();
+        });
+        stream.pipe(res);
       });
     },
   };
