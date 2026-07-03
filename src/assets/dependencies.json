@@ -3,12 +3,16 @@
     "version": "0.10.3",
     "dependencies": [
       {
+        "name": "@fontsource/roboto",
+        "version": "^5.2.10"
+      },
+      {
         "name": "@formbricks/js",
         "version": "^4.4.0"
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.15.0"
+        "version": "github:lakekeeper/console-components#v0.15.1"
       },
       {
         "name": "@mdi/font",
@@ -143,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.15.0",
+    "version": "0.15.1",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -336,7 +340,7 @@
     ]
   },
   "rust": {
-    "version": "0.12.3",
+    "version": "0.13.1",
     "rustVersion": "1.94",
     "dependencies": [
       {
@@ -646,7 +650,7 @@
       },
       {
         "name": "quick-xml",
-        "version": "0.38.3",
+        "version": "0.41",
         "features": "serialize"
       },
       {

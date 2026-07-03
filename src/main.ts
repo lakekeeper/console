@@ -4,6 +4,15 @@
  * Bootstraps Vuetify and other plugins then mounts the App`
  */
 
+// Self-hosted Roboto (air-gapped) — replaces the Google Fonts CDN. Bundles all
+// weights Vuetify uses so nothing is fetched from fonts.googleapis.com/gstatic.com.
+import '@fontsource/roboto/100.css';
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import '@fontsource/roboto/900.css';
+
 // Plugins
 import { registerPlugins } from '@/plugins';
 import { createAuth, useFunctions, useVisualStore } from '@lakekeeper/console-components';
