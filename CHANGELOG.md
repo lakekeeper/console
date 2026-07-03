@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.19.1](https://github.com/lakekeeper/console/compare/v0.19.0...v0.19.1) (2026-07-03)
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to 0.15.1 (airgap LoQE extensions, offline GitHub link) ([e18f406](https://github.com/lakekeeper/console/commit/e18f406c51b3e2863b380fb4233a0ab3ccff8455))
+* **ui:** bump console-components to 0.15.2 for working airgapped LoQE extensions ([1d4770f](https://github.com/lakekeeper/console/commit/1d4770f1afb650909deaa19824edfc8460c9a079))
+* **ui:** self-host Roboto via [@fontsource](https://github.com/fontsource) instead of Google Fonts CDN ([e18f406](https://github.com/lakekeeper/console/commit/e18f406c51b3e2863b380fb4233a0ab3ccff8455))
+* **ui:** serve DuckDB extensions via dev middleware so airgapped LoQE loads reliably ([54b43d6](https://github.com/lakekeeper/console/commit/54b43d6acc3da2fe5a9b282ff057e87a44d558e8))
+
 ## [0.19.0](https://github.com/lakekeeper/console/compare/v0.18.3...v0.19.0) (2026-06-30)
 
 
