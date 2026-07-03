@@ -5,10 +5,51 @@ import Vue from '@vitejs/plugin-vue';
 import VueRouter from 'vue-router/vite';
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify';
 import { loadEnv, defineConfig } from 'vite';
-import { resolve } from 'path';
-import { copyFileSync, mkdirSync, existsSync, rmSync, cpSync } from 'fs';
+import { resolve, relative, isAbsolute } from 'path';
+import { copyFileSync, mkdirSync, existsSync, rmSync, cpSync, createReadStream } from 'fs';
 // Utilities
 import { fileURLToPath, URL } from 'node:url';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+
+// Dev-only: serve DuckDB extension binaries directly from console-components' dist,
+// ahead of Vite's SPA history fallback. Copying them into publicDir is unreliable
+// in `vite dev` — the SPA fallback intermittently returns index.html for
+// /duckdb/extensions/*.wasm, which DuckDB then parses as a binary ("Unknown ABI
+// type" / "need to see wasm magic number"). This middleware makes it deterministic.
+// Production build still serves them from dist via copyDuckDBFiles → publicDir.
+function serveDuckDBExtensionsDev() {
+  const extRoot = resolve(
+    __dirname,
+    'node_modules/@lakekeeper/console-components/dist/duckdb/extensions',
+  );
+  const marker = '/duckdb/extensions/';
+  return {
+    name: 'serve-duckdb-extensions-dev',
+    apply: 'serve' as const,
+    configureServer(server: { middlewares: { use: (fn: unknown) => void } }) {
+      server.middlewares.use((req: IncomingMessage, res: ServerResponse, next: () => void) => {
+        const url = (req.url || '').split('?')[0];
+        const idx = url.indexOf(marker);
+        if (idx === -1 || !url.endsWith('.wasm')) return next();
+        const filePath = resolve(extRoot, url.slice(idx + marker.length));
+        // Boundary-aware containment: reject anything outside extRoot (prevents
+        // sibling-path bypass like `<extRoot>-evil/…` that a prefix check misses).
+        const rel = relative(extRoot, filePath);
+        if (rel.startsWith('..') || isAbsolute(rel) || !existsSync(filePath)) return next();
+        res.setHeader('Content-Type', 'application/wasm');
+        res.setHeader('Cache-Control', 'no-cache');
+        const stream = createReadStream(filePath);
+        // Handle read errors (e.g. TOCTOU / unreadable file) so they don't crash
+        // the dev server with an unhandled stream exception.
+        stream.on('error', () => {
+          if (!res.headersSent) res.statusCode = 500;
+          res.end();
+        });
+        stream.pipe(res);
+      });
+    },
+  };
+}
 
 // Plugin to copy DuckDB files from console-components.
 // COI (cross-origin isolated) bundle is intentionally omitted — LoQEEngine
@@ -72,6 +113,7 @@ export default defineConfig(({ mode }) => {
     base: `${env.VITE_BASE_URL_PREFIX || ''}/ui/`,
     plugins: [
       copyDuckDBFiles(), // Copy DuckDB files from console-components
+      serveDuckDBExtensionsDev(), // Dev: serve extension .wasm ahead of SPA fallback
       VueRouter({
         dts: 'src/typed-router.d.ts',
       }),
