@@ -33,6 +33,12 @@ pub struct LakekeeperConsoleConfig {
     pub idp_scope: String,
     pub idp_resource: String,
     pub idp_post_logout_redirect_path: String,
+    /// Absolute URL sent as `post_logout_redirect_uri` on logout, overriding the
+    /// value derived from `idp_post_logout_redirect_path`. Empty = derive as before.
+    pub idp_post_logout_redirect_url: String,
+    /// When `true`, the frontend omits `post_logout_redirect_uri` entirely
+    /// (optional per the OIDC RFC) for IdPs that reject non-registered URLs.
+    pub idp_disable_post_logout_redirect: bool,
     pub idp_token_type: IdpTokenType,
     pub enable_authentication: bool,
     pub enable_permissions: bool,
@@ -52,6 +58,8 @@ impl Default for LakekeeperConsoleConfig {
             idp_scope: "openid profile email".to_string(),
             idp_resource: String::new(),
             idp_post_logout_redirect_path: "/logout".to_string(),
+            idp_post_logout_redirect_url: String::new(),
+            idp_disable_post_logout_redirect: false,
             idp_token_type: IdpTokenType::AccessToken,
             enable_authentication: false,
             enable_permissions: false,
@@ -108,6 +116,8 @@ pub fn get_file(
         idp_scope,
         idp_resource,
         idp_post_logout_redirect_path,
+        idp_post_logout_redirect_url,
+        idp_disable_post_logout_redirect,
         idp_token_type,
         enable_authentication,
         enable_permissions,
@@ -146,6 +156,14 @@ pub fn get_file(
                 .replace(
                     "VITE_IDP_POST_LOGOUT_REDIRECT_PATH_PLACEHOLDER",
                     idp_post_logout_redirect_path,
+                )
+                .replace(
+                    "VITE_IDP_POST_LOGOUT_REDIRECT_URL_PLACEHOLDER",
+                    idp_post_logout_redirect_url,
+                )
+                .replace(
+                    "VITE_IDP_POST_LOGOUT_REDIRECT_DISABLED_PLACEHOLDER",
+                    &idp_disable_post_logout_redirect.to_string(),
                 )
                 .replace(
                     "VITE_ENABLE_AUTHENTICATION_PLACEHOLDER",
@@ -209,6 +227,8 @@ mod tests {
             idp_scope: "openid profile email test".to_string(),
             idp_resource: "foo-bar-test".to_string(),
             idp_post_logout_redirect_path: "/logout-test".to_string(),
+            idp_post_logout_redirect_url: "https://portal.example.com/login-test".to_string(),
+            idp_disable_post_logout_redirect: true,
             idp_token_type: IdpTokenType::AccessToken,
             enable_authentication: true,
             enable_permissions: false,
@@ -225,6 +245,7 @@ mod tests {
             &config.idp_scope,
             &config.idp_resource,
             &config.idp_post_logout_redirect_path,
+            &config.idp_post_logout_redirect_url,
             config.app_lakekeeper_url.as_ref().unwrap(),
         ];
 

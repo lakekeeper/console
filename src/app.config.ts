@@ -7,6 +7,9 @@ const idpRedirectPath = import.meta.env.VITE_IDP_REDIRECT_PATH || '';
 const idpScope = import.meta.env.VITE_IDP_SCOPE || '';
 const idpResource = import.meta.env.VITE_IDP_RESOURCE || '';
 const idpLogoutRedirectPath = import.meta.env.VITE_IDP_POST_LOGOUT_REDIRECT_PATH || '';
+const idpPostLogoutRedirectUrl = import.meta.env.VITE_IDP_POST_LOGOUT_REDIRECT_URL || '';
+const idpDisablePostLogoutRedirect =
+  (import.meta.env.VITE_IDP_POST_LOGOUT_REDIRECT_DISABLED || '').toLowerCase() === 'true';
 const idpTokenType = import.meta.env.VITE_IDP_TOKEN_TYPE || TokenType.ACCESS_TOKEN;
 const enabledAuthentication =
   import.meta.env.VITE_ENABLE_AUTHENTICATION.toLowerCase() === 'true' || false;
@@ -26,6 +29,8 @@ export {
   idpResource,
   idpTokenType,
   idpLogoutRedirectPath,
+  idpPostLogoutRedirectUrl,
+  idpDisablePostLogoutRedirect,
   enabledAuthentication,
   enabledPermissions,
   enabledUserSurveys,
