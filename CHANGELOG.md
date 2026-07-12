@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.0](https://github.com/lakekeeper/console/compare/v0.19.2...v0.20.0) (2026-07-12)
+
+
+### Features
+
+* **ui:** add post-logout redirect override and disable options ([044ce1f](https://github.com/lakekeeper/console/commit/044ce1ffaa933f9c8decf32bc40cddf3bea2b12c))
+
 ## [0.19.2](https://github.com/lakekeeper/console/compare/v0.19.1...v0.19.2) (2026-07-06)
 
 
