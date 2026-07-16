@@ -15,7 +15,26 @@ pub enum CacheItem {
     Found {
         mime: Mime,
         data: Cow<'static, [u8]>,
+        /// Weak `ETag` opaque tag (bare hex, without the `W/"…"` wrapper) over
+        /// the rendered `data`, computed once when the entry is cached so
+        /// revalidation never re-hashes the (potentially multi-MB) body. Serve
+        /// it as `W/"{etag}"`.
+        etag: String,
     },
+}
+
+/// Weak `ETag` opaque tag (bare hex) over the rendered response bytes. Weak
+/// because a transport layer may re-encode the body (e.g. compression), which
+/// would break a strong byte-for-byte validator. The bytes are config-templated
+/// per cache entry, so the tag distinguishes the same filename served under
+/// different configs.
+///
+/// Uses `xxh3` (as the catalog does for `loadTable` ETags) rather than the std
+/// `DefaultHasher`: it is ~4x faster on the multi-MB `DuckDB` WASM and, unlike
+/// SipHash, is a fixed algorithm — so the tag stays stable across Rust releases
+/// and doesn't spuriously bust caches on a toolchain bump.
+fn weak_etag_tag(data: &[u8]) -> String {
+    format!("{:x}", xxhash_rust::xxh3::xxh3_64(data))
 }
 
 /// File cache manager for static assets that handles configuration
@@ -103,15 +122,50 @@ impl FileCache {
         let content = crate::get_file(&file_path_owned, &effective_config);
 
         let cache_item = match content {
-            Some(content) => CacheItem::Found {
-                mime,
-                data: content.data,
-            },
+            Some(content) => {
+                let etag = weak_etag_tag(&content.data);
+                CacheItem::Found {
+                    mime,
+                    data: content.data,
+                    etag,
+                }
+            }
             None => CacheItem::NotFound,
         };
 
         // Store in cache and return
         self.cache.insert(cache_key, cache_item.clone());
         cache_item
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn etag_of(item: &CacheItem) -> String {
+        match item {
+            CacheItem::Found { etag, .. } => etag.clone(),
+            CacheItem::NotFound => panic!("expected Found, got NotFound"),
+        }
+    }
+
+    #[test]
+    fn test_found_carries_stable_nonempty_etag() {
+        let cache = FileCache::new(LakekeeperConsoleConfig::default());
+        let a = cache.get_file("index.html", None, None);
+        let b = cache.get_file("index.html", None, None);
+        assert!(!etag_of(&a).is_empty());
+        assert_eq!(etag_of(&a), etag_of(&b), "etag must be stable per entry");
+    }
+
+    #[test]
+    fn test_etag_varies_with_templated_prefix() {
+        // `index.html` embeds the base-URL prefix, so the same filename served
+        // under a different forwarded prefix must get a distinct etag.
+        let cache = FileCache::new(LakekeeperConsoleConfig::default());
+        let root = cache.get_file("index.html", None, None);
+        let prefixed = cache.get_file("index.html", Some("/lakekeeper"), None);
+        assert_ne!(etag_of(&root), etag_of(&prefixed));
     }
 }
