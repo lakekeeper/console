@@ -148,6 +148,7 @@ export default defineConfig(({ mode }) => {
         'import.meta.env.VITE_ENABLE_AUTHENTICATION': '(globalThis.__lkauth)',
         'import.meta.env.VITE_ENABLE_PERMISSIONS': '(globalThis.__lkperm)',
         'import.meta.env.VITE_IDP_POST_LOGOUT_REDIRECT_DISABLED': '(globalThis.__lknologout)',
+        'import.meta.env.VITE_ENABLE_USER_SURVEYS': '(globalThis.__lksurveys)',
       }),
     },
     resolve: {
