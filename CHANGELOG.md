@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0](https://github.com/lakekeeper/console/compare/v0.20.0...v0.21.0) (2026-07-17)
+
+
+### Features
+
+* **cache:** precompute weak ETag per cache entry ([#351](https://github.com/lakekeeper/console/issues/351)) ([4ea3416](https://github.com/lakekeeper/console/commit/4ea3416865df436577c0e9c7a7f04f2c0da52e3f))
+
 ## [0.20.0](https://github.com/lakekeeper/console/compare/v0.19.2...v0.20.0) (2026-07-12)
 
 
