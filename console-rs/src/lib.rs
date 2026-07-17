@@ -220,6 +220,7 @@ mod tests {
 
     #[test]
     fn test_all_placeholders_present_in_embedded_files() {
+        // Must stay in sync with the placeholders replaced in `get_file`.
         let placeholders = [
             "VITE_IDP_AUTHORITY_PLACEHOLDER",
             "VITE_IDP_CLIENT_ID_PLACEHOLDER",
@@ -227,20 +228,25 @@ mod tests {
             "VITE_IDP_SCOPE_PLACEHOLDER",
             "VITE_IDP_RESOURCE_PLACEHOLDER",
             "VITE_IDP_POST_LOGOUT_REDIRECT_PATH_PLACEHOLDER",
+            "VITE_IDP_POST_LOGOUT_REDIRECT_URL_PLACEHOLDER",
+            "VITE_IDP_POST_LOGOUT_REDIRECT_DISABLED_PLACEHOLDER",
             "VITE_ENABLE_AUTHENTICATION_PLACEHOLDER",
             "VITE_ENABLE_PERMISSIONS_PLACEHOLDER",
+            "VITE_ENABLE_USER_SURVEYS_PLACEHOLDER",
             "VITE_IDP_TOKEN_TYPE_PLACEHOLDER",
             "VITE_BASE_URL_PREFIX_PLACEHOLDER",
             "VITE_APP_ICEBERG_CATALOG_URL_PLACEHOLDER",
         ];
 
-        let files: Vec<_> = LakekeeperConsole::iter().collect();
+        // Iterate via `embedded_iter`/`embedded` so gzipped entries (>=64 KB) are
+        // searched by their decompressed contents, not their gzip bytes.
+        let files: Vec<_> = embedded_iter().collect();
         let mut found = Vec::new();
         let mut missing = Vec::new();
 
         for placeholder in &placeholders {
             let is_found = files.iter().any(|file_path| {
-                LakekeeperConsole::get(file_path).is_some_and(|file| {
+                embedded(file_path).is_some_and(|file| {
                     std::str::from_utf8(&file.data)
                         .is_ok_and(|content| content.contains(placeholder))
                 })
