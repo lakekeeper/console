@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.17.0"
+        "version": "github:lakekeeper/console-components#v0.17.1"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.17.0",
+    "version": "0.17.1",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -586,6 +586,11 @@
       {
         "name": "itertools",
         "version": "0.14.0",
+        "features": ""
+      },
+      {
+        "name": "k8s-openapi",
+        "version": "0.28",
         "features": ""
       },
       {
