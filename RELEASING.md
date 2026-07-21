@@ -39,14 +39,14 @@ never track it separately. The frontend `rel-0-X` line is built against
 
 ### Compatibility matrix
 
-One row per Lakekeeper release; **append a new row on each release**. The
-`lakekeeper` column equals the backend tag and names the `rel-0-X` line. Cells are
-**linked tags** — immutable, one click → exact commit + changelog. Not branch names
-(they move) or raw SHAs (redundant with the tag).
+One row per Lakekeeper release; **append a new row on each release**. The `Version`
+column is the Lakekeeper release line (plain text, matches `rel-0-X`); the remaining
+cells are **linked tags** — immutable, one click → exact commit + changelog. Not
+branch names (they move) or raw SHAs (redundant with the tag).
 
-| lakekeeper | console | console-components |
-|---|---|---|
-| [v0.13.1](https://github.com/lakekeeper/lakekeeper/releases/tag/v0.13.1) | [v0.21.1](https://github.com/lakekeeper/console/releases/tag/v0.21.1) | [v0.17.1](https://github.com/lakekeeper/console-components/releases/tag/v0.17.1) |
+| Version | lakekeeper | console | console-components |
+|---|---|---|---|
+| 0.13.1 | [v0.13.1](https://github.com/lakekeeper/lakekeeper/releases/tag/v0.13.1) | [v0.21.1](https://github.com/lakekeeper/console/releases/tag/v0.21.1) | [v0.17.1](https://github.com/lakekeeper/console-components/releases/tag/v0.17.1) |
 
 ## Why the OpenAPI spec makes this necessary
 
