@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.2](https://github.com/lakekeeper/console/compare/v0.21.1...v0.21.2) (2026-07-21)
+
+
+### Documentation
+
+* **ui:** add RELEASING.md describing rel-0-X branch/release strategy ([ab8bf5e](https://github.com/lakekeeper/console/commit/ab8bf5e0a14e6df033b63218512ac3d51045c86e))
+
 ## [0.21.1](https://github.com/lakekeeper/console/compare/v0.21.0...v0.21.1) (2026-07-20)
 
 
