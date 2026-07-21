@@ -131,3 +131,19 @@ feat(ui): add kebab actions menu to LoQE tree
 fix(ui): reduce tree page size and add load-more pagination
 END_COMMIT_OVERRIDE
 ```
+
+## Releasing
+
+The full process and the Lakekeeper compatibility matrix live in `RELEASING.md`.
+Frontend semver is independent of Lakekeeper's; the shared `rel-0-X` branch name
+(matching `lakekeeper`'s `rel-0-X`) is what ties a build to a Lakekeeper line.
+
+**On every release — do not skip:**
+
+- **Append a row** to the compatibility matrix in `RELEASING.md` (`Version` = the
+  Lakekeeper line as plain text; every other cell a linked release tag).
+- Ship fixes for an older Lakekeeper line on its **`rel-0-X` branch, never `main`**
+  (main tracks the newest OpenAPI spec).
+- After the frontend release, **confirm the backend is aligned** — Lakekeeper pins
+  the console rev, so a backend rev bump / version confirmation may be needed
+  *after* the FE release. Coordinate before considering the release done.
