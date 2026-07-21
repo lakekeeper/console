@@ -16,11 +16,11 @@ releases.
 
 ## Branch model
 
-| Branch | Purpose |
-|---|---|
-| `main` | Newest line; tracks the latest Lakekeeper. New features land here. |
-| `rel-0-X` | Maintenance line for Lakekeeper `0.X`. Mirrors `lakekeeper/lakekeeper`'s `rel-0-X`. Long-lived; **never delete** until that Lakekeeper minor is EOL. |
-| feature / fix branches | Short-lived; open a PR into `main` or a `rel-0-X`, squash-merge, auto-delete. |
+| Branch                 | Purpose                                                                                                                                              |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `main`                 | Newest line; tracks the latest Lakekeeper. New features land here.                                                                                   |
+| `rel-0-X`              | Maintenance line for Lakekeeper `0.X`. Mirrors `lakekeeper/lakekeeper`'s `rel-0-X`. Long-lived; **never delete** until that Lakekeeper minor is EOL. |
+| feature / fix branches | Short-lived; open a PR into `main` or a `rel-0-X`, squash-merge, auto-delete.                                                                        |
 
 The shared branch name is the whole cross-repo reference: `rel-0-13` means "the
 console that goes with Lakekeeper 0.13", no lookup table required. Frontend semver
@@ -44,9 +44,9 @@ column is the Lakekeeper release line (plain text, matches `rel-0-X`); the remai
 cells are **linked tags** — immutable, one click → exact commit + changelog. Not
 branch names (they move) or raw SHAs (redundant with the tag).
 
-| Version | lakekeeper | console | console-components |
-|---|---|---|---|
-| 0.13.1 | [v0.13.1](https://github.com/lakekeeper/lakekeeper/releases/tag/v0.13.1) | [v0.21.1](https://github.com/lakekeeper/console/releases/tag/v0.21.1) | [v0.17.1](https://github.com/lakekeeper/console-components/releases/tag/v0.17.1) |
+| Version | lakekeeper                                                               | console                                                               | console-components                                                               |
+| ------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 0.13.1  | [v0.13.1](https://github.com/lakekeeper/lakekeeper/releases/tag/v0.13.1) | [v0.21.1](https://github.com/lakekeeper/console/releases/tag/v0.21.1) | [v0.17.1](https://github.com/lakekeeper/console-components/releases/tag/v0.17.1) |
 
 ## Why the OpenAPI spec makes this necessary
 
@@ -62,11 +62,13 @@ Lakekeeper `rel-0-X` (not Lakekeeper `main`). Point the spec-update recipe at th
 ## How to use it
 
 ### Ship a fix to the current (`main`) line
+
 1. Branch off `main`, make the change, open a PR into `main`.
 2. Squash-merge. release-please opens/updates a `chore(main): release …` PR.
 3. Merge that release PR → tag + GitHub release.
 
 ### Ship a patch to an older Lakekeeper line (backport)
+
 1. If `rel-0-X` does not exist yet, cut it from the last tag that was on the `0.X`
    spec and push it:
    ```bash
@@ -80,6 +82,7 @@ Lakekeeper `rel-0-X` (not Lakekeeper `main`). Point the spec-update recipe at th
 3. Squash-merge. release-please cuts the next patch on that line.
 
 ### PR conventions
+
 - Conventional commits; add the `BEGIN_COMMIT_OVERRIDE` / `END_COMMIT_OVERRIDE`
   block in the PR body so release-please builds the changelog from it on squash.
 - When the release relates to a specific Lakekeeper version, say so in the
@@ -113,7 +116,7 @@ and its own `CHANGELOG.md` section and tags.
 ## Repo settings (GitHub Settings — not in git)
 
 The branch/target logic lives in `release.yml` (version-controlled). These few
-things *cannot* — documented here so they aren't hidden knowledge:
+things _cannot_ — documented here so they aren't hidden knowledge:
 
 - **Secret `RELEASE_PLEASE_TOKEN`** — token release-please uses to open release PRs
   and push tags.

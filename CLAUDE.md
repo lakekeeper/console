@@ -146,4 +146,4 @@ Frontend semver is independent of Lakekeeper's; the shared `rel-0-X` branch name
   (main tracks the newest OpenAPI spec).
 - After the frontend release, **confirm the backend is aligned** — Lakekeeper pins
   the console rev, so a backend rev bump / version confirmation may be needed
-  *after* the FE release. Coordinate before considering the release done.
+  _after_ the FE release. Coordinate before considering the release done.
