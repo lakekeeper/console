@@ -34,7 +34,19 @@ lakekeeper rel-0-13  →  console rel-0-13  →  @lakekeeper/console-components 
 ```
 
 The exact library version is always the pin in `console`'s `package.json`; you
-never track it separately.
+never track it separately. The frontend `rel-0-X` line is built against
+[`lakekeeper` @ `rel-0-13`](https://github.com/lakekeeper/lakekeeper/tree/rel-0-13).
+
+### Compatibility matrix
+
+One row per Lakekeeper release; **append a new row on each release**. The
+`lakekeeper` column equals the backend tag and names the `rel-0-X` line. Cells are
+**linked tags** — immutable, one click → exact commit + changelog. Not branch names
+(they move) or raw SHAs (redundant with the tag).
+
+| lakekeeper | console | console-components |
+|---|---|---|
+| [v0.13.1](https://github.com/lakekeeper/lakekeeper/releases/tag/v0.13.1) | [v0.21.1](https://github.com/lakekeeper/console/releases/tag/v0.21.1) | [v0.17.1](https://github.com/lakekeeper/console-components/releases/tag/v0.17.1) |
 
 ## Why the OpenAPI spec makes this necessary
 
@@ -98,8 +110,16 @@ release-please must run per branch. In `.github/workflows/release.yml`:
 Each branch keeps its own entry in `release-please/.release-please-manifest.json`
 and its own `CHANGELOG.md` section and tags.
 
-## Branch protection
+## Repo settings (GitHub Settings — not in git)
 
-Protect `main` and `rel-*` identically: PR-only, no direct pushes, no deletion.
-Enable "auto-delete head branches" so the short-lived feature/fix branches are
-cleaned up while `main` / `rel-*` are preserved.
+The branch/target logic lives in `release.yml` (version-controlled). These few
+things *cannot* — documented here so they aren't hidden knowledge:
+
+- **Secret `RELEASE_PLEASE_TOKEN`** — token release-please uses to open release PRs
+  and push tags.
+- **Variable `RELEASE_PLEASE_ACTIVATED`** — gate that enables the release job.
+  (The old `RELEASE_PLEASE_TARGET_BRANCH` variable is no longer used — the workflow
+  derives the target from `github.ref_name`.)
+- **Branch protection** on `main` and `rel-*` — PR-only, no direct push, no deletion.
+- **General → Pull Requests → "Automatically delete head branches"** enabled — cleans
+  up short-lived feature/fix branches; `main` / `rel-*` are protected from deletion.
