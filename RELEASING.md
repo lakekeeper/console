@@ -46,7 +46,7 @@ branch names (they move) or raw SHAs (redundant with the tag).
 
 | Version | lakekeeper                                                               | console                                                               | console-components                                                               |
 | ------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| 0.13.1  | [v0.13.1](https://github.com/lakekeeper/lakekeeper/releases/tag/v0.13.1) | [v0.21.1](https://github.com/lakekeeper/console/releases/tag/v0.21.1) | [v0.17.1](https://github.com/lakekeeper/console-components/releases/tag/v0.17.1) |
+| 0.13.1  | [v0.13.1](https://github.com/lakekeeper/lakekeeper/releases/tag/v0.13.1) | [v0.21.2](https://github.com/lakekeeper/console/releases/tag/v0.21.2) | [v0.17.3](https://github.com/lakekeeper/console-components/releases/tag/v0.17.3) |
 
 ## Why the OpenAPI spec makes this necessary
 

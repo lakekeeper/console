@@ -32,7 +32,7 @@ const router = createRouter({
 
 router.afterEach((to: RouteLocationNormalized) => {
   // Don't store these paths as the last visited location to prevent unwanted restoration after login
-  const excludedPaths = ['/server-offline', '/login', '/callback', '/logout'];
+  const excludedPaths = ['/server-offline', '/login', '/callback', '/logout', '/no-access'];
   if (excludedPaths.includes(to.path)) {
     return;
   }
@@ -95,6 +95,12 @@ router.beforeEach(async (to: any, from: any, next: any) => {
     return next('/server-offline');
   }
 
+  // A 403 on /management/v1/info means the user is authenticated but has no access
+  // to this instance at all — route them to the dedicated No-Access page.
+  function isNoInstanceAccess(code: number) {
+    return code === 403 && env.enabledAuthentication && userStorage.isAuthenticated;
+  }
+
   // If authentication is disabled, redirect auth-related paths to home
   if (!env.enabledAuthentication) {
     if (to.path === '/login' || to.path === '/callback' || to.path === '/logout') {
@@ -106,7 +112,10 @@ router.beforeEach(async (to: any, from: any, next: any) => {
   if (
     to.path === '/server-offline' ||
     (env.enabledAuthentication &&
-      (to.path === '/logout' || to.path === '/login' || to.path === '/callback'))
+      (to.path === '/logout' ||
+        to.path === '/login' ||
+        to.path === '/callback' ||
+        to.path === '/no-access'))
   ) {
     // Special case: if navigating TO /server-offline FROM /callback, this might be
     // console-components restoring a previous location during the auth race condition
@@ -151,7 +160,11 @@ router.beforeEach(async (to: any, from: any, next: any) => {
             userStorage.unsetUser();
             return next('/login');
           }
-          // Don't retry other client errors (403, 404, etc.) — server IS online
+          // A 403 means authenticated-but-no-access → dedicated No-Access page.
+          if (isNoInstanceAccess(retryCode)) {
+            return next('/no-access');
+          }
+          // Don't retry other client errors (404, etc.) — server IS online
           if (retryCode >= 400 && retryCode < 500) {
             serverInfo = { bootstrapped: true } as any;
             break;
@@ -200,6 +213,11 @@ router.beforeEach(async (to: any, from: any, next: any) => {
       serverInfo = { bootstrapped: true } as any;
     }
 
+    // A 403 on /info means authenticated-but-no-access → dedicated No-Access page.
+    if (isNoInstanceAccess(errorCode)) {
+      return next('/no-access');
+    }
+
     // If the server responded with a 4xx (e.g. 403 from Cedar policy), it IS online.
     // Assume bootstrapped and fall through to auth/bootstrap checks.
     if (errorCode >= 400 && errorCode < 500) {
@@ -236,7 +254,11 @@ router.beforeEach(async (to: any, from: any, next: any) => {
             userStorage.unsetUser();
             return next('/login');
           }
-          // Don't retry other client errors (403, 404, etc.) — server IS online
+          // A 403 means authenticated-but-no-access → dedicated No-Access page.
+          if (isNoInstanceAccess(retryCode)) {
+            return next('/no-access');
+          }
+          // Don't retry other client errors (404, etc.) — server IS online
           if (retryCode >= 400 && retryCode < 500) {
             serverInfo = { bootstrapped: true } as any;
             break;

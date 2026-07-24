@@ -94,6 +94,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/no-access': RouteRecordInfo<
+      '/no-access',
+      '/no-access',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/notfound': RouteRecordInfo<
       '/notfound',
       '/notfound',
@@ -258,6 +265,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/loqe.vue': {
       routes:
         | '/loqe'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/no-access.vue': {
+      routes:
+        | '/no-access'
       views:
         | never
       pathParamNames:
