@@ -2,6 +2,7 @@
     "packages": {
         ".": {
             "release-type": "simple",
+            "versioning": "always-bump-patch",
             "exclude-paths": [
                 ".github",
                 ".cargo",
