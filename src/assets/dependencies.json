@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.17.1"
+        "version": "github:lakekeeper/console-components#v0.17.3"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.17.1",
+    "version": "0.17.3",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -559,6 +559,11 @@
         "features": ""
       },
       {
+        "name": "hmac",
+        "version": "0.12",
+        "features": ""
+      },
+      {
         "name": "hostname",
         "version": "0.4.0",
         "features": ""
@@ -711,6 +716,11 @@
       {
         "name": "serde_with",
         "version": "^3.4",
+        "features": ""
+      },
+      {
+        "name": "sha1",
+        "version": "0.10",
         "features": ""
       },
       {
