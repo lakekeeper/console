@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.21.2](https://github.com/lakekeeper/console/compare/v0.21.1...v0.21.2) (2026-07-24)
+
+
+### Features
+
+* **ui:** add /no-access page and redirect authenticated 403 on /info to it ([8881864](https://github.com/lakekeeper/console/commit/888186477539ab59b8f31bfc0309ed87a15920ec))
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to 0.17.3 ([8881864](https://github.com/lakekeeper/console/commit/888186477539ab59b8f31bfc0309ed87a15920ec))
+
 ## [0.21.1](https://github.com/lakekeeper/console/compare/v0.21.0...v0.21.1) (2026-07-20)
 
 
