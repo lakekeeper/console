@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - main-*
+      - rel-*
   pull_request:
   workflow_dispatch:
 
@@ -23,7 +24,10 @@ jobs:
     runs-on: ${{ vars.RUNS_ON__AMD_XS || 'ubuntu-24.04' }}
     container:
       image: quay.io/vakamo/build-base:ubuntu-24-04
-    if: ${{ vars.RELEASE_PLEASE_ACTIVATED != '' && github.actor != 'dependabot[bot]' }}
+    # Run on a direct push to a release line (main/main-*/rel-*), never on
+    # pull_request events — target-branch below uses github.ref_name, which on a
+    # PR is the merge ref, not a branch.
+    if: ${{ vars.RELEASE_PLEASE_ACTIVATED != '' && github.actor != 'dependabot[bot]' && github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/rel-')) }}
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       tag_name: ${{ steps.release.outputs['tag_name'] }}
@@ -37,7 +41,9 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please/release-please-config.json
           manifest-file: release-please/.release-please-manifest.json
-          target-branch: ${{ vars.RELEASE_PLEASE_TARGET_BRANCH || 'main' }}
+          # Release the branch that triggered the run (main or a rel-* line), so
+          # each maintenance branch keeps its own manifest, changelog and tags.
+          target-branch: ${{ github.ref_name }}
 
   build:
     name: Build
