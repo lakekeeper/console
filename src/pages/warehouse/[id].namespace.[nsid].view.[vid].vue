@@ -83,6 +83,7 @@
             <v-tab value="history">history</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
+            <v-tab value="tags">tags</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -126,6 +127,15 @@
                   <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
                   <div class="text-subtitle-1 mt-2">Loading view information...</div>
                 </div>
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="tags">
+                <EntityTags
+                  v-if="tab === 'tags' && viewId"
+                  scope="view"
+                  :warehouse-id="params.id"
+                  :entity-id="viewId"
+                  :can-manage="canManageTags" />
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
@@ -236,7 +246,7 @@ const namespacePath = computed(() => {
 
 // Use composable for view permissions with reactive warehouse id
 const warehouseId = computed(() => params.value.id);
-const { showTasksTab } = useViewPermissions(viewId, warehouseId);
+const { showTasksTab, canManageTags } = useViewPermissions(viewId, warehouseId);
 const { showPermissionsTab } = useViewAuthorizerPermissions(viewId, warehouseId);
 
 async function loadWarehouseName() {

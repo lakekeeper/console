@@ -73,6 +73,7 @@
             <v-tab value="datasets">datasets</v-tab>
             <v-tab value="deleted">deleted</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
+            <v-tab value="tags">Tags</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError">
@@ -139,6 +140,14 @@
                   :relationType="RelationType.Namespace"
                   :warehouseId="params.id" />
               </v-tabs-window-item>
+              <v-tabs-window-item value="tags">
+                <EntityTags
+                  v-if="tab === 'tags' && namespaceId"
+                  scope="namespace"
+                  :warehouse-id="params.id"
+                  :entity-id="namespaceId"
+                  :can-manage="canManageTags" />
+              </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
         </div>
@@ -152,6 +161,7 @@ import { useRoute, useRouter } from 'vue-router';
 import {
   useFunctions,
   useNamespaceAuthorizerPermissions,
+  useNamespacePermissions,
   RelationType,
   useVisualStore,
   isForbiddenError,
@@ -338,6 +348,7 @@ watch(
 );
 
 const { showPermissionsTab } = useNamespaceAuthorizerPermissions(namespaceId, params.value.id);
+const { canManageTags } = useNamespacePermissions(namespaceId, params.value.id);
 watch(tab, (newTab) => {
   router.replace({ query: { ...route.query, tab: newTab } });
 });

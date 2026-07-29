@@ -79,6 +79,7 @@
             <v-tab value="files">files</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
+            <v-tab value="tags">tags</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -124,6 +125,15 @@
                   <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
                   <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
                 </div>
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="tags">
+                <EntityTags
+                  v-if="tab === 'tags' && genericTableId"
+                  scope="generic-table"
+                  :warehouse-id="params.id"
+                  :entity-id="genericTableId"
+                  :can-manage="canManageTags" />
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
@@ -234,7 +244,7 @@ const namespacePath = computed(() => {
 });
 
 const warehouseId = computed(() => params.value.id);
-const { showTasksTab } = useGenericTablePermissions(genericTableId, warehouseId);
+const { showTasksTab, canManageTags } = useGenericTablePermissions(genericTableId, warehouseId);
 const { showPermissionsTab } = useGenericTableAuthorizerPermissions(genericTableId, warehouseId);
 
 async function loadWarehouseName() {

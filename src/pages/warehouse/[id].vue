@@ -81,6 +81,7 @@
             <v-tab v-if="showPermissionsTab" density="compact" value="permissions">
               permissions
             </v-tab>
+            <v-tab density="compact" value="tags">Tags</v-tab>
           </v-tabs>
           <v-card style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab" style="height: 100%">
@@ -109,6 +110,14 @@
                   v-if="tab === 'statistics'"
                   ref="warehouseStatisticsRef"
                   :warehouse-id="params.id" />
+              </v-tabs-window-item>
+              <v-tabs-window-item value="tags">
+                <EntityTags
+                  v-if="tab === 'tags'"
+                  scope="warehouse"
+                  :warehouse-id="warehouseId"
+                  :entity-id="warehouseId"
+                  :can-manage="canManageTags" />
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
@@ -221,7 +230,7 @@ const warehouseId = computed(() => params.value.id);
 
 // Use warehouse permissions composable
 // const permissions = useWarehousePermissions(warehouseId);
-const { showTasksTab, showStatisticsTab } = useWarehousePermissions(warehouseId);
+const { showTasksTab, showStatisticsTab, canManageTags } = useWarehousePermissions(warehouseId);
 const { showPermissionsTab } = useWarehouseAuthorizerPermissions(warehouseId);
 const projectId = ref<string | undefined>(undefined);
 const warehouseStatisticsRef = ref<InstanceType<typeof WarehouseStatistics> | null>(null);
