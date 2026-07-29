@@ -1,5 +1,9 @@
 <template>
-  <div class="ma-2">
+  <div class="pa-4">
+    <h1 class="text-h6 mb-4 d-flex align-center ga-2">
+      <v-icon>mdi-account-multiple</v-icon>
+      Identities
+    </h1>
     <div v-if="permsLoading" class="d-flex justify-center pa-8">
       <v-progress-circular color="primary" indeterminate></v-progress-circular>
     </div>
