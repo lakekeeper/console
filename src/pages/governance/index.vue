@@ -21,9 +21,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useServerAuthorizerPermissions, useVisualStore } from '@lakekeeper/console-components';
+import { useVisualStore } from '@lakekeeper/console-components';
 
 const route = useRoute();
 const router = useRouter();
@@ -31,10 +31,10 @@ const visual = useVisualStore();
 
 const tab = ref((route.query.tab as string) || 'tags');
 
-// Permission assignments are an OpenFGA concept; on a Cedar backend
-// showPermissionsTab is false and the tab is hidden (policies live elsewhere).
-const serverId = ref(visual.getServerInfo()['server-id'] || '');
-const { showPermissionsTab } = useServerAuthorizerPermissions(serverId);
+// Permission assignments are an OpenFGA concept — show the tab whenever the
+// backend is OpenFGA (per-scope visibility is handled inside the explorer).
+// Cedar surfaces policies instead; allow-all has no permission management.
+const showPermissionsTab = computed(() => visual.getServerInfo()['authz-backend'] === 'openfga');
 
 watch(tab, (t) => router.replace({ query: { ...route.query, tab: t } }));
 </script>
