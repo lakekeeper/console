@@ -86,7 +86,6 @@
             <v-tab value="files">files</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
-            <v-tab value="tags">tags</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -152,22 +151,6 @@
                   :table-id="tableId"
                   entity-type="table" />
               </v-tabs-window-item>
-
-              <v-tabs-window-item value="tags">
-                <template v-if="tab === 'tags' && tableId">
-                  <EntityTags
-                    scope="table"
-                    :warehouse-id="params.id"
-                    :entity-id="tableId"
-                    :can-manage="canManageTags" />
-                  <v-divider class="my-4" />
-                  <ColumnTags
-                    :warehouse-id="params.id"
-                    :table-id="tableId"
-                    :columns="tableColumns"
-                    :can-manage="canManageTags" />
-                </template>
-              </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
         </div>
@@ -193,7 +176,6 @@ const functions = useFunctions();
 const visual = useVisualStore();
 const tab = ref('details');
 const tableId = ref('');
-const tableColumns = ref<{ name: string; fieldId: number }[]>([]);
 const tableOverviewRef = ref<{ loadTableData: () => void } | null>(null);
 const lastTableRequest = ref(0);
 const pageError = ref<'forbidden' | 'not-found' | null>(null);
@@ -274,7 +256,7 @@ const params = computed(() => ({
 
 // Use composable for permissions with reactive warehouse id
 const warehouseId = computed(() => params.value.id);
-const { showTasksTab, canManageTags } = useTablePermissions(tableId, warehouseId);
+const { showTasksTab } = useTablePermissions(tableId, warehouseId);
 const { showPermissionsTab } = useTableAuthorizerPermissions(tableId, warehouseId);
 
 const catalogUrl = computed(() => `${functions.icebergCatalogUrl()}catalog`);
@@ -313,7 +295,6 @@ async function loadTableMetadata() {
   const requestToken = ++lastTableRequest.value;
   // Clear stale table id so downstream consumers don't operate on the previous table
   tableId.value = '';
-  tableColumns.value = [];
   pageError.value = null;
   loading.value = true;
   try {
@@ -322,15 +303,6 @@ async function loadTableMetadata() {
       return;
     }
     tableId.value = table.metadata['table-uuid'] || '';
-    // Capture the current schema's top-level columns for the column-tags UI.
-    const schemas = table.metadata.schemas ?? [];
-    const currentSchemaId = table.metadata['current-schema-id'];
-    const currentSchema =
-      schemas.find((s: any) => s['schema-id'] === currentSchemaId) ?? schemas[0];
-    tableColumns.value = (currentSchema?.fields ?? []).map((f: any) => ({
-      name: f.name,
-      fieldId: f.id,
-    }));
   } catch (error: any) {
     if (requestToken !== lastTableRequest.value) return;
     if (isForbiddenError(error)) {

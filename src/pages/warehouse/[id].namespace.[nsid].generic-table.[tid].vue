@@ -75,11 +75,10 @@
           </v-alert>
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">
-            <v-tab value="details">details</v-tab>
             <v-tab value="files">files</v-tab>
+            <v-tab value="details">details</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
-            <v-tab value="tags">tags</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -90,6 +89,8 @@
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :table-name="params.tid"
+                  :generic-table-id="genericTableId"
+                  :can-manage-tags="canManageTags"
                   :entity-label="tableFormat === 'dataset' ? 'dataset' : undefined" />
               </v-tabs-window-item>
 
@@ -126,15 +127,6 @@
                   <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
                 </div>
               </v-tabs-window-item>
-
-              <v-tabs-window-item value="tags">
-                <EntityTags
-                  v-if="tab === 'tags' && genericTableId"
-                  scope="generic-table"
-                  :warehouse-id="params.id"
-                  :entity-id="genericTableId"
-                  :can-manage="canManageTags" />
-              </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
         </div>
@@ -160,7 +152,7 @@ const functions = useFunctions();
 const route = useRoute();
 const router = useRouter();
 const visual = useVisualStore();
-const tab = ref('details');
+const tab = ref('files');
 const genericTableId = ref('');
 const tableFormat = ref<string | null>(null);
 const lastRequest = ref(0);
