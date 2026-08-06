@@ -341,7 +341,13 @@ watch(
 );
 
 watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
+  // Update the URL bar without going through router.replace(): that runs the full
+  // navigation-guard pipeline (including an awaited getServerInfo() network call)
+  // on every tab click, which was stalling/interrupting this page's tab transition.
+  // route.query.tab is only ever read once on mount, so a reactive route update
+  // isn't needed here — just keep the URL bookmarkable/shareable.
+  const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
+  window.history.replaceState(window.history.state, '', href);
 });
 watch(
   () => visual.requestedNamespaceTab,
