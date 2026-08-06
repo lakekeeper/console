@@ -89,7 +89,7 @@
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
-            <v-tabs-window v-model="tab">
+            <v-tabs-window v-model="tab" crossfade>
               <v-tabs-window-item value="details">
                 <TableOverview
                   v-if="tab === 'details'"

@@ -12,7 +12,10 @@
         <v-tab v-if="showUsersTab" value="users">Users</v-tab>
         <v-tab value="roles">Roles</v-tab>
       </v-tabs>
-      <v-tabs-window v-model="tab" style="max-height: calc(100vh - 140px); overflow-y: auto">
+      <v-tabs-window
+        v-model="tab"
+        crossfade
+        style="max-height: calc(100vh - 140px); overflow-y: auto">
         <v-tabs-window-item value="roles">
           <RoleDetail v-if="selectedRoleId" :role-id="selectedRoleId" :can-edit="canManageGrants" />
           <RoleManager v-else inline @select="selectRole" />
