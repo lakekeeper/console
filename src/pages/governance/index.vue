@@ -39,5 +39,16 @@ const tab = ref((route.query.tab as string) || 'tags');
 // Cedar surfaces policies instead; allow-all has no permission management.
 const showPermissionsTab = computed(() => visual.getServerInfo()['authz-backend'] === 'openfga');
 
+// A bookmarked/shared ?tab=permissions link (or landing here before serverInfo
+// has loaded) can select a tab that isn't actually available — fall back to
+// tags rather than leaving the page with no matching tab rendered.
+watch(
+  showPermissionsTab,
+  (available) => {
+    if (tab.value === 'permissions' && !available) tab.value = 'tags';
+  },
+  { immediate: true },
+);
+
 watch(tab, (t) => router.replace({ query: { ...route.query, tab: t } }));
 </script>
