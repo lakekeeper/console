@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#014d152da9a5e0cac4257b522fdcac80533ca6fc"
+        "version": "github:lakekeeper/console-components#v0.19.0"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.18.0",
+    "version": "0.19.0",
     "dependencies": [
       {
         "name": "@codemirror/commands",

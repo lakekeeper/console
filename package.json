@@ -28,7 +28,7 @@
   "dependencies": {
     "@fontsource/roboto": "^5.2.10",
     "@formbricks/js": "^4.4.0",
-    "@lakekeeper/console-components": "github:lakekeeper/console-components#014d152da9a5e0cac4257b522fdcac80533ca6fc",
+    "@lakekeeper/console-components": "github:lakekeeper/console-components#v0.19.0",
     "@mdi/font": "7.4.47",
     "json-bigint": "^1.0.0",
     "oidc-client-ts": "^3.3.0",
