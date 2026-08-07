@@ -86,10 +86,10 @@
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
-            <v-tabs-window v-model="tab">
+            <v-tabs-window v-model="tab" crossfade>
               <v-tabs-window-item value="details">
                 <ViewOverview
-                  v-if="tab === 'details'"
+                  v-if="visitedTabs.has('details')"
                   ref="viewOverviewRef"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
@@ -98,7 +98,7 @@
 
               <v-tabs-window-item value="history">
                 <ViewHistoryTab
-                  v-if="tab === 'history'"
+                  v-if="visitedTabs.has('history')"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :view-name="params.vid" />
@@ -106,7 +106,7 @@
 
               <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
                 <PermissionManager
-                  v-if="tab === 'permissions' && viewId"
+                  v-if="visitedTabs.has('permissions') && viewId"
                   :objectId="viewId"
                   :relationType="RelationType.View"
                   :warehouseId="params.id" />
@@ -151,6 +151,11 @@ const functions = useFunctions();
 const route = useRoute();
 const visual = useVisualStore();
 const tab = ref('details');
+// Tabs mount lazily on first visit but stay mounted afterwards (Vuetify's own
+// window-item active/inactive toggling handles show/hide) — unmounting the
+// previous tab immediately would leave nothing for `crossfade` to fade from.
+const visitedTabs = ref(new Set([tab.value]));
+watch(tab, (t) => visitedTabs.value.add(t));
 const viewId = ref('');
 const viewOverviewRef = ref<{ loadViewData: () => void } | null>(null);
 const lastViewRequest = ref(0);
@@ -306,7 +311,13 @@ watch(
 );
 
 watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
+  // Update the URL bar without going through router.replace(): that runs the full
+  // navigation-guard pipeline (including an awaited getServerInfo() network call)
+  // on every tab click, which was stalling/interrupting this page's tab transition.
+  // route.query.tab is only ever read once on mount, so a reactive route update
+  // isn't needed here — just keep the URL bookmarkable/shareable.
+  const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
+  window.history.replaceState(window.history.state, '', href);
 });
 
 watch(

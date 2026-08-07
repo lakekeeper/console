@@ -57,6 +57,14 @@
           <v-icon size="small" icon="mdi-account-multiple"></v-icon>
         </template>
       </v-list-item>
+      <v-list-item link title="Governance" to="/governance" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Governance
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-shield-check-outline"></v-icon>
+        </template>
+      </v-list-item>
       <v-list-item link title="Server settings" to="/server-settings" rounded="lg">
         <template #prepend>
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
