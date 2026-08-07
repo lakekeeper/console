@@ -1,54 +1,55 @@
 <template>
-  <v-row class="ml-1">
-    <v-col>
-      <v-breadcrumbs :items="['warehouses']"></v-breadcrumbs>
+  <div class="pa-4">
+    <h1 class="text-h6 mb-4 d-flex align-center ga-2">
+      <v-icon>mdi-database</v-icon>
+      Warehouses
+    </h1>
 
-      <!-- Single flex container for navigation + content -->
-      <div style="display: flex; height: calc(100vh - 160px); position: relative">
-        <!-- Left: Navigation Tree -->
-        <v-expand-x-transition>
-          <div v-show="!isNavigationCollapsed" style="display: flex; height: 100%">
-            <div
-              :style="{
-                width: leftWidth + 'px',
-                minWidth: '200px',
-                maxWidth: '800px',
-                height: '100%',
-                overflowX: 'hidden',
-                overflowY: 'auto',
-                borderRight: '1px solid rgba(var(--v-theme-on-surface), 0.12)',
-              }">
-              <WarehousesNavigationTree @navigate="handleNavigate" />
-            </div>
-
-            <!-- Resizable Divider -->
-            <div
-              @mousedown="startResize"
-              style="
-                width: 5px;
-                cursor: col-resize;
-                user-select: none;
-                flex-shrink: 0;
-                transition: background 0.3s;
-              "
-              :style="{
-                background:
-                  dividerHover || isResizing
-                    ? 'rgb(var(--v-theme-primary))'
-                    : 'rgba(var(--v-theme-on-surface), 0.12)',
-              }"
-              @mouseenter="dividerHover = true"
-              @mouseleave="dividerHover = false"></div>
+    <!-- Single flex container for navigation + content -->
+    <div style="display: flex; height: calc(100vh - 160px); position: relative">
+      <!-- Left: Navigation Tree -->
+      <v-expand-x-transition>
+        <div v-show="!isNavigationCollapsed" style="display: flex; height: 100%">
+          <div
+            :style="{
+              width: leftWidth + 'px',
+              minWidth: '200px',
+              maxWidth: '800px',
+              height: '100%',
+              overflowX: 'hidden',
+              overflowY: 'auto',
+              borderRight: '1px solid rgba(var(--v-theme-on-surface), 0.12)',
+            }">
+            <WarehousesNavigationTree @navigate="handleNavigate" />
           </div>
-        </v-expand-x-transition>
 
-        <!-- Right: Warehouse Manager (table content) -->
-        <div style="flex: 1; height: 100%; overflow-y: auto; min-width: 0">
-          <WarehouseManager />
+          <!-- Resizable Divider -->
+          <div
+            @mousedown="startResize"
+            style="
+              width: 5px;
+              cursor: col-resize;
+              user-select: none;
+              flex-shrink: 0;
+              transition: background 0.3s;
+            "
+            :style="{
+              background:
+                dividerHover || isResizing
+                  ? 'rgb(var(--v-theme-primary))'
+                  : 'rgba(var(--v-theme-on-surface), 0.12)',
+            }"
+            @mouseenter="dividerHover = true"
+            @mouseleave="dividerHover = false"></div>
         </div>
+      </v-expand-x-transition>
+
+      <!-- Right: Warehouse Manager (table content) -->
+      <div style="flex: 1; height: 100%; overflow-y: auto; min-width: 0">
+        <WarehouseManager />
       </div>
-    </v-col>
-  </v-row>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
