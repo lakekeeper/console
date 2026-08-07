@@ -59,6 +59,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/governance/': RouteRecordInfo<
+      '/governance/',
+      '/governance',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/governance/tags/[id]': RouteRecordInfo<
+      '/governance/tags/[id]',
+      '/governance/tags/:id',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
     '/identities': RouteRecordInfo<
       '/identities',
       '/identities',
@@ -229,6 +243,22 @@ declare module 'vue-router/auto-routes' {
         | never
       pathParamNames:
         | never
+    }
+    'src/pages/governance/index.vue': {
+      routes:
+        | '/governance/'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/governance/tags/[id].vue': {
+      routes:
+        | '/governance/tags/[id]'
+      views:
+        | never
+      pathParamNames:
+        | 'id'
     }
     'src/pages/identities.vue': {
       routes:
