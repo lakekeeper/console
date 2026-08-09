@@ -4,9 +4,9 @@
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
-          color="info"
+          color="primary"
           indeterminate
-          :size="126"></v-progress-circular>
+          :size="64"></v-progress-circular>
       </v-row>
     </v-responsive>
   </v-container>
@@ -43,7 +43,7 @@
             target="_blank">
             <v-card-text class="d-flex align-center pa-3">
               <v-avatar color="grey-darken-3" size="36" class="mr-3">
-                <v-icon color="white" size="20">mdi-github</v-icon>
+                <v-icon color="white" size="small">mdi-github</v-icon>
               </v-avatar>
               <div>
                 <div class="text-body-2 font-weight-bold">Star us on GitHub</div>
@@ -61,7 +61,7 @@
             target="_blank">
             <v-card-text class="d-flex align-center pa-3">
               <v-avatar color="primary" size="36" class="mr-3">
-                <v-icon color="white" size="20">mdi-hand-heart</v-icon>
+                <v-icon color="white" size="small">mdi-hand-heart</v-icon>
               </v-avatar>
               <div>
                 <div class="text-body-2 font-weight-bold">Contribute</div>
@@ -79,7 +79,7 @@
             target="_blank">
             <v-card-text class="d-flex align-center pa-3">
               <v-avatar color="blue-darken-3" size="36" class="mr-3">
-                <v-icon color="white" size="20">mdi-linkedin</v-icon>
+                <v-icon color="white" size="small">mdi-linkedin</v-icon>
               </v-avatar>
               <div>
                 <div class="text-body-2 font-weight-bold">Share on LinkedIn</div>
@@ -158,7 +158,7 @@
               </div>
 
               <!-- Title -->
-              <h1 class="text-h3 font-weight-bold mb-4 gradient-text">Access Pending</h1>
+              <h1 class="text-h5 font-weight-bold mb-4 gradient-text">Access Pending</h1>
 
               <!-- Description -->
               <p class="text-h6 text-medium-emphasis mb-6">
@@ -189,29 +189,23 @@
                   color="primary"
                   prepend-icon="mdi-refresh"
                   size="large"
-                  variant="elevated"
+                  variant="flat"
                   @click="checkAccessStatus">
                   Check Status
                 </v-btn>
 
                 <v-btn
                   class="mb-3"
-                  color="secondary"
                   href="https://docs.lakekeeper.io"
                   prepend-icon="mdi-book-open-variant"
                   rel="noopener noreferrer"
                   size="large"
                   target="_blank"
-                  variant="tonal">
+                  variant="outlined">
                   View Documentation
                 </v-btn>
 
-                <v-btn
-                  class="text-medium-emphasis"
-                  prepend-icon="mdi-logout"
-                  size="large"
-                  variant="text"
-                  @click="logout">
+                <v-btn prepend-icon="mdi-logout" size="large" variant="text" @click="logout">
                   Logout
                 </v-btn>
               </div>
@@ -254,12 +248,7 @@
                     </div>
                   </div>
 
-                  <v-btn
-                    class="mt-4"
-                    color="primary"
-                    size="small"
-                    variant="outlined"
-                    @click="resetGame">
+                  <v-btn class="mt-4" size="small" variant="outlined" @click="resetGame">
                     New Game
                   </v-btn>
                 </div>
@@ -503,6 +492,7 @@ async function checkAccessStatus() {
   max-width: 1400px;
   margin: 0 auto;
   padding: 8px 24px;
+  max-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
   overflow-y: auto;
 }
 
@@ -534,12 +524,12 @@ async function checkAccessStatus() {
 }
 
 .github-btn {
-  background-color: white !important;
-  color: black !important;
+  background-color: rgb(var(--v-theme-surface)) !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
 }
 
 .github-btn:hover {
-  background-color: #f0f0f0 !important;
+  background-color: rgb(var(--v-theme-surface-light)) !important;
 }
 
 .community-card {
@@ -574,7 +564,7 @@ async function checkAccessStatus() {
 
 .feature-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(var(--v-theme-on-surface), 0.1);
   border-color: rgb(var(--v-theme-primary));
 }
 
@@ -645,7 +635,7 @@ async function checkAccessStatus() {
 }
 
 .quick-link-btn:hover {
-  background-color: rgb(var(--v-theme-surface-variant));
+  background-color: rgb(var(--v-theme-surface-light));
 }
 
 .no-projects-wrapper {
@@ -665,7 +655,7 @@ async function checkAccessStatus() {
   border-radius: 24px;
   background: rgb(var(--v-theme-surface));
   border: 1px solid rgb(var(--v-theme-surface-variant));
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(var(--v-theme-on-surface), 0.08);
   animation: fadeInUp 0.6s ease-out;
 }
 
@@ -803,7 +793,7 @@ async function checkAccessStatus() {
 }
 
 .tictactoe-cell:hover:not(.disabled) {
-  background: rgb(var(--v-theme-primary), 0.1);
+  background: rgba(var(--v-theme-primary), 0.1);
   transform: scale(1.05);
   border-color: rgb(var(--v-theme-primary));
 }
@@ -817,11 +807,11 @@ async function checkAccessStatus() {
 }
 
 .cell-mark-o {
-  filter: drop-shadow(0 2px 4px rgba(33, 150, 243, 0.4));
+  filter: drop-shadow(0 2px 4px rgba(var(--v-theme-info), 0.4));
 }
 
 .cell-mark-x {
-  filter: drop-shadow(0 2px 4px rgba(244, 67, 54, 0.4));
+  filter: drop-shadow(0 2px 4px rgba(var(--v-theme-error), 0.4));
 }
 
 @keyframes popIn {
@@ -841,10 +831,6 @@ async function checkAccessStatus() {
 @media (max-width: 600px) {
   .no-access-card {
     padding: 40px 24px;
-  }
-
-  .text-h3 {
-    font-size: 2rem !important;
   }
 
   .icon-container .rotating-icon {

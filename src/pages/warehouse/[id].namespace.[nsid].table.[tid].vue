@@ -64,7 +64,7 @@
             @updated="tableOverviewRef?.loadTableData()" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
-            <v-progress-circular indeterminate color="primary" />
+            <v-progress-circular indeterminate color="primary" :size="48" />
           </div>
 
           <v-alert

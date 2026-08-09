@@ -5,7 +5,7 @@
       Identities
     </h1>
     <div v-if="permsLoading" class="d-flex justify-center pa-8">
-      <v-progress-circular color="primary" indeterminate></v-progress-circular>
+      <v-progress-circular color="primary" indeterminate :size="48"></v-progress-circular>
     </div>
     <template v-else>
       <v-tabs v-model="tab">

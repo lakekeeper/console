@@ -97,8 +97,8 @@ function routeToIdentities() {
   } else {
     visual.setSnackbarMsg({
       function: 'routeToRoles',
-      text: 'Authorization is disabled',
-      ttl: 3000,
+      text: 'Identity & role management is disabled because fine-grained permissions are not enabled for this deployment.',
+      ttl: 5000,
       ts: Date.now(),
       type: Type.INFO,
     });

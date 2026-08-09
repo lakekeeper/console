@@ -31,11 +31,7 @@
           <template #actions>
             <div v-if="currentStep < 3" class="d-flex justify-space-between pa-4">
               <v-btn :disabled="currentStep === 1" variant="text" @click="prevStep">Previous</v-btn>
-              <v-btn
-                :disabled="isNextDisabled"
-                color="primary"
-                variant="elevated"
-                @click="nextStep">
+              <v-btn :disabled="isNextDisabled" color="primary" variant="flat" @click="nextStep">
                 Next
               </v-btn>
             </div>
@@ -51,9 +47,7 @@
               <v-card-actions>
                 <v-btn class="mb-6" variant="text" @click="prevStep">Previous</v-btn>
                 <v-spacer></v-spacer>
-                <v-btn class="mb-6" color="success" variant="elevated" @click="bootstrap">
-                  Accept
-                </v-btn>
+                <v-btn class="mb-6" color="primary" variant="flat" @click="bootstrap">Accept</v-btn>
               </v-card-actions>
             </v-card>
           </template>
@@ -201,7 +195,7 @@ async function getServerInfo() {
 .scrollable-content {
   max-height: 400px;
   overflow-y: auto;
-  border: 1px solid #ccc;
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
   padding: 10px;
 }
 </style>
