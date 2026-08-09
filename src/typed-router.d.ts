@@ -59,6 +59,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/dev-debug': RouteRecordInfo<
+      '/dev-debug',
+      '/dev-debug',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/governance/': RouteRecordInfo<
       '/governance/',
       '/governance',
@@ -146,6 +153,13 @@ declare module 'vue-router/auto-routes' {
     '/server-settings': RouteRecordInfo<
       '/server-settings',
       '/server-settings',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/styleguide': RouteRecordInfo<
+      '/styleguide',
+      '/styleguide',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -239,6 +253,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/dependencies.vue': {
       routes:
         | '/dependencies'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dev-debug.vue': {
+      routes:
+        | '/dev-debug'
       views:
         | never
       pathParamNames:
@@ -343,6 +365,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/server-settings.vue': {
       routes:
         | '/server-settings'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/styleguide.vue': {
+      routes:
+        | '/styleguide'
       views:
         | never
       pathParamNames:

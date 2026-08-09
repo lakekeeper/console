@@ -60,7 +60,7 @@
             :entity-label="tableFormat === 'dataset' ? 'dataset' : undefined" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
-            <v-progress-circular indeterminate color="primary" />
+            <v-progress-circular indeterminate color="primary" :size="48" />
           </div>
 
           <v-alert
@@ -111,7 +111,10 @@
                   :relationType="RelationType.GenericTable"
                   :warehouseId="params.id" />
                 <div v-else class="text-center pa-8">
-                  <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                  <v-progress-circular
+                    color="primary"
+                    indeterminate
+                    :size="48"></v-progress-circular>
                   <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
                 </div>
               </v-tabs-window-item>
@@ -123,7 +126,10 @@
                   :generic-table-id="genericTableId"
                   entity-type="generic-table" />
                 <div v-else class="text-center pa-8">
-                  <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                  <v-progress-circular
+                    color="primary"
+                    indeterminate
+                    :size="48"></v-progress-circular>
                   <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
                 </div>
               </v-tabs-window-item>
