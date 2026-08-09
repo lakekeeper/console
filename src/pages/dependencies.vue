@@ -218,6 +218,8 @@ function shortVersion(v: string): string {
   font-family: 'Inter', 'Roboto', sans-serif;
   background-color: rgb(var(--v-theme-background));
   min-height: 100%;
+  max-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
+  overflow-y: auto;
   padding: 40px 24px 64px;
 }
 

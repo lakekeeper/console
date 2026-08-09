@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { onMounted, watchEffect } from 'vue';
 import { useTheme } from 'vuetify';
 import { enabledAuthentication } from '@/app.config';
 import router from '@/router';
@@ -17,6 +17,14 @@ const functions = useFunctions();
 
 const visual = useVisualStore();
 const theme = useTheme();
+
+// Tell the browser which palette native controls (date/time picker popups,
+// scrollbars, etc.) should render in. Without this they follow the OS-level
+// prefers-color-scheme, which flashes a mismatched (e.g. black-on-black)
+// native popup when the in-app theme toggle disagrees with the OS setting.
+watchEffect(() => {
+  document.documentElement.style.colorScheme = theme.current.value?.dark ? 'dark' : 'light';
+});
 
 onMounted(async () => {
   try {

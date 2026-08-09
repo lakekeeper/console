@@ -503,6 +503,7 @@ async function checkAccessStatus() {
   max-width: 1400px;
   margin: 0 auto;
   padding: 8px 24px;
+  max-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
   overflow-y: auto;
 }
 
@@ -645,7 +646,7 @@ async function checkAccessStatus() {
 }
 
 .quick-link-btn:hover {
-  background-color: rgb(var(--v-theme-surface-variant));
+  background-color: rgb(var(--v-theme-surface-light));
 }
 
 .no-projects-wrapper {
