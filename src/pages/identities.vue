@@ -1,14 +1,21 @@
 <template>
-  <div class="ma-2">
+  <div class="pa-4">
+    <h1 class="text-h6 mb-4 d-flex align-center ga-2">
+      <v-icon>mdi-account-multiple</v-icon>
+      Identities
+    </h1>
     <div v-if="permsLoading" class="d-flex justify-center pa-8">
-      <v-progress-circular color="primary" indeterminate></v-progress-circular>
+      <v-progress-circular color="primary" indeterminate :size="48"></v-progress-circular>
     </div>
     <template v-else>
       <v-tabs v-model="tab">
         <v-tab v-if="showUsersTab" value="users">Users</v-tab>
         <v-tab value="roles">Roles</v-tab>
       </v-tabs>
-      <v-tabs-window v-model="tab" style="max-height: calc(100vh - 140px); overflow-y: auto">
+      <v-tabs-window
+        v-model="tab"
+        crossfade
+        style="max-height: calc(100vh - 140px); overflow-y: auto">
         <v-tabs-window-item value="roles">
           <RoleDetail v-if="selectedRoleId" :role-id="selectedRoleId" :can-edit="canManageGrants" />
           <RoleManager v-else inline @select="selectRole" />

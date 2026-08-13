@@ -83,7 +83,7 @@
             </v-tab>
           </v-tabs>
           <v-card style="flex: 1; min-height: 0; overflow: auto">
-            <v-tabs-window v-model="tab" style="height: 100%">
+            <v-tabs-window v-model="tab" crossfade style="height: 100%">
               <v-tabs-window-item value="namespaces">
                 <WarehouseNamespaces v-if="tab === 'namespaces'" :warehouse-id="params.id" />
               </v-tabs-window-item>

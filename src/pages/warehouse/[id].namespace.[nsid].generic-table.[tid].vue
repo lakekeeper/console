@@ -60,7 +60,7 @@
             :entity-label="tableFormat === 'dataset' ? 'dataset' : undefined" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
-            <v-progress-circular indeterminate color="primary" />
+            <v-progress-circular indeterminate color="primary" :size="48" />
           </div>
 
           <v-alert
@@ -75,20 +75,22 @@
           </v-alert>
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">
-            <v-tab value="details">details</v-tab>
             <v-tab value="files">files</v-tab>
+            <v-tab value="details">details</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
-            <v-tabs-window v-model="tab">
+            <v-tabs-window v-model="tab" crossfade>
               <v-tabs-window-item value="details">
                 <GenericTableOverview
                   v-if="tab === 'details'"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :table-name="params.tid"
+                  :generic-table-id="genericTableId"
+                  :can-manage-tags="canManageTags"
                   :entity-label="tableFormat === 'dataset' ? 'dataset' : undefined" />
               </v-tabs-window-item>
 
@@ -109,7 +111,10 @@
                   :relationType="RelationType.GenericTable"
                   :warehouseId="params.id" />
                 <div v-else class="text-center pa-8">
-                  <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                  <v-progress-circular
+                    color="primary"
+                    indeterminate
+                    :size="48"></v-progress-circular>
                   <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
                 </div>
               </v-tabs-window-item>
@@ -121,7 +126,10 @@
                   :generic-table-id="genericTableId"
                   entity-type="generic-table" />
                 <div v-else class="text-center pa-8">
-                  <v-progress-circular color="info" indeterminate :size="48"></v-progress-circular>
+                  <v-progress-circular
+                    color="primary"
+                    indeterminate
+                    :size="48"></v-progress-circular>
                   <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
                 </div>
               </v-tabs-window-item>
@@ -150,7 +158,7 @@ const functions = useFunctions();
 const route = useRoute();
 const router = useRouter();
 const visual = useVisualStore();
-const tab = ref('details');
+const tab = ref('files');
 const genericTableId = ref('');
 const tableFormat = ref<string | null>(null);
 const lastRequest = ref(0);
@@ -234,7 +242,7 @@ const namespacePath = computed(() => {
 });
 
 const warehouseId = computed(() => params.value.id);
-const { showTasksTab } = useGenericTablePermissions(genericTableId, warehouseId);
+const { showTasksTab, canManageTags } = useGenericTablePermissions(genericTableId, warehouseId);
 const { showPermissionsTab } = useGenericTableAuthorizerPermissions(genericTableId, warehouseId);
 
 async function loadWarehouseName() {

@@ -1,6 +1,6 @@
 <template>
   <v-container class="fill-height d-flex justify-center align-center">
-    <v-card class="pa-8 text-left" elevation="0" max-width="600">
+    <v-card class="pa-8 text-left" elevation="2" max-width="600">
       <v-card-title><div class="mb-3 text-center">Apache License</div></v-card-title>
       <v-card-subtitle>
         <div class="mb-3 text-center">

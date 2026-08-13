@@ -64,7 +64,7 @@
             @updated="tableOverviewRef?.loadTableData()" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
-            <v-progress-circular indeterminate color="primary" />
+            <v-progress-circular indeterminate color="primary" :size="48" />
           </div>
 
           <v-alert
@@ -89,10 +89,10 @@
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
-            <v-tabs-window v-model="tab">
+            <v-tabs-window v-model="tab" crossfade>
               <v-tabs-window-item value="details">
                 <TableOverview
-                  v-if="tab === 'details'"
+                  v-if="visitedTabs.has('details')"
                   ref="tableOverviewRef"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
@@ -101,7 +101,7 @@
 
               <v-tabs-window-item value="preview">
                 <TablePreview
-                  v-if="tab === 'preview'"
+                  v-if="visitedTabs.has('preview')"
                   :warehouse-id="params.id"
                   :warehouse-name="warehouse?.name"
                   :namespace-id="namespacePath"
@@ -111,7 +111,7 @@
               </v-tabs-window-item>
               <v-tabs-window-item value="health">
                 <TableHealth
-                  v-if="tab === 'health'"
+                  v-if="visitedTabs.has('health')"
                   :warehouse-id="params.id"
                   :namespace-id="namespacePath"
                   :table-name="params.tid"
@@ -121,7 +121,7 @@
 
               <v-tabs-window-item value="versioning">
                 <TableVersioning
-                  v-if="tab === 'versioning'"
+                  v-if="visitedTabs.has('versioning')"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :table-name="params.tid" />
@@ -129,7 +129,7 @@
 
               <v-tabs-window-item value="files">
                 <StorageExplorer
-                  v-if="tab === 'files'"
+                  v-if="visitedTabs.has('files')"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :entity-name="params.tid"
@@ -138,7 +138,7 @@
 
               <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
                 <PermissionManager
-                  v-if="tab == 'permissions' && tableId"
+                  v-if="visitedTabs.has('permissions') && tableId"
                   :objectId="tableId"
                   :relationType="RelationType.Table"
                   :warehouseId="params.id" />
@@ -146,7 +146,7 @@
 
               <v-tabs-window-item v-if="showTasksTab" value="tasks">
                 <TaskManager
-                  v-if="tab == 'tasks' && tableId"
+                  v-if="visitedTabs.has('tasks') && tableId"
                   :warehouse-id="params.id"
                   :table-id="tableId"
                   entity-type="table" />
@@ -175,6 +175,11 @@ const route = useRoute();
 const functions = useFunctions();
 const visual = useVisualStore();
 const tab = ref('details');
+// Tabs mount lazily on first visit but stay mounted afterwards (Vuetify's own
+// window-item active/inactive toggling handles show/hide) — unmounting the
+// previous tab immediately would leave nothing for `crossfade` to fade from.
+const visitedTabs = ref(new Set([tab.value]));
+watch(tab, (t) => visitedTabs.value.add(t));
 const tableId = ref('');
 const tableOverviewRef = ref<{ loadTableData: () => void } | null>(null);
 const lastTableRequest = ref(0);
@@ -341,7 +346,13 @@ watch(
 );
 
 watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
+  // Update the URL bar without going through router.replace(): that runs the full
+  // navigation-guard pipeline (including an awaited getServerInfo() network call)
+  // on every tab click, which was stalling/interrupting this page's tab transition.
+  // route.query.tab is only ever read once on mount, so a reactive route update
+  // isn't needed here — just keep the URL bookmarkable/shareable.
+  const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
+  window.history.replaceState(window.history.state, '', href);
 });
 watch(
   () => visual.requestedNamespaceTab,

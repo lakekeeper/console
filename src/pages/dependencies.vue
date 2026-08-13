@@ -4,7 +4,10 @@
       <!-- Hero -->
       <header class="deps-hero">
         <p class="deps-eyebrow">Transparency</p>
-        <h1 class="deps-title">Dependencies</h1>
+        <h1 class="text-h6 mb-4 d-flex align-center ga-2">
+          <v-icon>mdi-source-branch</v-icon>
+          Dependencies
+        </h1>
       </header>
 
       <!-- Controls -->
@@ -218,6 +221,8 @@ function shortVersion(v: string): string {
   font-family: 'Inter', 'Roboto', sans-serif;
   background-color: rgb(var(--v-theme-background));
   min-height: 100%;
+  max-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
+  overflow-y: auto;
   padding: 40px 24px 64px;
 }
 
@@ -235,15 +240,6 @@ function shortVersion(v: string): string {
   font-weight: 500;
   color: rgb(var(--v-theme-primary));
   margin: 0 0 6px;
-}
-
-.deps-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: rgb(var(--v-theme-on-surface));
-  margin: 0;
 }
 
 /* Controls */

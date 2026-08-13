@@ -57,6 +57,14 @@
           <v-icon size="small" icon="mdi-account-multiple"></v-icon>
         </template>
       </v-list-item>
+      <v-list-item link title="Governance" to="/governance" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Governance
+          </v-tooltip>
+          <v-icon size="small" icon="mdi-shield-check-outline"></v-icon>
+        </template>
+      </v-list-item>
       <v-list-item link title="Server settings" to="/server-settings" rounded="lg">
         <template #prepend>
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
@@ -89,8 +97,8 @@ function routeToIdentities() {
   } else {
     visual.setSnackbarMsg({
       function: 'routeToRoles',
-      text: 'Authorization is disabled',
-      ttl: 3000,
+      text: 'Identity & role management is disabled because fine-grained permissions are not enabled for this deployment.',
+      ttl: 5000,
       ts: Date.now(),
       type: Type.INFO,
     });

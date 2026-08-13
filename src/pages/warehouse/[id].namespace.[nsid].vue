@@ -48,11 +48,19 @@
         </v-expand-x-transition>
 
         <!-- Right: Main Content -->
-        <div style="flex: 1; height: 100%; overflow-y: auto; min-width: 0">
+        <div
+          style="
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+          ">
           <NamespaceHeader :warehouse-id="params.id" :namespace-path="params.nsid" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
-            <v-progress-circular indeterminate color="primary" />
+            <v-progress-circular indeterminate color="primary" :size="48" />
           </div>
 
           <v-alert
@@ -72,11 +80,12 @@
             <v-tab value="views">views</v-tab>
             <v-tab value="datasets">datasets</v-tab>
             <v-tab value="deleted">deleted</v-tab>
+            <v-tab value="details">details</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
           </v-tabs>
 
-          <v-card v-if="!loading && !pageError">
-            <v-tabs-window v-model="tab">
+          <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
+            <v-tabs-window v-model="tab" crossfade>
               <v-tabs-window-item value="namespaces">
                 <NamespaceNamespaces
                   v-if="tab === 'namespaces'"
@@ -128,6 +137,13 @@
               <v-tabs-window-item value="deleted">
                 <NamespaceDeleted
                   v-if="tab === 'deleted'"
+                  :warehouse-id="params.id"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="details">
+                <NamespaceDetails
+                  v-if="tab === 'details'"
                   :warehouse-id="params.id"
                   :namespace-path="params.nsid" />
               </v-tabs-window-item>
@@ -339,7 +355,13 @@ watch(
 
 const { showPermissionsTab } = useNamespaceAuthorizerPermissions(namespaceId, params.value.id);
 watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
+  // Update the URL bar without going through router.replace(): that runs the full
+  // navigation-guard pipeline (including an awaited getServerInfo() network call)
+  // on every tab click, which was stalling/interrupting this page's tab transition.
+  // route.query.tab is only ever read once on mount, so a reactive route update
+  // isn't needed here — just keep the URL bookmarkable/shareable.
+  const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
+  window.history.replaceState(window.history.state, '', href);
 });
 
 watch(

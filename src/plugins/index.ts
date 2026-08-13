@@ -9,6 +9,7 @@ import vuetify from './vuetify';
 import pinia from '../stores';
 import router from '../router';
 import ConsoleComponentsPlugin from '@lakekeeper/console-components';
+import '@lakekeeper/console-components/style.css';
 
 // Types
 import type { App } from 'vue';

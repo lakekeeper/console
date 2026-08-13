@@ -4,9 +4,9 @@
       <v-row justify="center">
         <v-progress-circular
           class="mt-4"
-          color="info"
+          color="primary"
           indeterminate
-          :size="126"></v-progress-circular>
+          :size="64"></v-progress-circular>
       </v-row>
     </v-responsive>
   </v-container>
@@ -16,7 +16,7 @@
       <v-row justify="center">
         <v-col cols="12" class="text-center">
           <v-icon size="64" color="warning">mdi-lock</v-icon>
-          <h2 class="mt-4">Access Denied</h2>
+          <h2 class="text-h5 mt-4">Access Denied</h2>
           <p class="mt-2">You don't have permission to view this role.</p>
         </v-col>
       </v-row>
