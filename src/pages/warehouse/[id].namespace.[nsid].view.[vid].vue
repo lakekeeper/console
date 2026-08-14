@@ -82,6 +82,7 @@
             <v-tab value="details">details</v-tab>
             <v-tab value="history">history</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
+            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
 
@@ -119,6 +120,15 @@
                 </div>
               </v-tabs-window-item>
 
+              <v-tabs-window-item v-if="showGrantsTab" value="grants">
+                <EntityGrantsTab
+                  v-if="visitedTabs.has('grants') && viewId"
+                  :resource="{ type: 'view', warehouseId: params.id, viewId }"
+                  :entity-name="params.vid"
+                  :warehouse-name="warehouseName"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
+
               <v-tabs-window-item v-if="showTasksTab" value="tasks">
                 <TaskManager
                   v-if="viewId"
@@ -151,6 +161,7 @@ import {
   useVisualStore,
   isForbiddenError,
   isNotFoundError,
+  useGrantsSupported,
 } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
@@ -249,6 +260,9 @@ const namespacePath = computed(() => {
 const warehouseId = computed(() => params.value.id);
 const { showTasksTab } = useViewPermissions(viewId, warehouseId);
 const { showPermissionsTab } = useViewAuthorizerPermissions(viewId, warehouseId);
+// Grants are authorizer-agnostic, so this asks the server what it can grant
+// rather than keying off the backend name.
+const showGrantsTab = useGrantsSupported();
 
 async function loadWarehouseName() {
   const currentId = params.value.id;
