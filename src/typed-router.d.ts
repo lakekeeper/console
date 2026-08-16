@@ -59,13 +59,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/dev-debug': RouteRecordInfo<
-      '/dev-debug',
-      '/dev-debug',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/governance/': RouteRecordInfo<
       '/governance/',
       '/governance',
@@ -253,14 +246,6 @@ declare module 'vue-router/auto-routes' {
     'src/pages/dependencies.vue': {
       routes:
         | '/dependencies'
-      views:
-        | never
-      pathParamNames:
-        | never
-    }
-    'src/pages/dev-debug.vue': {
-      routes:
-        | '/dev-debug'
       views:
         | never
       pathParamNames:
