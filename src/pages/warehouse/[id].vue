@@ -81,7 +81,6 @@
             <v-tab v-if="showPermissionsTab" density="compact" value="permissions">
               permissions
             </v-tab>
-            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
           </v-tabs>
           <v-card style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab" crossfade style="height: 100%">
@@ -100,12 +99,6 @@
                   :warehouseId="warehouseId" />
               </v-tabs-window-item>
 
-              <v-tabs-window-item v-if="showGrantsTab" value="grants">
-                <EntityGrantsTab
-                  v-if="tab === 'grants' && warehouseId"
-                  :resource="{ type: 'warehouse', warehouseId }"
-                  :entity-name="warehouseName" />
-              </v-tabs-window-item>
               <v-tabs-window-item value="tasks">
                 <TaskManager
                   v-if="tab === 'tasks'"
@@ -137,7 +130,6 @@ import {
   WarehouseStatistics,
   isForbiddenError,
   isNotFoundError,
-  useGrantsSupported,
 } from '@lakekeeper/console-components';
 import { computed, ref, onMounted, watch } from 'vue';
 import formbricks from '@formbricks/js';
@@ -232,9 +224,6 @@ const warehouseId = computed(() => params.value.id);
 // const permissions = useWarehousePermissions(warehouseId);
 const { showTasksTab, showStatisticsTab } = useWarehousePermissions(warehouseId);
 const { showPermissionsTab } = useWarehouseAuthorizerPermissions(warehouseId);
-// Grants are authorizer-agnostic, so this asks the server what it can grant
-// rather than keying off the backend name.
-const showGrantsTab = useGrantsSupported();
 const projectId = ref<string | undefined>(undefined);
 const warehouseStatisticsRef = ref<InstanceType<typeof WarehouseStatistics> | null>(null);
 

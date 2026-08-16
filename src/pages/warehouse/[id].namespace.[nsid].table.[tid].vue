@@ -85,7 +85,6 @@
             <v-tab value="versioning">versioning</v-tab>
             <v-tab value="files">files</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
-            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
           </v-tabs>
 
@@ -145,15 +144,6 @@
                   :warehouseId="params.id" />
               </v-tabs-window-item>
 
-              <v-tabs-window-item v-if="showGrantsTab" value="grants">
-                <EntityGrantsTab
-                  v-if="visitedTabs.has('grants') && tableId"
-                  :resource="{ type: 'table', warehouseId: params.id, tableId }"
-                  :entity-name="params.tid"
-                  :warehouse-name="warehouse?.name"
-                  :namespace-path="params.nsid" />
-              </v-tabs-window-item>
-
               <v-tabs-window-item v-if="showTasksTab" value="tasks">
                 <TaskManager
                   v-if="visitedTabs.has('tasks') && tableId"
@@ -179,7 +169,6 @@ import {
   useVisualStore,
   isForbiddenError,
   isNotFoundError,
-  useGrantsSupported,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
@@ -274,9 +263,6 @@ const params = computed(() => ({
 const warehouseId = computed(() => params.value.id);
 const { showTasksTab } = useTablePermissions(tableId, warehouseId);
 const { showPermissionsTab } = useTableAuthorizerPermissions(tableId, warehouseId);
-// Grants are authorizer-agnostic, so this asks the server what it can grant
-// rather than keying off the backend name.
-const showGrantsTab = useGrantsSupported();
 
 const catalogUrl = computed(() => `${functions.icebergCatalogUrl()}catalog`);
 
