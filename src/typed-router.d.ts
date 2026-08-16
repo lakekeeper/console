@@ -108,6 +108,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/maintenance': RouteRecordInfo<
+      '/maintenance',
+      '/maintenance',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/no-access': RouteRecordInfo<
       '/no-access',
       '/no-access',
@@ -302,6 +309,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/loqe.vue': {
       routes:
         | '/loqe'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/maintenance.vue': {
+      routes:
+        | '/maintenance'
       views:
         | never
       pathParamNames:

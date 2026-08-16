@@ -7,7 +7,13 @@
     <v-tabs v-model="tab">
       <v-tab value="tags">Tags</v-tab>
       <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
-      <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
+      <!-- Grants is presented as a Lakekeeper+ capability here regardless of what
+           the server reports: the open-source console markets it rather than
+           managing it. -->
+      <v-tab value="grants">
+        Grants
+        <v-chip size="x-small" color="primary" variant="tonal" class="ml-2">PLUS</v-chip>
+      </v-tab>
       <!-- Cedar backends surface Policies here instead of Permissions (follow-up).
            Grants sit beside Permissions rather than replacing them: the two are
            different models over the same intent, and grants are the path
@@ -23,8 +29,24 @@
       <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
         <PermissionExplorer v-if="tab === 'permissions'" />
       </v-tabs-window-item>
-      <v-tabs-window-item v-if="showGrantsTab" value="grants">
-        <GrantsExplorer v-if="tab === 'grants'" />
+      <v-tabs-window-item value="grants">
+        <PlusTeaser
+          v-if="tab === 'grants'"
+          compact
+          title="Permissions as code"
+          :description="[
+            'Define access with Cedar policies.',
+            'Version them, review them, ship them like code.',
+          ]"
+          :features="grantFeatures"
+          source="governance-grants"
+          subject="Lakekeeper+ — Permissions as code">
+          <template #oss-note>
+            Open source gives you the
+            <strong>Permissions</strong>
+            tab — one assignment at a time. Lakekeeper+ adds Cedar policies and grants.
+          </template>
+        </PlusTeaser>
       </v-tabs-window-item>
     </v-tabs-window>
   </div>
@@ -33,7 +55,8 @@
 <script lang="ts" setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useVisualStore, useGrantsSupported } from '@lakekeeper/console-components';
+import { useVisualStore } from '@lakekeeper/console-components';
+import PlusTeaser from '@/components/PlusTeaser.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -51,16 +74,38 @@ const desiredTab = ref<string | null>(null);
 // Cedar surfaces policies instead; allow-all has no permission management.
 const showPermissionsTab = computed(() => visual.getServerInfo()['authz-backend'] === 'openfga');
 
-// Grants are authorizer-agnostic, so this asks the server what it can grant
-// rather than keying off the backend name: empty vocabularies (allow-all) and
-// servers predating the grants API both resolve to false. Null while unanswered.
-const showGrantsTab = useGrantsSupported();
-
+// Grants is a Lakekeeper+ capability: the open-source console never manages it,
+// so the tab needs no capability check — it always renders the teaser, and the
+// real explorer lives in console-plus.
 const tabAvailable = (t: string) => {
   if (t === 'permissions') return showPermissionsTab.value;
-  if (t === 'grants') return showGrantsTab.value === true;
   return true;
 };
+
+const grantFeatures = [
+  {
+    icon: 'mdi-file-document-outline',
+    title: 'Permission as Code',
+    text: 'Access rules live in Git. Reviewed like any other change.',
+  },
+  {
+    icon: 'mdi-robot-outline',
+    title: 'Automate governance',
+    text: 'Ship access changes through your pipeline, not by hand.',
+  },
+  {
+    icon: 'mdi-target',
+    title: 'Fine-grained grants',
+    text: 'One table or a whole warehouse. No admin rights required.',
+  },
+  {
+    icon: 'mdi-flask-outline',
+    // Named for the PolicyBuilder's "Evaluate" action, so the pitch matches what
+    // a prospect finds in the product.
+    title: 'Evaluate before you ship',
+    text: 'See exactly what a policy allows before it goes live.',
+  },
+];
 
 // nextTick() is essential: setting tab during setup races the child v-tab
 // registration and Vuetify reverts it.
@@ -78,7 +123,7 @@ function requestTab(t: string) {
 }
 
 // Re-apply once a gated tab's flag resolves.
-watch([showPermissionsTab, showGrantsTab], applyDesiredTab);
+watch(showPermissionsTab, applyDesiredTab);
 
 onMounted(() => {
   if (route.query.tab) requestTab(route.query.tab as string);

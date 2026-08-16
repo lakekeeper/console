@@ -15,20 +15,47 @@
       <!-- Row 1: SVG Logo -->
       <v-row class="logo-row">
         <v-col cols="12" class="text-center py-1">
-          <v-img
-            v-if="visual.themeLight"
-            class="mx-auto"
-            max-width="280"
-            :aspect-ratio="1"
-            lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23f5f5f5' width='280' height='80' rx='8'/%3E%3C/svg%3E"
-            src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
-          <v-img
-            v-else
-            class="mx-auto"
-            max-width="280"
-            :aspect-ratio="1"
-            lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23333' width='280' height='80' rx='8'/%3E%3C/svg%3E"
-            src="@/assets/LAKEKEEPER_IMAGE_TEXT_WHITE.svg" />
+          <!-- Product mark left, company mark right, as equal partners in one
+               lockup. The company mark links out only when reachable, so an
+               air-gapped deployment still shows it without a dead link. -->
+          <div class="brand-lockup d-flex align-center justify-center flex-wrap">
+            <v-img
+              v-if="visual.themeLight"
+              class="brand-product"
+              width="220"
+              max-width="220"
+              :aspect-ratio="1"
+              lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23f5f5f5' width='280' height='80' rx='8'/%3E%3C/svg%3E"
+              src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
+            <v-img
+              v-else
+              class="brand-product"
+              width="220"
+              max-width="220"
+              :aspect-ratio="1"
+              lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23333' width='280' height='80' rx='8'/%3E%3C/svg%3E"
+              src="@/assets/LAKEKEEPER_IMAGE_TEXT_WHITE.svg" />
+
+            <v-divider vertical class="brand-divider mx-8"></v-divider>
+
+            <div class="d-flex flex-column align-center">
+              <span class="text-caption text-medium-emphasis mb-2 brand-eyebrow">Built by</span>
+              <component
+                :is="isOnline ? 'a' : 'span'"
+                v-bind="
+                  isOnline
+                    ? {
+                        href: 'https://vakamo.com/about?utm_source=lakekeeper-console&utm_medium=home-hero',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                      }
+                    : {}
+                "
+                class="vakamo-link d-inline-flex align-center">
+                <img :src="vakamoLogoSrc" alt="Vakamo" class="brand-vakamo" />
+              </component>
+            </div>
+          </div>
         </v-col>
       </v-row>
 
@@ -97,6 +124,13 @@
         </v-col>
       </v-row>
 
+      <!-- Row 5: Vendor attribution -->
+      <v-row class="py-1">
+        <v-col cols="12">
+          <BuiltByVakamo source="home" />
+        </v-col>
+      </v-row>
+
       <!-- Row 6: Quick Links -->
       <v-row class="links-row py-1">
         <v-col cols="12">
@@ -144,6 +178,8 @@
           </div>
         </v-col>
       </v-row>
+
+      <ContactVakamoDialog v-model="contactOpen" />
     </v-container>
     <div v-else class="no-projects-wrapper">
       <v-container class="fill-height">
@@ -296,10 +332,15 @@ import {
   useFunctions,
   useUserStore,
   useVisualStore,
+  useConnectivity,
   HomeStatistics,
+  ContactVakamoDialog,
 } from '@lakekeeper/console-components';
-import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, inject, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { enabledAuthentication } from '@/app.config';
+import BuiltByVakamo from '@/components/BuiltByVakamo.vue';
+import VakamoLogoDark from '@/assets/vakamo-logo.svg';
+import VakamoLogoLight from '@/assets/vakamo-logo-white.svg';
 
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
@@ -310,6 +351,10 @@ const functions = useFunctions();
 
 const userStorage = useUserStore();
 const visual = useVisualStore();
+const { isOnline } = useConnectivity();
+
+const contactOpen = ref(false);
+const vakamoLogoSrc = computed(() => (visual.themeLight ? VakamoLogoDark : VakamoLogoLight));
 
 const user = reactive({
   'created-at': '',
@@ -543,6 +588,65 @@ async function checkAccessStatus() {
   box-shadow: 0 6px 20px rgba(var(--v-theme-primary), 0.25);
   border-color: rgb(var(--v-theme-primary));
   background: rgba(var(--v-theme-primary), 0.08);
+}
+
+/* Breathing room between the app bar and the brand lockup. */
+.logo-row {
+  padding-top: 56px;
+}
+
+.brand-lockup {
+  gap: 8px;
+}
+
+.brand-product {
+  flex: 0 0 auto;
+}
+
+.brand-divider {
+  height: 90px;
+  align-self: center;
+  opacity: 0.4;
+}
+
+.brand-eyebrow {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand-vakamo {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  transition: opacity 0.2s ease-in-out;
+}
+
+a.vakamo-link:hover .brand-vakamo {
+  opacity: 1;
+}
+
+/* Stacked on narrow screens, where a vertical rule between the marks reads as
+   a stray line. */
+@media (max-width: 600px) {
+  .logo-row {
+    padding-top: 24px;
+  }
+
+  .brand-divider {
+    display: none;
+  }
+
+  .brand-vakamo {
+    max-width: 180px;
+  }
+}
+
+a.vakamo-link {
+  text-decoration: none;
+}
+
+a.vakamo-link:hover .vakamo-logo {
+  opacity: 1;
 }
 
 .quick-access-section {
