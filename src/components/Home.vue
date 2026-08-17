@@ -124,60 +124,65 @@
         </v-col>
       </v-row>
 
-      <!-- Row 5: Vendor attribution -->
-      <v-row class="py-1">
-        <v-col cols="12">
-          <BuiltByVakamo source="home" />
-        </v-col>
-      </v-row>
+      <!-- Rows 5 and 6: attribution and quick links, held against the bottom
+           edge of the scroll region so they read as a footer rather than
+           trailing whatever content happens to be above them. -->
+      <div class="home-footer">
+        <!-- Row 5: Vendor attribution -->
+        <v-row class="py-1">
+          <v-col cols="12">
+            <BuiltByVakamo source="home" />
+          </v-col>
+        </v-row>
 
-      <!-- Row 6: Quick Links -->
-      <v-row class="links-row py-1">
-        <v-col cols="12">
-          <div class="quick-links-grid">
-            <v-btn
-              class="quick-link-btn"
-              href="https://github.com/lakekeeper/lakekeeper"
-              prepend-icon="mdi-github"
-              rel="noopener noreferrer"
-              size="small"
-              target="_blank"
-              variant="text">
-              GitHub
-            </v-btn>
-            <v-btn
-              class="quick-link-btn"
-              href="https://discord.gg/jkAGG8p93B"
-              prepend-icon="mdi-discord"
-              rel="noopener noreferrer"
-              size="small"
-              target="_blank"
-              variant="text">
-              Discord
-            </v-btn>
-            <v-btn
-              class="quick-link-btn"
-              href="https://lakekeeper.io"
-              prepend-icon="mdi-web"
-              rel="noopener noreferrer"
-              size="small"
-              target="_blank"
-              variant="text">
-              Website
-            </v-btn>
-            <v-btn
-              class="quick-link-btn"
-              href="https://docs.lakekeeper.io/getting-started"
-              prepend-icon="mdi-rocket-launch"
-              rel="noopener noreferrer"
-              size="small"
-              target="_blank"
-              variant="text">
-              Getting Started
-            </v-btn>
-          </div>
-        </v-col>
-      </v-row>
+        <!-- Row 6: Quick Links -->
+        <v-row class="links-row py-1">
+          <v-col cols="12">
+            <div class="quick-links-grid">
+              <v-btn
+                class="quick-link-btn"
+                href="https://github.com/lakekeeper/lakekeeper"
+                prepend-icon="mdi-github"
+                rel="noopener noreferrer"
+                size="small"
+                target="_blank"
+                variant="text">
+                GitHub
+              </v-btn>
+              <v-btn
+                class="quick-link-btn"
+                href="https://discord.gg/jkAGG8p93B"
+                prepend-icon="mdi-discord"
+                rel="noopener noreferrer"
+                size="small"
+                target="_blank"
+                variant="text">
+                Discord
+              </v-btn>
+              <v-btn
+                class="quick-link-btn"
+                href="https://lakekeeper.io"
+                prepend-icon="mdi-web"
+                rel="noopener noreferrer"
+                size="small"
+                target="_blank"
+                variant="text">
+                Website
+              </v-btn>
+              <v-btn
+                class="quick-link-btn"
+                href="https://docs.lakekeeper.io/getting-started"
+                prepend-icon="mdi-rocket-launch"
+                rel="noopener noreferrer"
+                size="small"
+                target="_blank"
+                variant="text">
+                Getting Started
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </div>
 
       <ContactVakamoDialog v-model="contactOpen" />
     </v-container>
@@ -537,8 +542,26 @@ async function checkAccessStatus() {
   max-width: 1400px;
   margin: 0 auto;
   padding: 8px 24px;
+  /* The app shell disables page scroll, so this is the page's own scroll
+     region. min-height matches max-height to give the column a bottom edge for
+     the footer to sit on when the content above does not reach it. */
+  min-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
   max-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Rows keep their natural height. Without this they would shrink to fit the
+   column — a flex item's default — and the region would never scroll. */
+.home-container > * {
+  flex-shrink: 0;
+}
+
+/* Against the bottom edge when there is room, immediately after the content
+   when there is not. */
+.home-footer {
+  margin-top: auto;
 }
 
 .hero-section {
