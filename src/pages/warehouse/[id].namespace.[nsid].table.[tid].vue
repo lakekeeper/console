@@ -86,6 +86,7 @@
             <v-tab value="files">files</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
+            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -151,6 +152,14 @@
                   :table-id="tableId"
                   entity-type="table" />
               </v-tabs-window-item>
+              <v-tabs-window-item v-if="showGrantsTab" value="grants">
+                <EntityGrantsTab
+                  v-if="visitedTabs.has('grants') && tableId"
+                  :resource="{ type: 'table', warehouseId: params.id, tableId }"
+                  :entity-name="params.tid"
+                  :warehouse-name="warehouse?.name"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
         </div>
@@ -169,6 +178,8 @@ import {
   useVisualStore,
   isForbiddenError,
   isNotFoundError,
+  EntityGrantsTab,
+  useGrantsSupported,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
@@ -178,6 +189,9 @@ const tab = ref('details');
 // Tabs mount lazily on first visit but stay mounted afterwards (Vuetify's own
 // window-item active/inactive toggling handles show/hide) — unmounting the
 // previous tab immediately would leave nothing for `crossfade` to fade from.
+// Grants are authorizer-agnostic, so this asks the server what it can grant
+// rather than keying off the backend name.
+const showGrantsTab = useGrantsSupported();
 const visitedTabs = ref(new Set([tab.value]));
 watch(tab, (t) => visitedTabs.value.add(t));
 const tableId = ref('');

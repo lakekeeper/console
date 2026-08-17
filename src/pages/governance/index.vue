@@ -7,17 +7,16 @@
     <v-tabs v-model="tab">
       <v-tab value="tags">Tags</v-tab>
       <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
-      <!-- Grants is presented as a Lakekeeper+ capability here regardless of what
-           the server reports: the open-source console markets it rather than
-           managing it. -->
-      <v-tab value="grants">
-        Grants
+      <!-- Grants sit beside Permissions rather than replacing them: the two are
+           different models over the same intent. -->
+      <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
+      <!-- Policies stay a Lakekeeper+ capability, so this tab always renders and
+           always markets: Cedar policies are what the open-source console has no
+           equivalent for, unlike grants. -->
+      <v-tab value="policies">
+        Policies
         <v-chip size="x-small" color="primary" variant="tonal" class="ml-2">PLUS</v-chip>
       </v-tab>
-      <!-- Cedar backends surface Policies here instead of Permissions (follow-up).
-           Grants sit beside Permissions rather than replacing them: the two are
-           different models over the same intent, and grants are the path
-           forward for Cedar. -->
     </v-tabs>
     <v-tabs-window
       v-model="tab"
@@ -29,22 +28,27 @@
       <v-tabs-window-item v-if="showPermissionsTab" value="permissions">
         <PermissionExplorer v-if="tab === 'permissions'" />
       </v-tabs-window-item>
-      <v-tabs-window-item value="grants">
+      <v-tabs-window-item v-if="showGrantsTab" value="grants">
+        <GrantsExplorer v-if="tab === 'grants'" />
+      </v-tabs-window-item>
+      <v-tabs-window-item value="policies">
         <PlusTeaser
-          v-if="tab === 'grants'"
+          v-if="tab === 'policies'"
           compact
           title="Permissions as code"
           :description="[
             'Define access with Cedar policies.',
             'Version them, review them, ship them like code.',
           ]"
-          :features="grantFeatures"
-          source="governance-grants"
+          :features="policyFeatures"
+          source="governance-policies"
           subject="Lakekeeper+ — Permissions as code">
           <template #oss-note>
-            Open source gives you the
+            Open source gives you
             <strong>Permissions</strong>
-            tab — one assignment at a time. Lakekeeper+ adds Cedar policies and grants.
+            and
+            <strong>Grants</strong>
+            — one assignment at a time. Lakekeeper+ adds Cedar policies that decide them by rule.
           </template>
         </PlusTeaser>
       </v-tabs-window-item>
@@ -55,7 +59,7 @@
 <script lang="ts" setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useVisualStore } from '@lakekeeper/console-components';
+import { useVisualStore, useGrantsSupported } from '@lakekeeper/console-components';
 import PlusTeaser from '@/components/PlusTeaser.vue';
 
 const route = useRoute();
@@ -74,15 +78,19 @@ const desiredTab = ref<string | null>(null);
 // Cedar surfaces policies instead; allow-all has no permission management.
 const showPermissionsTab = computed(() => visual.getServerInfo()['authz-backend'] === 'openfga');
 
-// Grants is a Lakekeeper+ capability: the open-source console never manages it,
-// so the tab needs no capability check — it always renders the teaser, and the
-// real explorer lives in console-plus.
+// Grants are authorizer-agnostic, so this asks the server what it can grant
+// rather than keying off the backend name: empty vocabularies (allow-all) and
+// servers predating the grants API both resolve to false. Null while unanswered.
+const showGrantsTab = useGrantsSupported();
+
+// Policies always render — the teaser is the point, so it needs no check.
 const tabAvailable = (t: string) => {
   if (t === 'permissions') return showPermissionsTab.value;
+  if (t === 'grants') return showGrantsTab.value === true;
   return true;
 };
 
-const grantFeatures = [
+const policyFeatures = [
   {
     icon: 'mdi-file-document-outline',
     title: 'Permission as Code',
@@ -95,8 +103,10 @@ const grantFeatures = [
   },
   {
     icon: 'mdi-target',
-    title: 'Fine-grained grants',
-    text: 'One table or a whole warehouse. No admin rights required.',
+    // Grants themselves ship here, so the pitch is what a policy adds over one:
+    // a rule that covers what has not been granted one by one.
+    title: 'Rules, not row-by-row',
+    text: 'One policy covers every table that matches it, today and tomorrow.',
   },
   {
     icon: 'mdi-flask-outline',
@@ -123,7 +133,7 @@ function requestTab(t: string) {
 }
 
 // Re-apply once a gated tab's flag resolves.
-watch(showPermissionsTab, applyDesiredTab);
+watch([showPermissionsTab, showGrantsTab], applyDesiredTab);
 
 onMounted(() => {
   if (route.query.tab) requestTab(route.query.tab as string);

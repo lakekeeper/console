@@ -82,6 +82,7 @@
             <v-tab value="deleted">deleted</v-tab>
             <v-tab value="details">details</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
+            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -155,6 +156,14 @@
                   :relationType="RelationType.Namespace"
                   :warehouseId="params.id" />
               </v-tabs-window-item>
+              <v-tabs-window-item v-if="showGrantsTab" value="grants">
+                <EntityGrantsTab
+                  v-if="tab === 'grants' && namespaceId"
+                  :resource="{ type: 'namespace', warehouseId: params.id, namespaceId }"
+                  :entity-name="params.nsid"
+                  :warehouse-name="warehouseName"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
         </div>
@@ -173,6 +182,8 @@ import {
   isForbiddenError,
   isNotFoundError,
   DatasetsList,
+  EntityGrantsTab,
+  useGrantsSupported,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
@@ -187,6 +198,9 @@ const pageError = ref<'forbidden' | 'not-found' | null>(null);
 const loading = ref(true);
 const storageType = ref<string | undefined>(undefined);
 const storageLayout = ref<string | undefined>(undefined);
+// Grants are authorizer-agnostic, so this asks the server what it can grant
+// rather than keying off the backend name.
+const showGrantsTab = useGrantsSupported();
 const warehouseName = ref<string | undefined>(undefined);
 const leftWidth = ref(300);
 const dividerHover = ref(false);
