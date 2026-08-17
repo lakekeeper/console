@@ -7,8 +7,8 @@
     <v-tabs v-model="tab">
       <v-tab value="tags">Tags</v-tab>
       <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
-      <!-- Grants sit beside Permissions rather than replacing them: the two are
-           different models over the same intent. -->
+      <!-- Grants supersede Permissions: the two are different models over the
+           same intent, and Permissions is now hidden ahead of removal. -->
       <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
       <!-- Policies stay a Lakekeeper+ capability, so this tab always renders and
            always markets: Cedar policies are what the open-source console has no
@@ -45,8 +45,6 @@
           subject="Lakekeeper+ — Permissions as code">
           <template #oss-note>
             Open source gives you
-            <strong>Permissions</strong>
-            and
             <strong>Grants</strong>
             — one assignment at a time. Lakekeeper+ adds Cedar policies that decide them by rule.
           </template>
@@ -59,7 +57,11 @@
 <script lang="ts" setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useVisualStore, useGrantsSupported } from '@lakekeeper/console-components';
+import {
+  useVisualStore,
+  useGrantsSupported,
+  PERMISSIONS_UI_ENABLED,
+} from '@lakekeeper/console-components';
 import PlusTeaser from '@/components/PlusTeaser.vue';
 
 const route = useRoute();
@@ -73,10 +75,13 @@ const tab = ref('tags');
 // goal is remembered here and re-applied once it is reachable.
 const desiredTab = ref<string | null>(null);
 
-// Permission assignments are an OpenFGA concept — show the tab whenever the
-// backend is OpenFGA (per-scope visibility is handled inside the explorer).
+// Permission assignments are an OpenFGA concept — the tab would show whenever
+// the backend is OpenFGA (per-scope visibility is handled inside the explorer).
 // Cedar surfaces policies instead; allow-all has no permission management.
-const showPermissionsTab = computed(() => visual.getServerInfo()['authz-backend'] === 'openfga');
+// Hidden for now behind the deprecation flag: grants restate the same intent.
+const showPermissionsTab = computed(
+  () => PERMISSIONS_UI_ENABLED && visual.getServerInfo()['authz-backend'] === 'openfga',
+);
 
 // Grants are authorizer-agnostic, so this asks the server what it can grant
 // rather than keying off the backend name: empty vocabularies (allow-all) and
