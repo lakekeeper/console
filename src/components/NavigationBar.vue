@@ -39,20 +39,6 @@
         </template>
       </v-list-item>
 
-      <v-list-item link title="Maintenance" to="/maintenance" rounded="lg">
-        <template #prepend>
-          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
-            Maintenance
-          </v-tooltip>
-          <v-icon :size="iconSize" icon="mdi-wrench-clock"></v-icon>
-        </template>
-        <template #append>
-          <v-chip v-show="visual.navBarShow" size="x-small" color="primary" variant="tonal">
-            PLUS
-          </v-chip>
-        </template>
-      </v-list-item>
-
       <v-divider class="my-2"></v-divider>
 
       <v-list-subheader v-show="visual.navBarShow" class="text-uppercase font-weight-bold">
@@ -77,6 +63,19 @@
             Governance
           </v-tooltip>
           <v-icon :size="iconSize" icon="mdi-shield-check-outline"></v-icon>
+        </template>
+      </v-list-item>
+      <v-list-item link title="Maintenance" to="/maintenance" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Maintenance
+          </v-tooltip>
+          <v-icon :size="iconSize" icon="mdi-wrench-clock"></v-icon>
+        </template>
+        <template #append>
+          <v-chip v-show="visual.navBarShow" size="x-small" color="primary" variant="tonal">
+            PLUS
+          </v-chip>
         </template>
       </v-list-item>
       <v-list-item link title="Server settings" to="/server-settings" rounded="lg">
