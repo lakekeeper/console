@@ -45,7 +45,7 @@
                 v-bind="
                   isOnline
                     ? {
-                        href: 'https://vakamo.com/about?utm_source=lakekeeper-console&utm_medium=home-hero',
+                        href: 'https://vakamo.com/product?utm_source=lakekeeper-console&utm_medium=home-hero',
                         target: '_blank',
                         rel: 'noopener noreferrer',
                       }
