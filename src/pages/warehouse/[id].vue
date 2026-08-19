@@ -88,7 +88,7 @@
               <v-tabs-window-item value="namespaces">
                 <WarehouseNamespaces v-if="tab === 'namespaces'" :warehouse-id="params.id" />
               </v-tabs-window-item>
-              <v-tabs-window-item value="details">
+              <v-tabs-window-item value="details" style="height: 100%">
                 <WarehouseDetails v-if="tab === 'details'" :warehouse-id="params.id" />
               </v-tabs-window-item>
 
