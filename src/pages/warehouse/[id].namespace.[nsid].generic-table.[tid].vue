@@ -153,6 +153,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useTabDeepLink } from '@/composables/useTabDeepLink';
 import {
   useFunctions,
   RelationType,
@@ -318,9 +319,6 @@ async function loadGenericTableMetadata() {
 }
 
 onMounted(() => {
-  if (route.query.tab) {
-    tab.value = route.query.tab as string;
-  }
   loadWarehouseName();
   loadGenericTableMetadata();
 });
@@ -334,10 +332,6 @@ watch(
   { immediate: false },
 );
 
-watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
-});
-
 watch(
   () => visual.requestedNamespaceTab,
   (newTab) => {
@@ -348,4 +342,17 @@ watch(
   },
   { immediate: true },
 );
+
+// These tabs only render once their flag resolves, so a `?tab=` naming one is held
+// until then rather than lost to Vuetify's revert.
+useTabDeepLink({
+  tab,
+  tabs: ['files', 'details', 'permissions', 'tasks', 'grants'],
+  gates: {
+    permissions: () => showPermissionsTab.value,
+    tasks: () => showTasksTab.value,
+    grants: () => showGrantsTab.value,
+  },
+  syncUrl: (newTab) => router.replace({ query: { ...route.query, tab: newTab } }),
+});
 </script>

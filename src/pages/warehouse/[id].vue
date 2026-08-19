@@ -128,6 +128,7 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
+import { useTabDeepLink } from '@/composables/useTabDeepLink';
 import {
   RelationType,
   useWarehousePermissions,
@@ -288,9 +289,6 @@ async function loadWarehouse() {
 }
 
 onMounted(() => {
-  if (route.query.tab) {
-    tab.value = route.query.tab as string;
-  }
   loadWarehouse();
   if (enabledUserSurveys) {
     formbricks.track('warehouse_viewed');
@@ -309,18 +307,28 @@ onMounted(() => {
 //   },
 // );
 
-watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
-});
-
 watch(
   () => visual.requestedNamespaceTab,
   (newTab) => {
     if (newTab) {
-      tab.value = newTab;
+      requestTab(newTab);
       visual.requestedNamespaceTab = null;
     }
   },
   { immediate: true },
 );
+
+// These tabs only render once their flag resolves, so a `?tab=` naming one is held
+// until then rather than lost to Vuetify's revert.
+const { requestTab } = useTabDeepLink({
+  tab,
+  tabs: ['namespaces', 'details', 'tasks', 'statistics', 'permissions', 'grants'],
+  gates: {
+    tasks: () => showTasksTab.value,
+    statistics: () => showStatisticsTab.value,
+    permissions: () => showPermissionsTab.value,
+    grants: () => showGrantsTab.value,
+  },
+  syncUrl: (newTab) => router.replace({ query: { ...route.query, tab: newTab } }),
+});
 </script>

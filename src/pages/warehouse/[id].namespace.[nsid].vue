@@ -174,6 +174,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useTabDeepLink } from '@/composables/useTabDeepLink';
 import {
   useFunctions,
   useNamespaceAuthorizerPermissions,
@@ -354,9 +355,6 @@ function onTableCreated() {
 
 // Load namespace metadata on mount to get namespaceId for permissions
 onMounted(() => {
-  if (route.query.tab) {
-    tab.value = route.query.tab as string;
-  }
   loadNamespaceMetadata();
 });
 
@@ -368,15 +366,6 @@ watch(
 );
 
 const { showPermissionsTab } = useNamespaceAuthorizerPermissions(namespaceId, params.value.id);
-watch(tab, (newTab) => {
-  // Update the URL bar without going through router.replace(): that runs the full
-  // navigation-guard pipeline (including an awaited getServerInfo() network call)
-  // on every tab click, which was stalling/interrupting this page's tab transition.
-  // route.query.tab is only ever read once on mount, so a reactive route update
-  // isn't needed here — just keep the URL bookmarkable/shareable.
-  const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
-  window.history.replaceState(window.history.state, '', href);
-});
 
 watch(
   () => visual.requestedNamespaceTab,
@@ -388,4 +377,31 @@ watch(
   },
   { immediate: true },
 );
+
+// These tabs only render once their flag resolves, so a `?tab=` naming one is held
+// until then rather than lost to Vuetify's revert.
+useTabDeepLink({
+  tab,
+  tabs: [
+    'namespaces',
+    'tables',
+    'views',
+    'datasets',
+    'deleted',
+    'details',
+    'permissions',
+    'grants',
+  ],
+  gates: {
+    permissions: () => showPermissionsTab.value,
+    grants: () => showGrantsTab.value,
+  },
+  syncUrl: (newTab) => {
+    // Update the URL bar without going through router.replace(): that runs the full
+    // navigation-guard pipeline (including an awaited getServerInfo() network call)
+    // on every tab click, which was stalling/interrupting this page's tab transition.
+    const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
+    window.history.replaceState(window.history.state, '', href);
+  },
+});
 </script>

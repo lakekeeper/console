@@ -47,8 +47,9 @@ import {
   useServerAuthorizerPermissions,
   useGrantsSupported,
 } from '@lakekeeper/console-components';
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useTabDeepLink } from '@/composables/useTabDeepLink';
 
 const route = useRoute();
 const router = useRouter();
@@ -83,13 +84,18 @@ async function init() {
 }
 
 onMounted(async () => {
-  if (route.query.tab) {
-    tab.value = route.query.tab as string;
-  }
   await init();
 });
 
-watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
+// These tabs only render once their flag resolves, so a `?tab=` naming one is held
+// until then rather than lost to Vuetify's revert.
+useTabDeepLink({
+  tab,
+  tabs: ['overview', 'permissions', 'grants'],
+  gates: {
+    permissions: () => showPermissionsTab.value,
+    grants: () => showGrantsTab.value,
+  },
+  syncUrl: (newTab) => router.replace({ query: { ...route.query, tab: newTab } }),
 });
 </script>
