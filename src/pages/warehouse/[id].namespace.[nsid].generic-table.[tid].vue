@@ -79,6 +79,7 @@
             <v-tab value="details">details</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
+            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -133,6 +134,14 @@
                   <div class="text-subtitle-1 mt-2">Loading generic table information...</div>
                 </div>
               </v-tabs-window-item>
+              <v-tabs-window-item v-if="showGrantsTab" value="grants">
+                <EntityGrantsTab
+                  v-if="tab === 'grants' && genericTableId"
+                  :resource="{ type: 'generic-table', warehouseId: params.id, genericTableId }"
+                  :entity-name="params.tid"
+                  :warehouse-name="warehouseName"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
         </div>
@@ -144,6 +153,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useTabDeepLink } from '@/composables/useTabDeepLink';
 import {
   useFunctions,
   RelationType,
@@ -152,6 +162,8 @@ import {
   useVisualStore,
   isForbiddenError,
   isNotFoundError,
+  EntityGrantsTab,
+  useGrantsSupported,
 } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
@@ -164,6 +176,9 @@ const tableFormat = ref<string | null>(null);
 const lastRequest = ref(0);
 const pageError = ref<'forbidden' | 'not-found' | null>(null);
 const loading = ref(true);
+// Grants are authorizer-agnostic, so this asks the server what it can grant
+// rather than keying off the backend name.
+const showGrantsTab = useGrantsSupported();
 const warehouseName = ref<string | undefined>(undefined);
 const leftWidth = ref(300);
 const dividerHover = ref(false);
@@ -304,9 +319,6 @@ async function loadGenericTableMetadata() {
 }
 
 onMounted(() => {
-  if (route.query.tab) {
-    tab.value = route.query.tab as string;
-  }
   loadWarehouseName();
   loadGenericTableMetadata();
 });
@@ -320,10 +332,6 @@ watch(
   { immediate: false },
 );
 
-watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
-});
-
 watch(
   () => visual.requestedNamespaceTab,
   (newTab) => {
@@ -334,4 +342,17 @@ watch(
   },
   { immediate: true },
 );
+
+// These tabs only render once their flag resolves, so a `?tab=` naming one is held
+// until then rather than lost to Vuetify's revert.
+useTabDeepLink({
+  tab,
+  tabs: ['files', 'details', 'permissions', 'tasks', 'grants'],
+  gates: {
+    permissions: () => showPermissionsTab.value,
+    tasks: () => showTasksTab.value,
+    grants: () => showGrantsTab.value,
+  },
+  syncUrl: (newTab) => router.replace({ query: { ...route.query, tab: newTab } }),
+});
 </script>

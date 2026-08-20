@@ -20,7 +20,7 @@
       </router-view>
     </v-main>
 
-    <AppFooter>
+    <AppFooter show-built-by>
       <template #app-links>
         <v-btn
           v-if="visual.showAppOrNavBar"

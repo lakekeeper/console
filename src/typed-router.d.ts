@@ -59,13 +59,6 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/dev-debug': RouteRecordInfo<
-      '/dev-debug',
-      '/dev-debug',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/governance/': RouteRecordInfo<
       '/governance/',
       '/governance',
@@ -111,6 +104,13 @@ declare module 'vue-router/auto-routes' {
     '/loqe': RouteRecordInfo<
       '/loqe',
       '/loqe',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/maintenance': RouteRecordInfo<
+      '/maintenance',
+      '/maintenance',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -258,14 +258,6 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
-    'src/pages/dev-debug.vue': {
-      routes:
-        | '/dev-debug'
-      views:
-        | never
-      pathParamNames:
-        | never
-    }
     'src/pages/governance/index.vue': {
       routes:
         | '/governance/'
@@ -317,6 +309,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/loqe.vue': {
       routes:
         | '/loqe'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/maintenance.vue': {
+      routes:
+        | '/maintenance'
       views:
         | never
       pathParamNames:

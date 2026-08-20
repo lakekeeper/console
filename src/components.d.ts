@@ -11,9 +11,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BuiltByVakamo: typeof import('./components/BuiltByVakamo.vue')['default']
     EULA: typeof import('./components/EULA.vue')['default']
     Home: typeof import('./components/Home.vue')['default']
     NavigationBar: typeof import('./components/NavigationBar.vue')['default']
+    PlusTeaser: typeof import('./components/PlusTeaser.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

@@ -83,6 +83,7 @@
             <v-tab value="history">history</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
+            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -133,6 +134,14 @@
                   <div class="text-subtitle-1 mt-2">Loading view information...</div>
                 </div>
               </v-tabs-window-item>
+              <v-tabs-window-item v-if="showGrantsTab" value="grants">
+                <EntityGrantsTab
+                  v-if="visitedTabs.has('grants') && viewId"
+                  :resource="{ type: 'view', warehouseId: params.id, viewId }"
+                  :entity-name="params.vid"
+                  :warehouse-name="warehouseName"
+                  :namespace-path="params.nsid" />
+              </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
         </div>
@@ -143,6 +152,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { useTabDeepLink } from '@/composables/useTabDeepLink';
 import {
   useFunctions,
   RelationType,
@@ -151,6 +161,8 @@ import {
   useVisualStore,
   isForbiddenError,
   isNotFoundError,
+  EntityGrantsTab,
+  useGrantsSupported,
 } from '@lakekeeper/console-components';
 
 const functions = useFunctions();
@@ -160,6 +172,9 @@ const tab = ref('details');
 // Tabs mount lazily on first visit but stay mounted afterwards (Vuetify's own
 // window-item active/inactive toggling handles show/hide) — unmounting the
 // previous tab immediately would leave nothing for `crossfade` to fade from.
+// Grants are authorizer-agnostic, so this asks the server what it can grant
+// rather than keying off the backend name.
+const showGrantsTab = useGrantsSupported();
 const visitedTabs = ref(new Set([tab.value]));
 watch(tab, (t) => visitedTabs.value.add(t));
 const viewId = ref('');
@@ -300,9 +315,6 @@ async function loadViewMetadata() {
 // Initial load and react to route changes
 // onMounted(loadViewMetadata);
 onMounted(() => {
-  if (route.query.tab) {
-    tab.value = route.query.tab as string;
-  }
   loadWarehouseName();
   loadViewMetadata();
 });
@@ -316,16 +328,6 @@ watch(
   { immediate: false },
 );
 
-watch(tab, (newTab) => {
-  // Update the URL bar without going through router.replace(): that runs the full
-  // navigation-guard pipeline (including an awaited getServerInfo() network call)
-  // on every tab click, which was stalling/interrupting this page's tab transition.
-  // route.query.tab is only ever read once on mount, so a reactive route update
-  // isn't needed here — just keep the URL bookmarkable/shareable.
-  const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
-  window.history.replaceState(window.history.state, '', href);
-});
-
 watch(
   () => visual.requestedNamespaceTab,
   (newTab) => {
@@ -336,4 +338,23 @@ watch(
   },
   { immediate: true },
 );
+
+// These tabs only render once their flag resolves, so a `?tab=` naming one is held
+// until then rather than lost to Vuetify's revert.
+useTabDeepLink({
+  tab,
+  tabs: ['details', 'history', 'permissions', 'tasks', 'grants'],
+  gates: {
+    permissions: () => showPermissionsTab.value,
+    tasks: () => showTasksTab.value,
+    grants: () => showGrantsTab.value,
+  },
+  syncUrl: (newTab) => {
+    // Update the URL bar without going through router.replace(): that runs the full
+    // navigation-guard pipeline (including an awaited getServerInfo() network call)
+    // on every tab click, which was stalling/interrupting this page's tab transition.
+    const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
+    window.history.replaceState(window.history.state, '', href);
+  },
+});
 </script>

@@ -9,7 +9,7 @@
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
             Home
           </v-tooltip>
-          <v-icon size="small" icon="mdi-home-circle"></v-icon>
+          <v-icon :size="iconSize" icon="mdi-home-circle"></v-icon>
         </template>
       </v-list-item>
       <v-list-item link title="Warehouses" to="/warehouse" rounded="lg">
@@ -17,7 +17,7 @@
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
             Warehouses
           </v-tooltip>
-          <v-icon size="small" icon="mdi-database"></v-icon>
+          <v-icon :size="iconSize" icon="mdi-database"></v-icon>
         </template>
       </v-list-item>
       <v-divider class="my-2"></v-divider>
@@ -30,7 +30,7 @@
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
             LoQE
           </v-tooltip>
-          <v-icon size="small" icon="mdi-console"></v-icon>
+          <v-icon :size="iconSize" icon="mdi-console"></v-icon>
         </template>
         <template #append>
           <v-chip v-show="visual.navBarShow" size="x-small" color="info" variant="tonal">
@@ -54,7 +54,7 @@
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
             Identities
           </v-tooltip>
-          <v-icon size="small" icon="mdi-account-multiple"></v-icon>
+          <v-icon :size="iconSize" icon="mdi-account-multiple"></v-icon>
         </template>
       </v-list-item>
       <v-list-item link title="Governance" to="/governance" rounded="lg">
@@ -62,7 +62,20 @@
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
             Governance
           </v-tooltip>
-          <v-icon size="small" icon="mdi-shield-check-outline"></v-icon>
+          <v-icon :size="iconSize" icon="mdi-shield-check-outline"></v-icon>
+        </template>
+      </v-list-item>
+      <v-list-item link title="Maintenance" to="/maintenance" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Maintenance
+          </v-tooltip>
+          <v-icon :size="iconSize" icon="mdi-wrench-clock"></v-icon>
+        </template>
+        <template #append>
+          <v-chip v-show="visual.navBarShow" size="x-small" color="primary" variant="tonal">
+            PLUS
+          </v-chip>
         </template>
       </v-list-item>
       <v-list-item link title="Server settings" to="/server-settings" rounded="lg">
@@ -70,7 +83,7 @@
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
             Server settings
           </v-tooltip>
-          <v-icon size="small" icon="mdi-cog"></v-icon>
+          <v-icon :size="iconSize" icon="mdi-cog"></v-icon>
         </template>
       </v-list-item>
     </v-list>
@@ -87,6 +100,10 @@ import { enabledAuthentication, enabledPermissions } from '@/app.config';
 const visual = useVisualStore();
 const router = useRouter();
 const route = useRoute();
+// Collapsed to the rail, the icon is the only thing left to aim at, so it steps
+// up one Vuetify size rather than carrying a hand-tuned pixel override.
+const iconSize = computed(() => (visual.navBarShow ? 'x-small' : 'small'));
+
 const isIdentitiesActive = computed(
   () => route.path.startsWith('/identities') || route.path.startsWith('/roles'),
 );
@@ -105,9 +122,3 @@ function routeToIdentities() {
   }
 }
 </script>
-
-<style scoped>
-:deep(.v-list-item__prepend > .v-icon) {
-  font-size: 18px !important;
-}
-</style>

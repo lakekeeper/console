@@ -15,20 +15,47 @@
       <!-- Row 1: SVG Logo -->
       <v-row class="logo-row">
         <v-col cols="12" class="text-center py-1">
-          <v-img
-            v-if="visual.themeLight"
-            class="mx-auto"
-            max-width="280"
-            :aspect-ratio="1"
-            lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23f5f5f5' width='280' height='80' rx='8'/%3E%3C/svg%3E"
-            src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
-          <v-img
-            v-else
-            class="mx-auto"
-            max-width="280"
-            :aspect-ratio="1"
-            lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23333' width='280' height='80' rx='8'/%3E%3C/svg%3E"
-            src="@/assets/LAKEKEEPER_IMAGE_TEXT_WHITE.svg" />
+          <!-- Product mark left, company mark right, as equal partners in one
+               lockup. The company mark links out only when reachable, so an
+               air-gapped deployment still shows it without a dead link. -->
+          <div class="brand-lockup d-flex align-center justify-center flex-wrap">
+            <v-img
+              v-if="visual.themeLight"
+              class="brand-product"
+              width="220"
+              max-width="220"
+              :aspect-ratio="1"
+              lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23f5f5f5' width='280' height='80' rx='8'/%3E%3C/svg%3E"
+              src="@/assets/LAKEKEEPER_IMAGE_TEXT.svg" />
+            <v-img
+              v-else
+              class="brand-product"
+              width="220"
+              max-width="220"
+              :aspect-ratio="1"
+              lazy-src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='80'%3E%3Crect fill='%23333' width='280' height='80' rx='8'/%3E%3C/svg%3E"
+              src="@/assets/LAKEKEEPER_IMAGE_TEXT_WHITE.svg" />
+
+            <v-divider vertical class="brand-divider mx-8"></v-divider>
+
+            <div class="d-flex flex-column align-center">
+              <span class="text-caption text-medium-emphasis mb-2 brand-eyebrow">Built by</span>
+              <component
+                :is="isOnline ? 'a' : 'span'"
+                v-bind="
+                  isOnline
+                    ? {
+                        href: 'https://vakamo.com/product?utm_source=lakekeeper-console&utm_medium=home-hero',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                      }
+                    : {}
+                "
+                class="vakamo-link d-inline-flex align-center">
+                <img :src="vakamoLogoSrc" alt="Vakamo" class="brand-vakamo" />
+              </component>
+            </div>
+          </div>
         </v-col>
       </v-row>
 
@@ -97,53 +124,67 @@
         </v-col>
       </v-row>
 
-      <!-- Row 6: Quick Links -->
-      <v-row class="links-row py-1">
-        <v-col cols="12">
-          <div class="quick-links-grid">
-            <v-btn
-              class="quick-link-btn"
-              href="https://github.com/lakekeeper/lakekeeper"
-              prepend-icon="mdi-github"
-              rel="noopener noreferrer"
-              size="small"
-              target="_blank"
-              variant="text">
-              GitHub
-            </v-btn>
-            <v-btn
-              class="quick-link-btn"
-              href="https://discord.gg/jkAGG8p93B"
-              prepend-icon="mdi-discord"
-              rel="noopener noreferrer"
-              size="small"
-              target="_blank"
-              variant="text">
-              Discord
-            </v-btn>
-            <v-btn
-              class="quick-link-btn"
-              href="https://lakekeeper.io"
-              prepend-icon="mdi-web"
-              rel="noopener noreferrer"
-              size="small"
-              target="_blank"
-              variant="text">
-              Website
-            </v-btn>
-            <v-btn
-              class="quick-link-btn"
-              href="https://docs.lakekeeper.io/getting-started"
-              prepend-icon="mdi-rocket-launch"
-              rel="noopener noreferrer"
-              size="small"
-              target="_blank"
-              variant="text">
-              Getting Started
-            </v-btn>
-          </div>
-        </v-col>
-      </v-row>
+      <!-- Rows 5 and 6: attribution and quick links, held against the bottom
+           edge of the scroll region so they read as a footer rather than
+           trailing whatever content happens to be above them. -->
+      <div class="home-footer">
+        <!-- Row 5: Vendor attribution -->
+        <v-row class="py-1">
+          <v-col cols="12">
+            <BuiltByVakamo source="home" />
+          </v-col>
+        </v-row>
+
+        <!-- Row 6: Quick Links -->
+        <v-row class="links-row py-1">
+          <v-col cols="12">
+            <div class="quick-links-grid">
+              <v-btn
+                class="quick-link-btn"
+                href="https://github.com/lakekeeper/lakekeeper"
+                prepend-icon="mdi-github"
+                rel="noopener noreferrer"
+                size="small"
+                target="_blank"
+                variant="text">
+                GitHub
+              </v-btn>
+              <v-btn
+                class="quick-link-btn"
+                href="https://discord.gg/jkAGG8p93B"
+                prepend-icon="mdi-discord"
+                rel="noopener noreferrer"
+                size="small"
+                target="_blank"
+                variant="text">
+                Discord
+              </v-btn>
+              <v-btn
+                class="quick-link-btn"
+                href="https://lakekeeper.io"
+                prepend-icon="mdi-web"
+                rel="noopener noreferrer"
+                size="small"
+                target="_blank"
+                variant="text">
+                Website
+              </v-btn>
+              <v-btn
+                class="quick-link-btn"
+                href="https://docs.lakekeeper.io/getting-started"
+                prepend-icon="mdi-rocket-launch"
+                rel="noopener noreferrer"
+                size="small"
+                target="_blank"
+                variant="text">
+                Getting Started
+              </v-btn>
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+
+      <ContactVakamoDialog v-model="contactOpen" />
     </v-container>
     <div v-else class="no-projects-wrapper">
       <v-container class="fill-height">
@@ -296,10 +337,15 @@ import {
   useFunctions,
   useUserStore,
   useVisualStore,
+  useConnectivity,
   HomeStatistics,
+  ContactVakamoDialog,
 } from '@lakekeeper/console-components';
-import { inject, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { computed, inject, onMounted, onUnmounted, reactive, ref } from 'vue';
 import { enabledAuthentication } from '@/app.config';
+import BuiltByVakamo from '@/components/BuiltByVakamo.vue';
+import VakamoLogoDark from '@/assets/vakamo-logo.svg';
+import VakamoLogoLight from '@/assets/vakamo-logo-white.svg';
 
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
@@ -310,6 +356,10 @@ const functions = useFunctions();
 
 const userStorage = useUserStore();
 const visual = useVisualStore();
+const { isOnline } = useConnectivity();
+
+const contactOpen = ref(false);
+const vakamoLogoSrc = computed(() => (visual.themeLight ? VakamoLogoDark : VakamoLogoLight));
 
 const user = reactive({
   'created-at': '',
@@ -492,8 +542,26 @@ async function checkAccessStatus() {
   max-width: 1400px;
   margin: 0 auto;
   padding: 8px 24px;
+  /* The app shell disables page scroll, so this is the page's own scroll
+     region. min-height matches max-height to give the column a bottom edge for
+     the footer to sit on when the content above does not reach it. */
+  min-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
   max-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Rows keep their natural height. Without this they would shrink to fit the
+   column — a flex item's default — and the region would never scroll. */
+.home-container > * {
+  flex-shrink: 0;
+}
+
+/* Against the bottom edge when there is room, immediately after the content
+   when there is not. */
+.home-footer {
+  margin-top: auto;
 }
 
 .hero-section {
@@ -543,6 +611,65 @@ async function checkAccessStatus() {
   box-shadow: 0 6px 20px rgba(var(--v-theme-primary), 0.25);
   border-color: rgb(var(--v-theme-primary));
   background: rgba(var(--v-theme-primary), 0.08);
+}
+
+/* Breathing room between the app bar and the brand lockup. */
+.logo-row {
+  padding-top: 56px;
+}
+
+.brand-lockup {
+  gap: 8px;
+}
+
+.brand-product {
+  flex: 0 0 auto;
+}
+
+.brand-divider {
+  height: 90px;
+  align-self: center;
+  opacity: 0.4;
+}
+
+.brand-eyebrow {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand-vakamo {
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  transition: opacity 0.2s ease-in-out;
+}
+
+a.vakamo-link:hover .brand-vakamo {
+  opacity: 1;
+}
+
+/* Stacked on narrow screens, where a vertical rule between the marks reads as
+   a stray line. */
+@media (max-width: 600px) {
+  .logo-row {
+    padding-top: 24px;
+  }
+
+  .brand-divider {
+    display: none;
+  }
+
+  .brand-vakamo {
+    max-width: 180px;
+  }
+}
+
+a.vakamo-link {
+  text-decoration: none;
+}
+
+a.vakamo-link:hover .vakamo-logo {
+  opacity: 1;
 }
 
 .quick-access-section {

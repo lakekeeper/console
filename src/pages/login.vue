@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col class="align-self-center">
-      <LoginPage />
+      <LoginPage show-built-by />
     </v-col>
   </v-row>
 </template>

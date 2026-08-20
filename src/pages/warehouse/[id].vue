@@ -81,13 +81,14 @@
             <v-tab v-if="showPermissionsTab" density="compact" value="permissions">
               permissions
             </v-tab>
+            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
           </v-tabs>
           <v-card style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab" crossfade style="height: 100%">
               <v-tabs-window-item value="namespaces">
                 <WarehouseNamespaces v-if="tab === 'namespaces'" :warehouse-id="params.id" />
               </v-tabs-window-item>
-              <v-tabs-window-item value="details">
+              <v-tabs-window-item value="details" style="height: 100%">
                 <WarehouseDetails v-if="tab === 'details'" :warehouse-id="params.id" />
               </v-tabs-window-item>
 
@@ -97,6 +98,13 @@
                   :objectId="warehouseId"
                   :relationType="RelationType.Warehouse"
                   :warehouseId="warehouseId" />
+              </v-tabs-window-item>
+
+              <v-tabs-window-item v-if="showGrantsTab" value="grants">
+                <EntityGrantsTab
+                  v-if="tab === 'grants' && warehouseId && warehouseName"
+                  :resource="{ type: 'warehouse', warehouseId }"
+                  :entity-name="warehouseName" />
               </v-tabs-window-item>
               <v-tabs-window-item value="tasks">
                 <TaskManager
@@ -120,6 +128,7 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
+import { useTabDeepLink } from '@/composables/useTabDeepLink';
 import {
   RelationType,
   useWarehousePermissions,
@@ -129,6 +138,8 @@ import {
   WarehouseStatistics,
   isForbiddenError,
   isNotFoundError,
+  EntityGrantsTab,
+  useGrantsSupported,
 } from '@lakekeeper/console-components';
 import { computed, ref, onMounted, watch } from 'vue';
 import formbricks from '@formbricks/js';
@@ -223,6 +234,9 @@ const warehouseId = computed(() => params.value.id);
 // const permissions = useWarehousePermissions(warehouseId);
 const { showTasksTab, showStatisticsTab } = useWarehousePermissions(warehouseId);
 const { showPermissionsTab } = useWarehouseAuthorizerPermissions(warehouseId);
+// Grants are authorizer-agnostic, so this asks the server what it can grant
+// rather than keying off the backend name.
+const showGrantsTab = useGrantsSupported();
 const projectId = ref<string | undefined>(undefined);
 const warehouseStatisticsRef = ref<InstanceType<typeof WarehouseStatistics> | null>(null);
 
@@ -275,9 +289,6 @@ async function loadWarehouse() {
 }
 
 onMounted(() => {
-  if (route.query.tab) {
-    tab.value = route.query.tab as string;
-  }
   loadWarehouse();
   if (enabledUserSurveys) {
     formbricks.track('warehouse_viewed');
@@ -296,18 +307,28 @@ onMounted(() => {
 //   },
 // );
 
-watch(tab, (newTab) => {
-  router.replace({ query: { ...route.query, tab: newTab } });
-});
-
 watch(
   () => visual.requestedNamespaceTab,
   (newTab) => {
     if (newTab) {
-      tab.value = newTab;
+      requestTab(newTab);
       visual.requestedNamespaceTab = null;
     }
   },
   { immediate: true },
 );
+
+// These tabs only render once their flag resolves, so a `?tab=` naming one is held
+// until then rather than lost to Vuetify's revert.
+const { requestTab } = useTabDeepLink({
+  tab,
+  tabs: ['namespaces', 'details', 'tasks', 'statistics', 'permissions', 'grants'],
+  gates: {
+    tasks: () => showTasksTab.value,
+    statistics: () => showStatisticsTab.value,
+    permissions: () => showPermissionsTab.value,
+    grants: () => showGrantsTab.value,
+  },
+  syncUrl: (newTab) => router.replace({ query: { ...route.query, tab: newTab } }),
+});
 </script>
