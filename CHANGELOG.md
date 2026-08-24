@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.22.0](https://github.com/lakekeeper/console/compare/v0.21.2...v0.22.0) (2026-08-24)
+
+
+### Features
+
+* **ui:** add /no-access page and redirect authenticated 403 on /info to it ([e8b94fd](https://github.com/lakekeeper/console/commit/e8b94fd21bf6856bbd03373dd7b219895d2878c9))
+* **ui:** governance permissions tab + consistent page titles ([9453042](https://github.com/lakekeeper/console/commit/945304233a8bcfe8131d7fbfe87df90c915e9157))
+* **ui:** governance tags — Tags tab on Identities, entity tag management, tag detail route ([9453042](https://github.com/lakekeeper/console/commit/945304233a8bcfe8131d7fbfe87df90c915e9157))
+
+
+### Bug Fixes
+
+* align app with the documented design system ([#374](https://github.com/lakekeeper/console/issues/374)) ([756963a](https://github.com/lakekeeper/console/commit/756963a365a276c37b05b4cd04eaef015eea0341))
+* **ui:** bump console-components to 0.17.3 (stopgap pin for NoAccessPage until main releases) ([e8b94fd](https://github.com/lakekeeper/console/commit/e8b94fd21bf6856bbd03373dd7b219895d2878c9))
+* **ui:** facet-style tab groups use crossfade instead of a directional slide ([9453042](https://github.com/lakekeeper/console/commit/945304233a8bcfe8131d7fbfe87df90c915e9157))
+* **ui:** let the warehouse details tab scroll ([b2b9c7d](https://github.com/lakekeeper/console/commit/b2b9c7d4258c66b85521d320fc76c20496b0760e))
+* **ui:** tab-switch animation stalled by router.replace's navigation-guard pipeline; use history.replaceState ([9453042](https://github.com/lakekeeper/console/commit/945304233a8bcfe8131d7fbfe87df90c915e9157))
+
 ## [0.21.2](https://github.com/lakekeeper/console/compare/v0.21.1...v0.21.2) (2026-07-21)
 
 
