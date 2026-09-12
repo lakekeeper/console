@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.23.0](https://github.com/lakekeeper/console/compare/v0.22.0...v0.23.0) (2026-09-12)
+
+
+### Features
+
+* STACKIT storage, provider-owned roles and transitive role membership ([#382](https://github.com/lakekeeper/console/issues/382)) ([02f6a65](https://github.com/lakekeeper/console/commit/02f6a65d9d6e9da041f9f202d4556b01f326590f))
+
 ## [0.22.0](https://github.com/lakekeeper/console/compare/v0.21.2...v0.22.0) (2026-08-24)
 
 
