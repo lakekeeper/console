@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.22.0"
+        "version": "github:lakekeeper/console-components#v0.23.0"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.22.0",
+    "version": "0.23.0",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -474,6 +474,11 @@
         "features": ""
       },
       {
+        "name": "aws-lc-rs",
+        "version": "1",
+        "features": ""
+      },
+      {
         "name": "base64",
         "version": "0.22.1",
         "features": ""
@@ -579,6 +584,11 @@
         "features": ""
       },
       {
+        "name": "hyper-util",
+        "version": "0.1.20",
+        "features": ""
+      },
+      {
         "name": "iceberg",
         "version": "git",
         "features": ""
@@ -592,6 +602,11 @@
         "name": "itertools",
         "version": "0.14.0",
         "features": ""
+      },
+      {
+        "name": "jsonwebtoken",
+        "version": "11.0",
+        "features": "aws_lc_rs"
       },
       {
         "name": "k8s-openapi",
@@ -729,6 +744,11 @@
         "features": ""
       },
       {
+        "name": "socket2",
+        "version": "0.6",
+        "features": "all"
+      },
+      {
         "name": "sqlx",
         "version": "0.9.0",
         "features": ""
@@ -751,6 +771,11 @@
       {
         "name": "thiserror",
         "version": "2.0.0",
+        "features": ""
+      },
+      {
+        "name": "tikv-jemalloc-ctl",
+        "version": "0.6",
         "features": ""
       },
       {
