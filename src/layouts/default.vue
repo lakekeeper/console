@@ -20,18 +20,9 @@
       </router-view>
     </v-main>
 
-    <AppFooter show-built-by>
-      <template #app-links>
-        <v-btn
-          v-if="visual.showAppOrNavBar"
-          to="/dependencies"
-          prepend-icon="mdi-link"
-          size="small"
-          variant="text">
-          Dependencies
-        </v-btn>
-      </template>
-    </AppFooter>
+    <!-- Dependencies moved to Server settings: the footer is chrome on every
+         page, and a licence/attribution list is something you look up once. -->
+    <AppFooter show-built-by />
 
     <!-- Notification Panel - placed at app level for proper overlay -->
     <NotificationPanel />
