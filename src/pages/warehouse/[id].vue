@@ -106,7 +106,7 @@
                   :resource="{ type: 'warehouse', warehouseId }"
                   :entity-name="warehouseName" />
               </v-tabs-window-item>
-              <v-tabs-window-item value="tasks">
+              <v-tabs-window-item value="tasks" style="height: 100%">
                 <TaskManager
                   v-if="tab === 'tasks'"
                   :warehouse-id="params.id"

@@ -120,7 +120,7 @@
                 </div>
               </v-tabs-window-item>
 
-              <v-tabs-window-item v-if="showTasksTab" value="tasks">
+              <v-tabs-window-item v-if="showTasksTab" value="tasks" style="height: 100%">
                 <TaskManager
                   v-if="genericTableId"
                   :warehouse-id="params.id"

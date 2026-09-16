@@ -145,7 +145,7 @@
                   :warehouseId="params.id" />
               </v-tabs-window-item>
 
-              <v-tabs-window-item v-if="showTasksTab" value="tasks">
+              <v-tabs-window-item v-if="showTasksTab" value="tasks" style="height: 100%">
                 <TaskManager
                   v-if="visitedTabs.has('tasks') && tableId"
                   :warehouse-id="params.id"
