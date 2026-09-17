@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.23.1](https://github.com/lakekeeper/console/compare/v0.23.0...v0.23.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* **ui:** give the Tasks tab a bounded height so its table can scroll ([c6af9d8](https://github.com/lakekeeper/console/commit/c6af9d83dc6003ad5b27634f26a6133283e21f1a))
+* **ui:** move the dependency link out of the footer ([c6af9d8](https://github.com/lakekeeper/console/commit/c6af9d83dc6003ad5b27634f26a6133283e21f1a))
+
 ## [0.23.0](https://github.com/lakekeeper/console/compare/v0.22.0...v0.23.0) (2026-09-12)
 
 
