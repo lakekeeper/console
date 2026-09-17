@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.23.0"
+        "version": "github:lakekeeper/console-components#v0.24.0"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.23.0",
+    "version": "0.24.0",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -167,7 +167,7 @@
       },
       {
         "name": "@duckdb/duckdb-wasm",
-        "version": "^1.32.1-dev1.0"
+        "version": "1.33.1-dev64.0"
       },
       {
         "name": "@wdns/vue-code-block",

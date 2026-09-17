@@ -83,7 +83,7 @@
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
-            <v-tabs-window v-model="tab" crossfade>
+            <v-tabs-window v-model="tab" crossfade style="height: 100%">
               <v-tabs-window-item value="details">
                 <GenericTableOverview
                   v-if="tab === 'details'"
@@ -120,7 +120,7 @@
                 </div>
               </v-tabs-window-item>
 
-              <v-tabs-window-item v-if="showTasksTab" value="tasks">
+              <v-tabs-window-item v-if="showTasksTab" value="tasks" style="height: 100%">
                 <TaskManager
                   v-if="genericTableId"
                   :warehouse-id="params.id"
