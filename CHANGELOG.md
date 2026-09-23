@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.23.2](https://github.com/lakekeeper/console/compare/v0.23.1...v0.23.2) (2026-09-23)
+
+
+### Bug Fixes
+
+* **ui:** let every tab pane scroll again ([5e3e902](https://github.com/lakekeeper/console/commit/5e3e902ce1d876ddf90218c0c17bf4df7ba25310))
+* **ui:** opt in to the app bar GitHub link ([5e3e902](https://github.com/lakekeeper/console/commit/5e3e902ce1d876ddf90218c0c17bf4df7ba25310))
+* **ui:** stop window panes blending into a light background ([5e3e902](https://github.com/lakekeeper/console/commit/5e3e902ce1d876ddf90218c0c17bf4df7ba25310))
+
 ## [0.23.1](https://github.com/lakekeeper/console/compare/v0.23.0...v0.23.1) (2026-09-17)
 
 
