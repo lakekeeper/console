@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <AppBar v-if="visual.showAppOrNavBar" />
+    <!-- The OSS console is where the GitHub link and star count do their job:
+         this is the app the community lands in. The enterprise app leaves it off. -->
+    <AppBar v-if="visual.showAppOrNavBar" show-github />
     <NavigationBar v-if="visual.showAppOrNavBar" />
     <v-main>
       <AuthenticationDisabledWarningBanner
