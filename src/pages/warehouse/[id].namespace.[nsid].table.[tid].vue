@@ -90,7 +90,7 @@
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
-            <v-tabs-window v-model="tab" crossfade style="height: 100%">
+            <v-tabs-window v-model="tab" class="tab-window" style="height: 100%">
               <v-tabs-window-item value="details">
                 <TableOverview
                   v-if="visitedTabs.has('details')"
@@ -187,9 +187,9 @@ const route = useRoute();
 const functions = useFunctions();
 const visual = useVisualStore();
 const tab = ref('details');
-// Tabs mount lazily on first visit but stay mounted afterwards (Vuetify's own
-// window-item active/inactive toggling handles show/hide) — unmounting the
-// previous tab immediately would leave nothing for `crossfade` to fade from.
+// Tabs mount lazily on first visit but stay mounted afterwards — Vuetify's own
+// window-item active/inactive toggling handles show/hide, and unmounting the
+// previous tab on every switch would refetch its data on the way back.
 // Grants are authorizer-agnostic, so this asks the server what it can grant
 // rather than keying off the backend name.
 const showGrantsTab = useGrantsSupported();
@@ -387,3 +387,18 @@ useTabDeepLink({
   },
 });
 </script>
+
+<style scoped>
+/* v-window sets `overflow: hidden`, so a full-height window clips whatever is
+   taller than it and the card outside can never scroll it into view. Each pane
+   therefore carries its own scroll region — the same bounded-region rule the
+   rest of the app shell follows. */
+.tab-window :deep(.v-window__container) {
+  height: 100%;
+}
+
+.tab-window :deep(.v-window-item) {
+  height: 100%;
+  overflow-y: auto;
+}
+</style>

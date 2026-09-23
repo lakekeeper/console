@@ -79,6 +79,20 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       'vue/multi-word-component-names': 'off',
       'vue/valid-v-slot': 'off',
+      // Vuetify's `crossfade` puts a permanent `mix-blend-mode: plus-lighter` on
+      // every window item (VWindow.css), not only during the transition. Inside
+      // the isolated container that blends the pane against the surface behind
+      // it: harmless on a dark ground, but white plus anything is white, so the
+      // pane renders invisible in light theme. Removed three times before this
+      // rule; ban it rather than find out again.
+      'vue/no-restricted-static-attribute': [
+        'error',
+        {
+          key: 'crossfade',
+          message:
+            '`crossfade` makes window panes invisible on a light surface (permanent mix-blend-mode: plus-lighter). Omit it.',
+        },
+      ],
     },
   },
   {
