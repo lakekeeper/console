@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.24.0"
+        "version": "github:lakekeeper/console-components#v0.25.0"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.24.0",
+    "version": "0.25.0",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -389,6 +389,11 @@
         "features": ""
       },
       {
+        "name": "aws-lc-rs",
+        "version": "1",
+        "features": ""
+      },
+      {
         "name": "aws-sdk-s3",
         "version": "1.121",
         "features": ""
@@ -471,11 +476,6 @@
       {
         "name": "azure_storage_datalake",
         "version": "git",
-        "features": ""
-      },
-      {
-        "name": "aws-lc-rs",
-        "version": "1",
         "features": ""
       },
       {
