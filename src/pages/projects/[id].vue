@@ -1,5 +1,5 @@
 <template>
-  <div class="pa-4">
+  <div class="px-4 pt-4">
     <!-- No heading: the pane's own identity row names the project, and a title
          above it would say the same thing twice. -->
     <ProjectDetail :project-id="projectId" />
