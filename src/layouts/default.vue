@@ -9,8 +9,12 @@
         v-if="!enabledAuthentication"></AuthenticationDisabledWarningBanner>
       <router-view v-slot="{ Component, route }">
         <transition name="fade" mode="out-in">
+          <!-- The project is part of a page's identity, not just its path.
+               Switching from the app bar while already on the page a switch
+               affects changes every number on it, and nothing else would ask
+               for them again — `router.push('/')` from Home is a no-op. -->
           <div
-            :key="route.path"
+            :key="`${route.path}|${visual.projectSelected['project-id']}`"
             style="
               min-height: calc(100dvh - var(--v-layout-top, 0px) - var(--v-layout-bottom, 0px));
               display: flex;
