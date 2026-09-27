@@ -120,7 +120,11 @@
       <!-- Row 4: Dashboard Statistics -->
       <v-row class="py-1">
         <v-col cols="12">
-          <HomeStatistics @navigate="goStatTile" />
+          <HomeStatistics
+            @navigate="goStatTile"
+            @navigate-warehouse="goWarehouse"
+            @navigate-namespace="goNamespace"
+            @navigate-tabular="goTabular" />
         </v-col>
       </v-row>
 
@@ -354,6 +358,19 @@ function goStatTile(destination: 'projects' | 'warehouses') {
   router.push(destination === 'projects' ? '/projects' : '/warehouse');
 }
 
+function goWarehouse(warehouseId: string) {
+  router.push(`/warehouse/${warehouseId}`);
+}
+
+function goNamespace(warehouseId: string, namespace: string) {
+  router.push(`/warehouse/${warehouseId}/namespace/${namespace.split('.').join('\x1F')}`);
+}
+
+function goTabular(warehouseId: string, namespace: string, name: string, kind: 'table' | 'view') {
+  const ns = namespace.split('.').join('\x1F');
+  router.push(`/warehouse/${warehouseId}/namespace/${ns}/${kind}/${name}`);
+}
+
 const auth = inject<any>('auth', null);
 const assignedToProjects = ref(false);
 const functions = useFunctions();
@@ -536,7 +553,14 @@ async function checkAccessStatus() {
       router.push('/');
     }
   } catch (error) {
+    // A refusal is not an answer about assignments. The project listing 400s on
+    // any server with more than one project under the Cedar authorizer (one
+    // authz batch cannot decide resources in two projects), and treating that
+    // as "no projects assigned" locks out a user who can open every warehouse
+    // page. Carry on into the app and say what failed.
     console.error(error);
+    assignedToProjects.value = true;
+    visual.showAppOrNavBar = true;
   }
 }
 </script>
