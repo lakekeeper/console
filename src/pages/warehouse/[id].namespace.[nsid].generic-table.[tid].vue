@@ -57,7 +57,8 @@
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
             :table-name="params.tid"
-            :entity-label="tableFormat === 'dataset' ? 'dataset' : undefined" />
+            :entity-label="tableFormat === 'dataset' ? 'dataset' : undefined"
+            :generic-table-id="genericTableId" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
             <v-progress-circular indeterminate color="primary" :size="48" />

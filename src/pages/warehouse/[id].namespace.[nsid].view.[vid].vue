@@ -61,6 +61,7 @@
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
             :view-name="params.vid"
+            :view-id="viewId"
             @updated="viewOverviewRef?.loadViewData()" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">

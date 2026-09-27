@@ -61,6 +61,7 @@
             :warehouse-id="params.id"
             :namespace-id="params.nsid"
             :table-name="params.tid"
+            :table-id="tableId"
             @updated="tableOverviewRef?.loadTableData()" />
 
           <div v-if="loading" class="d-flex justify-center align-center pa-8">
