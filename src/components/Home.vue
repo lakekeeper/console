@@ -120,11 +120,7 @@
       <!-- Row 4: Dashboard Statistics -->
       <v-row class="py-1">
         <v-col cols="12">
-          <HomeStatistics
-            @navigate="goStatTile"
-            @navigate-warehouse="goWarehouse"
-            @navigate-namespace="goNamespace"
-            @navigate-tabular="goTabular" />
+          <HomeStatistics @navigate="goStatTile" />
         </v-col>
       </v-row>
 
@@ -356,19 +352,6 @@ import { Type } from '@lakekeeper/console-components';
 
 function goStatTile(destination: 'projects' | 'warehouses') {
   router.push(destination === 'projects' ? '/projects' : '/warehouse');
-}
-
-function goWarehouse(warehouseId: string) {
-  router.push(`/warehouse/${warehouseId}`);
-}
-
-function goNamespace(warehouseId: string, namespace: string) {
-  router.push(`/warehouse/${warehouseId}/namespace/${namespace.split('.').join('\x1F')}`);
-}
-
-function goTabular(warehouseId: string, namespace: string, name: string, kind: 'table' | 'view') {
-  const ns = namespace.split('.').join('\x1F');
-  router.push(`/warehouse/${warehouseId}/namespace/${ns}/${kind}/${name}`);
 }
 
 const auth = inject<any>('auth', null);
