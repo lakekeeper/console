@@ -120,7 +120,7 @@
       <!-- Row 4: Dashboard Statistics -->
       <v-row class="py-1">
         <v-col cols="12">
-          <HomeStatistics />
+          <HomeStatistics @navigate="goStatTile" />
         </v-col>
       </v-row>
 
@@ -349,6 +349,10 @@ import VakamoLogoLight from '@/assets/vakamo-logo-white.svg';
 
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
+
+function goStatTile(destination: 'projects' | 'warehouses') {
+  router.push(destination === 'projects' ? '/projects' : '/warehouse');
+}
 
 const auth = inject<any>('auth', null);
 const assignedToProjects = ref(false);
