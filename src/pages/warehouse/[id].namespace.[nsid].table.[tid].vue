@@ -81,13 +81,14 @@
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">
             <v-tab value="details">details</v-tab>
+            <v-tab value="schema">schema</v-tab>
             <v-tab value="preview">preview</v-tab>
-            <v-tab value="health">health</v-tab>
             <v-tab value="versioning">versioning</v-tab>
-            <v-tab value="files">files</v-tab>
-            <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showTasksTab" value="tasks">tasks</v-tab>
-            <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
+            <v-tab value="files">files</v-tab>
+            <v-tab v-if="showPermissionsTab" value="permissions">permissions</v-tab>
+            <v-tab v-if="showGrantsTab" value="grants">grants</v-tab>
+            <v-tab value="health">health</v-tab>
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
@@ -96,6 +97,15 @@
                 <TableOverview
                   v-if="visitedTabs.has('details')"
                   ref="tableOverviewRef"
+                  :warehouse-id="params.id"
+                  :namespace-id="params.nsid"
+                  :table-name="params.tid"
+                  @open-tab="tab = $event" />
+              </v-tabs-window-item>
+
+              <v-tabs-window-item value="schema">
+                <TableSchema
+                  v-if="visitedTabs.has('schema')"
                   :warehouse-id="params.id"
                   :namespace-id="params.nsid"
                   :table-name="params.tid" />
@@ -373,7 +383,17 @@ watch(
 // until then rather than lost to Vuetify's revert.
 useTabDeepLink({
   tab,
-  tabs: ['details', 'preview', 'health', 'versioning', 'files', 'permissions', 'tasks', 'grants'],
+  tabs: [
+    'details',
+    'schema',
+    'preview',
+    'versioning',
+    'tasks',
+    'files',
+    'permissions',
+    'grants',
+    'health',
+  ],
   gates: {
     permissions: () => showPermissionsTab.value,
     tasks: () => showTasksTab.value,
