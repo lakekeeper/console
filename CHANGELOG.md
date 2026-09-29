@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.24.0](https://github.com/lakekeeper/console/compare/v0.23.2...v0.24.0) (2026-09-29)
+
+
+### Features
+
+* **ui:** add the projects page and the app bar project switcher ([ab3db9f](https://github.com/lakekeeper/console/commit/ab3db9f0b38843f8a40ac225b1eac9fa32c981de))
+* **ui:** open the project and warehouse counts on home ([ab3db9f](https://github.com/lakekeeper/console/commit/ab3db9f0b38843f8a40ac225b1eac9fa32c981de))
+* **ui:** pass entity UUIDs to the table, view and generic-table headers ([ab3db9f](https://github.com/lakekeeper/console/commit/ab3db9f0b38843f8a40ac225b1eac9fa32c981de))
+
+
+### Bug Fixes
+
+* **ui:** stop the projects pages overflowing by their own padding ([ab3db9f](https://github.com/lakekeeper/console/commit/ab3db9f0b38843f8a40ac225b1eac9fa32c981de))
+
 ## [0.23.2](https://github.com/lakekeeper/console/compare/v0.23.1...v0.23.2) (2026-09-23)
 
 
