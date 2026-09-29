@@ -120,7 +120,7 @@
       <!-- Row 4: Dashboard Statistics -->
       <v-row class="py-1">
         <v-col cols="12">
-          <HomeStatistics />
+          <HomeStatistics @navigate="goStatTile" />
         </v-col>
       </v-row>
 
@@ -350,6 +350,10 @@ import VakamoLogoLight from '@/assets/vakamo-logo-white.svg';
 import router from '@/router';
 import { Type } from '@lakekeeper/console-components';
 
+function goStatTile(destination: 'projects' | 'warehouses') {
+  router.push(destination === 'projects' ? '/projects' : '/warehouse');
+}
+
 const auth = inject<any>('auth', null);
 const assignedToProjects = ref(false);
 const functions = useFunctions();
@@ -501,7 +505,7 @@ const logout = () => {
   userStorage.isAuthenticated = false;
   userStorage.unsetUser();
   visual.projectSelected['project-id'] = '';
-  visual.projectSelected['project-name'] = 'None';
+  visual.projectSelected['project-name'] = '';
   if (auth) {
     auth.signOut();
   }
@@ -532,7 +536,14 @@ async function checkAccessStatus() {
       router.push('/');
     }
   } catch (error) {
+    // A refusal is not an answer about assignments. The project listing 400s on
+    // any server with more than one project under the Cedar authorizer (one
+    // authz batch cannot decide resources in two projects), and treating that
+    // as "no projects assigned" locks out a user who can open every warehouse
+    // page. Carry on into the app and say what failed.
     console.error(error);
+    assignedToProjects.value = true;
+    visual.showAppOrNavBar = true;
   }
 }
 </script>

@@ -78,6 +78,14 @@
           </v-chip>
         </template>
       </v-list-item>
+      <v-list-item link title="Projects" to="/projects" rounded="lg">
+        <template #prepend>
+          <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">
+            Projects
+          </v-tooltip>
+          <v-icon :size="iconSize" icon="mdi-home-silo"></v-icon>
+        </template>
+      </v-list-item>
       <v-list-item link title="Server settings" to="/server-settings" rounded="lg">
         <template #prepend>
           <v-tooltip activator="parent" location="end" :disabled="visual.navBarShow">

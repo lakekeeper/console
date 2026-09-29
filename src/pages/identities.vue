@@ -4,7 +4,7 @@
       <v-icon>mdi-account-multiple</v-icon>
       Identities
     </h1>
-    <div v-if="permsLoading" class="d-flex justify-center pa-8">
+    <div v-if="!permsSettled" class="d-flex justify-center pa-8">
       <v-progress-circular color="primary" indeterminate :size="48"></v-progress-circular>
     </div>
     <template v-else>
@@ -40,6 +40,13 @@ const visual = useVisualStore();
 
 const serverId = ref(visual.getServerInfo()['server-id'] || '');
 const { showUsersTab, loading: permsLoading } = useServerPermissions(serverId);
+// The tabs must not render before the server permissions are known: with an empty
+// permission set the Users tab is absent and v-tabs would force-select Roles,
+// clobbering an explicit ?tab=users from the URL on a page refresh.
+const permsSettled = ref(false);
+watch(permsLoading, (loading) => {
+  if (!loading) permsSettled.value = true;
+});
 const tab = ref((route.query.tab as string) || 'users');
 
 // Role detail renders in-place (stay on the Roles tab) via a ?role query param.
@@ -52,6 +59,8 @@ function selectRole(id: string) {
 
 onMounted(() => {
   if (!serverId.value) serverId.value = visual.getServerInfo()['server-id'] || '';
+  // Nothing in flight (no server id, so no permission request was started).
+  if (!permsLoading.value) permsSettled.value = true;
 });
 // Default to the Users tab; fall back to Roles only if the user lacks Users access.
 // Guarded against the empty-serverId window so it never flips to Roles and back.
@@ -62,6 +71,7 @@ watch([permsLoading, showUsersTab], () => {
 });
 // Switching tab clears any selected role.
 watch(tab, (t) => {
+  if (t === route.query.tab) return;
   router.replace({ query: { ...route.query, tab: t, role: undefined } });
 });
 </script>
