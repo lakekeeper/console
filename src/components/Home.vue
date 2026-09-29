@@ -505,7 +505,7 @@ const logout = () => {
   userStorage.isAuthenticated = false;
   userStorage.unsetUser();
   visual.projectSelected['project-id'] = '';
-  visual.projectSelected['project-name'] = 'None';
+  visual.projectSelected['project-name'] = '';
   if (auth) {
     auth.signOut();
   }
