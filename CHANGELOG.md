@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.25.0](https://github.com/lakekeeper/console/compare/v0.24.0...v0.25.0) (2026-10-04)
+
+
+### Features
+
+* **ui:** LoQE object browser and warehouse tree pass with shared pins (console-components 0.27.0) ([a9914d3](https://github.com/lakekeeper/console/commit/a9914d3d7f06ad3e72c4368547ce7b5c0537eed5))
+
+
+### Bug Fixes
+
+* **ui:** dialogs opened from an actions menu no longer close with it ([a9914d3](https://github.com/lakekeeper/console/commit/a9914d3d7f06ad3e72c4368547ce7b5c0537eed5))
+* **ui:** role members editable wherever manage_role_assignments allows it ([a9914d3](https://github.com/lakekeeper/console/commit/a9914d3d7f06ad3e72c4368547ce7b5c0537eed5))
+* **ui:** warehouse tree flush against the rail ([a9914d3](https://github.com/lakekeeper/console/commit/a9914d3d7f06ad3e72c4368547ce7b5c0537eed5))
+
 ## [0.24.0](https://github.com/lakekeeper/console/compare/v0.23.2...v0.24.0) (2026-09-29)
 
 
