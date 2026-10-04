@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.25.1](https://github.com/lakekeeper/console/compare/v0.25.0...v0.25.1) (2026-10-04)
+
+
+### Bug Fixes
+
+* console-components 0.27.1, neutral storage validation titles ([#396](https://github.com/lakekeeper/console/issues/396)) ([2e8a971](https://github.com/lakekeeper/console/commit/2e8a971ef33c4dc39a90afbf4c8384d68618f78c))
+
 ## [0.25.0](https://github.com/lakekeeper/console/compare/v0.24.0...v0.25.0) (2026-10-04)
 
 
