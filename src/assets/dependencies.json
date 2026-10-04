@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.26.0"
+        "version": "github:lakekeeper/console-components#v0.27.0"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.26.0",
+    "version": "0.27.0",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -341,7 +341,7 @@
   },
   "rust": {
     "version": "0.13.1",
-    "rustVersion": "1.94",
+    "rustVersion": "1.95",
     "dependencies": [
       {
         "name": "anyhow",
@@ -657,6 +657,11 @@
         "name": "moka",
         "version": "^0.12",
         "features": "future"
+      },
+      {
+        "name": "object_store",
+        "version": "0.13",
+        "features": ""
       },
       {
         "name": "pastey",
