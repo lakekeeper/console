@@ -1,7 +1,9 @@
 <template>
-  <v-row class="ml-1">
+  <!-- Gutters cancel out (row -12px, col +12px), so the tree sits flush against
+       the rail as in LoQE; the breadcrumbs keep their indent. -->
+  <v-row>
     <v-col>
-      <BreadcrumbsFromUrl />
+      <BreadcrumbsFromUrl class="ml-4" />
 
       <!-- Single flex container for navigation + content -->
       <div style="display: flex; height: calc(100vh - 160px); position: relative">

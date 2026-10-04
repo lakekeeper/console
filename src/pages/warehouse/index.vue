@@ -1,6 +1,8 @@
 <template>
-  <div class="pa-4">
-    <h1 class="text-h6 mb-4 d-flex align-center ga-2">
+  <!-- No left padding: the tree sits flush against the rail, as in LoQE; the
+       title keeps its indent. -->
+  <div class="py-4 pr-4">
+    <h1 class="text-h6 mb-4 ml-4 d-flex align-center ga-2">
       <v-icon>mdi-database</v-icon>
       Warehouses
     </h1>
