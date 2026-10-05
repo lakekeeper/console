@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.25.2](https://github.com/lakekeeper/console/compare/v0.25.1...v0.25.2) (2026-10-05)
+
+
+### Bug Fixes
+
+* **ui:** bump console-components to 0.28.0 ([edbb4f8](https://github.com/lakekeeper/console/commit/edbb4f89de617a3bdfe6de0abbe78b6613c6671a))
+* **ui:** namespace tabs scroll inside the card ([edbb4f8](https://github.com/lakekeeper/console/commit/edbb4f89de617a3bdfe6de0abbe78b6613c6671a))
+
 ## [0.25.1](https://github.com/lakekeeper/console/compare/v0.25.0...v0.25.1) (2026-10-04)
 
 
