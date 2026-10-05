@@ -88,7 +88,7 @@
           </v-tabs>
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
-            <v-tabs-window v-model="tab">
+            <v-tabs-window v-model="tab" class="tab-window" style="height: 100%">
               <v-tabs-window-item value="namespaces">
                 <NamespaceNamespaces
                   v-if="tab === 'namespaces'"
@@ -407,3 +407,16 @@ useTabDeepLink({
   },
 });
 </script>
+
+<style scoped>
+/* Same bounded window as the table page: each tab fills the card and carries
+   its own scroll, so the details pane can end where the card ends. */
+.tab-window :deep(.v-window__container) {
+  height: 100%;
+}
+
+.tab-window :deep(.v-window-item) {
+  height: 100%;
+  overflow-y: auto;
+}
+</style>
