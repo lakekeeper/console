@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.28.0"
+        "version": "github:lakekeeper/console-components#v0.29.0"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.28.0",
+    "version": "0.29.0",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -594,6 +594,11 @@
         "features": ""
       },
       {
+        "name": "inventory",
+        "version": "0.3.24",
+        "features": ""
+      },
+      {
         "name": "iso8601",
         "version": "0.6.2",
         "features": ""
@@ -601,6 +606,11 @@
       {
         "name": "itertools",
         "version": "0.14.0",
+        "features": ""
+      },
+      {
+        "name": "jsonschema",
+        "version": "0.57",
         "features": ""
       },
       {
@@ -679,9 +689,19 @@
         "features": ""
       },
       {
+        "name": "proc-macro2",
+        "version": "1.0",
+        "features": ""
+      },
+      {
         "name": "quick-xml",
         "version": "0.41",
         "features": "serialize"
+      },
+      {
+        "name": "quote",
+        "version": "1.0",
+        "features": ""
       },
       {
         "name": "rdkafka",
@@ -702,6 +722,11 @@
         "name": "reqwest-retry",
         "version": "0.8",
         "features": ""
+      },
+      {
+        "name": "schemars",
+        "version": "1.2",
+        "features": "derive"
       },
       {
         "name": "semver",
@@ -767,6 +792,11 @@
         "name": "strum_macros",
         "version": "0.27.0",
         "features": ""
+      },
+      {
+        "name": "syn",
+        "version": "2.0",
+        "features": "full, extra-traits"
       },
       {
         "name": "tempfile",
