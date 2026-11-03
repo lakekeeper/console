@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.27.0](https://github.com/lakekeeper/console/compare/v0.26.0...v0.27.0) (2026-11-03)
+
+
+### Features
+
+* **ui:** move tables, views and generic tables between namespaces ([979518b](https://github.com/lakekeeper/console/commit/979518bcffe178c0f993000433780d159d24e1c9))
+
+
+### Bug Fixes
+
+* **ui:** keep the home page type-checking under vue-tsc 3.3.14 ([979518b](https://github.com/lakekeeper/console/commit/979518bcffe178c0f993000433780d159d24e1c9))
+
 ## [0.26.0](https://github.com/lakekeeper/console/compare/v0.25.2...v0.26.0) (2026-10-07)
 
 
