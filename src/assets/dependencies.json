@@ -12,7 +12,7 @@
       },
       {
         "name": "@lakekeeper/console-components",
-        "version": "github:lakekeeper/console-components#v0.29.0"
+        "version": "github:lakekeeper/console-components#v0.30.1"
       },
       {
         "name": "@mdi/font",
@@ -147,7 +147,7 @@
     ]
   },
   "components": {
-    "version": "0.29.0",
+    "version": "0.30.1",
     "dependencies": [
       {
         "name": "@codemirror/commands",
@@ -340,7 +340,7 @@
     ]
   },
   "rust": {
-    "version": "0.13.1",
+    "version": "0.14.0",
     "rustVersion": "1.95",
     "dependencies": [
       {
@@ -451,7 +451,7 @@
       {
         "name": "axum-prometheus",
         "version": "0.9.0",
-        "features": "http-listener"
+        "features": ""
       },
       {
         "name": "azure_core",
@@ -534,23 +534,18 @@
         "features": ""
       },
       {
-        "name": "gcloud-token",
-        "version": "1.0.0",
+        "name": "google-cloud-auth",
+        "version": "1.17",
         "features": ""
       },
       {
-        "name": "google-cloud-auth",
-        "version": "~1.2",
+        "name": "google-cloud-gax",
+        "version": "1.15",
         "features": ""
       },
       {
         "name": "google-cloud-storage",
-        "version": "~1.2",
-        "features": ""
-      },
-      {
-        "name": "google-cloud-token",
-        "version": "1.0",
+        "version": "1.20",
         "features": ""
       },
       {
@@ -714,16 +709,6 @@
         "features": ""
       },
       {
-        "name": "reqwest-middleware",
-        "version": "0.4",
-        "features": ""
-      },
-      {
-        "name": "reqwest-retry",
-        "version": "0.8",
-        "features": ""
-      },
-      {
         "name": "schemars",
         "version": "1.2",
         "features": "derive"
@@ -836,6 +821,11 @@
       {
         "name": "tokio-util",
         "version": "^0.7",
+        "features": ""
+      },
+      {
+        "name": "tonic",
+        "version": "0.14",
         "features": ""
       },
       {

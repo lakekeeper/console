@@ -209,13 +209,9 @@
               <!-- User ID Section -->
               <div class="user-id-section mb-8">
                 <p class="text-body-2 text-medium-emphasis mb-2">Your User ID:</p>
-                <v-chip
-                  class="user-id-chip"
-                  size="large"
-                  variant="outlined"
-                  @click="functions.copyToClipboard(user.id)">
+                <v-chip class="user-id-chip" size="large" variant="outlined" @click="copyUserId">
                   <v-icon start>mdi-account</v-icon>
-                  {{ user.id || 'Loading...' }}
+                  {{ userId || 'Loading...' }}
                   <v-icon end>mdi-content-copy</v-icon>
                 </v-chip>
                 <p class="text-caption text-medium-emphasis mt-2">
@@ -372,6 +368,15 @@ const user = reactive({
   name: '',
   'user-type': 'human',
 });
+
+// Read through a ref and a named handler rather than touching `user` and
+// `functions` from the template: vue-tsc 3.3.13+ appends `.value` to those two
+// plain (non-ref) bindings here and fails the type check.
+const userId = computed(() => user.id);
+
+function copyUserId() {
+  functions.copyToClipboard(user.id);
+}
 
 const loading = ref(true);
 
