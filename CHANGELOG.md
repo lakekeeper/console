@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.0](https://github.com/lakekeeper/console/compare/v0.27.0...v0.28.0) (2026-11-04)
+
+
+### Features
+
+* **ui:** console-components 0.31.0, offer the write_data privilege ([54c3313](https://github.com/lakekeeper/console/commit/54c3313e01f4386219d9d1cabdd4e8df5fcb78a8))
+
 ## [0.27.0](https://github.com/lakekeeper/console/compare/v0.26.0...v0.27.0) (2026-11-03)
 
 
