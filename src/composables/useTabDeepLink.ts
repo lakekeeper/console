@@ -34,6 +34,7 @@ export function useTabDeepLink(options: {
   syncUrl: (tab: string) => void;
 }) {
   const { tab, tabs, gates = {}, syncUrl } = options;
+  const defaultTab = tab.value;
   const route = useRoute();
   const desiredTab = ref<string | null>(null);
 
@@ -81,12 +82,14 @@ export function useTabDeepLink(options: {
   });
 
   // The nav flyout links straight to a tab, so `?tab=` can change while the page
-  // stays mounted. Only a change from outside counts: syncUrl writes the current
-  // tab back, and re-requesting it would pin desiredTab to it.
+  // stays mounted; without it, the page's default tab applies. Only a change from
+  // outside counts: syncUrl writes the current tab back, and re-requesting it
+  // would pin desiredTab to it.
   watch(
     () => route.query.tab,
     (q) => {
-      if (q && q !== tab.value) requestTab(q as string);
+      const want = (q as string) || defaultTab;
+      if (want !== tab.value) requestTab(want);
     },
   );
 

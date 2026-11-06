@@ -142,12 +142,14 @@ onMounted(() => {
 });
 
 // The nav flyout links straight to a tab, so ?tab= can change while this page
-// stays mounted. Only a change from outside: the tab watcher below writes the
-// query too, and re-requesting the current tab would pin desiredTab to it.
+// stays mounted; without it, Tags applies. Only a change from outside: the tab
+// watcher below writes the query too, and re-requesting the current tab would
+// pin desiredTab to it.
 watch(
   () => route.query.tab,
   (q) => {
-    if (q && q !== tab.value) requestTab(q as string);
+    const want = (q as string) || 'tags';
+    if (want !== tab.value) requestTab(want);
   },
 );
 

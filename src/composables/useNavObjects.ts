@@ -28,12 +28,13 @@ export const NAV_ICONS: Record<NavObjectType, string> = {
 };
 
 // Same routes the warehouse tree navigates to; namespace levels are joined with
-// the unit separator, as the namespace route expects.
+// the unit separator, as the namespace route expects. Names are percent-encoded,
+// because `#`, `?`, `%` and `/` are valid in them.
 export function navRoute(o: NavObject): string {
   const base = `/warehouse/${o.warehouseId}`;
   if (o.type === 'warehouse') return base;
-  const ns = `${base}/namespace/${o.namespaceId.split('.').join('\x1F')}`;
-  return o.type === 'namespace' ? ns : `${ns}/${o.type}/${o.name}`;
+  const ns = `${base}/namespace/${encodeURIComponent(o.namespaceId.split('.').join('\x1F'))}`;
+  return o.type === 'namespace' ? ns : `${ns}/${o.type}/${encodeURIComponent(o.name)}`;
 }
 
 const RECENT_KEEP = 10;
@@ -212,7 +213,8 @@ export function useNavObjects() {
 
   /** Open LoQE on a new tab holding a SELECT over the object. Not run: the user does that. */
   function queryInLoqe(o: NavObject) {
-    const sql = `SELECT * FROM "${warehouseName(o)}"."${o.namespaceId}"."${o.name}" LIMIT 100;`;
+    const ident = (s: string) => `"${s.replace(/"/g, '""')}"`;
+    const sql = `SELECT * FROM ${ident(warehouseName(o))}.${ident(o.namespaceId)}.${ident(o.name)} LIMIT 100;`;
     const tab = visual.addSqlTab(LOQE_TAB_KEY);
     visual.updateSqlTabContent(LOQE_TAB_KEY, tab.id, sql);
     router.push('/loqe');
