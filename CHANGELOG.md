@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.29.0](https://github.com/lakekeeper/console/compare/v0.28.0...v0.29.0) (2026-11-06)
+
+
+### Features
+
+* **ui:** add hover menus to the navigation bar with page tabs, pins and recents ([615b535](https://github.com/lakekeeper/console/commit/615b535d943763b3b399a86b5f9e415575dfa381))
+* **ui:** console-components 0.33.0 ([615b535](https://github.com/lakekeeper/console/commit/615b535d943763b3b399a86b5f9e415575dfa381))
+* **ui:** open a pinned table or view in LoQE from the navigation menu ([615b535](https://github.com/lakekeeper/console/commit/615b535d943763b3b399a86b5f9e415575dfa381))
+
+
+### Bug Fixes
+
+* **ui:** follow tab changes in the URL on governance, identities and server settings pages ([615b535](https://github.com/lakekeeper/console/commit/615b535d943763b3b399a86b5f9e415575dfa381))
+
 ## [0.28.0](https://github.com/lakekeeper/console/compare/v0.27.0...v0.28.0) (2026-11-04)
 
 
