@@ -141,6 +141,16 @@ onMounted(() => {
   if (route.query.tab) requestTab(route.query.tab as string);
 });
 
+// The nav flyout links straight to a tab, so ?tab= can change while this page
+// stays mounted. Only a change from outside: the tab watcher below writes the
+// query too, and re-requesting the current tab would pin desiredTab to it.
+watch(
+  () => route.query.tab,
+  (q) => {
+    if (q && q !== tab.value) requestTab(q as string);
+  },
+);
+
 watch(tab, (newTab) => {
   // Vuetify can revert the model to the first visible tab while the target is
   // still mounting. Re-assert rather than persisting the revert.

@@ -69,6 +69,14 @@ watch([permsLoading, showUsersTab], () => {
   if (permsLoading.value || !serverId.value) return;
   tab.value = showUsersTab.value ? 'users' : 'roles';
 });
+// The nav flyout links straight to a tab, so ?tab= can change while this page
+// stays mounted.
+watch(
+  () => route.query.tab,
+  (q) => {
+    if (q && q !== tab.value) tab.value = q as string;
+  },
+);
 // Switching tab clears any selected role.
 watch(tab, (t) => {
   if (t === route.query.tab) return;

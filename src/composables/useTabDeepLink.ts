@@ -80,5 +80,15 @@ export function useTabDeepLink(options: {
     if (route.query.tab) requestTab(route.query.tab as string);
   });
 
+  // The nav flyout links straight to a tab, so `?tab=` can change while the page
+  // stays mounted. Only a change from outside counts: syncUrl writes the current
+  // tab back, and re-requesting it would pin desiredTab to it.
+  watch(
+    () => route.query.tab,
+    (q) => {
+      if (q && q !== tab.value) requestTab(q as string);
+    },
+  );
+
   return { requestTab };
 }
