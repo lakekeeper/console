@@ -358,14 +358,17 @@ function routeToIdentities(tab?: string) {
   max-height: 280px;
   overflow-y: auto;
 }
-/* Unpin shows on the row being pointed at or focused, so the list reads as
-   links rather than a column of buttons. Gone pins keep it visible. */
-.nav-unpin {
-  opacity: 0;
-}
-.nav-pin-row:hover .nav-unpin,
-.nav-pin-row:focus-within .nav-unpin,
-.nav-unpin:focus-visible {
-  opacity: 1;
+/* Where a pointer can hover, unpin shows on the row being pointed at or focused,
+   so the list reads as links rather than a column of buttons. Touch screens and
+   gone pins keep it visible. */
+@media (hover: hover) {
+  .nav-unpin {
+    opacity: 0;
+  }
+  .nav-pin-row:hover .nav-unpin,
+  .nav-pin-row:focus-within .nav-unpin,
+  .nav-unpin:focus-visible {
+    opacity: 1;
+  }
 }
 </style>

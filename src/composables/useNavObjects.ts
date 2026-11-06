@@ -78,12 +78,17 @@ export function useNavObjects() {
   // Null until a listing has succeeded: without one, nothing is claimed gone.
   const warehouseNames = ref<Map<string, string> | null>(null);
   let namesLoadedAt = 0;
-  let namesLoading = false;
+  // The project whose listing is in flight. A listing for a project the user has
+  // left neither blocks a new one nor lands.
+  let namesLoadingFor: string | null = null;
   async function loadWarehouseNames() {
-    if (!projectId.value || namesLoading || Date.now() - namesLoadedAt < NAMES_TTL_MS) return;
-    namesLoading = true;
+    const requested = projectId.value;
+    if (!requested || namesLoadingFor === requested || Date.now() - namesLoadedAt < NAMES_TTL_MS)
+      return;
+    namesLoadingFor = requested;
     try {
-      const res = await functions.listWarehousesByProject(projectId.value);
+      const res = await functions.listWarehousesByProject(requested);
+      if (projectId.value !== requested) return;
       warehouseNames.value = new Map(
         (res.warehouses ?? []).map((w: { id: string; name: string }) => [w.id, w.name]),
       );
@@ -91,7 +96,7 @@ export function useNavObjects() {
     } catch {
       // Refused or offline: keep the names the pins were saved with.
     } finally {
-      namesLoading = false;
+      if (namesLoadingFor === requested) namesLoadingFor = null;
     }
   }
 
