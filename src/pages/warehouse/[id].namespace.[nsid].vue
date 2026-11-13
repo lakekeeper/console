@@ -77,11 +77,7 @@
           </v-alert>
 
           <v-tabs v-if="!loading && !pageError" v-model="tab">
-            <v-tab value="namespaces">namespaces</v-tab>
-            <v-tab value="tables">tables</v-tab>
-            <v-tab value="views">views</v-tab>
-            <v-tab value="datasets">datasets</v-tab>
-            <v-tab value="deleted">deleted</v-tab>
+            <v-tab value="contents">contents</v-tab>
             <v-tab value="details">details</v-tab>
             <v-tab v-if="showPermissionsTab" value="permissions">Permissions</v-tab>
             <v-tab v-if="showGrantsTab" value="grants">Grants</v-tab>
@@ -89,59 +85,16 @@
 
           <v-card v-if="!loading && !pageError" style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab" class="tab-window" style="height: 100%">
-              <v-tabs-window-item value="namespaces">
-                <NamespaceNamespaces
-                  v-if="tab === 'namespaces'"
-                  :warehouse-id="params.id"
-                  :namespace-path="params.nsid" />
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="tables">
-                <div class="pa-4">
-                  <div class="d-flex justify-end mb-4 gap-2 mr-2">
-                    <TableRegister
-                      :warehouse-id="params.id"
-                      :namespace-id="namespacePath"
-                      @registered="onTableCreated" />
-                    <span class="mr-2"></span>
-                    <TableCreate
-                      :warehouse-id="params.id"
-                      :namespace-id="namespacePath"
-                      :catalog-url="catalogUrl"
-                      :storage-type="storageType"
-                      @created="onTableCreated" />
-                  </div>
-                  <NamespaceTables
-                    v-if="tab === 'tables'"
-                    :warehouse-id="params.id"
-                    :namespace-path="params.nsid"
-                    :storage-layout="storageLayout"
-                    :key="tableListKey" />
-                </div>
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="views">
-                <NamespaceViews
-                  v-if="tab === 'views'"
+              <!-- One list for everything the namespace holds; the chips inside
+                   narrow it to one type and hand over to that type's own list. -->
+              <v-tabs-window-item value="contents">
+                <NamespaceContents
+                  v-if="tab === 'contents'"
+                  v-model:selection="contentSelection"
                   :warehouse-id="params.id"
                   :namespace-path="params.nsid"
-                  :storage-layout="storageLayout" />
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="datasets">
-                <DatasetsList
-                  v-if="tab === 'datasets'"
-                  :warehouse-id="params.id"
-                  :namespace-path="namespacePath"
-                  class="pa-4"
-                  @select="handleDatasetSelect" />
-              </v-tabs-window-item>
-
-              <v-tabs-window-item value="deleted">
-                <NamespaceDeleted
-                  v-if="tab === 'deleted'"
-                  :warehouse-id="params.id"
-                  :namespace-path="params.nsid" />
+                  :storage-layout="storageLayout"
+                  :soft-deletion="softDeletion"></NamespaceContents>
               </v-tabs-window-item>
 
               <v-tabs-window-item value="details">
@@ -184,23 +137,32 @@ import {
   useVisualStore,
   isForbiddenError,
   isNotFoundError,
-  DatasetsList,
   EntityGrantsTab,
   useGrantsSupported,
+  contentSelectionFromQuery,
+  contentSelectionToQuery,
+  type ContentSelection,
 } from '@lakekeeper/console-components';
 
 const route = useRoute();
 const router = useRouter();
 const functions = useFunctions();
 const visual = useVisualStore();
-const tab = ref('namespaces');
+const tab = ref('contents');
+// The Contents chips, kept in the URL as `?type=a,b` so a reload or a shared link
+// opens the same narrowing. An old per-type `?tab=` (nav tree entries, the
+// redirect after a drop, bookmarks) lands here too.
+const contentSelection = ref<ContentSelection>(
+  contentSelectionFromQuery(route.query.tab, route.query.type) ?? [],
+);
 const namespaceId = ref('');
 const lastNamespaceRequest = ref(0);
-const tableListKey = ref(0);
 const pageError = ref<'forbidden' | 'not-found' | null>(null);
 const loading = ref(true);
 const storageType = ref<string | undefined>(undefined);
 const storageLayout = ref<string | undefined>(undefined);
+// Soft deletion on the warehouse: Contents then offers its Deleted chip.
+const softDeletion = ref(false);
 // Grants are authorizer-agnostic, so this asks the server what it can grant
 // rather than keying off the backend name.
 const showGrantsTab = useGrantsSupported();
@@ -270,8 +232,6 @@ function handleNavigate(item: {
   }
 }
 
-const catalogUrl = computed(() => `${functions.icebergCatalogUrl()}catalog`);
-
 const params = computed(() => ({
   id: (route.params as { id: string }).id,
   nsid: (route.params as { nsid: string }).nsid,
@@ -307,6 +267,7 @@ async function loadNamespaceMetadata() {
     }
     storageLayout.value =
       (warehouse['storage-profile'] as any)?.['storage-layout']?.type || 'default';
+    softDeletion.value = warehouse['delete-profile']?.type === 'soft';
   } catch (error: any) {
     if (requestToken !== lastNamespaceRequest.value) return;
     if (isForbiddenError(error) || isNotFoundError(error)) {
@@ -344,17 +305,6 @@ async function loadNamespaceMetadata() {
   }
 }
 
-function handleDatasetSelect(item: { name: string; namespaceId: string }) {
-  const nsid = item.namespaceId.split('.').join('\x1F');
-  router.push(`/warehouse/${params.value.id}/namespace/${nsid}/generic-table/${item.name}`);
-}
-
-// Handle table creation - force refresh of table list
-function onTableCreated() {
-  tableListKey.value++; // Increment key to force re-render of NamespaceTables
-  visual.refreshNavTree(params.value.id, namespacePath.value);
-}
-
 // Load namespace metadata on mount to get namespaceId for permissions
 onMounted(() => {
   loadNamespaceMetadata();
@@ -373,38 +323,51 @@ watch(
   () => visual.requestedNamespaceTab,
   (newTab) => {
     if (newTab) {
-      tab.value = newTab;
+      const sel = contentSelectionFromQuery(newTab, undefined);
+      if (sel) contentSelection.value = sel;
+      tab.value = sel ? 'contents' : newTab;
       visual.requestedNamespaceTab = null;
     }
   },
   { immediate: true },
 );
 
+// The nav tree's per-type entries change `?tab=` while this page stays mounted.
+watch(
+  () => [route.query.tab, route.query.type],
+  ([qTab, qType]) => {
+    const sel = contentSelectionFromQuery(qTab, qType);
+    if (!sel) return;
+    contentSelection.value = sel;
+    tab.value = 'contents';
+  },
+);
+
+function writeUrl() {
+  // Same reason as syncUrl below: no router.replace from a tab change.
+  const query: Record<string, any> = { ...route.query, tab: tab.value };
+  const type =
+    tab.value === 'contents' ? contentSelectionToQuery(contentSelection.value) : undefined;
+  if (type) query.type = type;
+  else delete query.type;
+  const href = router.resolve({ query }).href;
+  window.history.replaceState(window.history.state, '', href);
+}
+watch(contentSelection, writeUrl);
+
 // These tabs only render once their flag resolves, so a `?tab=` naming one is held
 // until then rather than lost to Vuetify's revert.
 useTabDeepLink({
   tab,
-  tabs: [
-    'namespaces',
-    'tables',
-    'views',
-    'datasets',
-    'deleted',
-    'details',
-    'permissions',
-    'grants',
-  ],
+  tabs: ['contents', 'details', 'permissions', 'grants'],
   gates: {
     permissions: () => showPermissionsTab.value,
     grants: () => showGrantsTab.value,
   },
-  syncUrl: (newTab) => {
-    // Update the URL bar without going through router.replace(): that runs the full
-    // navigation-guard pipeline (including an awaited getServerInfo() network call)
-    // on every tab click, which was stalling/interrupting this page's tab transition.
-    const href = router.resolve({ query: { ...route.query, tab: newTab } }).href;
-    window.history.replaceState(window.history.state, '', href);
-  },
+  // Update the URL bar without going through router.replace(): that runs the full
+  // navigation-guard pipeline (including an awaited getServerInfo() network call)
+  // on every tab click, which was stalling/interrupting this page's tab transition.
+  syncUrl: () => writeUrl(),
 });
 </script>
 
