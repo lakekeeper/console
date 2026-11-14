@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.30.0](https://github.com/lakekeeper/console/compare/v0.29.0...v0.30.0) (2026-11-14)
+
+
+### Features
+
+* **ui:** LoQE editor keyboard, suggestions and per-tab history ([8288263](https://github.com/lakekeeper/console/commit/828826342056792793e817af9530e7c4bc68a191))
+* **ui:** managed warehouses lock only the admin-only settings ([8288263](https://github.com/lakekeeper/console/commit/828826342056792793e817af9530e7c4bc68a191))
+* **ui:** one Contents tab for namespaces, tables, views and datasets, with a details panel beside the list ([8288263](https://github.com/lakekeeper/console/commit/828826342056792793e817af9530e7c4bc68a191))
+
+
+### Bug Fixes
+
+* **ui:** Contents filter clears on unfiltered links and survives Back ([8288263](https://github.com/lakekeeper/console/commit/828826342056792793e817af9530e7c4bc68a191))
+
 ## [0.29.0](https://github.com/lakekeeper/console/compare/v0.28.0...v0.29.0) (2026-11-06)
 
 
