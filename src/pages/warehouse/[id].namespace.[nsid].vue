@@ -333,25 +333,24 @@ watch(
 );
 
 // The nav tree's per-type entries change `?tab=` while this page stays mounted.
-watch(
-  () => [route.query.tab, route.query.type],
-  ([qTab, qType]) => {
-    const sel = contentSelectionFromQuery(qTab, qType);
-    if (!sel) return;
-    contentSelection.value = sel;
-    tab.value = 'contents';
-  },
-);
+// A link without a filter (plain Contents, another namespace) clears the chips;
+// only a filter switches to Contents, any other tab stays where it is.
+watch([() => route.query.tab, () => route.query.type, () => params.value.nsid], ([qTab, qType]) => {
+  const sel = contentSelectionFromQuery(qTab, qType);
+  contentSelection.value = sel ?? [];
+  if (sel) tab.value = 'contents';
+});
 
 function writeUrl() {
-  // Same reason as syncUrl below: no router.replace from a tab change.
+  // Same reason as syncUrl below: no router.replace from a tab change. The
+  // router's own history.replace still updates its history state, so the next
+  // push keeps this entry's filter for Back.
   const query: Record<string, any> = { ...route.query, tab: tab.value };
   const type =
     tab.value === 'contents' ? contentSelectionToQuery(contentSelection.value) : undefined;
   if (type) query.type = type;
   else delete query.type;
-  const href = router.resolve({ query }).href;
-  window.history.replaceState(window.history.state, '', href);
+  router.options.history.replace(router.resolve({ query }).fullPath);
 }
 watch(contentSelection, writeUrl);
 
