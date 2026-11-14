@@ -69,7 +69,7 @@
           </WarehouseHeader>
 
           <v-tabs v-model="tab" density="compact">
-            <v-tab density="compact" value="namespaces">namespaces</v-tab>
+            <v-tab density="compact" value="contents">contents</v-tab>
             <v-tab density="compact" value="details">Details</v-tab>
 
             <v-tab v-if="showTasksTab" density="compact" value="tasks">Tasks</v-tab>
@@ -87,8 +87,13 @@
           </v-tabs>
           <v-card style="flex: 1; min-height: 0; overflow: auto">
             <v-tabs-window v-model="tab" class="tab-window" style="height: 100%">
-              <v-tabs-window-item value="namespaces">
-                <WarehouseNamespaces v-if="tab === 'namespaces'" :warehouse-id="params.id" />
+              <v-tabs-window-item value="contents">
+                <!-- The namespace page's table, at the top level: namespaces only. -->
+                <NamespaceContents
+                  v-if="tab === 'contents'"
+                  :warehouse-id="params.id"
+                  namespace-path=""
+                  :selection="[]" />
               </v-tabs-window-item>
               <v-tabs-window-item value="details" style="height: 100%">
                 <WarehouseDetails v-if="tab === 'details'" :warehouse-id="params.id" />
@@ -151,7 +156,9 @@ const route = useRoute();
 const router = useRouter();
 const functions = useFunctions();
 const visual = useVisualStore();
-const tab = ref('namespaces');
+// "contents" for parity with the namespace page; an old ?tab=namespaces is not
+// in the list below, so it falls back to this default and lands here anyway.
+const tab = ref('contents');
 const warehouseName = ref<string | undefined>(undefined);
 const storageType = ref<string | undefined>(undefined);
 const warehouseData = ref<any>(null);
@@ -324,7 +331,7 @@ watch(
 // until then rather than lost to Vuetify's revert.
 const { requestTab } = useTabDeepLink({
   tab,
-  tabs: ['namespaces', 'details', 'tasks', 'statistics', 'permissions', 'grants'],
+  tabs: ['contents', 'details', 'tasks', 'statistics', 'permissions', 'grants'],
   gates: {
     tasks: () => showTasksTab.value,
     statistics: () => showStatisticsTab.value,
