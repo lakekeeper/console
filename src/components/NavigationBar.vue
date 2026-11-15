@@ -95,7 +95,16 @@
           title="Run SQL"
           prepend-icon="mdi-play-circle-outline"
           to="/loqe"
-          rounded="lg"></v-list-item>
+          rounded="lg"
+          :active="onLoqe && loqeStore.view === 'editor'"
+          @click="loqeStore.view = 'editor'"></v-list-item>
+        <v-list-item
+          title="Query history"
+          prepend-icon="mdi-history"
+          to="/loqe"
+          rounded="lg"
+          :active="onLoqe && loqeStore.view === 'history'"
+          @click="loqeStore.view = 'history'"></v-list-item>
         <v-divider class="my-1"></v-divider>
         <v-list-subheader class="text-uppercase font-weight-bold">Query pinned</v-list-subheader>
         <template v-if="queryablePins.length">
@@ -219,6 +228,7 @@ import {
   useGrantsSupported,
   useServerPermissions,
   useVisualStore,
+  useLoQEStore,
   PERMISSIONS_UI_ENABLED,
 } from '@lakekeeper/console-components';
 import NavFlyout from '@/components/NavFlyout.vue';
@@ -230,6 +240,11 @@ const functions = useFunctions();
 type Project = (typeof visual.projectList)[number];
 const router = useRouter();
 const route = useRoute();
+// LoQE's view (editor or history) lives in its store, not the URL: a menu item
+// sets it, then goes to /loqe, which also works when /loqe is already open.
+const loqeStore = useLoQEStore();
+// Both items link to /loqe, so the router would light up both; the view decides.
+const onLoqe = computed(() => route.path.startsWith('/loqe'));
 // Collapsed to the rail, the icon is the only thing left to aim at, so it steps
 // up one Vuetify size rather than carrying a hand-tuned pixel override.
 const iconSize = computed(() => (visual.navBarShow ? 'x-small' : 'small'));
