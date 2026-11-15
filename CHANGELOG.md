@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.31.0](https://github.com/lakekeeper/console/compare/v0.30.0...v0.31.0) (2026-11-15)
+
+
+### Features
+
+* **ui:** console-components 0.35.0: LoQE History view with run profiles and plans, working Cancel, namespace check fix ([aa17eea](https://github.com/lakekeeper/console/commit/aa17eea1e1ef14583cb5054db1d2d9a6ee23c4f1))
+* **ui:** LoQE menu offers Run SQL and Query history ([aa17eea](https://github.com/lakekeeper/console/commit/aa17eea1e1ef14583cb5054db1d2d9a6ee23c4f1))
+
 ## [0.30.0](https://github.com/lakekeeper/console/compare/v0.29.0...v0.30.0) (2026-11-14)
 
 
