@@ -106,12 +106,39 @@ function copyDuckDBFiles() {
   };
 }
 
-export default defineConfig(({ mode }) => {
+// Build-only: the server that embeds the console fills these two tags. The
+// JSON holds the UI config of the process; the base href holds the URL path the
+// console is mounted at, which can differ per request (proxy path prefix).
+// Every other built file is served unchanged.
+function runtimeConfigSlots() {
+  return {
+    name: 'lakekeeper-runtime-config-slots',
+    apply: 'build' as const,
+    transformIndexHtml: () => [
+      {
+        tag: 'base',
+        attrs: { href: 'LAKEKEEPER_BASE_HREF_PLACEHOLDER' },
+        injectTo: 'head-prepend' as const,
+      },
+      {
+        tag: 'script',
+        attrs: { type: 'application/json', id: 'lakekeeper-config' },
+        children: 'LAKEKEEPER_CONFIG_PLACEHOLDER',
+        injectTo: 'head' as const,
+      },
+    ],
+  };
+}
+
+export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
-    base: `${env.VITE_BASE_URL_PREFIX || ''}/ui/`,
+    // Builds use relative URLs so the same files work under any path prefix;
+    // the `<base>` tag in index.html anchors them.
+    base: command === 'build' ? './' : `${env.VITE_BASE_URL_PREFIX || ''}/ui/`,
     plugins: [
+      runtimeConfigSlots(),
       copyDuckDBFiles(), // Copy DuckDB files from console-components
       serveDuckDBExtensionsDev(), // Dev: serve extension .wasm ahead of SPA fallback
       VueRouter({
@@ -144,12 +171,6 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       'process.env': {},
-      ...(mode === 'placeholder' && {
-        'import.meta.env.VITE_ENABLE_AUTHENTICATION': '(globalThis.__lkauth)',
-        'import.meta.env.VITE_ENABLE_PERMISSIONS': '(globalThis.__lkperm)',
-        'import.meta.env.VITE_IDP_POST_LOGOUT_REDIRECT_DISABLED': '(globalThis.__lknologout)',
-        'import.meta.env.VITE_ENABLE_USER_SURVEYS': '(globalThis.__lksurveys)',
-      }),
     },
     resolve: {
       alias: {

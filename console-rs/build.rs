@@ -6,8 +6,9 @@ use std::path::Path;
 use flate2::write::GzEncoder;
 use flate2::Compression;
 
-// Files at or above this size are stored gzipped and decompressed at runtime.
-// Below this threshold, gzip overhead outweighs savings.
+// Files at or above this size are stored gzipped: served as stored to clients
+// that accept gzip, decompressed for others. Below this threshold, gzip
+// overhead outweighs savings.
 const GZIP_THRESHOLD_BYTES: u64 = 64 * 1024;
 
 // Extensions whose contents are already compressed — gzipping again costs CPU
@@ -165,7 +166,7 @@ fn main() {
     }
     
     let output = std::process::Command::new("npm")
-        .args(["run", "build-placeholder"])
+        .args(["run", "build"])
         .current_dir(&node_root)
         .output()
         .expect("Failed to spawn npm to build Lakekeeper UI");
@@ -173,7 +174,7 @@ fn main() {
         let stdout = String::from_utf8_lossy(&output.stdout);
         let stderr = String::from_utf8_lossy(&output.stderr);
         panic!(
-            "npm run build-placeholder failed with exit code: {:?}\n\
+            "npm run build failed with exit code: {:?}\n\
              STDOUT:\n{stdout}\n\
              STDERR:\n{stderr}\n\
              Working directory: {}",

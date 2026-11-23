@@ -6,8 +6,6 @@
     "dev:test": "vite --port 5001",
     "azure": "vite --mode azure",
     "build": "vue-tsc --noEmit && vite build",
-    "build-placeholder": "vue-tsc --noEmit && vite build --mode placeholder",
-    "preview": "vite preview",
     "lint": "eslint . --fix ",
     "lint:check": "eslint . ",
     "format": "prettier --write .",

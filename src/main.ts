@@ -93,8 +93,8 @@ app.provide('functions', useFunctions(appConfigObject));
 
 // Optional in-app feedback surveys via Formbricks. Anonymous; survey answers
 // are only sent when a user responds. Disable by setting
-// VITE_ENABLE_USER_SURVEYS=false (or LAKEKEEPER_UI__ENABLE_USER_SURVEYS=false
-// at runtime). See README for details on what is collected.
+// LAKEKEEPER__UI__ENABLE_SURVEYS=false on Lakekeeper. See README for details
+// on what is collected.
 if (enabledUserSurveys) {
   formbricks.setup({
     environmentId: 'cmoy9tpanq8a9y301tcw8h4q9',
