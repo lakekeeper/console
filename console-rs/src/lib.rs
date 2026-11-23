@@ -121,8 +121,9 @@ pub struct Console {
     index_head: String,
     index_tail: String,
     /// Plain bytes of files stored gzip-compressed, for clients that do not
-    /// accept gzip. Keyed by path, so bounded by the files in the build.
-    decoded: moka::sync::Cache<String, Bytes>,
+    /// accept gzip. Keyed by file content, so every spelling of a path shares
+    /// one copy and the cache is bounded by the files in the build.
+    decoded: moka::sync::Cache<[u8; 32], Bytes>,
 }
 
 impl Console {
@@ -197,7 +198,7 @@ impl Console {
                 etag,
                 body: self
                     .decoded
-                    .get_with(path.to_string(), || gunzip(&file.data)),
+                    .get_with(file.metadata.sha256_hash(), || gunzip(&file.data)),
                 encoding: AssetEncoding::Decompressed,
             }
         })
@@ -242,7 +243,7 @@ fn mime_for(path: &str) -> Mime {
     }
 }
 
-/// Hex of the first 16 bytes of the SHA-256 that rust-embed computes at build time.
+/// Hex of the first 16 bytes of the file's SHA-256 from rust-embed.
 fn etag(metadata: &rust_embed::Metadata) -> String {
     use std::fmt::Write;
     metadata.sha256_hash()[..16]

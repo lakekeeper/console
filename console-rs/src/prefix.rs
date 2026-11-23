@@ -124,6 +124,8 @@ mod tests {
             ("v%2e1", "/v%2e1/ui/"),
             ("a%2Fb", "/a%2Fb/ui/"),
             ("ui", "/ui/ui/"),
+            // Never protocol-relative: leading slashes are dropped.
+            ("//evil.example", "/evil.example/ui/"),
         ] {
             assert_eq!(BasePrefix::parse(raw).unwrap().ui_path(), ui_path, "{raw}");
         }

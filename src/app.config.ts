@@ -17,7 +17,7 @@ interface RuntimeConfig {
   enableAuthentication: boolean;
   enablePermissions: boolean;
   enableUserSurveys: boolean;
-  /** Catalog URL configured by the operator; `null` = the URL this page was loaded from. */
+  /** Catalog URL configured by the operator; `null` = same origin and path prefix as this page. */
   lakekeeperUrl: string | null;
 }
 
