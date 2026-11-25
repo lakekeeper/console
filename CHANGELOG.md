@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.32.0](https://github.com/lakekeeper/console/compare/v0.31.0...v0.32.0) (2026-11-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* serve built console files unchanged and render only index.html per request ([#422](https://github.com/lakekeeper/console/issues/422))
+
+### Bug Fixes
+
+* serve built console files unchanged and render only index.html per request ([#422](https://github.com/lakekeeper/console/issues/422)) ([7b27c67](https://github.com/lakekeeper/console/commit/7b27c67eddb72e0b3ea6cce6966e454869afbb2a))
+
 ## [0.31.0](https://github.com/lakekeeper/console/compare/v0.30.0...v0.31.0) (2026-11-15)
 
 
