@@ -50,7 +50,8 @@ router.onError((err: any, to: any) => {
   if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
     if (!localStorage.getItem('vuetify:dynamic-reload')) {
       localStorage.setItem('vuetify:dynamic-reload', 'true');
-      location.assign(to.fullPath);
+      // `fullPath` is relative to the router base; `href` includes it.
+      location.assign(router.resolve(to.fullPath).href);
     } else {
       console.error('Dynamic import error, reloading page did not fix it', err);
     }

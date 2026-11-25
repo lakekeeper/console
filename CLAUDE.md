@@ -58,14 +58,12 @@ src/
 - File-based routing via `unplugin-vue-router` — page files in `src/pages/` auto-generate routes
 - Only 3 local components: `Home.vue`, `NavigationBar.vue`, `EULA.vue`
 
-### Environment variables
+### Configuration
 
-All configured in `src/app.config.ts`:
+`src/app.config.ts` exports the configuration:
 
-- `VITE_APP_ICEBERG_CATALOG_URL` — Lakekeeper server URL
-- `VITE_ENABLE_AUTHENTICATION` / `VITE_ENABLE_PERMISSIONS` — auth toggles
-- `VITE_IDP_*` — OIDC provider settings (authority, client_id, scope, etc.)
-- `VITE_BASE_URL_PREFIX` — URL prefix for deployment behind a reverse proxy
+- Production build: Lakekeeper serves `index.html` with a `<script type="application/json" id="lakekeeper-config">` block (IdP settings, toggles, optional catalog URL) and a `<base href>` that ends in `/ui/`. The path prefix comes from `<base href>`; the catalog URL defaults to the page's origin plus that prefix. All other built files are served unchanged, so never put configuration into them.
+- Development server (`import.meta.env.DEV`): the `VITE_*` values from `.env` — `VITE_APP_ICEBERG_CATALOG_URL`, `VITE_ENABLE_AUTHENTICATION` / `VITE_ENABLE_PERMISSIONS`, `VITE_IDP_*`, `VITE_BASE_URL_PREFIX`.
 
 ---
 
