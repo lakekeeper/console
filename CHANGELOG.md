@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.33.0](https://github.com/lakekeeper/console/compare/v0.32.0...v0.33.0) (2026-11-26)
+
+
+### Features
+
+* **ui:** console-components 0.36.0 with a virtual table preview, warehouse search in the tree and LoQE .sql export/import ([5a4214b](https://github.com/lakekeeper/console/commit/5a4214b76b7e1932fce3701d91daf7442b084922))
+* **ui:** copy the name in delete confirmations with one click ([5a4214b](https://github.com/lakekeeper/console/commit/5a4214b76b7e1932fce3701d91daf7442b084922))
+
+
+### Bug Fixes
+
+* **ui:** delete on managed warehouses for instance admins only ([5a4214b](https://github.com/lakekeeper/console/commit/5a4214b76b7e1932fce3701d91daf7442b084922))
+
 ## [0.32.0](https://github.com/lakekeeper/console/compare/v0.31.0...v0.32.0) (2026-11-25)
 
 
