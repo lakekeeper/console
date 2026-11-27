@@ -13,7 +13,8 @@ all = []
 
 [dependencies]
 bytes = "1"
-rust-embed = { version = "^8.4", features = ["interpolate-folder-path"] }
+# Debug builds embed the files too, so a debug binary runs without its build folder.
+rust-embed = { version = "^8.4", features = ["interpolate-folder-path", "debug-embed"] }
 mime_guess = { version = "^2.0" }
 moka = { version = "^0.12", features = ["sync"] }
 flate2 = "1.0"
