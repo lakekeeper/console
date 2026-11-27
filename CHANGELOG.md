@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.1](https://github.com/lakekeeper/console/compare/v0.33.0...v0.33.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* embed the console files in debug builds too ([#426](https://github.com/lakekeeper/console/issues/426)) ([cb68d41](https://github.com/lakekeeper/console/commit/cb68d4160cd9741f672bbc2d92d39ee1a51de9ec))
+
 ## [0.33.0](https://github.com/lakekeeper/console/compare/v0.32.0...v0.33.0) (2026-11-26)
 
 
